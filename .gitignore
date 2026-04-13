@@ -1,0 +1,17 @@
+.ipynb_checkpoints
+.vscode
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.development
+.env.test
+.env.production
+.venv
+seamless_local/local_working/audio/**
+seamless_local/local_working/checkpoints/**
+seamless_local/local_working/figures/**
+seamless_local/local_working/models/**
+seamless_local/local_working/fleurs_parquet/**
