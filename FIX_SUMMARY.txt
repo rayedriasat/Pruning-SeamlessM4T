@@ -1,0 +1,97 @@
+═══════════════════════════════════════════════════════════════════════════════
+  PHASE 7 TRAINING LOOP FIX - COMPLETE ✓
+═══════════════════════════════════════════════════════════════════════════════
+
+PROBLEM FIXED:
+  RuntimeError: The size of tensor a (67) must match the size of tensor b (533)
+
+ROOT CAUSE:
+  Speech encoder downsamples input (533 → 67 frames)
+  encoder_attention_mask had wrong length (533 instead of 67)
+
+SOLUTION APPLIED:
+  ✓ Updated Cell 105 in cse465v5-s2st-corrected.ipynb
+  ✓ Added all 4 required functions:
+    - prepare_s2tt_batch()
+    - prepare_unit_batch()
+    - compute_s2tt_loss()
+    - compute_t2u_loss() [FIXED]
+  ✓ Created backup: cse465v5-s2st-corrected.ipynb.backup
+
+═══════════════════════════════════════════════════════════════════════════════
+  NEXT STEPS FOR YOU
+═══════════════════════════════════════════════════════════════════════════════
+
+1. UPLOAD TO KAGGLE
+   → Download: cse465v5-s2st-corrected.ipynb
+   → Upload to Kaggle (File → Upload Notebook)
+   
+   OR copy-paste from: PHASE7_CELL8_COMPLETE_FIX.py
+
+2. RUN THE CELLS
+   → Cell 105 (Phase 7 Cell 8) - Load loss functions
+   → Cell 108 (Phase 7 Cell 9) - Start training
+
+3. VERIFY SUCCESS
+   Expected output:
+   ┌─────────────────────────────────────────────────────────────────────────┐
+   │ S2ST combined loss functions ready.                                     │
+   │   S2TT weight: 0.4  |  T2U weight: 0.6                                  │
+   │                                                                          │
+   │ Starting Phase 7 from scratch.                                          │
+   │ Step    50/2000  S2TT=2.3456  T2U=3.1234  t=0.5min                      │
+   │ Step   100/2000  S2TT=2.1234  T2U=2.9876  t=1.0min                      │
+   └─────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+  FILES CREATED
+═══════════════════════════════════════════════════════════════════════════════
+
+  📓 cse465v5-s2st-corrected.ipynb        [FIXED NOTEBOOK - USE THIS]
+  📓 cse465v5-s2st-corrected.ipynb.backup [BACKUP OF ORIGINAL]
+  
+  📄 PHASE7_CELL8_COMPLETE_FIX.py         [Complete fixed code]
+  📄 PHASE7_FIX_INSTRUCTIONS.md           [Detailed explanation]
+  📄 PHASE7_FIX_APPLIED.md                [What was done + troubleshooting]
+  📄 QUICK_START_GUIDE.md                 [Quick reference guide]
+  📄 FIX_SUMMARY.txt                      [This file]
+  
+  🔧 update_phase7_cell8.py               [Script that applied the fix]
+  🔧 verify_update.py                     [Verification script]
+
+═══════════════════════════════════════════════════════════════════════════════
+  KEY TECHNICAL CHANGE
+═══════════════════════════════════════════════════════════════════════════════
+
+  BEFORE (WRONG):
+    encoder_attention_mask = att  # Uses input length (533)
+
+  AFTER (CORRECT):
+    B, T_enc, H = enc_hidden.shape
+    encoder_attention_mask = torch.ones(
+        (B, T_enc), dtype=torch.long, device=enc_hidden.device
+    )  # Uses encoder output length (67)
+
+═══════════════════════════════════════════════════════════════════════════════
+  TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════════
+
+  ❌ Error: 'NoneType' object has no attribute 'sum'
+     → Already fixed in complete version
+  
+  ❌ Error: KeyError: 'units'
+     → Run Cell 103 (Phase 7 Cell 6) first
+  
+  ❌ Error: Out of memory
+     → Change BATCH_SIZE from 2 to 1 in Cell 108
+  
+  ❌ Training doesn't start
+     → Make sure Cell 105 was run first
+
+═══════════════════════════════════════════════════════════════════════════════
+
+READ THESE FOR MORE INFO:
+  → QUICK_START_GUIDE.md (fastest way to get started)
+  → PHASE7_FIX_APPLIED.md (complete documentation)
+
+═══════════════════════════════════════════════════════════════════════════════

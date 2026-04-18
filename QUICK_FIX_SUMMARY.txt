@@ -1,0 +1,41 @@
+═══════════════════════════════════════════════════════════════════════════════
+  PHASE 7 TRAINING LOOP FIX - Quick Reference
+═══════════════════════════════════════════════════════════════════════════════
+
+ERROR:
+  RuntimeError: The size of tensor a (67) must match the size of tensor b (533)
+
+CAUSE:
+  Speech encoder downsamples 533 → 67 frames
+  Attention mask used wrong length (533 instead of 67)
+
+FIX LOCATION:
+  Phase 7 Cell 8 → compute_t2u_loss function
+
+CRITICAL CHANGE:
+  Replace this:
+    encoder_attention_mask = att  # WRONG: input length
+  
+  With this:
+    B, T_enc, H = enc_hidden.shape
+    encoder_attention_mask = torch.ones(
+        (B, T_enc), dtype=torch.long, device=enc_hidden.device
+    )  # CORRECT: encoder output length
+
+COMPLETE FIXED FUNCTION:
+  See: fix_phase7_t2u_loss.py
+
+DETAILED INSTRUCTIONS:
+  See: PHASE7_FIX_INSTRUCTIONS.md
+
+QUICK STEPS:
+  1. Open your notebook
+  2. Find Phase 7 Cell 8 (loss functions)
+  3. Copy compute_t2u_loss from fix_phase7_t2u_loss.py
+  4. Replace the old function
+  5. Re-run Cell 8, then run Cell 9 (training loop)
+
+EXPECTED RESULT:
+  Training starts successfully with S2TT and T2U loss values
+
+═══════════════════════════════════════════════════════════════════════════════
