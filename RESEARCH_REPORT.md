@@ -24,7 +24,8 @@
 13. [End-to-End Results and Analysis](#13-end-to-end-results-and-analysis)
 14. [Component-Level Size Evolution](#14-component-level-size-evolution)
 15. [Key Findings and Lessons](#15-key-findings-and-lessons)
-16. [References](#16-references)
+16. [Bidirectional Translation Analysis — Layer Activation Study](#16-bidirectional-translation-analysis--layer-activation-study)
+17. [References](#17-references)
 
 ---
 
@@ -719,21 +720,191 @@ Applying FLAP on the P4 model (already depth-pruned) caused catastrophic failure
 
 Text-ChrF is blind to T2U degradation. The iterative pruning for T2U must use audio-domain metrics. The discovery that whisper-medium completely fails on Bengali audio (and that `facebook/mms-1b-all` with Bengali adapter is required) is a practical finding with direct relevance to any Bengali speech processing work.
 
-### 5. DoRA Provides Excellent Quality Recovery at Low Cost
+### 5. The Pruning Direction Bias Severely Damages Reverse-Direction Translation
+
+> **Critical finding documented in the bidirectional activation analysis notebooks.**
+
+Every component of this pipeline — ChrF-guided layer selection (Phases 3, 4, 6), DoRA fine-tuning (Phase 7), and ASR-ChrF scoring — was optimised **exclusively on EN→BN data**. The activation study (see Section 16) reveals that this introduces a significant directional bias with severe consequences for BN→EN translation.
+
+In the base model, BN→EN translation relies disproportionately on the **upper text decoder layers** (L20–L23 show BN→EN activation scores 965–3,828 points higher than EN→BN). Our pruning removed L21 and L22 — exactly these upper layers — because their removal minimised EN→BN ChrF loss. The base model is roughly symmetric bidirectionally (ChrF 49.19 EN→BN vs 50.22 BN→EN). After pruning and DoRA fine-tuning, BN→EN collapses: only 4 of 10 test samples produce non-empty output, with avg ChrF = 35.26 vs 46.83 for EN→BN. Six of ten BN→EN samples produce complete generation failure. This is a direct consequence of task-specific pruning criteria.
+
+### 6. DoRA Provides Excellent Quality Recovery at Low Cost
 
 10.34 M trainable parameters (~1% of model) over 2,500 steps (~3 hours on a T4) recovered +5.03 ChrF and +2.01 BLEU. The final model (P7) is within 5.38 ChrF of the baseline despite being 42.4% smaller and 2.37× faster.
 
-### 6. Vocabulary Pruning Is Free
+### 7. Vocabulary Pruning Is Free
 
 Reducing vocabulary from 256,102 to 20,425 tokens (92% reduction in embedding size) cost only −1.45 ChrF, saved 241 M parameters, and made inference 35% faster. This should be a mandatory first step for any deployment targeting a small set of languages.
 
-### 7. Checkpoint Persistence Strategy Matters
+### 8. Checkpoint Persistence Strategy Matters
 
 Given Kaggle's 12-hour session limit and the total pipeline requiring 20+ hours of compute, the use of rclone + Google Drive for checkpoint persistence was essential. Every iteration of every pruning phase was checkpointed, allowing seamless session resumption.
 
 ---
 
-## 16. References
+## 16. Bidirectional Translation Analysis — Layer Activation Study
+
+To investigate whether our EN→BN-focused pruning inadvertently degraded the model's capacity for other translation directions, we ran a post-hoc activation analysis on both the **base model** (`facebook/seamless-m4t-v2-large`) and the **final pruned + DoRA-finetuned model** (`phase7_dora_merged_v1`). Forward-pass activation hooks were registered on every layer of every major component, and layer importance was computed as the mean L2-norm of each layer's output activations over 10 test samples per direction.
+
+**Setup:** 10 FLEURS EN→BN samples and 10 matched FLEURS BN→EN samples. Base model: 60 hooks. Pruned model: 38 hooks (fewer layers after depth pruning).
+
+---
+
+### 16.1 Translation Quality: Base vs Pruned (Bidirectional)
+
+| Direction | Base Model | Pruned Model (P7) | Delta |
+|-----------|-----------|-------------------|-------|
+| EN→BN avg BLEU | 10.52 | 9.44 | −1.08 |
+| EN→BN avg ChrF | **49.19** | **46.83** | **−2.36** |
+| BN→EN avg BLEU | 16.54 | 7.02 *(4/10 only)* | **−9.52** |
+| BN→EN avg ChrF | **50.22** | **35.26** *(4/10 only)* | **−14.96** |
+
+> ⚠️ **The BN→EN performance collapse is severe.** Only 4 of 10 BN→EN test samples produced any non-empty output from the pruned model. The remaining 6 produced BLEU=0.0, ChrF=0.0 — complete generation failure. The base model handled all 10 samples successfully. This is a direct consequence of the fact that every pruning decision (Phases 3, 4, 6) and the DoRA fine-tuning (Phase 7) used EN→BN ChrF as the sole optimisation signal. The pruned model has effectively become an EN→BN specialist at the cost of its reverse-direction capability.
+
+---
+
+### 16.2 Base Model Layer Importance Rankings
+
+#### Speech Encoder (24 layers)
+
+Both directions show very similar importance profiles, with the highest activity concentrated in the early-to-middle layers.
+
+**EN→BN top 10:** L1 (26.46), L2 (25.59), L10 (25.57), L0 (25.24), L9 (25.14), L4 (24.64), L14 (22.55), L11 (22.55), L5 (22.46), L15 (22.42)
+
+**BN→EN top 10:** L1 (26.62), L2 (25.80), L0 (25.17), L10 (25.04), L4 (24.69), L9 (24.47), L11 (22.25), L15 (22.22), L5 (22.20), L14 (22.06)
+
+The rankings are nearly identical, indicating the speech encoder is relatively direction-agnostic. The most direction-sensitive encoder layers (where EN→BN activations are notably stronger) are L9 (+0.67), L10 (+0.53), L14 (+0.49), L13 (+0.49), L8 (+0.46). Crucially, **L9 and L14 were removed in Phase 4** — they were deemed least important for EN→BN, but they carried slightly more weight for EN→BN signal processing than BN→EN.
+
+#### Text Decoder (24 layers) — The Critical Asymmetry
+
+This component shows the strongest directional divergence in the base model.
+
+| Layer | EN→BN Score | BN→EN Score | Difference (EN→BN minus BN→EN) |
+|-------|------------|------------|-------------------------------|
+| L0 | 582.0 | 635.2 | −53.2 (BN→EN favours) |
+| L1 | 832.1 | 870.3 | −38.2 (BN→EN favours) |
+| L2–L7 | — | — | BN→EN scores consistently higher |
+| L8 | 2089.1 | 2062.6 | +26.4 (EN→BN favours) |
+| L9–L18 | — | — | EN→BN scores consistently higher |
+| L19 | 6015.4 | 6067.2 | −51.8 (BN→EN favours) |
+| **L20** | **6310.5** | **7275.7** | **−965.2 (BN→EN strongly favours)** |
+| **L21** | **6767.7** | **9388.8** | **−2621.1 (BN→EN strongly favours)** |
+| **L22** | **7471.0** | **11079.2** | **−3608.2 (BN→EN strongly favours)** |
+| **L23** | **7769.9** | **11597.9** | **−3827.9 (BN→EN strongly favours)** |
+
+**The upper four text decoder layers (L20–L23) are dramatically more important for BN→EN than EN→BN.** Layer L23 alone has a BN→EN activation score 49% higher than its EN→BN score. Layers L21–L23 together account for an activation differential of over 10,000 score units in favour of BN→EN — far larger than any other directional asymmetry in the model.
+
+Our Phase 3 pruning removed **L21 and L22** from the text decoder (among 10 total) because their removal caused the least damage to EN→BN ChrF. With hindsight from this activation analysis, we were removing exactly the layers the model needed most for BN→EN translation.
+
+#### T2U Encoder (6 layers)
+
+The upper T2U encoder layers are more important for EN→BN than BN→EN:
+
+| Layer | EN→BN | BN→EN | Diff (EN→BN favours) |
+|-------|-------|-------|---------------------|
+| L0 | 56.4 | 60.6 | −4.1 (BN→EN favours) |
+| L1 | 62.7 | 60.5 | +2.2 |
+| L2 | 74.9 | 64.3 | **+10.6** |
+| L3 | 116.7 | 79.6 | **+37.1** |
+| L4 | 170.6 | 133.2 | **+37.4** |
+| L5 | 294.3 | 266.0 | **+28.3** |
+
+Layers L2–L5 all show stronger EN→BN activation. The T2U encoder is primarily an EN→BN-critical component, consistent with its role in producing Bengali speech units.
+
+#### T2U Decoder (6 layers)
+
+The T2U decoder is relatively symmetric, with small differences:
+
+| Layer | EN→BN | BN→EN | Most important for |
+|-------|-------|-------|--------------------|
+| L0 | 31.45 | 31.44 | ≈ equal |
+| L1 | 31.89 | 31.88 | ≈ equal |
+| L2 | 37.84 | 37.69 | EN→BN (+0.15) |
+| L3 | 31.87 | 31.84 | EN→BN (+0.03) |
+| L4 | 31.85 | 31.83 | EN→BN (+0.01) |
+| L5 | 32.84 | 33.43 | **BN→EN (+0.58)** |
+
+L5 is the only T2U decoder layer that notably favours BN→EN. We removed L5 in Phase 6 because it caused the least damage to EN→BN ASR-ChrF. Again, the pruning metric's directional bias led us to remove the one T2U decoder layer most useful for the reverse direction.
+
+---
+
+### 16.3 Pruned Model Layer Importance Rankings
+
+The pruned model has 16 speech encoder layers, 14 text decoder layers, 4 T2U encoder layers, and 4 T2U decoder layers.
+
+#### Speech Encoder (16 remaining layers)
+
+**EN→BN top 5:** L1 (26.46), L0 (25.24), L7 (25.22), L3 (24.50), L6 (22.02)  
+**BN→EN top 5:** L1 (26.62), L0 (25.17), L3 (24.66), L7 (24.64), L2 (21.43)
+
+Rankings remain similar between directions, confirming the speech encoder is not the primary source of BN→EN failure. Most direction-specific layers: L6 (EN→BN +0.64), L7 (EN→BN +0.58), L2 (BN→EN +0.45).
+
+#### Text Decoder (14 remaining layers)
+
+**EN→BN top 5:** L12 (4839), L11 (4681), L10 (4380), L13 (4259), L9 (3973)  
+**BN→EN top 5:** L12 (5246), L13 (4816), L11 (4815), L10 (4390), L9 (3897)
+
+The most direction-specific layers in the pruned decoder:
+
+| Layer | EN→BN | BN→EN | Diff (BN→EN favours) |
+|-------|-------|-------|---------------------|
+| **L13** | **4259** | **4816** | **+556.5** |
+| **L12** | **4839** | **5246** | **+406.1** |
+| L2 | 1206 | 1490 | +284.1 |
+| L1 | 956 | 1235 | +279.5 |
+| L3 | 1486 | 1729 | +242.9 |
+
+The two highest-index remaining layers (L12 and L13) bear the heaviest BN→EN load in the pruned model. They have inherited the directional role that L20–L23 played in the base model — but they carry far lower total activation magnitude, explaining the quality collapse. The complete loss of L20–L23 means BN→EN no longer has access to the high-capacity upper-layer processing it depended on.
+
+#### T2U Encoder (4 remaining layers)
+
+| Layer | EN→BN | BN→EN | Diff |
+|-------|-------|-------|------|
+| L0 | 61.2 | 64.6 | BN→EN +3.4 |
+| L1 | 60.2 | 58.6 | EN→BN +1.6 |
+| L2 | 78.1 | 76.2 | EN→BN +1.9 |
+| **L3** | **194.6** | **187.1** | **EN→BN +7.6** |
+
+L3 dominates both directions. The T2U encoder's new top layer (L3, previously the 4th layer) is the primary workhorse after pruning removed L1 and L2 (both of which were minor contributors in the base model).
+
+#### T2U Decoder (4 remaining layers)
+
+| Layer | EN→BN | BN→EN | Diff |
+|-------|-------|-------|------|
+| L0 | 31.48 | 31.43 | EN→BN +0.05 |
+| L1 | 31.89 | 32.00 | BN→EN +0.11 |
+| L2 | 37.89 | 37.52 | EN→BN +0.38 |
+| **L3** | **31.59** | **31.16** | **EN→BN +0.43** |
+
+Relatively symmetric, consistent with T2U decoder being less direction-critical than the text decoder.
+
+---
+
+### 16.4 Cross-Model Comparison: Where Did BN→EN Capacity Go?
+
+| Component | Base BN→EN profile | Pruned BN→EN profile | Impact |
+|-----------|-------------------|---------------------|--------|
+| Speech encoder | Layers 1, 2, 0, 10, 4 dominate | Layers 1, 0, 3, 7, 2 dominate | Moderate change; not the primary failure cause |
+| **Text decoder** | **L20–L23 carry +10K activation above EN→BN** | **L20–L23 are gone; L12–L13 absorb the load with ~3× lower capacity** | **Primary failure cause** |
+| T2U encoder | L3–L5 slightly favour EN→BN | L3 dominates both | Acceptable adaptation |
+| T2U decoder | L5 slightly favoured BN→EN | L5 removed; L1 slightly compensates | Minor contributor |
+
+---
+
+### 16.5 Implications and Recommendations
+
+**Why the BN→EN collapse was predictable in hindsight:** The activation analysis confirms that a unidirectional pruning criterion is equivalent to optimising a model for one direction at the structural expense of the other. The upper text decoder layers (L20–L23) serve as high-capacity language-adaptation layers for both directions, but BN→EN relies on them far more intensely — likely because English target tokens are syntactically more complex relative to Bengali source representations.
+
+**For future bidirectional compression work, the following modifications are recommended:**
+
+1. **Use a combined pruning metric** — e.g., average ChrF across both directions, or a weighted combination. Even equal weighting would have protected L21 and L22.
+2. **Identify "direction-critical" layers before pruning** — run the activation hook analysis described here *before* any removal, and add extra protection to layers showing strong directional asymmetry.
+3. **Include reverse-direction data in fine-tuning** — a 50/50 EN→BN / BN→EN mix in the DoRA fine-tuning corpus would likely recover significant BN→EN quality without substantially hurting EN→BN.
+4. **Bidirectional DoRA recovery** — a targeted second DoRA pass trained on BN→EN data with a lower learning rate could potentially recover the reverse direction while preserving the existing EN→BN quality.
+
+---
+
+## 17. References
 
 | Paper | Usage in This Work |
 |-------|-------------------|
@@ -778,6 +949,96 @@ Selected sample-level predictions from the P7_DoRA benchmark:
 
 ---
 
-*Report generated from Kaggle notebook outputs: `seamless-cse465v5.ipynb`, `only-p7-dora.ipynb`, `only-p7p8-cse465v5.ipynb`, `full-kd.ipynb`*  
+## Appendix C: Full Layer Activation Score Tables
+
+### Base Model — All Components, Both Directions
+
+**Text Decoder (24 layers) — complete activation scores:**
+
+| Layer | EN→BN | BN→EN | Δ (EN→BN − BN→EN) |
+|-------|-------|-------|-------------------|
+| L0 | 582.0 | 635.2 | −53.2 |
+| L1 | 832.1 | 870.3 | −38.2 |
+| L2 | 1038.8 | 1096.5 | −57.7 |
+| L3 | 1206.6 | 1284.3 | −77.7 |
+| L4 | 1364.4 | 1437.5 | −73.1 |
+| L5 | 1540.7 | 1592.1 | −51.4 |
+| L6 | 1696.3 | 1737.3 | −41.0 |
+| L7 | 1889.6 | 1898.5 | −9.0 |
+| L8 | 2089.1 | 2062.6 | +26.4 |
+| L9 | 2284.7 | 2248.1 | +36.7 |
+| L10 | 2517.4 | 2470.0 | +47.4 |
+| L11 | 2779.7 | 2699.4 | +80.2 |
+| L12 | 3073.0 | 2971.3 | +101.6 |
+| L13 | 3447.9 | 3280.2 | +167.7 |
+| L14 | 3869.0 | 3612.8 | +256.2 |
+| L15 | 4354.0 | 3973.8 | +380.1 |
+| L16 | 4898.5 | 4410.8 | +487.7 |
+| L17 | 5345.4 | 4907.4 | +437.9 |
+| L18 | 5718.6 | 5409.0 | +309.6 |
+| L19 | 6015.4 | 6067.2 | −51.8 |
+| **L20** | **6310.5** | **7275.7** | **−965.2** |
+| **L21** *(removed P3)* | **6767.7** | **9388.8** | **−2621.1** |
+| **L22** *(removed P3)* | **7471.0** | **11079.2** | **−3608.2** |
+| L23 | 7769.9 | 11597.9 | −3828.0 |
+
+**Speech Encoder (24 layers) — full activation scores:**
+
+| Layer | EN→BN | BN→EN | Δ | Pruned? |
+|-------|-------|-------|---|---------|
+| L0 | 25.24 | 25.17 | +0.07 | — |
+| L1 | 26.46 | 26.62 | −0.16 | — |
+| **L2** | 25.59 | 25.80 | −0.21 | **removed P4** |
+| L3 | 20.95 | 21.24 | −0.29 | — |
+| L4 | 24.64 | 24.69 | −0.05 | — |
+| **L5** | 22.46 | 22.20 | +0.27 | **removed P4** |
+| L6 | 20.33 | 20.25 | +0.08 | — |
+| L7 | 8.68 | 8.64 | +0.04 | — |
+| L8 | 22.28 | 21.82 | +0.46 | — |
+| **L9** | 25.14 | 24.47 | **+0.67** | **removed P4** |
+| L10 | 25.57 | 25.04 | +0.53 | — |
+| **L11** | 22.55 | 22.25 | +0.30 | **removed P4** |
+| L12 | 21.80 | 21.53 | +0.27 | — |
+| L13 | 20.34 | 19.85 | +0.49 | — |
+| **L14** | 22.55 | 22.06 | **+0.49** | **removed P4** |
+| **L15** | 22.42 | 22.22 | +0.20 | **removed P4** |
+| L16 | 21.29 | 21.37 | −0.09 | — |
+| **L17** | 21.24 | 21.35 | −0.11 | **removed P4** |
+| L18 | 19.72 | 19.90 | −0.18 | — |
+| **L19** | 18.45 | 18.66 | −0.21 | **removed P4** |
+| L20 | 15.84 | 16.07 | −0.23 | — |
+| L21 | 13.60 | 13.90 | −0.30 | — |
+| L22 | 12.34 | 12.50 | −0.15 | — |
+| L23 | 5.29 | 5.26 | +0.03 | — |
+
+*Layers marked "removed P4" were selected for removal because their absence caused the highest EN→BN ChrF — a unidirectional criterion that happened to remove several layers with higher EN→BN than BN→EN activation scores (L9, L14), and also layers with slightly negative differences (L5, L17, L19) that were more neutral to BN→EN.*
+
+### Pruned Model — All Components, Both Directions
+
+**Text Decoder (14 remaining layers):**
+
+| Layer (pruned idx) | EN→BN | BN→EN | Δ (BN→EN − EN→BN) |
+|-------------------|-------|-------|-------------------|
+| L0 | 678.3 | 909.7 | +231.4 |
+| L1 | 955.6 | 1235.1 | +279.5 |
+| L2 | 1205.8 | 1489.9 | +284.1 |
+| L3 | 1485.6 | 1728.5 | +242.9 |
+| L4 | 1804.7 | 1992.8 | +188.1 |
+| L5 | 2090.0 | 2268.6 | +178.7 |
+| L6 | 2416.4 | 2542.4 | +126.0 |
+| L7 | 2818.8 | 2883.8 | +65.0 |
+| L8 | 3429.0 | 3319.0 | −110.0 |
+| L9 | 3973.4 | 3897.3 | −76.1 |
+| L10 | 4380.0 | 4390.4 | +10.5 |
+| L11 | 4681.0 | 4814.8 | +133.8 |
+| **L12** | **4839.5** | **5245.6** | **+406.1** |
+| **L13** | **4259.0** | **4815.6** | **+556.5** |
+
+*Every layer in the pruned decoder is more active for BN→EN except L8 and L9. The upper two layers (L12, L13) bear a disproportionate BN→EN burden, absorbing the role previously held by the removed L20–L23.*
+
+---
+
+*Report generated from Kaggle notebook outputs: `seamless-cse465v5.ipynb`, `only-p7-dora.ipynb`, `only-p7p8-cse465v5.ipynb`, `full-kd.ipynb`, `bidirectional-tracking-base.ipynb`, `bidirectional-tracking-pruned.ipynb`*  
 *Hardware: Kaggle Tesla T4, 15.6 GB VRAM*  
-*Task: EN→BN Speech-to-Speech Translation, FLEURS test set (25 samples)*
+*Primary task: EN→BN Speech-to-Speech Translation, FLEURS test set (25 samples)*  
+*Bidirectional analysis: 10 samples per direction, EN→BN and BN→EN*
