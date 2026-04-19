@@ -1,0 +1,59 @@
+=== Extracted from seamless-cse465v5.ipynb ===
+
+
+--- Cell 4 ---
+Source: # Mount Google Drive ù only needed on Colab.
+# On Kaggle, rclone handles the remote; skip this cell entirely there.
+if ON_COLAB:
+    from google.colab import drive
+    drive.mount('/content/drive')
+  
+Output: Kaggle: skipping Drive mount.
+
+--------------------------------------------------------------------------------
+
+--- Cell 5 ---
+Source: for d in [WORK_DIR, CKPT_DIR, AUDIO_DIR, FIG_DIR, MODEL_DIR]:
+    os.makedirs(d, exist_ok=True)
+
+print(f'Platform : {PLATFORM}')
+print(f'Work dir : {WORK_DIR}')
+print(f'Checkpts : {CKPT_DIR}')
+Output: Platform : kaggle
+Work dir : /kaggle/working
+Checkpts : /kaggle/working/checkpoints
+
+--------------------------------------------------------------------------------
+
+--- Cell 6 ---
+Source: # rclone is only needed on Kaggle. On Colab we use the mounted Drive directly.
+if ON_KAGGLE:
+    subprocess.run('curl -s https://rclone.org/install.sh | sudo bash',
+                   shell=True, capt
+Output: rclone v1.73.4
+
+--------------------------------------------------------------------------------
+
+--- Cell 7 ---
+Source: def _get_secret(key):
+    """Fetch a secret from Kaggle Secrets or Colab userdata."""
+    if ON_KAGGLE:
+        try:
+            from kaggle_secrets import UserSecretsClient
+            return UserSec
+Output: Drive root:
+           0 2026-04-11 05:42:37        -1 .ipynb_checkpoints
+           0 2026-04-17 11:03:10        -1 Colab Notebooks
+           0 2025-11-10 11:33:43        -1 ScholarMate
+           0 2026-04-05 12:59:09        -1 cse465
+           0 2026-04-12 12:42:04        -1 cse465v5
+           0 2026-04-1
+
+--------------------------------------------------------------------------------
+
+--- Cell 10 ---
+Source: subprocess.run([
+    'pip', 'install', '-q',
+    'transformers', 'datasets', 'torchaudio', 'speechbrain',
+    'peft', 'librosa', 'jiwer', 'evaluate', 'sacrebleu',
+    'sentencepiece', 'accelerate', 'm

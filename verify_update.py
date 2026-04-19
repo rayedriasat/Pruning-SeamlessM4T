@@ -1,23 +1,58 @@
 #!/usr/bin/env python3
-"""Verify the notebook update was successful."""
+"""Verify the notebook was updated correctly"""
 
 import json
 
-with open('cse465v5-s2st-corrected.ipynb', 'r', encoding='utf-8') as f:
+with open('full-kd.ipynb', 'r', encoding='utf-8') as f:
     nb = json.load(f)
 
-source = ''.join(nb['cells'][105]['source'])
+# Check Phase 8 Cell 1 (should have Full Model KD code)
+for i, cell in enumerate(nb['cells']):
+    if cell['cell_type'] == 'markdown':
+        source = ''.join(cell['source'])
+        if '## Phase 8 — Cell 1:' in source:
+            code_cell = nb['cells'][i+1]
+            code = ''.join(code_cell['source'])
+            print('Phase 8 Cell 1 preview (first 500 chars):')
+            print(code[:500])
+            print('...\n')
+            print('Checking for Full KD markers:')
+            markers = [
+                ('FULL MODEL KNOWLEDGE DISTILLATION', 'FULL MODEL KNOWLEDGE DISTILLATION' in code),
+                ('ALL Parameters Trainable', 'ALL Parameters Trainable' in code),
+                ('trainable_params', 'trainable_params' in code),
+                ('model_p8_student.train()', 'model_p8_student.train()' in code),
+            ]
+            for marker, found in markers:
+                status = '✓' if found else '✗'
+                print(f'  {status} Contains "{marker}": {found}')
+            break
 
-print('Cell 105 now contains:')
-print('- prepare_s2tt_batch:', 'def prepare_s2tt_batch' in source)
-print('- prepare_unit_batch:', 'def prepare_unit_batch' in source)
-print('- compute_s2tt_loss:', 'def compute_s2tt_loss' in source)
-print('- compute_t2u_loss:', 'def compute_t2u_loss' in source)
-print('- S2TT_WEIGHT:', 'S2TT_WEIGHT' in source)
-print('- T2U_WEIGHT:', 'T2U_WEIGHT' in source)
-print('- encoder_attention_mask fix:', 'encoder_attention_mask = torch.ones' in source)
+# Check benchmark cell
+print('\n' + '='*60)
+for i, cell in enumerate(nb['cells']):
+    if cell['cell_type'] == 'code':
+        source = ''.join(cell['source'])
+        if 'Phase 8 Benchmark Cell 2' in source:
+            print('Benchmark Cell 2 - Model name check:')
+            has_new = 'phase8_full_kd' in source
+            has_old = "'phase8_kd'" in source
+            print(f'  {"✓" if has_new else "✗"} Contains phase8_full_kd: {has_new}')
+            print(f'  {"✓" if not has_old else "✗"} Old phase8_kd removed: {not has_old}')
+            break
 
-print('\nFirst 500 chars:')
-print(source[:500])
+# Check main header
+print('\n' + '='*60)
+for i, cell in enumerate(nb['cells']):
+    if cell['cell_type'] == 'markdown':
+        source = ''.join(cell['source'])
+        if 'Phase 8:' in source and 'Knowledge Distillation' in source:
+            print('Phase 8 Main Header:')
+            if 'Full Model Knowledge Distillation' in source:
+                print('  ✓ Updated to "Full Model Knowledge Distillation"')
+            else:
+                print('  ✗ Still shows old title')
+            break
 
-print('\n✓ All required functions are present in Cell 105!')
+print('\n' + '='*60)
+print('Verification complete!')

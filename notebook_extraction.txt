@@ -1,0 +1,123 @@
+
+================================================================================
+NOTEBOOK: seamless-cse465v5.ipynb
+================================================================================
+
+--- PHASE STRUCTURE ---
+
+Cell 27:
+---
+# Phase 0: Baseline Benchmark
+Load the full teacher model, measure size and translation quality.
+----------------------------------------
+
+Cell 30:
+---
+# Phase 1: Vocabulary / Embedding Pruning
+**Paper:** Asahi et al. (EMNLP 2023)
+
+NLLB vocabulary has **256,102 tokens** for ~100 languages.
+----------------------------------------
+
+Cell 36:
+---
+# Phase 2: Text Encoder Removal
+# Actually it was never in the first place, we never loaded the textEncoder as we are using
+# from transformers import SeamlessM4Tv2ForSpeechToSpeech
+For S2S, the pipeline is: Speech Encoder -> Text Decoder -> T2U -> Vocoder.
+----------------------------------------
+
+Cell 40:
+---
+# Phase 3: Text Decoder Iterative Layer Pruning
+**Paper:** Moslem (IWSLT 2025), CULL-MT (2024)
+
+Iterative greedy pruning: remove one layer at a time, evaluate ChrF, repeat.
+----------------------------------------
+
+Cell 53:
+---
+# Phase 4: Speech Encoder Iterative Layer Pruning
+**Paper:** ShortGPT (ACL 2025) for Block Influence; Moslem (IWSLT 2025) for iterative greedy
+
+Target: remove 6-8 of 24 speech encoder layers.
+----------------------------------------
+
+Cell 64:
+---
+# Phase 5: Width Pruning (FLAP)
+**Paper:** FLAP (AAAI 2024)
+
+Structurally remove FFN neurons (shrink weight matrices). Creates smaller dense
+----------------------------------------
+
+Cell 84:
+---
+# Phase 6: T2U Model Pruning
+Apply middle-layer removal to T2U transformer stacks (2-3 layers per stack).
+----------------------------------------
+
+Cell 93:
+---
+# Phase 7: Recovery Fine-tuning ù S2ST Focused
+**Papers:** Moslem (IWSLT 2025) + DoRA (Liu et al., ICML 2024 Oral)
+
+**Why this replaces the old S2TT-only approach:**
+----------------------------------------
+
+--- BENCHMARK TABLES ---
+
+Cell 0:
+# SeamlessM4T v2 Large: Structured Compression 2.3B to ~1B
+
+## Compression Pipeline
+| Phase | Technique | Paper | Expected |
+|-------|-----------|-------|----------|
+| 0 | Baseline benchmark | - | reference |
+| 1 | Vocabulary/Embedding pruning | Asahi (EMNLP 2023) | -200M |
+| 2 | Text encoder removal (S2S-only) | Architecture analysis | -350M |
+| 3 | Text decoder iterative layer pruning | Moslem (IWSLT 2025) | -150M |
+| 4 | Speech encoder iterative layer pruning | ShortGPT (ACL 2025) | -150M |
+|
+----------------------------------------
+
+================================================================================
+NOTEBOOK: only-p7-dora.ipynb
+================================================================================
+
+--- PHASE STRUCTURE ---
+
+Cell 25:
+---
+# Phase 0: Baseline Benchmark
+Load the full teacher model, measure size and translation quality.
+----------------------------------------
+
+Cell 30:
+---
+# Phase 7: Recovery Fine-tuning with DoRA
+**Paper:** DoRA (Liu et al., ICML 2024 Oral)
+
+Fine-tune using S2TT cross-entropy loss + DoRA for memory-efficient recovery of pruned model quality.
+----------------------------------------
+
+Cell 38:
+---
+# Phase 8: Final Results + Paper Table
+----------------------------------------
+
+--- BENCHMARK TABLES ---
+
+Cell 0:
+# SeamlessM4T v2 Large: Structured Compression 2.3B to ~1B
+
+## Compression Pipeline
+| Phase | Technique | Paper | Expected |
+|-------|-----------|-------|----------|
+| 0 | Baseline benchmark | - | reference |
+| 1 | Vocabulary/Embedding pruning | Asahi (EMNLP 2023) | -200M |
+| 2 | Text encoder removal (S2S-only) | Architecture analysis | -350M |
+| 3 | Text decoder iterative layer pruning | Moslem (IWSLT 2025) | -150M |
+| 4 | Speech encoder iterative layer pruning | ShortGPT (ACL 2025) | -150M |
+|
+----------------------------------------
