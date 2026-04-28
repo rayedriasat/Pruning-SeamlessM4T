@@ -1,117 +1,175 @@
-# Phase 6 Recovery Plan for `phase5_dec_14L`: DoRA + Source-Grounded KD
+# Phase 6 Recovery Plan for `phase5_dec_14L`: LoRA-First + Native T2U Recovery
 
 This plan is written against the actual module structure in `AAA/modeling_seamless_m4t_v2.py`.
-It avoids the broken assumptions in the current Phase 6 cells of `AAA/pragmata-recovery.ipynb`.
+It replaces the current DoRA-first idea with the most reliable recovery path for this architecture and Kaggle's 2xT4 limit.
+
+Short answer:
+
+- DoRA is **not** a bad method in general.
+- But for **this** model and **this** bottleneck, DoRA is **not** the best primary strategy.
+- The best fail-proof strategy here is:
+  - **LoRA** on the standard linear-heavy text path (`speech_encoder + text_decoder`)
+  - **native full fine-tuning of `t2u_model`** for audio recovery
+  - **teacher caching**
+  - **strict 2-GPU separation**
+  - **duration-aware T2U KD**
+
+That is the plan below.
 
 ## 1. Hard facts from the saved model file
 
 These are the facts we must code around:
 
 1. `SeamlessM4Tv2ForSpeechToSpeech.forward()` does **not** train `t2u_model`.
-   - See `AAA/modeling_seamless_m4t_v2.py` around the warning in the S2S `forward()`.
-   - The top-level `forward()` only computes the text loss from `speech_encoder -> text_decoder -> lm_head`.
+   - In the saved file, the top-level `forward()` computes the text loss from:
+     - `speech_encoder -> text_decoder -> lm_head`
    - Therefore `outputs.t2u_loss` does not exist in the standard HF forward path.
 
 2. T2U is explicitly treated as **non auto-regressive** in generation.
-   - See the comment near the T2U path in `generate()`: "The text-to-unit model is non auto-regressive."
-   - This is why T2U cannot be trained like a normal autoregressive decoder.
+   - The source file says the text-to-unit model is non auto-regressive.
+   - Therefore T2U should not be trained like a normal autoregressive decoder.
 
-3. The current Phase 6 notebook targets several wrong module names:
+3. The current notebook targets wrong module names.
    - Wrong: `text_decoder.layers.*.encoder_attn.*`
    - Correct in this file: `text_decoder.layers.*.cross_attention.*`
    - Wrong: `t2u_model.model.decoder.layers.*.fc1/fc2`
-   - Correct: the T2U decoder layer has `self_attn`, `conv1`, `conv2`, no FFN block.
+   - Correct: the T2U decoder layer has:
+     - `self_attn`
+     - `conv1`
+     - `conv2`
+     - plus a decoder-level `duration_predictor`
 
-4. The T2U decoder has an internal duration predictor and predicts output length before CE loss.
-   - `SeamlessM4Tv2TextToUnitDecoder.forward()`:
-     - upsamples by `char_count_per_id`
-     - runs `duration_predictor`
-     - builds `dur_out`
-     - upsamples again
-     - then produces unit logits
-   - So naive `labels=teacher_unit_ids` is unstable unless the student-predicted length already matches the label length.
+4. The T2U decoder predicts output length before unit CE is computed.
+   - It upsamples using `char_count_per_id`
+   - predicts durations
+   - upsamples again
+   - then produces unit logits
+   - So naive `labels=teacher_unit_ids` is unstable if student length and teacher length differ.
 
 5. There is a source bug if `output_attentions=True` in the T2U decoder path.
-   - `SeamlessM4Tv2TextToUnitDecoderLayer.forward()` returns `(hidden_states, self_attn_weights)`.
-   - `SeamlessM4Tv2TextToUnitDecoder.forward()` tries to read `layer_outputs[2]`.
-   - Keep `output_attentions=False` for T2U training unless you patch the file first.
+   - `SeamlessM4Tv2TextToUnitDecoderLayer.forward()` returns `(hidden_states, self_attn_weights)`
+   - `SeamlessM4Tv2TextToUnitDecoder.forward()` tries to read `layer_outputs[2]`
+   - So keep `output_attentions=False` for T2U training unless you patch the source.
+
+6. Kaggle T4 should be treated as an FP16 training target.
+   - Do not build the plan around BF16.
 
 ## 2. Why the current Phase 6 notebook fails
 
-The current Phase 6 cells are wrong for structural reasons, not just tuning reasons:
+The current Phase 6 cells are structurally wrong:
 
-1. Stage A feeds `speech_encoder(...).last_hidden_state` directly into `t2u_model(...)`.
-   - That is not how this model is wired.
+1. They feed `speech_encoder(...).last_hidden_state` directly into `t2u_model(...)`.
+   - That is not the real T2U path in this model.
    - The real path is:
      - `speech_encoder`
      - `text_decoder` forced on text tokens
      - text-decoder hidden states become `t2u_model.inputs_embeds`
      - `char_input_ids` and `char_count_per_id` must also be built
 
-2. Stages B and C expect `outputs.t2u_loss` from the top-level S2S forward.
+2. They expect `outputs.t2u_loss` from the top-level S2S forward.
    - That loss is not produced by the source file.
 
-3. The LoRA target names in the notebook do not match the saved file.
-   - `encoder_attn` should be `cross_attention`
-   - T2U decoder `fc1/fc2` do not exist
+3. They use adapter target names that do not match the saved file.
 
-4. The notebook uses `torch.cuda.amp.autocast(dtype=torch.bfloat16)`.
-   - Kaggle T4 should be run in `float16`, not `bfloat16`.
+4. They use `bfloat16` autocast on T4.
 
-## 3. DoRA constraints that matter here
+## 3. Should we use DoRA or LoRA?
 
-PEFT DoRA is still configured through `LoraConfig(..., use_dora=True)`.
+### Decision
 
-Important limitation from the PEFT docs:
+Use **LoRA instead of DoRA** as the primary recovery method.
 
-- DoRA supports linear layers (and newer PEFT versions add more, but we should not rely on Conv1d support here).
-- In the `peft>=0.10.0` range used by the notebook, do **not** assume Conv1d DoRA support.
-- Therefore:
-  - target `nn.Linear` modules
-  - do **not** target T2U `conv1/conv2`
-  - do **not** target speech encoder `conv_module.*`
+### Why
 
-Because DoRA adds more overhead than plain LoRA, the plan below uses smaller ranks than the old LoRA plan.
+This is the architecture-aware reason:
 
-## 4. Recommended recovery strategy
+1. DoRA is best when the important trainable surface is mostly supported linear layers.
+2. Your hardest recovery problem is **T2U**, not just the text path.
+3. The most important T2U-specific modules are not mainly the easy DoRA targets:
+   - `conv1`
+   - `conv2`
+   - `duration_predictor.conv1`
+   - `duration_predictor.conv2`
+   - `duration_predictor.proj`
+   - `pos_emb_alpha_char`
+   - `pos_emb_alpha`
+4. PEFT docs say DoRA supports embedding, linear, and Conv2d layers, and adds more overhead than plain LoRA.
+5. Your T2U decoder uses **Conv1d**, not Conv2d.
+6. Therefore a DoRA-first plan leaves the most T2U-specific recovery pieces outside its best coverage zone, while also spending more VRAM and runtime.
 
-Do **not** use the old 3-stage LoRA plan as written.
-It is partly redundant and partly impossible with this HF forward path.
+### Practical conclusion
 
-Recommended structure:
+For this model:
 
-1. Phase 6A: offline teacher cache
-2. Phase 6B: DoRA text-path recovery (`speech_encoder + text_decoder`)
-3. Phase 6C: composite recovery (`speech_encoder + text_decoder + T2U`) with custom T2U KD
-4. Phase 6D: optional short low-LR polish
+- **LoRA** is the better adapter method for the speech/text path.
+- **Native full-parameter T2U tuning** is the better recovery method for the audio path.
 
-This is still staged, but it is staged for architectural reasons, not just habit.
+### What DoRA is still good for
 
-### Is one-stage fine-tuning better?
+DoRA is still a reasonable **optional follow-up experiment** on the text path only, after a working LoRA pipeline exists.
 
-Not as the first implementation.
+It is just not the best **first** or **main** recovery strategy here.
 
-A single composite stage is possible only **after**:
+## 4. Final recommended strategy
 
-- the teacher cache is correct
-- the T2U helper path is correct
-- the exact target modules are verified
+Use this 4-part recovery path:
 
-For the notebook, the best first pass is:
+1. **Phase 6A - Offline teacher cache**
+   - Cache teacher text sequences
+   - Cache teacher decoded text
+   - Cache teacher unit sequences
+   - Cache audio duration and sanity metadata
 
-- a short text-path recovery stage
-- then a custom composite stage that includes T2U KD
+2. **Phase 6B - Text-path recovery with LoRA**
+   - Train `text_decoder` first
+   - Then train `speech_encoder + text_decoder`
+   - Goal: restore S2TT quality and stabilize the hidden states that feed T2U
 
-That is simpler and safer than a monolithic "train everything from step 1" run.
+3. **Phase 6C - Native T2U recovery**
+   - Freeze speech encoder and text path
+   - Train the **entire `t2u_model` natively**
+   - Use the correct forced text-decoder hidden-state path
+   - Use teacher T2U KD and length supervision
 
-## 5. Exact DoRA target modules from `AAA/modeling_seamless_m4t_v2.py`
+4. **Phase 6D - Optional short joint polish**
+   - Unfreeze only:
+     - `text_decoder` LoRA
+     - full `t2u_model`
+   - Keep `speech_encoder` frozen
+   - Very low LR
 
-Build targets dynamically from the loaded student model.
-Do not hardcode layer counts from memory.
+This is the best mix of:
 
-### 5.1 Strict dotted-path resolver
+- maximum recovery
+- architectural correctness
+- low OOM risk
+- notebook implementation simplicity
+
+## 5. What we are not doing
+
+We are **not** using these as the main plan:
+
+1. Pure DoRA everywhere
+2. Pure end-to-end full-model KD from the start
+3. T2U adapter-only recovery
+4. A single giant monolithic stage
+
+Reasons:
+
+- too much VRAM pressure
+- bad fit for Conv1d-heavy T2U recovery
+- harder to debug
+- too many failure points at once
+
+## 6. Exact LoRA target modules from the saved file
+
+Use explicit, source-validated targets.
+Do not guess names and do not rely on broad wildcard strings without validation.
+
+### 6.1 Strict dotted-path resolver
 
 ```python
+import torch
 import torch.nn as nn
 
 def get_submodule_strict(root, dotted_name: str):
@@ -133,15 +191,23 @@ def assert_linear_targets_exist(model, target_names):
             bad.append((name, type(mod).__name__))
     if bad:
         msg = "\n".join([f"{n} -> {t}" for n, t in bad])
-        raise TypeError(f"Non-linear DoRA targets found:\n{msg}")
+        raise TypeError(f"Non-linear LoRA targets found:\n{msg}")
 ```
 
-### 5.2 Speech encoder DoRA targets
+### 6.2 Speech encoder LoRA targets
 
-Use these exact names:
+From `AAA/modeling_seamless_m4t_v2.py`, the speech encoder is:
+
+- `feature_projection.projection`
+- `intermediate_ffn.intermediate_dense`
+- `intermediate_ffn.output_dense`
+- conformer layers with:
+  - `self_attn.linear_q/k/v/out`
+  - `ffn1.intermediate_dense/output_dense`
+  - `ffn2.intermediate_dense/output_dense`
 
 ```python
-def build_speech_encoder_dora_targets(model_student):
+def build_speech_encoder_lora_targets(model_student):
     n = len(model_student.speech_encoder.encoder.layers)
     targets = [
         "feature_projection.projection",
@@ -166,15 +232,19 @@ def build_speech_encoder_dora_targets(model_student):
 
 Do **not** target:
 
-- `encoder.layers.*.conv_module.*`
-- `adapter.*` Conv1d paths
+- `conv_module.*`
+- adapter Conv1d blocks
 
-### 5.3 Text decoder DoRA targets
+### 6.3 Text decoder LoRA targets
 
-Use these exact names:
+From the saved file:
+
+- `self_attn.q_proj/k_proj/v_proj/out_proj`
+- `cross_attention.q_proj/k_proj/v_proj/out_proj`
+- `ffn.fc1/fc2`
 
 ```python
-def build_text_decoder_dora_targets(model_student):
+def build_text_decoder_lora_targets(model_student):
     n = len(model_student.text_decoder.layers)
     targets = []
     for i in range(n):
@@ -195,135 +265,172 @@ def build_text_decoder_dora_targets(model_student):
     return targets
 ```
 
-Do **not** use `encoder_attn.*`. This file uses `cross_attention.*`.
+Do **not** use `encoder_attn.*`.
+This file uses `cross_attention.*`.
 
-### 5.4 T2U encoder DoRA targets
+## 7. LoRA config that matches the use case
 
-The T2U encoder is a standard `SeamlessM4Tv2Encoder` without input embeddings.
+Use LoRA with rsLoRA.
+Do not start at tiny rank if recovery is the goal and VRAM allows more.
 
-```python
-def build_t2u_encoder_dora_targets(model_student):
-    enc = model_student.t2u_model.model.encoder
-    n = len(enc.layers)
-    targets = []
-    for i in range(n):
-        prefix = f"layers.{i}"
-        targets += [
-            f"{prefix}.self_attn.q_proj",
-            f"{prefix}.self_attn.k_proj",
-            f"{prefix}.self_attn.v_proj",
-            f"{prefix}.self_attn.out_proj",
-            f"{prefix}.ffn.fc1",
-            f"{prefix}.ffn.fc2",
-        ]
-    assert_linear_targets_exist(enc, targets)
-    return targets
-```
-
-### 5.5 T2U decoder DoRA targets
-
-The T2U decoder layer is **not** a normal FFN decoder.
-It has:
-
-- `self_attn`
-- `conv1`
-- `conv2`
-- `duration_predictor`
-
-DoRA-safe targets:
-
-```python
-def build_t2u_decoder_dora_targets(model_student):
-    dec = model_student.t2u_model.model.decoder
-    n = len(dec.layers)
-    targets = []
-    for i in range(n):
-        prefix = f"layers.{i}"
-        targets += [
-            f"{prefix}.self_attn.q_proj",
-            f"{prefix}.self_attn.k_proj",
-            f"{prefix}.self_attn.v_proj",
-            f"{prefix}.self_attn.out_proj",
-        ]
-    # Small but useful linear duration head
-    targets += ["duration_predictor.proj"]
-    assert_linear_targets_exist(dec, targets)
-    return targets
-```
-
-Do **not** target:
-
-- `layers.*.fc1`
-- `layers.*.fc2`
-- `layers.*.conv1`
-- `layers.*.conv2`
-
-For the T2U decoder, also allow these native parameters to train directly:
-
-```python
-T2U_NATIVE_TRAINABLE = [
-    "pos_emb_alpha_char",
-    "pos_emb_alpha",
-]
-```
-
-## 6. Recommended DoRA configs
-
-Because DoRA helps more at low rank than LoRA, start smaller than the old LoRA plan.
+Recommended starting configs:
 
 ```python
 from peft import LoraConfig
 
-def make_dora_config(target_modules, r, alpha):
+def make_lora_config(target_modules, r, alpha, dropout=0.05):
     return LoraConfig(
         target_modules=target_modules,
         r=r,
         lora_alpha=alpha,
-        lora_dropout=0.0,   # deliberate: lower overhead, PEFT DoRA fast path
+        lora_dropout=dropout,
         bias="none",
-        use_dora=True,
         use_rslora=True,
     )
 
-speech_dora_cfg = make_dora_config(
-    build_speech_encoder_dora_targets(model_student), r=16, alpha=32
+speech_lora_cfg = make_lora_config(
+    build_speech_encoder_lora_targets(model_student),
+    r=16,
+    alpha=32,
 )
-text_dora_cfg = make_dora_config(
-    build_text_decoder_dora_targets(model_student), r=16, alpha=32
-)
-t2u_enc_dora_cfg = make_dora_config(
-    build_t2u_encoder_dora_targets(model_student), r=16, alpha=32
-)
-t2u_dec_dora_cfg = make_dora_config(
-    build_t2u_decoder_dora_targets(model_student), r=8, alpha=16
+
+text_lora_cfg = make_lora_config(
+    build_text_decoder_lora_targets(model_student),
+    r=32,
+    alpha=64,
 )
 ```
 
-Notes:
+Why this split:
 
-- `r=16` is the recommended default for the text path.
-- `r=8` is enough for the T2U decoder because only a small linear subset is DoRA-compatible.
-- If GPU0 stays below ~14 GB after 100 steady-state steps, you can retry text/speech at `r=24`.
-- Do **not** start at `r=32` or `r=64` on T4 for DoRA.
+- speech encoder is large and expensive, so keep it lower-rank
+- text decoder is the most important linear-heavy recovery path, so give it higher rank
 
-## 7. Kaggle device plan (2 x T4, 16 GB each)
+If stable after 100-150 steps:
 
-Use both GPUs, but do not split the student across them.
+- you may raise speech rank to `24`
+- keep text rank `32`
 
-Recommended placement:
+Do **not** start at:
+
+- text rank `64`
+- speech rank `32+`
+
+on the first Kaggle run.
+
+## 8. T2U strategy: full native fine-tuning
+
+This is the key change.
+
+Do **not** adapterize T2U as the main plan.
+Train `model_student.t2u_model` directly.
+
+### Why full native T2U is better here
+
+Because the T2U recovery path depends on:
+
+- Conv1d decoder blocks
+- duration predictor
+- output-length behavior
+- decoder scalar position parameters
+
+Those are exactly the parts you do not want to miss.
+
+### Primary T2U trainable surface
+
+Train the **entire** `t2u_model`:
+
+- `t2u_model.model.encoder.*`
+- `t2u_model.model.decoder.*`
+- `t2u_model.lm_head`
+
+### Freeze rule for Phase 6C
+
+During T2U recovery:
+
+- freeze `speech_encoder`
+- freeze `text_decoder`
+- freeze `lm_head` of the top-level S2S model
+- train only `t2u_model`
+
+That keeps memory under control and makes the T2U stage easier to stabilize.
+
+### Fallback if T2U full tuning still OOMs
+
+If full `t2u_model` fine-tuning still OOMs after:
+
+- micro-batch `1`
+- grad accumulation `8`
+- short-audio cap
+- gradient checkpointing
+
+then fall back to this exact subset:
+
+```python
+def mark_t2u_selective_trainable(model_student):
+    for p in model_student.parameters():
+        p.requires_grad_(False)
+
+    t2u = model_student.t2u_model
+
+    for name, p in t2u.named_parameters():
+        if (
+            name.startswith("model.decoder.layers.") or
+            name.startswith("model.decoder.duration_predictor.") or
+            name in {
+                "model.decoder.pos_emb_alpha_char",
+                "model.decoder.pos_emb_alpha",
+                "lm_head.weight",
+            }
+        ):
+            p.requires_grad_(True)
+```
+
+That fallback still covers the most T2U-specific recovery parts.
+
+## 9. Kaggle 2-GPU memory plan
+
+Use both GPUs deliberately.
+Do not let both heavy models drift onto `cuda:0`.
+
+### Placement
 
 ```python
 student_device = torch.device("cuda:0")
 teacher_device = torch.device("cuda:1" if torch.cuda.device_count() > 1 else "cuda:0")
 ```
 
-Rules:
+### Device policy
 
-1. Student training stays on `cuda:0`
-2. Teacher cache generation or teacher T2U KD runs on `cuda:1`
-3. Do **not** call the notebook helper that forces both models onto `cuda:0`
+1. Student always on `cuda:0`
+2. Teacher always on `cuda:1`
+3. Teacher cache stored on CPU RAM or disk
+4. MMS / Whisper / extra ASR models must be unloaded before finetuning
 
-Also set:
+### Memory budget target
+
+Aim for:
+
+- GPU0 steady-state training memory: `<= 13.5 GB`
+- GPU1 teacher memory: `<= 13.5 GB`
+
+That leaves headroom for:
+
+- fragmentation
+- peak activation spikes
+- checkpointing overhead
+
+### Mixed precision
+
+Use:
+
+```python
+autocast_dtype = torch.float16
+```
+
+Do not use BF16 on T4.
+
+### Gradient checkpointing
 
 ```python
 model_student.config.use_cache = False
@@ -335,29 +442,38 @@ model_student.t2u_model.model.encoder.gradient_checkpointing_enable()
 model_student.t2u_model.model.decoder.gradient_checkpointing_enable()
 ```
 
-Use:
+### CPU and disk usage
 
-```python
-autocast_dtype = torch.float16
-```
+Use CPU RAM and disk for:
 
-Do not use `bfloat16` on T4.
+- teacher cache
+- sample metadata
+- checkpoint shards
+- any large dev metrics history
 
-## 8. Phase 6A: offline teacher cache
+Do **not** keep:
 
-Cache teacher outputs once.
-This is the single best speed/stability improvement for Kaggle.
+- raw teacher outputs
+- large eval objects
+- old adapters
+
+in GPU memory between stages.
+
+## 10. Phase 6A: offline teacher cache
+
+This is mandatory.
+It is the biggest win for both stability and speed.
 
 ### Cache contents
 
-For each sample, store:
+For each training sample, store:
 
 - `id`
 - `src_lang`
 - `tgt_lang`
-- `teacher_text_sequences` (raw generated token ids)
-- `teacher_text_str` (decoded text, for S2TT KD labels)
-- `teacher_unit_sequences` (raw generated unit ids)
+- `teacher_text_sequences`
+- `teacher_text_str`
+- `teacher_unit_sequences`
 - `audio_len_s`
 
 ### Cache code sketch
@@ -402,45 +518,46 @@ def build_teacher_cache_entry(model_teacher, processor, sample, device):
     }
 ```
 
-Strict checks:
+### Cache sanity checks
 
-- log and skip samples with empty teacher text
-- log and skip samples with `len(teacher_unit_sequences) < 3`
-- log and skip samples with clearly broken unit lengths (for example `> 1024`)
+Reject or skip entries with:
 
-## 9. Phase 6B: text-path DoRA recovery
+- empty teacher text
+- `teacher_unit_sequences` length `< 3`
+- obviously broken unit lengths, for example `> 1024`
 
-Goal:
+### Cache storage recommendation
 
-- recover S2TT first
-- stabilize the upstream hidden states that T2U will consume
+Store cache in shards, not one giant object:
 
-### Stage 6B.1 (short warmup, recommended)
+```python
+cache_shards/
+  train_cache_000.pt
+  train_cache_001.pt
+  ...
+  dev_cache_000.pt
+```
 
-- train only `text_decoder` DoRA
-- 200 to 400 steps
-- micro-batch 1
-- grad accumulation 8
-- LR `1.5e-4`
+Use sample-id lookup dictionaries in CPU memory.
 
-### Stage 6B.2 (main text recovery)
+### Unload teacher after cache if needed
 
-- train `speech_encoder` + `text_decoder` DoRA
-- 800 to 1200 steps
-- micro-batch 1
-- grad accumulation 8
-- LR groups:
-  - speech encoder DoRA: `5e-5`
-  - text decoder DoRA: `8e-5`
+After Phase 6A, if Stage 6B uses only cached text labels:
 
-### Text labels
+```python
+del model_teacher
+gc.collect()
+torch.cuda.empty_cache()
+```
+
+Reload the teacher only when Phase 6C begins.
+
+## 11. Text labels: correct tokenizer usage
+
+Do not guess special-token layout.
+The HF tokenizer docs say the target tokenization format is handled through `text_target=...` and `tgt_lang=...`.
 
 Use:
-
-- 50% cached teacher text (`teacher_text_str`)
-- 50% gold reference text (`sample["ref"]`)
-
-But build labels through the tokenizer target path, not by guessing special-token layout:
 
 ```python
 def build_target_labels(processor, text_list, tgt_lang, device):
@@ -455,7 +572,51 @@ def build_target_labels(processor, text_list, tgt_lang, device):
     return labels
 ```
 
-### Training step sketch
+## 12. Phase 6B: text-path recovery with LoRA
+
+Goal:
+
+- restore S2TT quality first
+- stabilize hidden states before T2U training
+
+### Phase 6B.1: text decoder warmup
+
+Train:
+
+- `text_decoder` LoRA only
+
+Settings:
+
+- micro-batch: `1`
+- grad accumulation: `8`
+- max audio length: `20s`
+- steps: `300`
+- LR:
+  - text decoder LoRA: `1e-4`
+
+Labels:
+
+- 50% teacher text
+- 50% gold reference text
+
+### Phase 6B.2: speech + text LoRA
+
+Train:
+
+- `speech_encoder` LoRA
+- `text_decoder` LoRA
+
+Settings:
+
+- micro-batch: `1`
+- grad accumulation: `8`
+- max audio length: `20s`
+- steps: `800-1200`
+- LR:
+  - speech LoRA: `4e-5`
+  - text LoRA: `8e-5`
+
+### Stage 6B training step sketch
 
 ```python
 def text_recovery_step(model_student, processor, sample, use_teacher_text, cache_entry, device):
@@ -480,10 +641,18 @@ def text_recovery_step(model_student, processor, sample, use_teacher_text, cache
     return outputs.loss
 ```
 
-## 10. Exact helper for the T2U path
+### Promotion rule to Phase 6C
+
+Do not move to T2U recovery unless:
+
+- text loss is clearly falling
+- quick dev ASR-ChrF or S2TT proxy improves
+- no recurrent OOMs in the last 150 steps
+
+## 13. Correct T2U conditioning helper
 
 This helper must mirror the source file.
-Use it for both teacher and student in Phase 6C.
+This is the exact architectural bridge the broken notebook was missing.
 
 ```python
 def _compute_new_attention_mask(hidden_states: torch.Tensor, seq_lens: torch.Tensor):
@@ -495,7 +664,6 @@ def _compute_new_attention_mask(hidden_states: torch.Tensor, seq_lens: torch.Ten
     return mask
 
 def build_t2u_conditioning_from_sequences(model, input_features, attention_mask, text_sequences):
-    # 1) speech encoder
     enc = model.speech_encoder(
         input_features=input_features,
         attention_mask=attention_mask,
@@ -504,13 +672,11 @@ def build_t2u_conditioning_from_sequences(model, input_features, attention_mask,
         return_dict=True,
     ).last_hidden_state
 
-    # 2) subsampled encoder mask, same logic as the model file
     encoder_attention_mask = None
     if attention_mask is not None:
         sub_lengths = model._compute_sub_sample_lengths_from_attention_mask(attention_mask).to(enc.device)
         encoder_attention_mask = _compute_new_attention_mask(enc, sub_lengths)
 
-    # 3) forced text-decoder hidden states
     t2u_input_embeds = model.text_decoder(
         input_ids=text_sequences[:, :-1],
         encoder_hidden_states=enc,
@@ -521,7 +687,6 @@ def build_t2u_conditioning_from_sequences(model, input_features, attention_mask,
         return_dict=True,
     ).last_hidden_state
 
-    # 4) build char inputs exactly like generate()
     pad_token_id = model.generation_config.pad_token_id
     eos_token_id = model.generation_config.eos_token_id
 
@@ -536,6 +701,7 @@ def build_t2u_conditioning_from_sequences(model, input_features, attention_mask,
     )
     pad_zero = t2u_char_count_per_id.new_zeros((t2u_char_count_per_id.shape[0], 1))
     t2u_char_count_per_id = torch.cat([pad_zero, t2u_char_count_per_id, pad_zero], dim=1)
+
     t2u_char_input_ids = model._get_char_input_ids(
         t2u_input_ids,
         t2u_subwords,
@@ -543,7 +709,6 @@ def build_t2u_conditioning_from_sequences(model, input_features, attention_mask,
         pad_token_id=pad_token_id,
     )
 
-    # 5) T2U attention mask, same logic as generate()
     seq_lens = (text_sequences[:, :-1] != pad_token_id).int().sum(1)
     t2u_attention_mask = _compute_new_attention_mask(t2u_input_embeds, seq_lens)
 
@@ -557,50 +722,50 @@ def build_t2u_conditioning_from_sequences(model, input_features, attention_mask,
     }
 ```
 
-## 11. Phase 6C: composite recovery with T2U KD
+## 14. Phase 6C: native T2U recovery
 
-This is the core recovery stage.
+This is the core audio-recovery stage.
 
-Do **not** train T2U in isolation at first.
-Train it in a composite loss with the upstream path still active.
+### Freeze policy
 
-### What stays trainable in Phase 6C
+For Phase 6C:
 
-- speech encoder DoRA adapters
-- text decoder DoRA adapters
-- T2U encoder DoRA adapters
-- T2U decoder DoRA adapters
-- `t2u_model.model.decoder.pos_emb_alpha_char`
-- `t2u_model.model.decoder.pos_emb_alpha`
+- `speech_encoder`: frozen
+- `text_decoder`: frozen
+- top-level `lm_head`: frozen
+- `t2u_model`: trainable
 
-Everything else stays frozen.
+This is deliberate.
+It lowers memory and isolates the actual broken path.
 
-### Why this works better than T2U-only hard-label training
+### Teacher setup for Phase 6C
 
-1. T2U gets the correct conditioning path
-2. text decoder hidden states can keep adapting
-3. speech encoder can still move slightly if needed
-4. we avoid pretending that the top-level HF forward exposes a T2U loss
+Reload teacher on `cuda:1`.
+Do **not** recompute full `generate()` each step.
 
-### Recommended losses
+Use cached `teacher_text_sequences` from Phase 6A and run only the teacher forward needed for T2U KD.
 
-Use the same cached `teacher_text_sequences` for both teacher and student conditioning.
+### Losses
 
-Compute:
+Use:
 
-- `L_text`: normal text CE on teacher-or-gold labels
-- `L_t2u_kl`: KL between student and teacher T2U logits
-- `L_t2u_ce`: hard CE to teacher argmax unit ids on the overlapping time region
-- `L_len`: SmoothL1 on valid output lengths from `padding_mask.sum(1)`
+1. `L_t2u_soft`
+   - KL divergence between teacher and student T2U logits
 
-### Important alignment rule
+2. `L_t2u_hard`
+   - hard CE against teacher argmax units on overlapping time positions
 
-Teacher and student T2U lengths may differ.
+3. `L_len`
+   - length regression between teacher and student padding-mask lengths
+
+### Overlap-based alignment
+
+Teacher and student T2U lengths will not always match.
 Never assume equal lengths.
 
-Align by overlap:
-
 ```python
+import torch.nn.functional as F
+
 def t2u_overlap_losses(student_out, teacher_out, temperature=2.0):
     student_logits = student_out.last_hidden_state
     teacher_logits = teacher_out.last_hidden_state
@@ -644,47 +809,73 @@ def t2u_overlap_losses(student_out, teacher_out, temperature=2.0):
     return total_kl, total_ce, total_len
 ```
 
-### Composite loss
+### T2U loss mix
 
 Start with:
 
 ```python
 loss = (
-    1.00 * text_loss +
-    0.35 * t2u_kl +
-    0.20 * t2u_ce +
-    0.05 * t2u_len
+    0.60 * t2u_soft +
+    0.30 * t2u_hard +
+    0.10 * t2u_len
 )
 ```
 
-Then watch the scales:
+This stage does **not** need text CE because the text path is frozen on purpose.
 
-- if `t2u_kl` is >5x larger than `text_loss` for 100+ steps, reduce it
-- if `t2u_len` does not move at all, increase it slightly to `0.10`
-- if text metrics regress, increase `text_loss` weight or reduce T2U LR
+### T2U optimizer groups
 
-### Phase 6C optimizer groups
-
-Recommended starting LRs:
-
-- speech encoder DoRA: `3e-5`
-- text decoder DoRA: `5e-5`
-- T2U encoder DoRA: `8e-5`
-- T2U decoder DoRA + native scalar params: `1e-4`
-
-Use:
-
-- AdamW
-- weight decay `0.01`
-- cosine schedule
-- warmup `10%`
-- grad clip `1.0`
-
-### Phase 6C training sketch
+Use separate LR groups because duration is sensitive:
 
 ```python
-def phase6c_step(sample, cache_entry):
-    # audio on student GPU
+def make_t2u_param_groups(model_student):
+    enc_params = []
+    dec_params = []
+    dur_params = []
+    scalar_params = []
+    head_params = []
+
+    for name, p in model_student.t2u_model.named_parameters():
+        if not p.requires_grad:
+            continue
+        if "duration_predictor" in name:
+            dur_params.append(p)
+        elif "pos_emb_alpha" in name:
+            scalar_params.append(p)
+        elif name == "lm_head.weight":
+            head_params.append(p)
+        elif name.startswith("model.decoder."):
+            dec_params.append(p)
+        else:
+            enc_params.append(p)
+
+    return [
+        {"params": enc_params, "lr": 8e-5, "weight_decay": 0.01},
+        {"params": dec_params, "lr": 8e-5, "weight_decay": 0.01},
+        {"params": dur_params, "lr": 1e-4, "weight_decay": 0.00},
+        {"params": scalar_params, "lr": 1e-4, "weight_decay": 0.00},
+        {"params": head_params, "lr": 8e-5, "weight_decay": 0.01},
+    ]
+```
+
+### Phase 6C runtime settings
+
+Start conservatively:
+
+- micro-batch: `1`
+- grad accumulation: `8`
+- max audio length: `12s`
+- steps: `600`
+
+If stable after 150-200 steps:
+
+- raise max audio length to `16s`
+- continue to `1000-1200` steps if metrics improve
+
+### Phase 6C step sketch
+
+```python
+def phase6c_t2u_step(sample, cache_entry):
     audio_inputs_student = processor(
         audio=sample["wav"],
         sampling_rate=16000,
@@ -692,27 +883,12 @@ def phase6c_step(sample, cache_entry):
     )
     audio_inputs_student = {k: v.to(student_device) for k, v in audio_inputs_student.items()}
 
-    # text CE target
-    use_teacher_text = (random.random() < 0.5)
-    target_text = cache_entry["teacher_text_str"] if use_teacher_text else sample["ref"]
-    labels = build_target_labels(processor, [target_text], sample["tgt_lang"], student_device)
-
-    text_out = model_student(
-        **audio_inputs_student,
-        labels=labels,
-        use_cache=False,
-        output_attentions=False,
-        output_hidden_states=False,
-        return_dict=True,
-    )
-    text_loss = text_out.loss
-
-    # same teacher-generated token sequence on both sides
     teacher_text_sequences = cache_entry["teacher_text_sequences"].unsqueeze(0)
 
-    # teacher side on GPU1
+    # Teacher path on GPU1
     audio_inputs_teacher = {k: v.to(teacher_device) for k, v in audio_inputs_student.items()}
     teacher_text_sequences_gpu = teacher_text_sequences.to(teacher_device)
+
     with torch.no_grad():
         teacher_cond = build_t2u_conditioning_from_sequences(
             model_teacher,
@@ -730,7 +906,7 @@ def phase6c_step(sample, cache_entry):
             return_dict=True,
         )
 
-    # student side on GPU0
+    # Student path on GPU0
     student_text_sequences_gpu = teacher_text_sequences.to(student_device)
     student_cond = build_t2u_conditioning_from_sequences(
         model_student,
@@ -748,111 +924,164 @@ def phase6c_step(sample, cache_entry):
         return_dict=True,
     )
 
-    # bring teacher outputs to GPU0 for the KD loss
     teacher_t2u.last_hidden_state = teacher_t2u.last_hidden_state.to(student_device)
     teacher_t2u.padding_mask = teacher_t2u.padding_mask.to(student_device)
 
-    t2u_kl, t2u_ce, t2u_len = t2u_overlap_losses(student_t2u, teacher_t2u)
-    loss = 1.00 * text_loss + 0.35 * t2u_kl + 0.20 * t2u_ce + 0.05 * t2u_len
+    t2u_soft, t2u_hard, t2u_len = t2u_overlap_losses(student_t2u, teacher_t2u)
+    loss = 0.60 * t2u_soft + 0.30 * t2u_hard + 0.10 * t2u_len
+
     return loss, {
-        "text": text_loss.item(),
-        "t2u_kl": t2u_kl.item(),
-        "t2u_ce": t2u_ce.item(),
+        "t2u_soft": t2u_soft.item(),
+        "t2u_hard": t2u_hard.item(),
         "t2u_len": t2u_len.item(),
     }
 ```
 
-## 12. Phase 6D: optional short polish
+## 15. Phase 6D: optional joint polish
 
-Only run this if:
+Only do this if:
 
-- Phase 6B improved text metrics
+- Phase 6B improved text quality
 - Phase 6C improved ASR-BLEU / ASR-ChrF
-- the model is stable
+- the run is stable
 
-Config:
+### Unfreeze set
 
-- 200 to 300 steps
-- same composite loss as Phase 6C
-- reduce all LRs by about `3x`
+Unfreeze only:
 
-If Phase 6C is still unstable, skip Phase 6D.
+- `text_decoder` LoRA
+- full `t2u_model`
 
-## 13. Kaggle memory settings
+Keep:
 
-Recommended safe defaults:
+- `speech_encoder` frozen
+
+### Why this stage exists
+
+It gives T2U one chance to co-adapt with the text decoder hidden states without reopening the whole model.
+
+### Settings
 
 - micro-batch: `1`
 - grad accumulation: `8`
-- audio length cap for training: start with `<= 18s`
-- after stable training, raise to `<= 22s` or `<= 25s`
-- eval can still use longer clips
+- max audio length: `14s`
+- steps: `200-300`
+- LR:
+  - text decoder LoRA: `1e-5`
+  - full `t2u_model`: `4e-5`
 
-Additional rules:
+### Loss
 
-1. Do not call `torch.cuda.empty_cache()` every optimizer step
-2. Only clear cache:
-   - after checkpoint save
-   - after quick eval
-   - after OOM recovery
-3. Bucket batches by audio duration so padding is not wasting memory
-4. Keep `output_attentions=False` and `output_hidden_states=False` unless needed
+Use:
 
-## 14. Merge/save plan
+```python
+loss = (
+    0.35 * text_loss +
+    0.40 * t2u_soft +
+    0.20 * t2u_hard +
+    0.05 * t2u_len
+)
+```
 
-At the very end, merge DoRA adapters back into the base weights.
+Do not reopen `speech_encoder` in this stage unless you already have a stable working pipeline and spare VRAM.
 
-If you wrapped submodules separately:
+## 16. Memory safety rules
+
+These are mandatory for Kaggle stability:
+
+1. Use audio-length bucketing
+2. Start with short clips
+3. Use micro-batch `1`
+4. Use grad accumulation instead of bigger batch size
+5. Do not keep teacher and student on the same GPU
+6. Do not keep ASR benchmark models in memory during finetuning
+7. Do not call `torch.cuda.empty_cache()` every step
+8. Save checkpoints in shards
+9. Unload teacher after Phase 6A and reload only for Phase 6C
+
+### Safe training defaults
+
+```python
+MICRO_BATCH = 1
+GRAD_ACCUM = 8
+MAX_AUDIO_SEC_B = 20
+MAX_AUDIO_SEC_C = 12
+MAX_AUDIO_SEC_D = 14
+MAX_GRAD_NORM = 1.0
+WARMUP_RATIO = 0.10
+```
+
+### OOM fallback ladder
+
+If OOM happens:
+
+1. reduce max audio length
+2. reduce eval frequency
+3. unload teacher between eval windows
+4. fall back from full `t2u_model` tuning to selective T2U subset
+5. only then reduce LoRA rank
+
+Do not immediately slash rank first.
+
+## 17. Merge and save plan
+
+At the end of the full run:
 
 ```python
 model_student.speech_encoder = model_student.speech_encoder.merge_and_unload()
 model_student.text_decoder = model_student.text_decoder.merge_and_unload()
-model_student.t2u_model.model.encoder = model_student.t2u_model.model.encoder.merge_and_unload()
-model_student.t2u_model.model.decoder = model_student.t2u_model.model.decoder.merge_and_unload()
 ```
+
+There is no merge for native T2U tuning because those are real updated base weights.
 
 Then:
 
 ```python
 model_student.eval()
 sync_model_config(model_student)
-save_model_to_drive(model_student, processor, "phase6_dora_merged")
+save_model_to_drive(model_student, processor, "phase6_lora_t2u_merged")
 ```
 
-Use a new stage name.
+Use a new name.
 Do not overwrite the current broken Phase 6 artifact.
 
-## 15. What I would actually implement in `pragmata-recovery.ipynb`
+## 18. What to remove from `pragmata-recovery.ipynb`
 
-If this were my Kaggle run order, I would do exactly this:
+Delete or replace the current Phase 6 cells that do these things:
 
-1. Replace current Phase 6 cells completely
-2. Add strict target-module verification before any DoRA injection
-3. Cache teacher text + unit outputs once on GPU1
-4. Run Phase 6B text recovery
-5. Add T2U DoRA only after Phase 6B is stable
-6. Run Phase 6C composite text + T2U KD
-7. Benchmark every 200 steps on a small dev slice
-8. Merge and save only the best checkpoint by ASR-ChrF / ASR-BLEU
+1. DoRA/LoRA target strings using nonexistent names
+2. direct `speech_encoder -> t2u_model(labels=...)`
+3. any expectation of `outputs.t2u_loss`
+4. BF16 autocast on T4
+5. one-stage joint training from step 1
 
-## 16. Final recommendation
+## 19. Final recommendation
 
-For your exact saved HF file and Kaggle setup, the best notebook-safe plan is:
+For your exact source file, your exact pruned model, and Kaggle 2xT4:
 
-- DoRA for the text path
-- custom composite KD for T2U
-- teacher cache offline
-- teacher on GPU1, student on GPU0
-- no silent fallbacks
-- no fake `t2u_loss`
-- no guessed module names
+### Best primary strategy
 
-If you later want the absolute maximum T2U recovery beyond this notebook-safe plan, the next step is not "more LoRA/DoRA".
-The next step is a source patch that exposes duration supervision explicitly in the T2U decoder path.
+1. **LoRA** on `text_decoder`
+2. then **LoRA** on `speech_encoder + text_decoder`
+3. then **full native T2U fine-tuning**
+4. then optional short **text_decoder LoRA + T2U** polish
+
+### What I would not use as the main plan
+
+- DoRA-first
+- adapter-only T2U
+- full-model KD from step 1
+
+### One-line decision
+
+If you want the most fail-proof recovery strategy for this use case:
+
+**Use LoRA instead of DoRA, and recover T2U with native full fine-tuning plus teacher KD.**
 
 ## References
 
 - `AAA/modeling_seamless_m4t_v2.py`
 - `AAA/pragmata-recovery.ipynb`
-- Hugging Face PEFT LoRA/DoRA docs
+- Hugging Face PEFT LoRA / DoRA docs
 - Hugging Face SeamlessM4T tokenizer docs
+- NVIDIA T4 precision docs
