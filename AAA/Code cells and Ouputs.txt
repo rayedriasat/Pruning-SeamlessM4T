@@ -1,5 +1,4 @@
 Cell1:
-
 import gc
 import glob
 import math
@@ -739,7 +738,7 @@ def ensure_teacher_loaded():
 
     print('Reloading teacher model for Phase 6 KD...')
     try:
-        model_teacher, _ = load_model_from_drive('phase1_vocab_5lang')
+        model_teacher, _ = load_model_from_drive('phase1_vocab_5lang', device_map=None)
     except Exception:
         print('  Teacher checkpoint not found, loading HF base teacher.')
         model_teacher, _ = load_base_model()
@@ -1029,7 +1028,7 @@ def run_joint_polish_stage(stage_key, title, steps, max_audio_sec):
 
 
 print('Loading Phase 5 student model...')
-model_student, processor = load_model_from_drive('phase5_dec_14L')
+model_student, processor = load_model_from_drive('phase5_dec_14L', device_map=None)
 model_student = move_model_to_device(model_student, student_device)
 disable_generation_cache(model_student)
 maybe_enable_gradient_checkpointing(model_student, 'student')
@@ -1040,7 +1039,7 @@ maybe_enable_gradient_checkpointing(model_student.t2u_model.model.decoder, 't2u_
 
 print('Loading teacher model (vocab pruned) for Phase 6A cache build...')
 try:
-    model_teacher, _ = load_model_from_drive('phase1_vocab_5lang')
+    model_teacher, _ = load_model_from_drive('phase1_vocab_5lang', device_map=None)
 except Exception:
     print('  Teacher checkpoint not found, NOT loading HF base teacher.')
     # model_teacher, _ = load_base_model()
@@ -1079,9 +1078,7 @@ print_model_breakdown(model_student, 'Phase 6 student with LoRA wrappers')
 gpu_mem()
 
 
-
 Cell2:
-
 def phase6_cache_checkpoint_name(split_name):
     return f'{PHASE6_CACHE_PREFIX}_{split_name}'
 
@@ -1233,45 +1230,42 @@ def build_or_load_phase6_cache(split_name, samples, shard_size=PHASE6_CACHE_SHAR
     pair_to_keys = defaultdict(list)
     for pair, keys in manifest.get('pair_to_keys', {}).items():
         pair_to_keys[pair].extend(keys)
-
+    skipped_count = manifest.get('skipped_count', 0)
     total_samples = len(samples)
     sync_every = max(1, math.ceil(total_samples / PHASE6_CACHE_SYNC_PARTS))
     next_sync_target = max(sync_every, ((len(cache_index) // sync_every) + 1) * sync_every)
     next_sync_target = min(total_samples, next_sync_target)
-
     print(
         f'Existing {split_name} cache index: {len(cache_index)} samples | '
-        f'shard_size={shard_size} | sync_every~{sync_every} samples'
+        f'shard_size={shard_size} | sync_every~{sync_every} samples | skipped={skipped_count}'
     )
-
-    if len(cache_index) == total_samples:
-        print(f'✅ ALready Done. Cached={len(cache_index)}')
+    # If cache marked complete, skip entirely
+    if manifest.get('cache_complete', False):
+        print(f'✅ Cache already marked complete. Cached={len(cache_index)}')
         return manifest
-
+    # If we already have all cacheable samples (cached + known skipped >= total), treat as done
+    if len(cache_index) + skipped_count >= total_samples and len(cache_index) > 0:
+        print(f'✅ Cache appears complete (cached {len(cache_index)} + skipped {skipped_count} >= {total_samples}). Done.')
+        manifest['cache_complete'] = True
+        phase6_save_manifest_local(split_name, manifest)
+        return manifest
     buffer = []
     shard_idx = int(manifest.get('num_shards', 0))
 
-    skipped = 0  # 👈 track filtered samples
-
+    
     for idx in range(len(samples)):
         sample = samples[idx]
         sample_key = phase6_sample_key(sample)
-
         if sample_key in cache_index:
+            print(f"already cached> {sample_key}")
             continue
-
-        # ✅ FIX: unpack properly
         entry, err = build_teacher_cache_entry(model_teacher, sample)
-
         if entry is None:
-            skipped += 1
-            if skipped % 200 == 0:
-                print(f'  skipped {skipped} samples (latest: {err})')
+            skipped_count += 1
+            print(f'  skipped {skipped_count} samples (latest: {err}) | {sample_key}')
             continue
-
         offset = len(buffer)
         buffer.append(entry)
-
         pair = f"{entry['src_lang']}->{entry['tgt_lang']}"
         cache_index[sample_key] = {
             'split': split_name,
@@ -1282,7 +1276,6 @@ def build_or_load_phase6_cache(split_name, samples, shard_size=PHASE6_CACHE_SHAR
             'tgt_lang': entry['tgt_lang'],
         }
         pair_to_keys[pair].append(sample_key)
-
         if len(buffer) >= shard_size:
             phase6_save_cache_shard_local(
                 split_name=split_name,
@@ -1291,7 +1284,6 @@ def build_or_load_phase6_cache(split_name, samples, shard_size=PHASE6_CACHE_SHAR
                 total_cached=len(cache_index),
             )
             shard_idx += 1
-
             manifest = {
                 'split': split_name,
                 'total_cached': len(cache_index),
@@ -1299,12 +1291,11 @@ def build_or_load_phase6_cache(split_name, samples, shard_size=PHASE6_CACHE_SHAR
                 'pair_to_keys': dict(pair_to_keys),
                 'num_shards': shard_idx,
                 'synced_until': manifest.get('synced_until', 0),
+                'skipped_count': skipped_count,
             }
             phase6_save_manifest_local(split_name, manifest)
-
             buffer = []
             safe_gc()
-
         if len(cache_index) >= next_sync_target:
             manifest = {
                 'split': split_name,
@@ -1313,20 +1304,17 @@ def build_or_load_phase6_cache(split_name, samples, shard_size=PHASE6_CACHE_SHAR
                 'pair_to_keys': dict(pair_to_keys),
                 'num_shards': shard_idx,
                 'synced_until': len(cache_index),
+                'skipped_count': skipped_count,
             }
             phase6_save_manifest_local(split_name, manifest)
-
             phase6_rclone_copy_checkpoint_family(
                 [phase6_cache_checkpoint_name(split_name), phase6_cache_manifest_name(split_name)],
                 direction='push',
             )
-
             print(f'  synced Phase 6A cache to Drive at {len(cache_index)}/{total_samples} samples')
             next_sync_target = min(total_samples, next_sync_target + sync_every)
-
         if (idx + 1) % 200 == 0:
             print(f'  cached {len(cache_index)}/{total_samples} {split_name} samples')
-
     if buffer:
         phase6_save_cache_shard_local(
             split_name=split_name,
@@ -1335,7 +1323,6 @@ def build_or_load_phase6_cache(split_name, samples, shard_size=PHASE6_CACHE_SHAR
             total_cached=len(cache_index),
         )
         shard_idx += 1
-
     manifest = {
         'split': split_name,
         'total_cached': len(cache_index),
@@ -1343,16 +1330,15 @@ def build_or_load_phase6_cache(split_name, samples, shard_size=PHASE6_CACHE_SHAR
         'pair_to_keys': dict(pair_to_keys),
         'num_shards': shard_idx,
         'synced_until': len(cache_index),
+        'skipped_count': skipped_count,
+        'cache_complete': True,
     }
-
     phase6_save_manifest_local(split_name, manifest)
-
     phase6_rclone_copy_checkpoint_family(
         [phase6_cache_checkpoint_name(split_name), phase6_cache_manifest_name(split_name)],
         direction='push',
     )
-
-    print(f'✅ Done. Cached={len(cache_index)} | Skipped={skipped}')
+    print(f'✅ Done. Cached={len(cache_index)} | Skipped={skipped_count}')
     return manifest
 
 
@@ -1378,22 +1364,6 @@ model_teacher = None
 safe_gc()
 gpu_mem()
 
-Output of Cell2:
-[rclone] Phase 6 cache push OK for: ['phase6_teacher_cache_train', 'phase6_teacher_cache_train_manifest']
-✅ Done. Cached=9596 | Skipped=4
-Phase 6A cache ready: 9596 entries
-  shards: 5 | shard_size: 2048
-  sync parts: 4 | shard LRU limit: 16
-  arb->eng      1200 samples
-  ben->eng      1200 samples
-  cmn->eng      1200 samples
-  eng->arb      1200 samples
-  eng->ben      1200 samples
-  eng->cmn      1196 samples
-  eng->hin      1200 samples
-  hin->eng      1200 samples
-  GPU0: 2.18GB alloc / 2.20GB reserved
-  GPU1: 0.01GB alloc / 0.03GB reserved
 
 Cell3:
 phase6_logs['6b1'] = run_text_recovery_stage(
@@ -1407,140 +1377,3 @@ phase6_logs['6b1'] = run_text_recovery_stage(
 )
 
 phase6_quick_eval('stage6b1_done', max_samples=8)
-
-Output of Cell3:
-enabled LoRA params for text_decoder: 15.60M
-
-[6b1] Text decoder warmup (LoRA only)
-  max_audio=20s | trainable=15.60M
-/pytorch/aten/src/ATen/native/cuda/IndexKernelUtils.cu:16: vectorized_gather_kernel: block: [2,0,0], thread: [0,0,0] Assertion `ind >=0 && ind < ind_dim_size && "vectorized gather kernel index out of bounds"` failed.
-/pytorch/aten/src/ATen/native/cuda/IndexKernelUtils.cu:16: vectorized_gather_kernel: block: [2,0,0], thread: [1,0,0] Assertion `ind >=0 && ind < ind_dim_size && "vectorized gather kernel index out of bounds"` failed.
-/pytorch/aten/src/ATen/native/cuda/IndexKernelUtils.cu:16: vectorized_gather_kernel: block: [2,0,0], thread: [2,0,0] Assertion `ind >=0 && ind < ind_dim_size && "vectorized gather kernel index out of bounds"` failed.
-/pytorch/aten/src/ATen/native/cuda/IndexKernelUtils.cu:16: vectorized_gather_kernel: block: [2,0,0], thread: [3,0,0] Assertion `ind >=0 && ind < ind_dim_size && "vectorized gather kernel index out of bounds"` failed.
-
-AcceleratorError:
-AcceleratorError                          Traceback (most recent call last)
-/tmp/ipykernel_23/1072853277.py in <cell line: 0>()
-----> 1 phase6_logs['6b1'] = run_text_recovery_stage(
-      2     stage_key='6b1',
-      3     title='Text decoder warmup (LoRA only)',
-      4     steps=STAGE6B1_STEPS,
-      5     max_audio_sec=MAX_AUDIO_SEC_B1,
-
-/tmp/ipykernel_23/3494133337.py in run_text_recovery_stage(stage_key, title, steps, max_audio_sec, text_lr, speech_lr, kd_prob)
-    677         try:
-    678             with torch.cuda.amp.autocast(dtype=autocast_dtype):
---> 679                 loss = text_recovery_step(sample, cache_entry, use_teacher_text=use_teacher_text)
-    680             scaler.scale(loss / GRAD_ACCUM).backward()
-    681         except RuntimeError as e:
-
-/tmp/ipykernel_23/3494133337.py in text_recovery_step(sample, cache_entry, use_teacher_text)
-    637         labels = build_target_labels(processor, [sample['ref']], sample['tgt_lang'], student_device)
-    638 
---> 639     outputs = model_student(
-    640         **audio_inputs,
-    641         labels=labels,
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-   1778     # torchrec tests the code consistency with the following code
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1785                 or _global_backward_pre_hooks or _global_backward_hooks
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-   1789         result = None
-
-/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in forward(self, input_features, attention_mask, decoder_input_ids, decoder_attention_mask, encoder_outputs, past_key_values, inputs_embeds, decoder_inputs_embeds, labels, use_cache, output_attentions, output_hidden_states, return_dict, **kwargs)
-   3626 
-   3627         # decoder outputs consists of (dec_features, past_key_values, dec_hidden, dec_attn)
--> 3628         decoder_outputs = self.text_decoder(
-   3629             input_ids=decoder_input_ids,
-   3630             attention_mask=decoder_attention_mask,
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-   1778     # torchrec tests the code consistency with the following code
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1785                 or _global_backward_pre_hooks or _global_backward_hooks
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-   1789         result = None
-
-/usr/local/lib/python3.12/dist-packages/peft/peft_model.py in forward(self, *args, **kwargs)
-    919         with self._enable_peft_forward_hooks(*args, **kwargs):
-    920             kwargs = {k: v for k, v in kwargs.items() if k not in self.special_peft_forward_args}
---> 921             return self.get_base_model()(*args, **kwargs)
-    922 
-    923     def generate(self, *args, **kwargs):
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-   1778     # torchrec tests the code consistency with the following code
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1785                 or _global_backward_pre_hooks or _global_backward_hooks
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-   1789         result = None
-
-/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in forward(self, input_ids, attention_mask, encoder_hidden_states, encoder_attention_mask, past_key_values, inputs_embeds, use_cache, output_attentions, output_hidden_states, return_dict, cache_position, **kwargs)
-   1866 
-   1867         # embed positions
--> 1868         positions = self.embed_positions(input, past_key_values_length=past_key_values_length)
-   1869 
-   1870         hidden_states = inputs_embeds + positions.to(inputs_embeds.device)
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-   1778     # torchrec tests the code consistency with the following code
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1785                 or _global_backward_pre_hooks or _global_backward_hooks
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-   1789         result = None
-
-/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py in decorate_context(*args, **kwargs)
-    122         # pyrefly: ignore [bad-context-manager]
-    123         with ctx_factory():
---> 124             return func(*args, **kwargs)
-    125 
-    126     return decorate_context
-
-/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in forward(self, input_ids, inputs_embeds, past_key_values_length)
-    805             bsz, seq_len = input_ids.size()
-    806             # Create the position ids from the input token ids. Any padded tokens remain padded.
---> 807             position_ids = self.create_position_ids_from_input_ids(
-    808                 input_ids, self.padding_idx, past_key_values_length
-    809             ).to(input_ids.device)
-
-/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in create_position_ids_from_input_ids(input_ids, padding_idx, past_key_values_length)
-    853         # The series of casts and type-conversions here are carefully balanced to both work with ONNX export and XLA.
-    854         mask = input_ids.ne(padding_idx).int()
---> 855         incremental_indices = (torch.cumsum(mask, dim=1).type_as(mask) + past_key_values_length) * mask
-    856         return incremental_indices.long() + padding_idx
-    857 
-
-AcceleratorError: CUDA error: device-side assert triggered
-Search for `cudaErrorAssert' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
