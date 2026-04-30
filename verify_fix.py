@@ -1,43 +1,74 @@
 #!/usr/bin/env python3
 """
-Verify that Phase 5 Cell 2 has all the necessary fixes applied.
+Verify that the Phase 6 fix was applied correctly to pragmata-recovery.ipynb
 """
 
 import json
+import sys
 
-with open('cse465v5-s2st-corrected.ipynb', 'r', encoding='utf-8') as f:
-    nb = json.load(f)
+def verify_fix():
+    notebook_path = 'AAA/pragmata-recovery.ipynb'
+    
+    print("=" * 70)
+    print("Phase 6 Fix Verification")
+    print("=" * 70)
+    
+    try:
+        with open(notebook_path, 'r', encoding='utf-8') as f:
+            notebook = json.load(f)
+    except Exception as e:
+        print(f"❌ Error loading notebook: {e}")
+        return False
+    
+    print(f"\n✓ Loaded notebook with {len(notebook['cells'])} cells")
+    
+    # Check for the fixed text_recovery_step
+    fix1_found = False
+    fix1_pattern = "cache_entry['teacher_text_sequences'].unsqueeze(0).to(student_device)"
+    
+    # Check for cache validation
+    fix2_found = False
+    fix2_pattern = "if teacher_text_sequences.numel() == 0:"
+    
+    for i, cell in enumerate(notebook['cells']):
+        if cell['cell_type'] != 'code':
+            continue
+        
+        source = cell.get('source', [])
+        if isinstance(source, list):
+            source_str = ''.join(source)
+        else:
+            source_str = source
+        
+        if fix1_pattern in source_str and not fix1_found:
+            fix1_found = True
+            print(f"\n✓ Fix 1 found in cell {i}: text_recovery_step uses pre-tokenized sequences")
+        
+        if fix2_pattern in source_str and not fix2_found:
+            fix2_found = True
+            print(f"✓ Fix 2 found in cell {i}: Cache validation added")
+    
+    print("\n" + "=" * 70)
+    print("Verification Results:")
+    print("=" * 70)
+    
+    if fix1_found and fix2_found:
+        print("✓ All fixes verified successfully!")
+        print("\nYour notebook is ready to use. Next steps:")
+        print("1. Upload AAA/pragmata-recovery.ipynb to Kaggle")
+        print("2. Restart the Kaggle kernel")
+        print("3. Run all cells up to Phase 6")
+        print("4. Training should proceed without CUDA errors")
+        return True
+    else:
+        print("❌ Some fixes are missing:")
+        if not fix1_found:
+            print("  - text_recovery_step fix not found")
+        if not fix2_found:
+            print("  - Cache validation fix not found")
+        print("\nPlease run: python apply_phase6_fix.py")
+        return False
 
-# Find Phase 5 Cell 2
-cell = nb['cells'][67]
-source = cell['source']
-
-print("=" * 70)
-print("PHASE 5 CELL 2 FIX VERIFICATION")
-print("=" * 70)
-
-checks = [
-    ("Stats tensors on device", "device=device" in source and "torch.zeros" in source),
-    ("Processor outputs moved", "Move ALL tensors" in source or "for k, v in enc_in.items()" in source),
-    ("Final stats to CPU", ".cpu()" in source and "Finalize statistics" in source),
-    ("Device-aware comment", "CRITICAL FIX" in source or "device-aware" in source),
-]
-
-all_passed = True
-for check_name, result in checks:
-    status = "✓ PASS" if result else "✗ FAIL"
-    print(f"{status:8} {check_name}")
-    if not result:
-        all_passed = False
-
-print("=" * 70)
-if all_passed:
-    print("✓ ALL CHECKS PASSED - Fix is correctly applied")
-    print("\nThe notebook should now:")
-    print("  1. Create stats tensors on cuda:0 (same device as model)")
-    print("  2. Move all processor outputs to cuda:0")
-    print("  3. Successfully calibrate all FFN layers")
-else:
-    print("✗ SOME CHECKS FAILED - Fix may not be complete")
-
-print("=" * 70)
+if __name__ == '__main__':
+    success = verify_fix()
+    sys.exit(0 if success else 1)
