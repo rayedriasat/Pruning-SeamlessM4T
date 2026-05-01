@@ -1,4 +1,3 @@
-Cell1:
 import gc
 import glob
 import math
@@ -17,24 +16,39 @@ PHASE6_MODEL_NAME = 'phase6_lora_t2u_merged'
 PHASE6_BENCHMARK_NAME = 'phase6_lora_t2u_benchmark'
 PHASE6_CACHE_PREFIX = 'phase6_teacher_cache'
 
-MICRO_BATCH = 1
-GRAD_ACCUM = 8
+MICRO_BATCH    = 1
+GRAD_ACCUM     = 8
 MAX_AUDIO_SEC_B1 = 20
 MAX_AUDIO_SEC_B2 = 20
-MAX_AUDIO_SEC_C = 12
-MAX_AUDIO_SEC_D = 14
-MAX_GRAD_NORM = 1.0
-WARMUP_RATIO = 0.10
+MAX_AUDIO_SEC_C  = 12
+MAX_AUDIO_SEC_D  = 14
+MAX_GRAD_NORM    = 1.0
+WARMUP_RATIO     = 0.10
 
-STAGE6B1_STEPS = 300
-STAGE6B2_STEPS = 900
-STAGE6C_STEPS = 600
-STAGE6D_STEPS = 200
-STAGE6D_ENABLED = True
+# ── Logging / eval / checkpoint cadence ───────────────────────────────────────
+# LOG_EVERY   : print a loss line every N optimizer steps (keep this low — you want feedback)
+# EVAL_EVERY  : run phase6_quick_eval every N optimizer steps
+# SAVE_EVERY  : save a checkpoint every N optimizer steps
+# These are absolute step counts. Eval and Save are also clamped so they never
+# fire more often than LOG_EVERY regardless of what you set.
+LOG_EVERY  = 10    # print every 25 opt steps  → ~200 fwd passes between prints
+EVAL_EVERY = 50   # quick eval every 100 steps → enough to track quality
+SAVE_EVERY = 50   # checkpoint every 200 steps → you lose at most 200 steps on crash
 
-PHASE6_TEXT_KD_PROB = 0.50
-PHASE6_T2U_TRAIN_MODE = 'full'   # change to 'selective' only if Stage 6C still OOMs
-autocast_dtype = torch.float16
+
+# ── All STEPS values are OPTIMIZER STEPS (gradient updates), NOT micro-steps.
+# ── Micro-steps per run = STEPS × GRAD_ACCUM  (e.g. 1200 × 8 = 9600 fwd passes)
+# ── Warmup covers the first WARMUP_RATIO × STEPS optimizer steps as intended.
+# ── To extend a run, increase the value here and re-run — auto-resume handles the rest.
+STAGE6B1_STEPS   = 400    # ~3,200 fwd passes  — LoRA warmup, converges fast
+STAGE6B2_STEPS   = 900    # ~7,200 fwd passes  — joint LoRA recovery
+STAGE6C_STEPS    = 700    # ~5,600 fwd passes  — T2U distillation
+STAGE6D_STEPS    = 350    # ~2,800 fwd passes  — polish, keep short
+STAGE6D_ENABLED  = True
+
+PHASE6_TEXT_KD_PROB   = 0.4
+PHASE6_T2U_TRAIN_MODE = 'full'
+autocast_dtype        = torch.float16
 
 student_device = torch.device('cuda:0')
 teacher_device = torch.device('cuda:1' if torch.cuda.device_count() > 1 else 'cuda:0')
@@ -262,29 +276,45 @@ def trainable_named_params(module):
     return [p for p in module.parameters() if p.requires_grad]
 
 
-def make_cosine_scheduler(optimizer, total_steps, warmup_ratio=WARMUP_RATIO):
+def make_cosine_scheduler(optimizer, total_steps, warmup_ratio=WARMUP_RATIO, eta_min_ratio=0.05):
     warmup_steps = max(1, int(total_steps * warmup_ratio))
 
     def lr_lambda(step):
         if step < warmup_steps:
             return float(step + 1) / float(warmup_steps)
         progress = (step - warmup_steps) / max(1, total_steps - warmup_steps)
-        return 0.5 * (1.0 + math.cos(math.pi * progress))
+        cosine_decay = 0.5 * (1.0 + math.cos(math.pi * progress))
+        # Floor at eta_min_ratio so LR never reaches zero
+        return eta_min_ratio + (1.0 - eta_min_ratio) * cosine_decay
 
     return torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
+### ADD THIS: Cyclic LR scheduler for resume extensions
+def make_cyclic_scheduler(optimizer, base_lr=1.5e-5, max_lr=8e-5,
+                          cycle_steps=75, warmup_within_cycle=8):
+    """
+    Triangular cyclic LR. The optimizer's param_group['lr'] MUST already be
+    set to base_lr before this scheduler is constructed — LambdaLR snapshots
+    base_lrs at __init__ time and the lambda multiplies from that base.
 
-def build_target_labels(processor, text_list, tgt_lang, device):
-    tok = processor.tokenizer(
-        text_target=text_list,
-        tgt_lang=tgt_lang,
-        return_tensors='pt',
-        padding=True,
-    )
-    labels = tok['input_ids'].to(device)
-    labels[labels == processor.tokenizer.pad_token_id] = -100
-    return labels
+    Lambda output range: 1.0 (base_lr) → ratio (max_lr) → 1.0, repeating.
+    """
+    if base_lr <= 0:
+        raise ValueError(f'base_lr must be > 0, got {base_lr}')
+    ratio = max_lr / base_lr  # e.g. 8e-5 / 1.5e-5 ≈ 5.33
 
+    def lr_lambda(step):
+        cycle_pos = step % cycle_steps
+        if cycle_pos < warmup_within_cycle:
+            # Ramp up: 1.0 → ratio
+            progress = cycle_pos / max(1, warmup_within_cycle)
+            return 1.0 + (ratio - 1.0) * progress
+        else:
+            # Ramp down: ratio → 1.0
+            progress = (cycle_pos - warmup_within_cycle) / max(1, cycle_steps - warmup_within_cycle)
+            return ratio - (ratio - 1.0) * progress
+
+    return torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
 def phase6_prepare_audio_inputs(sample, device):
     inputs = processor(
@@ -295,13 +325,13 @@ def phase6_prepare_audio_inputs(sample, device):
     return {k: v.to(device) for k, v in inputs.items()}
 
 
-def phase6_quick_eval(tag, max_samples=8):
+def phase6_quick_eval(tag, max_samples=16):
     model_student.eval()
-    score = quick_eval_chrf(model_student, eval_samples, max_samples=max_samples)
-    phase6_eval_history.append({'tag': tag, 'chrf': score})
-    print(f'  [{tag}] quick ASR-ChrF: {score:.2f}')
+    text_score, asr_score = quick_eval_chrf(model_student, eval_samples, max_samples=max_samples)
+    phase6_eval_history.append({'tag': tag, 'text_chrf': text_score, 'asr_chrf': asr_score})
+    print(f'  [{tag}] quick Text-ChrF: {text_score:.2f} | ASR-ChrF: {asr_score:.2f}')
     model_student.train()
-    return score
+    return text_score, asr_score
 
 
 def phase6_raise_oom(stage_name, step_idx, max_audio_sec, extra=''):
@@ -526,102 +556,27 @@ def make_t2u_param_groups(model_student, base_lr=8e-5, dur_lr=1e-4, scalar_lr=1e
         groups.append({'params': head_params, 'lr': head_lr, 'weight_decay': 0.01})
     return groups
 
-def remap_phase6_cache_vocab():
-    """
-    Remap all Phase 6 cache entries from 256K vocab to 22K vocab.
-    This modifies the cache files in-place.
-    """
-    import glob
-    
-    if not hasattr(model_student, '_vocab_remap_to_old'):
-        raise RuntimeError("No vocab remapping info available")
-    
-    # Build remapping dictionary
-    old_to_new = {
-        old_id.item(): new_id 
-        for new_id, old_id in enumerate(model_student._vocab_remap_to_old)
-    }
-    
-    print("="*70)
-    print("REMAPPING ALL CACHE ENTRIES")
-    print("="*70)
-    print(f"Vocab mapping: {len(old_to_new)} tokens")
-    print(f"Old vocab size: {max(old_to_new.keys()) + 1}")
-    print(f"New vocab size: {len(model_student._vocab_remap_to_old)}")
-    
-    # Find all cache shards - CORRECTED PATTERN
-    cache_files = sorted(glob.glob(f'{CKPT_DIR}/phase6_teacher_cache_train_step*.pt'))
-    print(f"\nFound {len(cache_files)} cache shards to remap")
-    
-    if len(cache_files) == 0:
-        print("\n✗ No cache files found!")
-        print(f"Looking in: {CKPT_DIR}")
-        print("\nTrying to pull from Google Drive...")
-        
-        # Pull cache from Drive if on Kaggle
-        if ON_KAGGLE:
-            phase6_rclone_copy_checkpoint_family(
-                [phase6_cache_checkpoint_name('train'), phase6_cache_manifest_name('train')],
-                direction='pull',
-            )
-            cache_files = sorted(glob.glob(f'{CKPT_DIR}/phase6_teacher_cache_train_step*.pt'))
-            print(f"After pulling: Found {len(cache_files)} cache shards")
-        
-        if len(cache_files) == 0:
-            raise RuntimeError("No cache files found even after pulling from Drive")
-    
-    total_entries = 0
-    total_remapped_tokens = 0
-    total_unk_tokens = 0
-    
-    for cache_file in cache_files:
-        print(f"\nProcessing {os.path.basename(cache_file)}...")
-        
-        # Load shard
-        shard_data = torch.load(cache_file, map_location='cpu')
-        
-        # The structure is: {'split': ..., 'shard_idx': ..., 'entries': [...], 'total_cached': ...}
-        entries = shard_data.get('entries', [])
-        
-        if not entries:
-            print(f"  ⚠ No entries in this shard, skipping")
-            continue
-        
-        # Remap each entry
-        for entry in entries:
-            teacher_seq = entry['teacher_text_sequences']
-            remapped_seq = teacher_seq.clone()
-            
-            for i in range(len(remapped_seq)):
-                old_id = int(remapped_seq[i].item())
-                if old_id in old_to_new:
-                    remapped_seq[i] = old_to_new[old_id]
-                    total_remapped_tokens += 1
-                else:
-                    # Token was pruned - map to <unk>
-                    remapped_seq[i] = 1
-                    total_unk_tokens += 1
-            
-            # Update entry
-            entry['teacher_text_sequences'] = remapped_seq
-            total_entries += 1
-        
-        # Save remapped shard
-        torch.save(shard_data, cache_file)
-        print(f"  ✓ Remapped {len(entries)} entries")
-    
-    print("\n" + "="*70)
-    print("REMAPPING COMPLETE")
-    print("="*70)
-    print(f"Total entries remapped: {total_entries}")
-    print(f"Total tokens remapped: {total_remapped_tokens}")
-    print(f"Tokens mapped to <unk>: {total_unk_tokens}")
-    if total_remapped_tokens + total_unk_tokens > 0:
-        print(f"Percentage <unk>: {100*total_unk_tokens/(total_remapped_tokens+total_unk_tokens):.2f}%")
-    
-    return total_entries
+def build_target_labels(processor, text_list, tgt_lang, device):
+    tok = processor.tokenizer(
+        text_target=text_list,
+        tgt_lang=tgt_lang,
+        return_tensors='pt',
+        padding=True,
+    )
+    labels = tok['input_ids'].clone()  # still 256K IDs
 
-print("✓ Corrected function added")
+    # Remap every ID through old->new map
+    remapped = torch.full_like(labels, -100)  # default: ignore
+    for i in range(labels.shape[0]):
+        for j in range(labels.shape[1]):
+            old_id = int(labels[i, j].item())
+            if old_id == processor.tokenizer.pad_token_id:
+                remapped[i, j] = -100
+            elif old_id in _old_to_new:
+                remapped[i, j] = _old_to_new[old_id]
+            # else: pruned token, stays -100 (ignored in loss)
+
+    return remapped.to(device)
 
 def text_recovery_step(sample, cache_entry, use_teacher_text):
     """
@@ -650,31 +605,73 @@ def text_recovery_step(sample, cache_entry, use_teacher_text):
 print("✓ Function updated")
 
 
-def run_text_recovery_stage(stage_key, title, steps, max_audio_sec, text_lr, speech_lr=None, kd_prob=0.5):
+def run_text_recovery_stage(
+    stage_key,
+    title,
+    steps,
+    max_audio_sec,
+    text_lr,
+    speech_lr=None,
+    kd_prob=0.5,
+    resume_from_step=0,
+):
     freeze_all_student()
     enable_lora_params(model_student.text_decoder, 'text_decoder')
     if speech_lr is not None:
         enable_lora_params(model_student.speech_encoder, 'speech_encoder')
 
-    optimizer_groups = []
-    text_params = trainable_named_params(model_student.text_decoder)
-    optimizer_groups.append({'params': text_params, 'lr': text_lr, 'weight_decay': 0.01})
+    optimizer_groups = [{'params': trainable_named_params(model_student.text_decoder),
+                         'lr': text_lr, 'weight_decay': 0.01}]
     if speech_lr is not None:
-        speech_params = trainable_named_params(model_student.speech_encoder)
-        optimizer_groups.append({'params': speech_params, 'lr': speech_lr, 'weight_decay': 0.01})
+        optimizer_groups.append({'params': trainable_named_params(model_student.speech_encoder),
+                                 'lr': speech_lr, 'weight_decay': 0.01})
 
     optimizer = torch.optim.AdamW(optimizer_groups, betas=(0.9, 0.98))
     scheduler = make_cosine_scheduler(optimizer, steps)
-    scaler = torch.cuda.amp.GradScaler(enabled=torch.cuda.is_available())
+    scaler    = torch.cuda.amp.GradScaler(enabled=torch.cuda.is_available())
+
+    # ── Derived cadences (clamped so eval/save never fire more often than log) ─
+    log_every  = max(1,        LOG_EVERY)
+    eval_every = max(log_every, EVAL_EVERY)
+    save_every = max(log_every, SAVE_EVERY)
+
+    # ── Resume ────────────────────────────────────────────────────────────────
+    if resume_from_step > 0:
+        ckpt = phase6_load_latest_local_checkpoint(f'phase6_{stage_key}')
+        if ckpt is None:
+            raise RuntimeError(
+                f'resume_from_step={resume_from_step} requested but no checkpoint found '
+                f'for phase6_{stage_key}'
+            )
+        model_student.text_decoder.load_state_dict(ckpt['text_decoder'])
+        if speech_lr is not None and 'speech_encoder' in ckpt:
+            model_student.speech_encoder.load_state_dict(ckpt['speech_encoder'])
+        optimizer.load_state_dict(ckpt['optimizer'])
+        if ckpt.get('logs'):
+            phase6_logs[stage_key] = ckpt['logs']
+        for _ in range(resume_from_step):
+            scheduler.step()
+        print(f'  Resumed {stage_key} from optimizer step {resume_from_step}/{steps}')
+        # checking if LR scheduler is working
+        print(f'  Scheduler base_lrs: {scheduler.base_lrs}')   # must show [1.5e-05, ...]
+        print(f'  Current param_group lrs: {[g["lr"] for g in optimizer.param_groups]}')
 
     model_student.train()
     optimizer.zero_grad(set_to_none=True)
+
     print(f'\n[{stage_key}] {title}')
+    print(f'  optimizer steps : {resume_from_step} → {steps}')
+    print(f'  fwd passes left : {(steps - resume_from_step) * GRAD_ACCUM}')
+    print(f'  log/eval/save   : every {log_every}/{eval_every}/{save_every} opt steps')
     print(f'  max_audio={max_audio_sec}s | trainable={count_trainable_params(model_student):.2f}M')
 
-    for step in range(steps):
-        sample, cache_entry = phase6_pick_training_pair(max_audio_sec=max_audio_sec, balanced=True)
-        use_teacher_text = random.random() < kd_prob
+    start_micro = resume_from_step * GRAD_ACCUM
+    total_micro = steps            * GRAD_ACCUM
+
+    for micro_step in range(start_micro, total_micro):
+        sample, cache_entry  = phase6_pick_training_pair(max_audio_sec=max_audio_sec, balanced=True)
+        use_teacher_text     = random.random() < kd_prob
+
         try:
             with torch.cuda.amp.autocast(dtype=autocast_dtype):
                 loss = text_recovery_step(sample, cache_entry, use_teacher_text=use_teacher_text)
@@ -682,17 +679,20 @@ def run_text_recovery_stage(stage_key, title, steps, max_audio_sec, text_lr, spe
         except RuntimeError as e:
             if 'out of memory' in str(e).lower():
                 safe_gc()
-                phase6_raise_oom(stage_key, step + 1, max_audio_sec, extra='lower the stage audio cap')
+                phase6_raise_oom(stage_key, micro_step + 1, max_audio_sec,
+                                 extra='lower the stage audio cap')
             raise
 
         phase6_logs[stage_key].append({
-            'step': step + 1,
-            'loss': float(loss.detach().cpu()),
+            'micro_step':       micro_step + 1,
+            'loss':             float(loss.detach().cpu()),
             'use_teacher_text': bool(use_teacher_text),
-            'text_lr': optimizer.param_groups[0]['lr'],
+            'text_lr':          optimizer.param_groups[0]['lr'],
         })
 
-        if (step + 1) % GRAD_ACCUM == 0:
+        if (micro_step + 1) % GRAD_ACCUM == 0:
+            opt_step = (micro_step + 1) // GRAD_ACCUM
+
             scaler.unscale_(optimizer)
             torch.nn.utils.clip_grad_norm_(
                 [p for p in model_student.parameters() if p.requires_grad],
@@ -703,30 +703,34 @@ def run_text_recovery_stage(stage_key, title, steps, max_audio_sec, text_lr, spe
             optimizer.zero_grad(set_to_none=True)
             scheduler.step()
 
-        if (step + 1) % 50 == 0:
-            recent = phase6_logs[stage_key][-50:]
-            avg_loss = np.mean([row['loss'] for row in recent])
-            kd_ratio = np.mean([row['use_teacher_text'] for row in recent])
-            print(
-                f"  [{stage_key}] step {step+1:>4}/{steps} | "
-                f"loss={avg_loss:.4f} | KD={kd_ratio:.0%} | "
-                f"lr={optimizer.param_groups[0]['lr']:.2e}"
-            )
+            # ── Log ───────────────────────────────────────────────────────────
+            if opt_step % log_every == 0:
+                recent   = phase6_logs[stage_key][-(log_every * GRAD_ACCUM):]
+                avg_loss = np.mean([r['loss']             for r in recent])
+                kd_ratio = np.mean([r['use_teacher_text'] for r in recent])
+                print(
+                    f"  [{stage_key}] opt {opt_step:>4}/{steps} | "
+                    f"loss={avg_loss:.4f} | KD={kd_ratio:.0%} | "
+                    f"lr={optimizer.param_groups[0]['lr']:.2e}"
+                )
 
-        if (step + 1) % 150 == 0:
-            phase6_quick_eval(f'{stage_key}_step{step+1}', max_samples=8)
+            # ── Eval ──────────────────────────────────────────────────────────
+            if opt_step % eval_every == 0:
+                phase6_quick_eval(f'{stage_key}_step{opt_step}', max_samples=16)
 
-        if (step + 1) % 300 == 0:
-            state = {
-                'stage': stage_key,
-                'step': step + 1,
-                'logs': phase6_logs[stage_key],
-                'text_decoder': model_student.text_decoder.state_dict(),
-                'optimizer': optimizer.state_dict(),
-            }
-            if speech_lr is not None:
-                state['speech_encoder'] = model_student.speech_encoder.state_dict()
-            save_checkpoint(state, f'phase6_{stage_key}', step + 1)
+            # ── Checkpoint ────────────────────────────────────────────────────
+            if opt_step % save_every == 0:
+                state = {
+                    'stage':          stage_key,
+                    'optimizer_step': opt_step,
+                    'steps_total':    steps,
+                    'logs':           phase6_logs[stage_key],
+                    'text_decoder':   model_student.text_decoder.state_dict(),
+                    'optimizer':      optimizer.state_dict(),
+                }
+                if speech_lr is not None:
+                    state['speech_encoder'] = model_student.speech_encoder.state_dict()
+                save_checkpoint(state, f'phase6_{stage_key}', opt_step)
 
     return phase6_logs[stage_key]
 
@@ -750,31 +754,75 @@ def ensure_teacher_loaded():
     print(f'  Teacher device: {next(model_teacher.parameters()).device}')
     return model_teacher
 
+def ensure_trainable_fp32():
+    """Cast all trainable parameters to FP32 to avoid GradScaler FP16 grad errors."""
+    count = 0
+    for p in model_student.parameters():
+        if p.requires_grad and p.dtype == torch.float16:
+            p.data = p.data.float()
+            count += 1
+    print(f'  Cast {count} trainable FP16 params to FP32')
 
-def run_t2u_recovery_stage(stage_key, title, steps, max_audio_sec):
+def run_t2u_recovery_stage(
+    stage_key,
+    title,
+    steps,
+    max_audio_sec,
+    resume_from_step=0,
+):
     ensure_teacher_loaded()
     if PHASE6_T2U_TRAIN_MODE == 'selective':
         mark_t2u_selective_trainable()
     else:
         mark_t2u_trainable_full()
 
+    ensure_trainable_fp32()  # <-- ADD THIS
+
     optimizer = torch.optim.AdamW(
-        make_t2u_param_groups(model_student, base_lr=8e-5, dur_lr=1e-4, scalar_lr=1e-4, head_lr=8e-5),
+        make_t2u_param_groups(model_student, base_lr=8e-5, dur_lr=1e-4,
+                              scalar_lr=1e-4, head_lr=8e-5),
         betas=(0.9, 0.98),
     )
     scheduler = make_cosine_scheduler(optimizer, steps)
-    scaler = torch.cuda.amp.GradScaler(enabled=torch.cuda.is_available())
+    scaler    = torch.cuda.amp.GradScaler(enabled=torch.cuda.is_available())
+
+    log_every  = max(1,        LOG_EVERY)
+    eval_every = max(log_every, EVAL_EVERY)
+    save_every = max(log_every, SAVE_EVERY)
+
+    # ── Resume ────────────────────────────────────────────────────────────────
+    if resume_from_step > 0:
+        ckpt = phase6_load_latest_local_checkpoint(f'phase6_{stage_key}')
+        if ckpt is None:
+            raise RuntimeError(
+                f'resume_from_step={resume_from_step} requested but no checkpoint found '
+                f'for phase6_{stage_key}'
+            )
+        model_student.t2u_model.load_state_dict(ckpt['t2u_model'])
+        optimizer.load_state_dict(ckpt['optimizer'])
+        if ckpt.get('logs'):
+            phase6_logs[stage_key] = ckpt['logs']
+        for _ in range(resume_from_step):
+            scheduler.step()
+        print(f'  Resumed {stage_key} from optimizer step {resume_from_step}/{steps}')
 
     model_student.train()
     optimizer.zero_grad(set_to_none=True)
+
     print(f'\n[{stage_key}] {title}')
+    print(f'  optimizer steps : {resume_from_step} → {steps}')
+    print(f'  fwd passes left : {(steps - resume_from_step) * GRAD_ACCUM}')
+    print(f'  log/eval/save   : every {log_every}/{eval_every}/{save_every} opt steps')
     print(f'  max_audio={max_audio_sec}s | trainable={count_trainable_params(model_student):.2f}M')
 
-    for step in range(steps):
-        sample, cache_entry = phase6_pick_training_pair(max_audio_sec=max_audio_sec, balanced=True)
+    start_micro = resume_from_step * GRAD_ACCUM
+    total_micro = steps            * GRAD_ACCUM
+
+    for micro_step in range(start_micro, total_micro):
+        sample, cache_entry    = phase6_pick_training_pair(max_audio_sec=max_audio_sec, balanced=True)
         teacher_text_sequences = cache_entry['teacher_text_sequences'].unsqueeze(0)
-        audio_inputs_student = phase6_prepare_audio_inputs(sample, student_device)
-        audio_inputs_teacher = {k: v.to(teacher_device) for k, v in audio_inputs_student.items()}
+        audio_inputs_student   = phase6_prepare_audio_inputs(sample, student_device)
+        audio_inputs_teacher   = {k: v.to(teacher_device) for k, v in audio_inputs_student.items()}
 
         try:
             with torch.no_grad():
@@ -790,9 +838,7 @@ def run_t2u_recovery_stage(stage_key, title, steps, max_audio_sec):
                         attention_mask=teacher_cond['t2u_attention_mask'],
                         char_input_ids=teacher_cond['t2u_char_input_ids'],
                         char_count_per_id=teacher_cond['t2u_char_count_per_id'],
-                        output_attentions=False,
-                        output_hidden_states=False,
-                        return_dict=True,
+                        output_attentions=False, output_hidden_states=False, return_dict=True,
                     )
 
             student_cond = build_t2u_conditioning_from_sequences(
@@ -807,31 +853,32 @@ def run_t2u_recovery_stage(stage_key, title, steps, max_audio_sec):
                     attention_mask=student_cond['t2u_attention_mask'],
                     char_input_ids=student_cond['t2u_char_input_ids'],
                     char_count_per_id=student_cond['t2u_char_count_per_id'],
-                    output_attentions=False,
-                    output_hidden_states=False,
-                    return_dict=True,
+                    output_attentions=False, output_hidden_states=False, return_dict=True,
                 )
                 teacher_t2u.last_hidden_state = teacher_t2u.last_hidden_state.to(student_device)
-                teacher_t2u.padding_mask = teacher_t2u.padding_mask.to(student_device)
-                t2u_soft, t2u_hard, t2u_len = t2u_overlap_losses(student_t2u, teacher_t2u)
+                teacher_t2u.padding_mask      = teacher_t2u.padding_mask.to(student_device)
+                t2u_soft, t2u_hard, t2u_len   = t2u_overlap_losses(student_t2u, teacher_t2u)
                 loss = 0.60 * t2u_soft + 0.30 * t2u_hard + 0.10 * t2u_len
             scaler.scale(loss / GRAD_ACCUM).backward()
         except RuntimeError as e:
             if 'out of memory' in str(e).lower():
                 safe_gc()
-                phase6_raise_oom(stage_key, step + 1, max_audio_sec, extra='set PHASE6_T2U_TRAIN_MODE="selective"')
+                phase6_raise_oom(stage_key, micro_step + 1, max_audio_sec,
+                                 extra='set PHASE6_T2U_TRAIN_MODE="selective"')
             raise
 
         phase6_logs[stage_key].append({
-            'step': step + 1,
-            'loss': float(loss.detach().cpu()),
-            't2u_soft': float(t2u_soft.detach().cpu()),
-            't2u_hard': float(t2u_hard.detach().cpu()),
-            't2u_len': float(t2u_len.detach().cpu()),
-            'lr': optimizer.param_groups[0]['lr'],
+            'micro_step': micro_step + 1,
+            'loss':       float(loss.detach().cpu()),
+            't2u_soft':   float(t2u_soft.detach().cpu()),
+            't2u_hard':   float(t2u_hard.detach().cpu()),
+            't2u_len':    float(t2u_len.detach().cpu()),
+            'lr':         optimizer.param_groups[0]['lr'],
         })
 
-        if (step + 1) % GRAD_ACCUM == 0:
+        if (micro_step + 1) % GRAD_ACCUM == 0:
+            opt_step = (micro_step + 1) // GRAD_ACCUM
+
             scaler.unscale_(optimizer)
             torch.nn.utils.clip_grad_norm_(
                 [p for p in model_student.parameters() if p.requires_grad],
@@ -842,79 +889,114 @@ def run_t2u_recovery_stage(stage_key, title, steps, max_audio_sec):
             optimizer.zero_grad(set_to_none=True)
             scheduler.step()
 
-        if (step + 1) % 50 == 0:
-            recent = phase6_logs[stage_key][-50:]
-            avg_loss = np.mean([row['loss'] for row in recent])
-            avg_soft = np.mean([row['t2u_soft'] for row in recent])
-            avg_hard = np.mean([row['t2u_hard'] for row in recent])
-            avg_len = np.mean([row['t2u_len'] for row in recent])
-            print(
-                f"  [{stage_key}] step {step+1:>4}/{steps} | "
-                f"loss={avg_loss:.4f} | soft={avg_soft:.4f} | "
-                f"hard={avg_hard:.4f} | len={avg_len:.4f} | "
-                f"lr={optimizer.param_groups[0]['lr']:.2e}"
-            )
+            # ── Log ───────────────────────────────────────────────────────────
+            if opt_step % log_every == 0:
+                recent   = phase6_logs[stage_key][-(log_every * GRAD_ACCUM):]
+                avg_loss = np.mean([r['loss']     for r in recent])
+                avg_soft = np.mean([r['t2u_soft'] for r in recent])
+                avg_hard = np.mean([r['t2u_hard'] for r in recent])
+                avg_len  = np.mean([r['t2u_len']  for r in recent])
+                print(
+                    f"  [{stage_key}] opt {opt_step:>4}/{steps} | "
+                    f"loss={avg_loss:.4f} | soft={avg_soft:.4f} | "
+                    f"hard={avg_hard:.4f} | len={avg_len:.4f} | "
+                    f"lr={optimizer.param_groups[0]['lr']:.2e}"
+                )
 
-        if (step + 1) % 200 == 0:
-            phase6_quick_eval(f'{stage_key}_step{step+1}', max_samples=8)
+            # ── Eval ──────────────────────────────────────────────────────────
+            if opt_step % eval_every == 0:
+                phase6_quick_eval(f'{stage_key}_step{opt_step}', max_samples=16)
 
-        if (step + 1) % 300 == 0:
-            save_checkpoint(
-                {
-                    'stage': stage_key,
-                    'step': step + 1,
-                    'mode': PHASE6_T2U_TRAIN_MODE,
-                    'logs': phase6_logs[stage_key],
-                    't2u_model': model_student.t2u_model.state_dict(),
-                    'optimizer': optimizer.state_dict(),
-                },
-                f'phase6_{stage_key}',
-                step + 1,
-            )
+            # ── Checkpoint ────────────────────────────────────────────────────
+            if opt_step % save_every == 0:
+                save_checkpoint(
+                    {
+                        'stage':          stage_key,
+                        'optimizer_step': opt_step,
+                        'steps_total':    steps,
+                        'mode':           PHASE6_T2U_TRAIN_MODE,
+                        'logs':           phase6_logs[stage_key],
+                        't2u_model':      model_student.t2u_model.state_dict(),
+                        'optimizer':      optimizer.state_dict(),
+                    },
+                    f'phase6_{stage_key}', opt_step,
+                )
 
     return phase6_logs[stage_key]
 
 
-def run_joint_polish_stage(stage_key, title, steps, max_audio_sec):
+def run_joint_polish_stage(
+    stage_key,
+    title,
+    steps,
+    max_audio_sec,
+    resume_from_step=0,
+):
     ensure_teacher_loaded()
     freeze_all_student()
     enable_lora_params(model_student.text_decoder, 'text_decoder')
     if PHASE6_T2U_TRAIN_MODE == 'selective':
         mark_t2u_selective_trainable()
-        enable_lora_params(model_student.text_decoder, 'text_decoder')
     else:
         mark_t2u_trainable_full()
-        enable_lora_params(model_student.text_decoder, 'text_decoder')
+
+    ensure_trainable_fp32()  # <-- ADD THIS
+    
+    enable_lora_params(model_student.text_decoder, 'text_decoder')
 
     text_params = trainable_named_params(model_student.text_decoder)
-    t2u_groups = make_t2u_param_groups(
-        model_student,
-        base_lr=4e-5,
-        dur_lr=5e-5,
-        scalar_lr=5e-5,
-        head_lr=4e-5,
-    )
-    optimizer = torch.optim.AdamW(
+    t2u_groups  = make_t2u_param_groups(model_student, base_lr=4e-5, dur_lr=5e-5,
+                                         scalar_lr=5e-5, head_lr=4e-5)
+    optimizer   = torch.optim.AdamW(
         [{'params': text_params, 'lr': 1e-5, 'weight_decay': 0.01}] + t2u_groups,
         betas=(0.9, 0.98),
     )
     scheduler = make_cosine_scheduler(optimizer, steps)
-    scaler = torch.cuda.amp.GradScaler(enabled=torch.cuda.is_available())
+    scaler    = torch.cuda.amp.GradScaler(enabled=torch.cuda.is_available())
+
+    log_every  = max(1,        LOG_EVERY)
+    eval_every = max(log_every, EVAL_EVERY)
+    save_every = max(log_every, SAVE_EVERY)
+
+    # ── Resume ────────────────────────────────────────────────────────────────
+    if resume_from_step > 0:
+        ckpt = phase6_load_latest_local_checkpoint(f'phase6_{stage_key}')
+        if ckpt is None:
+            raise RuntimeError(
+                f'resume_from_step={resume_from_step} requested but no checkpoint found '
+                f'for phase6_{stage_key}'
+            )
+        model_student.text_decoder.load_state_dict(ckpt['text_decoder'])
+        model_student.t2u_model.load_state_dict(ckpt['t2u_model'])
+        optimizer.load_state_dict(ckpt['optimizer'])
+        if ckpt.get('logs'):
+            phase6_logs[stage_key] = ckpt['logs']
+        for _ in range(resume_from_step):
+            scheduler.step()
+        print(f'  Resumed {stage_key} from optimizer step {resume_from_step}/{steps}')
 
     model_student.train()
     optimizer.zero_grad(set_to_none=True)
+
     print(f'\n[{stage_key}] {title}')
+    print(f'  optimizer steps : {resume_from_step} → {steps}')
+    print(f'  fwd passes left : {(steps - resume_from_step) * GRAD_ACCUM}')
+    print(f'  log/eval/save   : every {log_every}/{eval_every}/{save_every} opt steps')
     print(f'  max_audio={max_audio_sec}s | trainable={count_trainable_params(model_student):.2f}M')
 
-    for step in range(steps):
-        sample, cache_entry = phase6_pick_training_pair(max_audio_sec=max_audio_sec, balanced=True)
+    start_micro = resume_from_step * GRAD_ACCUM
+    total_micro = steps            * GRAD_ACCUM
+
+    for micro_step in range(start_micro, total_micro):
+        sample, cache_entry    = phase6_pick_training_pair(max_audio_sec=max_audio_sec, balanced=True)
         teacher_text_sequences = cache_entry['teacher_text_sequences'].unsqueeze(0)
-        use_teacher_text = random.random() < PHASE6_TEXT_KD_PROB
-        target_text = cache_entry['teacher_text_str'] if use_teacher_text else sample['ref']
+        use_teacher_text       = random.random() < PHASE6_TEXT_KD_PROB
+        target_text            = cache_entry['teacher_text_str'] if use_teacher_text else sample['ref']
 
         audio_inputs_student = phase6_prepare_audio_inputs(sample, student_device)
         audio_inputs_teacher = {k: v.to(teacher_device) for k, v in audio_inputs_student.items()}
-        labels = build_target_labels(processor, [target_text], sample['tgt_lang'], student_device)
+        labels               = build_target_labels(processor, [target_text], sample['tgt_lang'],
+                                                   student_device)
 
         try:
             with torch.no_grad():
@@ -930,9 +1012,7 @@ def run_joint_polish_stage(stage_key, title, steps, max_audio_sec):
                         attention_mask=teacher_cond['t2u_attention_mask'],
                         char_input_ids=teacher_cond['t2u_char_input_ids'],
                         char_count_per_id=teacher_cond['t2u_char_count_per_id'],
-                        output_attentions=False,
-                        output_hidden_states=False,
-                        return_dict=True,
+                        output_attentions=False, output_hidden_states=False, return_dict=True,
                     )
 
             with torch.cuda.amp.autocast(dtype=autocast_dtype):
@@ -940,9 +1020,7 @@ def run_joint_polish_stage(stage_key, title, steps, max_audio_sec):
                     **audio_inputs_student,
                     labels=labels,
                     use_cache=False,
-                    output_attentions=False,
-                    output_hidden_states=False,
-                    return_dict=True,
+                    output_attentions=False, output_hidden_states=False, return_dict=True,
                 )
                 student_cond = build_t2u_conditioning_from_sequences(
                     model_student,
@@ -955,34 +1033,35 @@ def run_joint_polish_stage(stage_key, title, steps, max_audio_sec):
                     attention_mask=student_cond['t2u_attention_mask'],
                     char_input_ids=student_cond['t2u_char_input_ids'],
                     char_count_per_id=student_cond['t2u_char_count_per_id'],
-                    output_attentions=False,
-                    output_hidden_states=False,
-                    return_dict=True,
+                    output_attentions=False, output_hidden_states=False, return_dict=True,
                 )
                 teacher_t2u.last_hidden_state = teacher_t2u.last_hidden_state.to(student_device)
-                teacher_t2u.padding_mask = teacher_t2u.padding_mask.to(student_device)
-                t2u_soft, t2u_hard, t2u_len = t2u_overlap_losses(student_t2u, teacher_t2u)
+                teacher_t2u.padding_mask      = teacher_t2u.padding_mask.to(student_device)
+                t2u_soft, t2u_hard, t2u_len   = t2u_overlap_losses(student_t2u, teacher_t2u)
                 text_loss = text_outputs.loss
                 loss = 0.35 * text_loss + 0.40 * t2u_soft + 0.20 * t2u_hard + 0.05 * t2u_len
             scaler.scale(loss / GRAD_ACCUM).backward()
         except RuntimeError as e:
             if 'out of memory' in str(e).lower():
                 safe_gc()
-                phase6_raise_oom(stage_key, step + 1, max_audio_sec, extra='reduce Stage 6D audio cap')
+                phase6_raise_oom(stage_key, micro_step + 1, max_audio_sec,
+                                 extra='reduce Stage 6D audio cap')
             raise
 
         phase6_logs[stage_key].append({
-            'step': step + 1,
-            'loss': float(loss.detach().cpu()),
-            'text_loss': float(text_loss.detach().cpu()),
-            't2u_soft': float(t2u_soft.detach().cpu()),
-            't2u_hard': float(t2u_hard.detach().cpu()),
-            't2u_len': float(t2u_len.detach().cpu()),
+            'micro_step':       micro_step + 1,
+            'loss':             float(loss.detach().cpu()),
+            'text_loss':        float(text_loss.detach().cpu()),
+            't2u_soft':         float(t2u_soft.detach().cpu()),
+            't2u_hard':         float(t2u_hard.detach().cpu()),
+            't2u_len':          float(t2u_len.detach().cpu()),
             'use_teacher_text': bool(use_teacher_text),
-            'lr': optimizer.param_groups[0]['lr'],
+            'lr':               optimizer.param_groups[0]['lr'],
         })
 
-        if (step + 1) % GRAD_ACCUM == 0:
+        if (micro_step + 1) % GRAD_ACCUM == 0:
+            opt_step = (micro_step + 1) // GRAD_ACCUM
+
             scaler.unscale_(optimizer)
             torch.nn.utils.clip_grad_norm_(
                 [p for p in model_student.parameters() if p.requires_grad],
@@ -993,49 +1072,46 @@ def run_joint_polish_stage(stage_key, title, steps, max_audio_sec):
             optimizer.zero_grad(set_to_none=True)
             scheduler.step()
 
-        if (step + 1) % 50 == 0:
-            recent = phase6_logs[stage_key][-50:]
-            avg_loss = np.mean([row['loss'] for row in recent])
-            avg_text = np.mean([row['text_loss'] for row in recent])
-            avg_soft = np.mean([row['t2u_soft'] for row in recent])
-            avg_hard = np.mean([row['t2u_hard'] for row in recent])
-            print(
-                f"  [{stage_key}] step {step+1:>4}/{steps} | "
-                f"loss={avg_loss:.4f} | text={avg_text:.4f} | "
-                f"soft={avg_soft:.4f} | hard={avg_hard:.4f} | "
-                f"lr={optimizer.param_groups[0]['lr']:.2e}"
-            )
+            # ── Log ───────────────────────────────────────────────────────────
+            if opt_step % log_every == 0:
+                recent   = phase6_logs[stage_key][-(log_every * GRAD_ACCUM):]
+                avg_loss = np.mean([r['loss']      for r in recent])
+                avg_text = np.mean([r['text_loss'] for r in recent])
+                avg_soft = np.mean([r['t2u_soft']  for r in recent])
+                avg_hard = np.mean([r['t2u_hard']  for r in recent])
+                print(
+                    f"  [{stage_key}] opt {opt_step:>4}/{steps} | "
+                    f"loss={avg_loss:.4f} | text={avg_text:.4f} | "
+                    f"soft={avg_soft:.4f} | hard={avg_hard:.4f} | "
+                    f"lr={optimizer.param_groups[0]['lr']:.2e}"
+                )
 
-        if (step + 1) % 100 == 0:
-            phase6_quick_eval(f'{stage_key}_step{step+1}', max_samples=8)
+            # ── Eval ──────────────────────────────────────────────────────────
+            if opt_step % eval_every == 0:
+                phase6_quick_eval(f'{stage_key}_step{opt_step}', max_samples=16)
 
-        if (step + 1) % 200 == 0:
-            save_checkpoint(
-                {
-                    'stage': stage_key,
-                    'step': step + 1,
-                    'mode': PHASE6_T2U_TRAIN_MODE,
-                    'logs': phase6_logs[stage_key],
-                    'text_decoder': model_student.text_decoder.state_dict(),
-                    't2u_model': model_student.t2u_model.state_dict(),
-                    'optimizer': optimizer.state_dict(),
-                },
-                f'phase6_{stage_key}',
-                step + 1,
-            )
+            # ── Checkpoint ────────────────────────────────────────────────────
+            if opt_step % save_every == 0:
+                save_checkpoint(
+                    {
+                        'stage':          stage_key,
+                        'optimizer_step': opt_step,
+                        'steps_total':    steps,
+                        'mode':           PHASE6_T2U_TRAIN_MODE,
+                        'logs':           phase6_logs[stage_key],
+                        'text_decoder':   model_student.text_decoder.state_dict(),
+                        't2u_model':      model_student.t2u_model.state_dict(),
+                        'optimizer':      optimizer.state_dict(),
+                    },
+                    f'phase6_{stage_key}', opt_step,
+                )
 
     return phase6_logs[stage_key]
 
 
 print('Loading Phase 5 student model...')
 model_student, processor = load_model_from_drive('phase5_dec_14L', device_map=None)
-model_student = move_model_to_device(model_student, student_device)
 disable_generation_cache(model_student)
-maybe_enable_gradient_checkpointing(model_student, 'student')
-maybe_enable_gradient_checkpointing(model_student.speech_encoder, 'speech_encoder')
-maybe_enable_gradient_checkpointing(model_student.text_decoder, 'text_decoder')
-maybe_enable_gradient_checkpointing(model_student.t2u_model.model.encoder, 't2u_encoder')
-maybe_enable_gradient_checkpointing(model_student.t2u_model.model.decoder, 't2u_decoder')
 
 print('Loading teacher model (vocab pruned) for Phase 6A cache build...')
 try:
@@ -1072,11 +1148,23 @@ model_student.text_decoder = wrap_with_lora_if_needed(
 )
 freeze_all_student()
 
+
+
+
+# Build once at startup, reuse everywhere
+_old_to_new = {
+    int(old_id): new_id
+    for new_id, old_id in enumerate(model_student._vocab_remap_to_old.tolist())
+}
+_student_vocab_size = model_student.text_decoder.get_base_model().embed_tokens.num_embeddings
+print(f"Remap table built: {len(_old_to_new)} entries, student vocab={_student_vocab_size}")
+
+model_student = move_model_to_device(model_student, student_device)
+
 print(f'Student device: {next(model_student.parameters()).device}')
 print(f'Teacher device: {next(model_teacher.parameters()).device}')
 print_model_breakdown(model_student, 'Phase 6 student with LoRA wrappers')
 gpu_mem()
-
 
 Cell2:
 def phase6_cache_checkpoint_name(split_name):
@@ -1364,16 +1452,31 @@ model_teacher = None
 safe_gc()
 gpu_mem()
 
-
 Cell3:
-phase6_logs['6b1'] = run_text_recovery_stage(
-    stage_key='6b1',
-    title='Text decoder warmup (LoRA only)',
-    steps=STAGE6B1_STEPS,
-    max_audio_sec=MAX_AUDIO_SEC_B1,
-    text_lr=1e-4,
-    speech_lr=None,
-    kd_prob=PHASE6_TEXT_KD_PROB,
-)
+# ── Helper: find the latest saved optimizer step for a stage ─────────────────
+def phase6_get_resume_step(stage_key):
+    """
+    Returns the optimizer step stored in the latest checkpoint for this stage.
+    Returns 0 if no checkpoint exists (fresh start).
+    To extend a run: just increase the STAGE6XX_STEPS constant and re-run the cell.
+    The function will pick up from the last saved checkpoint automatically.
+    """
+    ckpt = phase6_load_latest_local_checkpoint(f'phase6_{stage_key}')
+    if ckpt is None:
+        print(f'  [{stage_key}] No checkpoint found — starting fresh.')
+        return 0
+    saved_step   = ckpt.get('optimizer_step', 0)
+    saved_total  = ckpt.get('steps_total',    '?')
+    print(f'  [{stage_key}] Checkpoint found at optimizer step {saved_step}/{saved_total}')
+    return saved_step
 
-phase6_quick_eval('stage6b1_done', max_samples=8)
+Cell4:
+# ── Stage 6C ──────────────────────────────────────────────────────────────────
+phase6_logs['6c'] = run_t2u_recovery_stage(
+    stage_key        = '6c',
+    title            = 'Native T2U recovery with teacher KD',
+    steps            = STAGE6C_STEPS,
+    max_audio_sec    = MAX_AUDIO_SEC_C,
+    resume_from_step = phase6_get_resume_step('6c'),
+)
+phase6_quick_eval('stage6c_done', max_samples=16)
