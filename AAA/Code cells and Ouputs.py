@@ -1,16 +1,3 @@
-PHASE 6: LoRA + Native T2U Recovery¶
-This Phase 6 block fully replaces the earlier broken LoRA/DoRA cells.
-
-Design rules used here:
-
-exact module names from AAA/modeling_seamless_m4t_v2.py
-LoRA on speech_encoder + text_decoder
-full native t2u_model recovery for the NAR text-to-unit path
-offline teacher cache
-strict 2-GPU separation when available
-fp16, gradient checkpointing, micro-batch 1, short-audio caps
-Run the cells in order. If Stage 6C still OOMs, set PHASE6_T2U_TRAIN_MODE = "selective" in the setup cell and rerun Stage 6C.
-
 import gc
 import glob
 import math
@@ -437,6 +424,16 @@ def _compute_new_attention_mask(hidden_states: torch.Tensor, seq_lens: torch.Ten
 
 
 def build_t2u_conditioning_from_sequences(model, input_features, attention_mask, text_sequences):
+    """
+    Build T2U conditioning inputs from cached teacher text token sequences.
+    Both student and teacher use NEW IDs natively (_vocab_remap_to_old confirmed
+    present on both models). No remapping is needed for the char path.
+ 
+    The only change from the original: t2u_input_embeds is cast to match
+    the t2u_model weight dtype before returning, preventing the FP16/FP32
+    LayerNorm crash in the T2U encoder.
+    """
+    # ── 1. Speech encoder ─────────────────────────────────────────────────────
     enc = model.speech_encoder(
         input_features=input_features,
         attention_mask=attention_mask,
@@ -444,28 +441,41 @@ def build_t2u_conditioning_from_sequences(model, input_features, attention_mask,
         output_hidden_states=False,
         return_dict=True,
     ).last_hidden_state
-
+ 
     encoder_attention_mask = None
     if attention_mask is not None:
-        sub_lengths = model._compute_sub_sample_lengths_from_attention_mask(attention_mask).to(enc.device)
+        sub_lengths = model._compute_sub_sample_lengths_from_attention_mask(
+            attention_mask
+        ).to(enc.device)
         encoder_attention_mask = _compute_new_attention_mask(enc, sub_lengths)
-
-    t2u_input_embeds = model.text_decoder(
-        input_ids=text_sequences[:, :-1],
-        encoder_hidden_states=enc,
-        encoder_attention_mask=encoder_attention_mask,
-        use_cache=False,
-        output_attentions=False,
-        output_hidden_states=False,
-        return_dict=True,
-    ).last_hidden_state
-
+ 
     pad_token_id = model.generation_config.pad_token_id
     eos_token_id = model.generation_config.eos_token_id
-
+ 
+    # ── 2. Text decoder — frozen, eval mode to kill dropout ───────────────────
+    was_training = model.text_decoder.training
+    if was_training:
+        model.text_decoder.eval()
+    try:
+        t2u_input_embeds = model.text_decoder(
+            input_ids=text_sequences[:, :-1],
+            encoder_hidden_states=enc,
+            encoder_attention_mask=encoder_attention_mask,
+            use_cache=False,
+            output_attentions=False,
+            output_hidden_states=False,
+            return_dict=True,
+        ).last_hidden_state
+    finally:
+        if was_training:
+            model.text_decoder.train()
+ 
+    # ── 3. Char path — NEW IDs, no remapping needed ───────────────────────────
     t2u_input_ids = text_sequences[:, 2:-1].clone()
-    t2u_input_ids = torch.masked_fill(t2u_input_ids, t2u_input_ids == eos_token_id, pad_token_id)
-
+    t2u_input_ids = torch.masked_fill(
+        t2u_input_ids, t2u_input_ids == eos_token_id, pad_token_id
+    )
+ 
     t2u_subwords = model._indices_to_subwords(t2u_input_ids)
     t2u_char_count_per_id = model._count_character_length_in_subword(
         t2u_input_ids,
@@ -474,29 +484,46 @@ def build_t2u_conditioning_from_sequences(model, input_features, attention_mask,
     )
     pad_zero = t2u_char_count_per_id.new_zeros((t2u_char_count_per_id.shape[0], 1))
     t2u_char_count_per_id = torch.cat([pad_zero, t2u_char_count_per_id, pad_zero], dim=1)
-
+ 
     t2u_char_input_ids = model._get_char_input_ids(
         t2u_input_ids,
         t2u_subwords,
         t2u_char_count_per_id,
         pad_token_id=pad_token_id,
     )
-
+ 
+    # ── 4. Attention mask ─────────────────────────────────────────────────────
     seq_lens = (text_sequences[:, :-1] != pad_token_id).int().sum(1)
     t2u_attention_mask = _compute_new_attention_mask(t2u_input_embeds, seq_lens)
-
+ 
+    # ── 5. THE FIX: cast embeds to match t2u_model weight dtype ───────────────
+    # t2u_input_embeds comes from text_decoder (may be FP32 after LoRA fp32 cast
+    # in 6b). The t2u_model weights may be FP16 (before training) or FP32
+    # (after ensure_trainable_fp32 in 6c). Always cast to match so the first
+    # LayerNorm in the T2U encoder never sees a dtype mismatch.
+    t2u_model_dtype = next(model.t2u_model.parameters()).dtype
+    t2u_input_embeds = t2u_input_embeds.to(dtype=t2u_model_dtype)
+ 
     return {
-        't2u_input_embeds': t2u_input_embeds,
-        't2u_attention_mask': t2u_attention_mask,
-        't2u_char_input_ids': t2u_char_input_ids,
-        't2u_char_count_per_id': t2u_char_count_per_id,
+        "t2u_input_embeds":      t2u_input_embeds,
+        "t2u_attention_mask":    t2u_attention_mask,
+        "t2u_char_input_ids":    t2u_char_input_ids,
+        "t2u_char_count_per_id": t2u_char_count_per_id,
     }
 
 
 def t2u_overlap_losses(student_out, teacher_out, temperature=2.0):
-    student_logits = student_out.last_hidden_state
-    teacher_logits = teacher_out.last_hidden_state
+    def _get_logits(out):
+        if hasattr(out, "logits") and out.logits is not None:
+            return out.logits
+        if hasattr(out, "last_hidden_state") and out.last_hidden_state is not None:
+            return out.last_hidden_state
+        raise AttributeError("T2U output has neither .logits nor .last_hidden_state.")
 
+    student_logits = _get_logits(student_out)
+    teacher_logits = _get_logits(teacher_out)
+
+    # Original mask logic — padding_mask = 1 means VALID here
     student_mask = student_out.padding_mask.bool()
     teacher_mask = teacher_out.padding_mask.bool()
 
@@ -519,7 +546,7 @@ def t2u_overlap_losses(student_out, teacher_out, temperature=2.0):
         total_kl = total_kl + F.kl_div(
             F.log_softmax(s / temperature, dim=-1),
             F.softmax(t / temperature, dim=-1),
-            reduction='batchmean',
+            reduction="batchmean",
         ) * (temperature ** 2)
 
         teacher_hard = t.argmax(dim=-1)
@@ -527,13 +554,11 @@ def t2u_overlap_losses(student_out, teacher_out, temperature=2.0):
         valid += 1
 
     if valid == 0:
-        raise RuntimeError('No valid T2U overlap found in batch.')
+        raise RuntimeError("No valid T2U overlap found in batch.")
 
     total_kl = total_kl / valid
     total_ce = total_ce / valid
 
-    # ── Normalized length loss: penalize ratio error, not absolute difference ──
-    # log-ratio loss: 0 when lengths match, ~0.7 when off by 2x, bounded
     len_ratio = (student_len + 1.0) / (teacher_len + 1.0)
     total_len = torch.mean(torch.abs(torch.log(len_ratio)))
 
@@ -573,28 +598,6 @@ def make_t2u_param_groups(model_student, base_lr=8e-5, dur_lr=1e-4, scalar_lr=1e
         groups.append({'params': head_params, 'lr': head_lr, 'weight_decay': 0.01})
     return groups
 
-def build_target_labels(processor, text_list, tgt_lang, device):
-    tok = processor.tokenizer(
-        text_target=text_list,
-        tgt_lang=tgt_lang,
-        return_tensors='pt',
-        padding=True,
-    )
-    labels = tok['input_ids'].clone()  # still 256K IDs
-
-    # Remap every ID through old->new map
-    remapped = torch.full_like(labels, -100)  # default: ignore
-    for i in range(labels.shape[0]):
-        for j in range(labels.shape[1]):
-            old_id = int(labels[i, j].item())
-            if old_id == processor.tokenizer.pad_token_id:
-                remapped[i, j] = -100
-            elif old_id in _old_to_new:
-                remapped[i, j] = _old_to_new[old_id]
-            # else: pruned token, stays -100 (ignored in loss)
-
-    return remapped.to(device)
-
 def text_recovery_step(sample, cache_entry, use_teacher_text):
     """
     Text recovery training step.
@@ -603,9 +606,8 @@ def text_recovery_step(sample, cache_entry, use_teacher_text):
     audio_inputs = phase6_prepare_audio_inputs(sample, student_device)
     
     if use_teacher_text:
-        # Cache entries are already remapped - use directly
         labels = cache_entry['teacher_text_sequences'].unsqueeze(0).to(student_device)
-        labels = labels.masked_fill(labels == processor.tokenizer.pad_token_id, -100)
+        labels = labels.masked_fill(labels == _NEW_PAD_ID, -100)
     else:
         labels = build_target_labels(processor, [sample['ref']], sample['tgt_lang'], student_device)
 
@@ -618,8 +620,6 @@ def text_recovery_step(sample, cache_entry, use_teacher_text):
         return_dict=True,
     )
     return outputs.loss
-
-print("✓ Function updated")
 
 
 def run_text_recovery_stage(
@@ -788,16 +788,25 @@ def run_t2u_recovery_stage(
     resume_from_step=0,
 ):
     ensure_teacher_loaded()
-    if PHASE6_T2U_TRAIN_MODE == 'selective':
+    if PHASE6_T2U_TRAIN_MODE == "selective":
         mark_t2u_selective_trainable()
     else:
         mark_t2u_trainable_full()
 
-    ensure_trainable_fp32()  # <-- ADD THIS
+    ensure_trainable_fp32()
 
+    # ── Fragmentation mitigation ───────────────────────────────────────────────
+    # Torch recommends this when reserved-but-unallocated memory is large.
+    # os.environ.setdefault("PYTORCH_ALLOC_CONF", "expandable_segments:True")
+
+    # optimizer = torch.optim.AdamW(
+    #     make_t2u_param_groups(model_student, base_lr=8e-5, dur_lr=1e-4,
+    #                           scalar_lr=1e-4, head_lr=8e-5),
+    #     betas=(0.9, 0.98),
+    # )
     optimizer = torch.optim.AdamW(
-        make_t2u_param_groups(model_student, base_lr=8e-5, dur_lr=1e-4,
-                              scalar_lr=1e-4, head_lr=8e-5),
+        make_t2u_param_groups(model_student, base_lr=2e-4, dur_lr=3e-4,
+                              scalar_lr=3e-4, head_lr=2e-4),
         betas=(0.9, 0.98),
     )
     scheduler = make_cosine_scheduler(optimizer, steps)
@@ -809,89 +818,116 @@ def run_t2u_recovery_stage(
 
     # ── Resume ────────────────────────────────────────────────────────────────
     if resume_from_step > 0:
-        ckpt = phase6_load_latest_local_checkpoint(f'phase6_{stage_key}')
+        ckpt = phase6_load_latest_local_checkpoint(f"phase6_{stage_key}")
         if ckpt is None:
             raise RuntimeError(
-                f'resume_from_step={resume_from_step} requested but no checkpoint found '
-                f'for phase6_{stage_key}'
+                f"resume_from_step={resume_from_step} requested but no checkpoint found "
+                f"for phase6_{stage_key}"
             )
-        model_student.t2u_model.load_state_dict(ckpt['t2u_model'])
-        optimizer.load_state_dict(ckpt['optimizer'])
-        if ckpt.get('logs'):
-            phase6_logs[stage_key] = ckpt['logs']
+        model_student.t2u_model.load_state_dict(ckpt["t2u_model"])
+        optimizer.load_state_dict(ckpt["optimizer"])
+        if ckpt.get("logs"):
+            phase6_logs[stage_key] = ckpt["logs"]
         for _ in range(resume_from_step):
             scheduler.step()
-        print(f'  Resumed {stage_key} from optimizer step {resume_from_step}/{steps}')
+        print(f"  Resumed {stage_key} from optimizer step {resume_from_step}/{steps}")
 
     model_student.train()
     optimizer.zero_grad(set_to_none=True)
 
-    print(f'\n[{stage_key}] {title}')
-    print(f'  optimizer steps : {resume_from_step} → {steps}')
-    print(f'  fwd passes left : {(steps - resume_from_step) * GRAD_ACCUM}')
-    print(f'  log/eval/save   : every {log_every}/{eval_every}/{save_every} opt steps')
-    print(f'  max_audio={max_audio_sec}s | trainable={count_trainable_params(model_student):.2f}M')
+    print(f"\n[{stage_key}] {title}")
+    print(f"  optimizer steps : {resume_from_step} → {steps}")
+    print(f"  fwd passes left : {(steps - resume_from_step) * GRAD_ACCUM}")
+    print(f"  log/eval/save   : every {log_every}/{eval_every}/{save_every} opt steps")
+    print(f"  max_audio={max_audio_sec}s | trainable={count_trainable_params(model_student):.2f}M")
 
     start_micro = resume_from_step * GRAD_ACCUM
     total_micro = steps            * GRAD_ACCUM
 
     for micro_step in range(start_micro, total_micro):
         sample, cache_entry    = phase6_pick_training_pair(max_audio_sec=max_audio_sec, balanced=True)
-        teacher_text_sequences = cache_entry['teacher_text_sequences'].unsqueeze(0)
+        teacher_text_sequences = cache_entry["teacher_text_sequences"].unsqueeze(0)
         audio_inputs_student   = phase6_prepare_audio_inputs(sample, student_device)
         audio_inputs_teacher   = {k: v.to(teacher_device) for k, v in audio_inputs_student.items()}
 
         try:
+            # ── Teacher path (GPU1, always no_grad) ───────────────────────────
             with torch.no_grad():
                 teacher_cond = build_t2u_conditioning_from_sequences(
                     model_teacher,
-                    input_features=audio_inputs_teacher['input_features'],
-                    attention_mask=audio_inputs_teacher.get('attention_mask'),
+                    input_features=audio_inputs_teacher["input_features"],
+                    attention_mask=audio_inputs_teacher.get("attention_mask"),
                     text_sequences=teacher_text_sequences.to(teacher_device),
                 )
                 with torch.cuda.amp.autocast(dtype=autocast_dtype):
                     teacher_t2u = model_teacher.t2u_model(
-                        inputs_embeds=teacher_cond['t2u_input_embeds'],
-                        attention_mask=teacher_cond['t2u_attention_mask'],
-                        char_input_ids=teacher_cond['t2u_char_input_ids'],
-                        char_count_per_id=teacher_cond['t2u_char_count_per_id'],
-                        output_attentions=False, output_hidden_states=False, return_dict=True,
+                        inputs_embeds=teacher_cond["t2u_input_embeds"],
+                        attention_mask=teacher_cond["t2u_attention_mask"],
+                        char_input_ids=teacher_cond["t2u_char_input_ids"],
+                        char_count_per_id=teacher_cond["t2u_char_count_per_id"],
+                        output_attentions=False,
+                        output_hidden_states=False,
+                        return_dict=True,
                     )
 
-            student_cond = build_t2u_conditioning_from_sequences(
-                model_student,
-                input_features=audio_inputs_student['input_features'],
-                attention_mask=audio_inputs_student.get('attention_mask'),
-                text_sequences=teacher_text_sequences.to(student_device),
-            )
+            # ── Student conditioning (GPU0) — FROZEN path, NO_GRAD ─────────────
+            # CRITICAL FIX: speech_encoder + text_decoder are frozen.
+            # Running them outside no_grad() keeps every intermediate activation
+            # in RAM to support backward() — which never comes for frozen params.
+            # This is the primary OOM cause.  Detach before passing to T2U so
+            # gradients only flow through T2U's own parameters.
+            with torch.no_grad():
+                student_cond = build_t2u_conditioning_from_sequences(
+                    model_student,
+                    input_features=audio_inputs_student["input_features"],
+                    attention_mask=audio_inputs_student.get("attention_mask"),
+                    text_sequences=teacher_text_sequences.to(student_device),
+                )
+            # Detach to make inputs_embeds a leaf — T2U grads stay local to T2U.
+            t2u_inputs_embeds = student_cond["t2u_input_embeds"].detach()
+
+            # ── Student T2U (GPU0, trainable) ─────────────────────────────────
             with torch.cuda.amp.autocast(dtype=autocast_dtype):
                 student_t2u = model_student.t2u_model(
-                    inputs_embeds=student_cond['t2u_input_embeds'],
-                    attention_mask=student_cond['t2u_attention_mask'],
-                    char_input_ids=student_cond['t2u_char_input_ids'],
-                    char_count_per_id=student_cond['t2u_char_count_per_id'],
-                    output_attentions=False, output_hidden_states=False, return_dict=True,
+                    inputs_embeds=t2u_inputs_embeds,
+                    attention_mask=student_cond["t2u_attention_mask"],
+                    char_input_ids=student_cond["t2u_char_input_ids"],
+                    char_count_per_id=student_cond["t2u_char_count_per_id"],
+                    output_attentions=False,
+                    output_hidden_states=False,
+                    return_dict=True,
                 )
-                teacher_t2u.last_hidden_state = teacher_t2u.last_hidden_state.to(student_device)
-                teacher_t2u.padding_mask      = teacher_t2u.padding_mask.to(student_device)
-                t2u_soft, t2u_hard, t2u_len   = t2u_overlap_losses(student_t2u, teacher_t2u)
-                loss = 0.45 * t2u_soft + 0.25 * t2u_hard + 0.30 * t2u_len
-                
+
+                teacher_t2u.last_hidden_state = (
+                    teacher_t2u.last_hidden_state.to(student_device)
+                    if hasattr(teacher_t2u, "last_hidden_state") and teacher_t2u.last_hidden_state is not None
+                    else None
+                )
+                if hasattr(teacher_t2u, "logits") and teacher_t2u.logits is not None:
+                    teacher_t2u.logits = teacher_t2u.logits.to(student_device)
+                teacher_t2u.padding_mask = teacher_t2u.padding_mask.to(student_device)
+
+                t2u_soft, t2u_hard, t2u_len = t2u_overlap_losses(student_t2u, teacher_t2u)
+
+                # FIX B: Use weights from planning.md (was 0.45/0.25/0.30 — len was 3× too high)
+                loss = 0.60 * t2u_soft + 0.30 * t2u_hard + 0.10 * t2u_len
+
             scaler.scale(loss / GRAD_ACCUM).backward()
+
         except RuntimeError as e:
-            if 'out of memory' in str(e).lower():
+            if "out of memory" in str(e).lower():
                 safe_gc()
                 phase6_raise_oom(stage_key, micro_step + 1, max_audio_sec,
                                  extra='set PHASE6_T2U_TRAIN_MODE="selective"')
             raise
 
         phase6_logs[stage_key].append({
-            'micro_step': micro_step + 1,
-            'loss':       float(loss.detach().cpu()),
-            't2u_soft':   float(t2u_soft.detach().cpu()),
-            't2u_hard':   float(t2u_hard.detach().cpu()),
-            't2u_len':    float(t2u_len.detach().cpu()),
-            'lr':         optimizer.param_groups[0]['lr'],
+            "micro_step": micro_step + 1,
+            "loss":       float(loss.detach().cpu()),
+            "t2u_soft":   float(t2u_soft.detach().cpu()),
+            "t2u_hard":   float(t2u_hard.detach().cpu()),
+            "t2u_len":    float(t2u_len.detach().cpu()),
+            "lr":         optimizer.param_groups[0]["lr"],
         })
 
         if (micro_step + 1) % GRAD_ACCUM == 0:
@@ -907,13 +943,12 @@ def run_t2u_recovery_stage(
             optimizer.zero_grad(set_to_none=True)
             scheduler.step()
 
-            # ── Log ───────────────────────────────────────────────────────────
             if opt_step % log_every == 0:
                 recent   = phase6_logs[stage_key][-(log_every * GRAD_ACCUM):]
-                avg_loss = np.mean([r['loss']     for r in recent])
-                avg_soft = np.mean([r['t2u_soft'] for r in recent])
-                avg_hard = np.mean([r['t2u_hard'] for r in recent])
-                avg_len  = np.mean([r['t2u_len']  for r in recent])
+                avg_loss = np.mean([r["loss"]     for r in recent])
+                avg_soft = np.mean([r["t2u_soft"] for r in recent])
+                avg_hard = np.mean([r["t2u_hard"] for r in recent])
+                avg_len  = np.mean([r["t2u_len"]  for r in recent])
                 print(
                     f"  [{stage_key}] opt {opt_step:>4}/{steps} | "
                     f"loss={avg_loss:.4f} | soft={avg_soft:.4f} | "
@@ -921,23 +956,21 @@ def run_t2u_recovery_stage(
                     f"lr={optimizer.param_groups[0]['lr']:.2e}"
                 )
 
-            # ── Eval ──────────────────────────────────────────────────────────
             if opt_step % eval_every == 0:
-                phase6_quick_eval(f'{stage_key}_step{opt_step}', max_samples=16)
+                phase6_quick_eval(f"{stage_key}_step{opt_step}", max_samples=16)
 
-            # ── Checkpoint ────────────────────────────────────────────────────
             if opt_step % save_every == 0:
                 save_checkpoint(
                     {
-                        'stage':          stage_key,
-                        'optimizer_step': opt_step,
-                        'steps_total':    steps,
-                        'mode':           PHASE6_T2U_TRAIN_MODE,
-                        'logs':           phase6_logs[stage_key],
-                        't2u_model':      model_student.t2u_model.state_dict(),
-                        'optimizer':      optimizer.state_dict(),
+                        "stage":          stage_key,
+                        "optimizer_step": opt_step,
+                        "steps_total":    steps,
+                        "mode":           PHASE6_T2U_TRAIN_MODE,
+                        "logs":           phase6_logs[stage_key],
+                        "t2u_model":      model_student.t2u_model.state_dict(),
+                        "optimizer":      optimizer.state_dict(),
                     },
-                    f'phase6_{stage_key}', opt_step,
+                    f"phase6_{stage_key}", opt_step,
                 )
 
     return phase6_logs[stage_key]
@@ -1165,9 +1198,7 @@ model_student.text_decoder = wrap_with_lora_if_needed(
     'text_decoder',
 )
 freeze_all_student()
-
-
-
+model_student = move_model_to_device(model_student, student_device)
 
 # Build once at startup, reuse everywhere
 _old_to_new = {
@@ -1177,7 +1208,41 @@ _old_to_new = {
 _student_vocab_size = model_student.text_decoder.get_base_model().embed_tokens.num_embeddings
 print(f"Remap table built: {len(_old_to_new)} entries, student vocab={_student_vocab_size}")
 
-model_student = move_model_to_device(model_student, student_device)
+
+def build_target_labels(processor, text_list, tgt_lang, device):
+    tok = processor.tokenizer(
+        text_target=text_list,
+        tgt_lang=tgt_lang,
+        return_tensors='pt',
+        padding=True,
+    )
+    labels = tok['input_ids'].clone()  # still 256K IDs
+
+    # Remap every ID through old->new map
+    remapped = torch.full_like(labels, -100)  # default: ignore
+    for i in range(labels.shape[0]):
+        for j in range(labels.shape[1]):
+            old_id = int(labels[i, j].item())
+            if old_id == processor.tokenizer.pad_token_id:
+                remapped[i, j] = -100
+            elif old_id in _old_to_new:
+                remapped[i, j] = _old_to_new[old_id]
+            # else: pruned token, stays -100 (ignored in loss)
+
+    return remapped.to(device)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# GLOBAL REMAP CONSTANTS — run once after model loading
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Precompute new→old dense tensor for processor.decode ops
+_NEW_TO_OLD_TENSOR = model_student._vocab_remap_to_old  # shape [22767]
+
+# Special token IDs in NEW vocab (for masking without touching processor)
+_NEW_PAD_ID = _old_to_new[processor.tokenizer.pad_token_id]   # 0
+_NEW_EOS_ID = _old_to_new[processor.tokenizer.eos_token_id]   # 3
+
+print(f"Global remap constants | _NEW_PAD_ID={_NEW_PAD_ID} | _NEW_EOS_ID={_NEW_EOS_ID}")
 
 print(f'Student device: {next(model_student.parameters()).device}')
 print(f'Teacher device: {next(model_teacher.parameters()).device}')
@@ -1185,37 +1250,6 @@ print_model_breakdown(model_student, 'Phase 6 student with LoRA wrappers')
 gpu_mem()
 
 
-Loading Phase 5 student model...
-[model] Not in local cache — pulling from remote...
-[rclone] Pulled phase5_dec_14L → /kaggle/working/models/phase5_dec_14L
-[model] Loading phase5_dec_14L from /kaggle/working/models/phase5_dec_14L ...
-  Restored custom state: ['_vocab_remap_to_old']
-[model] Loaded phase5_dec_14L.
-Loading teacher model (vocab pruned) for Phase 6A cache build...
-[model] Not in local cache — pulling from remote...
-[rclone] Pulled phase1_vocab_5lang → /kaggle/working/models/phase1_vocab_5lang
-[model] Loading phase1_vocab_5lang from /kaggle/working/models/phase1_vocab_5lang ...
-  Restored custom state: ['_vocab_remap_to_old']
-[model] Loaded phase1_vocab_5lang.
-speech_encoder LoRA attached.
-trainable params: 6,605,312 || all params: 399,849,152 || trainable%: 1.6520
-text_decoder LoRA attached.
-trainable params: 15,597,568 || all params: 391,564,288 || trainable%: 3.9834
-Remap table built: 22767 entries, student vocab=22767
-Student device: cuda:0
-Teacher device: cuda:1
-
---- Phase 6 student with LoRA wrappers ---
-  speech_encoder                         399.8M  ( 38.0%)
-  text_decoder                           391.6M  ( 37.2%)
-  t2u_model                              219.8M  ( 20.9%)
-  vocoder                                 41.9M  (  4.0%)
-  shared                                  23.3M  (  2.2%)
-  lm_head                                 23.3M  (  2.2%)
-  TOTAL                                 1053.1M
----
-  GPU0: 2.18GB alloc / 2.19GB reserved
-  GPU1: 3.16GB alloc / 3.17GB reserved
 def phase6_cache_checkpoint_name(split_name):
     return f'{PHASE6_CACHE_PREFIX}_{split_name}'
 
@@ -1325,20 +1359,23 @@ def build_teacher_cache_entry(model_teacher, sample):
     if out.unit_sequences is None:
         return None, 'teacher_returned_no_unit_sequence'
 
-    teacher_text_sequences = out.sequences[0].detach().cpu()
+    teacher_text_sequences = out.sequences[0].detach().cpu()  # NEW IDs
     
-    # Validate sequence length
     if teacher_text_sequences.numel() == 0:
         return None, 'empty_teacher_sequence'
     
-    if teacher_text_sequences.numel() > 512:  # max position embeddings
+    if teacher_text_sequences.numel() > 512:
         return None, f'teacher_sequence_too_long:{teacher_text_sequences.numel()}'
 
     teacher_unit_sequences = out.unit_sequences[0].detach().cpu()
+    
+    # ── FIX: processor.batch_decode needs OLD IDs ───────────────────────────
+    old_ids = _NEW_TO_OLD_TENSOR[teacher_text_sequences]
     teacher_text_str = processor.batch_decode(
-        teacher_text_sequences.unsqueeze(0),
+        old_ids.unsqueeze(0),
         skip_special_tokens=True,
     )[0].strip()
+    # ─────────────────────────────────────────────────────────────────────────
 
     unit_len = int(teacher_unit_sequences.numel())
 
@@ -1354,7 +1391,7 @@ def build_teacher_cache_entry(model_teacher, sample):
         'sample_id': sample['id'],
         'src_lang': sample['src_lang'],
         'tgt_lang': sample['tgt_lang'],
-        'teacher_text_sequences': teacher_text_sequences,
+        'teacher_text_sequences': teacher_text_sequences,  # keep NEW IDs
         'teacher_text_str': teacher_text_str,
         'teacher_unit_sequences': teacher_unit_sequences,
         'audio_len_s': len(sample['wav']) / 16000.0,
@@ -1495,43 +1532,10 @@ print(f"  sync parts: {PHASE6_CACHE_SYNC_PARTS} | shard LRU limit: {PHASE6_SHARD
 for pair, keys in sorted(phase6_cache_keys_by_pair.items()):
     print(f'  {pair:<12} {len(keys):>5} samples')
 
-# print('Unloading teacher after cache build to free GPU1...')
-del model_teacher
-model_teacher = None
-safe_gc()
-gpu_mem()
 
 
-def phase6_get_resume_step(stage_key):
-    """
-    Returns the optimizer step stored in the latest checkpoint for this stage.
-    Returns 0 if no checkpoint exists (fresh start).
-    To extend a run: just increase the STAGE6XX_STEPS constant and re-run the cell.
-    The function will pick up from the last saved checkpoint automatically.
-    """
-    ckpt = phase6_load_latest_local_checkpoint(f'phase6_{stage_key}')
-    if ckpt is None:
-        print(f'  [{stage_key}] No checkpoint found — starting fresh.')
-        return 0
-    saved_step   = ckpt.get('optimizer_step', 0)
-    saved_total  = ckpt.get('steps_total',    '?')
-    print(f'  [{stage_key}] Checkpoint found at optimizer step {saved_step}/{saved_total}')
-    return saved_step
 
-# Load the specific step 1350 checkpoint by path (not latest)
-ckpt_path = f'{CKPT_DIR}/phase6_6b2_step001350.pt'
-ckpt_6b2  = torch.load(ckpt_path, map_location='cpu', weights_only=False)
 
-assert ckpt_6b2['optimizer_step'] == 1350, f"Expected step 1350, got {ckpt_6b2['optimizer_step']}"
-
-model_student.text_decoder.load_state_dict(ckpt_6b2['text_decoder'])
-model_student.speech_encoder.load_state_dict(ckpt_6b2['speech_encoder'])
-print(f"✓ Loaded 6b2 weights from step {ckpt_6b2['optimizer_step']} "
-      f"(Text-ChrF=40.47, ASR-ChrF=37.06)")
-
-del ckpt_6b2
-safe_gc()
-✓ Loaded 6b2 weights from step 1350 (Text-ChrF=40.47, ASR-ChrF=37.06)
 STAGE6C_STEPS    = 1100    # — T2U distillation
 
 # ── Stage 6C ──────────────────────────────────────────────────────────────────
@@ -1543,293 +1547,3 @@ phase6_logs['6c'] = run_t2u_recovery_stage(
     resume_from_step = phase6_get_resume_step('6c'),
 )
 phase6_quick_eval('stage6c_done', max_samples=16)
-  [6c] No checkpoint found — starting fresh.
-Reloading teacher model for Phase 6 KD...
-[model] Loading phase1_vocab_5lang from /kaggle/working/models/phase1_vocab_5lang ...
-  Restored custom state: ['_vocab_remap_to_old']
-[model] Loaded phase1_vocab_5lang.
-  Teacher device: cuda:1
-  T2U mode: full native training
-  Cast 178 trainable FP16 params to FP32
-
-[6c] Native T2U recovery with teacher KD
-  optimizer steps : 0 → 1100
-  fwd passes left : 8800
-  log/eval/save   : every 10/50/50 opt steps
-  max_audio=12s | trainable=219.78M
-  [6c] opt   10/1100 | loss=2.7886 | soft=1.1326 | hard=8.9368 | len=0.1493 | lr=8.00e-06
-  [6c] opt   20/1100 | loss=2.5446 | soft=0.9964 | hard=8.1862 | len=0.1655 | lr=1.53e-05
-  [6c] opt   30/1100 | loss=2.3680 | soft=0.8873 | hard=7.7416 | len=0.1110 | lr=2.25e-05
-  [6c] opt   40/1100 | loss=2.2281 | soft=0.8761 | hard=7.2136 | len=0.1016 | lr=2.98e-05
-  [6c] opt   50/1100 | loss=2.2371 | soft=0.8937 | hard=7.2108 | len=0.1073 | lr=3.71e-05
-[MMS-ASR] Loading facebook/mms-1b-all lang=ben...
-[MMS-ASR] ben ready.
-[Whisper] Loading openai/whisper-medium...
-[Whisper] Ready.
-[MMS-ASR] Loading facebook/mms-1b-all lang=cmn-script_simplified...
-[MMS-ASR] cmn-script_simplified ready.
-[MMS-ASR] Loading facebook/mms-1b-all lang=ara...
-[MMS-ASR] ara ready.
-[MMS-ASR] Loading facebook/mms-1b-all lang=hin...
-[MMS-ASR] hin ready.
-  [6c_step50] quick Text-ChrF: 40.47 | ASR-ChrF: 21.66
-[ckpt] Saved phase6_6c_step000050.pt (2629.8 MB)
-  [6c] opt   60/1100 | loss=2.1455 | soft=0.8632 | hard=6.9159 | len=0.0936 | lr=4.44e-05
-  [6c] opt   70/1100 | loss=2.1287 | soft=0.8631 | hard=6.8584 | len=0.0855 | lr=5.16e-05
-  [6c] opt   80/1100 | loss=2.0828 | soft=0.8497 | hard=6.6987 | len=0.0858 | lr=5.89e-05
-  [6c] opt   90/1100 | loss=2.0185 | soft=0.8220 | hard=6.4912 | len=0.0859 | lr=6.62e-05
-  [6c] opt  100/1100 | loss=2.0447 | soft=0.8409 | hard=6.5728 | len=0.0769 | lr=7.35e-05
-  [6c_step100] quick Text-ChrF: 40.47 | ASR-ChrF: 19.75
-[ckpt] Saved phase6_6c_step000100.pt (2629.8 MB)
-  [6c] opt  110/1100 | loss=2.0846 | soft=0.8687 | hard=6.6337 | len=0.1175 | lr=8.00e-05
-  [6c] opt  120/1100 | loss=2.1164 | soft=0.8715 | hard=6.7584 | len=0.1156 | lr=8.00e-05
-  [6c] opt  130/1100 | loss=2.0822 | soft=0.8647 | hard=6.6674 | len=0.0876 | lr=7.99e-05
----------------------------------------------------------------------------
-OutOfMemoryError                          Traceback (most recent call last)
-/tmp/ipykernel_22/3745815421.py in run_t2u_recovery_stage(stage_key, title, steps, max_audio_sec, resume_from_step)
-    854             with torch.cuda.amp.autocast(dtype=autocast_dtype):
---> 855                 student_t2u = model_student.t2u_model(
-    856                     inputs_embeds=student_cond['t2u_input_embeds'],
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-
-/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in forward(self, input_ids, char_input_ids, char_count_per_id, attention_mask, encoder_outputs, inputs_embeds, labels, output_attentions, output_hidden_states, return_dict, **kwargs)
-   2265 
--> 2266         outputs = self.model(
-   2267             input_ids,
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-
-/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in forward(self, input_ids, char_input_ids, char_count_per_id, attention_mask, encoder_outputs, inputs_embeds, output_attentions, output_hidden_states, return_dict, **kwargs)
-   2156         # decoder outputs consists of (dec_features, dec_hidden, dec_attn, padding_mask)
--> 2157         decoder_outputs = self.decoder(
-   2158             char_input_ids=char_input_ids,
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-
-/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in forward(self, char_input_ids, char_count_per_id, encoder_hidden_states, output_attentions, output_hidden_states, return_dict, **kwargs)
-   2068 
--> 2069             layer_outputs = decoder_layer(
-   2070                 hidden_states,
-
-/usr/local/lib/python3.12/dist-packages/transformers/modeling_layers.py in __call__(self, *args, **kwargs)
-     92             return self._gradient_checkpointing_func(partial(super().__call__, **kwargs), *args)
----> 93         return super().__call__(*args, **kwargs)
-     94 
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-
-/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in forward(self, hidden_states, attention_mask, padding_mask, output_attentions)
-   1216         # Self Attention
--> 1217         hidden_states, self_attn_weights = self.self_attn(
-   1218             hidden_states=hidden_states,
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-
-/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in forward(self, hidden_states, encoder_hidden_states, past_key_values, attention_mask, output_attentions, cache_position)
-    958         attn_weights = nn.functional.softmax(attention_scores.float(), dim=-1).type_as(attention_scores)
---> 959         attn_weights = nn.functional.dropout(attn_weights, p=self.dropout, training=self.training)
-    960 
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/functional.py in dropout(input, p, training, inplace)
-   1440     return (
--> 1441         _VF.dropout_(input, p, training) if inplace else _VF.dropout(input, p, training)
-   1442     )
-
-OutOfMemoryError: CUDA out of memory. Tried to allocate 168.00 MiB. GPU 0 has a total capacity of 14.56 GiB of which 123.81 MiB is free. Including non-PyTorch memory, this process has 14.44 GiB memory in use. Of the allocated memory 13.73 GiB is allocated by PyTorch, and 576.88 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-
-During handling of the above exception, another exception occurred:
-
-RuntimeError                              Traceback (most recent call last)
-/tmp/ipykernel_22/2174385152.py in <cell line: 0>()
-      2 
-      3 # ── Stage 6C ──────────────────────────────────────────────────────────────────
-----> 4 phase6_logs['6c'] = run_t2u_recovery_stage(
-      5     stage_key        = '6c',
-      6     title            = 'Native T2U recovery with teacher KD',
-
-/tmp/ipykernel_22/3745815421.py in run_t2u_recovery_stage(stage_key, title, steps, max_audio_sec, resume_from_step)
-    869             if 'out of memory' in str(e).lower():
-    870                 safe_gc()
---> 871                 phase6_raise_oom(stage_key, micro_step + 1, max_audio_sec,
-    872                                  extra='set PHASE6_T2U_TRAIN_MODE="selective"')
-    873             raise
-
-/tmp/ipykernel_22/3745815421.py in phase6_raise_oom(stage_name, step_idx, max_audio_sec, extra)
-    342     if extra:
-    343         msg += f' or {extra}'
---> 344     raise RuntimeError(msg)
-    345 
-    346 
-
-RuntimeError: 6c hit CUDA OOM at step 1103. Reduce max audio below 12s or set PHASE6_T2U_TRAIN_MODE="selective"
-STAGE6D_STEPS    = 600
-# STAGE6D_ENABLED  = True
-# ── Stage 6D ──────────────────────────────────────────────────────────────────
-if STAGE6D_ENABLED:
-    phase6_logs['6d'] = run_joint_polish_stage(
-        stage_key        = '6d',
-        title            = 'Joint polish: text LoRA + native T2U',
-        steps            = STAGE6D_STEPS,
-        max_audio_sec    = MAX_AUDIO_SEC_D,
-        resume_from_step = phase6_get_resume_step('6d'),
-    )
-    phase6_quick_eval('stage6d_done', max_samples=16)
-else:
-    phase6_logs['6d'] = []
-    print('Stage 6D skipped by configuration.')
-
-
-print('\n' + '=' * 80)
-print('Merging LoRA adapters and saving Phase 6 model')
-print('=' * 80)
-
-if model_teacher is not None:
-    del model_teacher
-    model_teacher = None
-    safe_gc()
-
-if hasattr(model_student.speech_encoder, 'merge_and_unload'):
-    model_student.speech_encoder = model_student.speech_encoder.merge_and_unload()
-if hasattr(model_student.text_decoder, 'merge_and_unload'):
-    model_student.text_decoder = model_student.text_decoder.merge_and_unload()
-
-model_student.eval()
-sync_model_config(model_student)
-save_model_to_drive(model_student, processor, PHASE6_MODEL_NAME)
-
-model_p6 = model_student
-print(f'Phase 6 model saved as: {PHASE6_MODEL_NAME}')
-gpu_mem()
-def phase6_ema(values, alpha=0.05):
-    if not values:
-        return []
-    out = [values[0]]
-    for v in values[1:]:
-        out.append(alpha * v + (1 - alpha) * out[-1])
-    return out
-
-
-fig, axes = plt.subplots(2, 2, figsize=(16, 10))
-fig.suptitle('Phase 6 Recovery Training', fontsize=14, fontweight='bold')
-
-ax = axes[0, 0]
-if phase6_logs['6b1']:
-    vals = [row['loss'] for row in phase6_logs['6b1']]
-    ax.plot(vals, alpha=0.20, color='#1976D2', lw=0.6, label='raw')
-    ax.plot(phase6_ema(vals), color='#1976D2', lw=2.0, label='ema')
-ax.set_title('Stage 6B1: Text Decoder Warmup', fontweight='bold')
-ax.set_xlabel('Step')
-ax.set_ylabel('Loss')
-ax.grid(alpha=0.3)
-ax.legend()
-
-ax = axes[0, 1]
-if phase6_logs['6b2']:
-    vals = [row['loss'] for row in phase6_logs['6b2']]
-    ax.plot(vals, alpha=0.20, color='#388E3C', lw=0.6, label='raw')
-    ax.plot(phase6_ema(vals), color='#388E3C', lw=2.0, label='ema')
-ax.set_title('Stage 6B2: Speech + Text LoRA', fontweight='bold')
-ax.set_xlabel('Step')
-ax.set_ylabel('Loss')
-ax.grid(alpha=0.3)
-ax.legend()
-
-ax = axes[1, 0]
-if phase6_logs['6c']:
-    soft = [row['t2u_soft'] for row in phase6_logs['6c']]
-    hard = [row['t2u_hard'] for row in phase6_logs['6c']]
-    ax.plot(phase6_ema(soft), color='#8E24AA', lw=2.0, label='soft KD')
-    ax.plot(phase6_ema(hard), color='#FB8C00', lw=2.0, label='hard KD')
-ax.set_title('Stage 6C: Native T2U KD', fontweight='bold')
-ax.set_xlabel('Step')
-ax.set_ylabel('Loss')
-ax.grid(alpha=0.3)
-ax.legend()
-
-ax = axes[1, 1]
-if phase6_eval_history:
-    xs = list(range(1, len(phase6_eval_history) + 1))
-    ys = [row['chrf'] for row in phase6_eval_history]
-    labels = [row['tag'] for row in phase6_eval_history]
-    ax.plot(xs, ys, marker='o', color='#D81B60', lw=2.0)
-    ax.set_xticks(xs)
-    ax.set_xticklabels(labels, rotation=45, ha='right')
-ax.set_title('Quick ASR-ChrF Checks', fontweight='bold')
-ax.set_xlabel('Checkpoint')
-ax.set_ylabel('ASR-ChrF')
-ax.grid(alpha=0.3)
-
-plt.tight_layout()
-save_figure(fig, 'phase6_lora_t2u_training.png')
-plt.show()
-p6_bench = load_latest_checkpoint(PHASE6_BENCHMARK_NAME)
-if p6_bench:
-    p6_results = p6_bench['results']
-    p6_summary = p6_bench['summary']
-    p6_detailed = p6_bench.get('detailed_summary')
-    if not p6_detailed:
-        p6_detailed = compute_detailed_summary(p6_results, 'P6_LoRA_T2U', p6_summary['params_M'])
-else:
-    p6_results, p6_summary = run_benchmark_asr(
-        model_p6,
-        eval_samples,
-        'P6_LoRA_T2U',
-        save_n=4,
-    )
-    p6_detailed = compute_detailed_summary(p6_results, 'P6_LoRA_T2U', p6_summary['params_M'])
-    save_checkpoint(
-        {
-            'results': p6_results,
-            'summary': p6_summary,
-            'detailed_summary': p6_detailed,
-        },
-        PHASE6_BENCHMARK_NAME,
-        0,
-    )
-
-store_summary(p6_summary)
-store_detailed_summary(p6_detailed)
-print_detailed_summary_table('P6_LoRA_T2U')
-plot_phase_comparison()
-plot_detailed_phase_comparison()
