@@ -26,4 +26,4 @@ def notebook_to_text(ipynb_path, output_txt_path):
 
 
 # Example usage
-notebook_to_text("./Hopeful6.ipynb", "Hopeful6.txt")
+notebook_to_text("./hopeful-aggressive.ipynb", "hopeful-aggressive.txt")
