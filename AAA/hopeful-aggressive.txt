@@ -1630,7 +1630,7 @@ play(test_sample["wav"], 16000, label='hello.wav')
 
 Cell30:
 # ── Load Multilingual Training Samples: En→X and X→En (all 5 languages) ─────
-N_TRAIN_PER_PAIR = 1200  # 500 samples per direction = 4000 total
+N_TRAIN_PER_PAIR = 1600  # 500 samples per direction = 4000 total
 
 Cell31:
 # ── Load Multilingual Training Samples: En→X and X→En (all 5 languages) ──────
@@ -1682,7 +1682,7 @@ import pyarrow.parquet as pq
 import numpy as np
 import threading
 
-CHUNK_SIZE = 1000  # must match ChunkedMultilingualDataset chunk_size
+CHUNK_SIZE = 4000  # must match ChunkedMultilingualDataset chunk_size
 
 class ChunkedStreamingDataset:
     """
@@ -2823,49 +2823,49 @@ def run_phase6_training():
 
     return opt_step, best_chrf
 
-final_step, final_chrf = run_phase6_training()
-print(f'\nPhase 6 done. Steps={final_step}  Best ChrF={final_chrf:.2f}')
-wait_for_uploads()
+# final_step, final_chrf = run_phase6_training()
+# print(f'\nPhase 6 done. Steps={final_step}  Best ChrF={final_chrf:.2f}')
+# wait_for_uploads()
 
 Cell55:
-# ─────────────────────────────────────────────────────────────────────────────
-# Cell H — Merge LoRA + save
-# ─────────────────────────────────────────────────────────────────────────────
+# # ─────────────────────────────────────────────────────────────────────────────
+# # Cell H — Merge LoRA + save
+# # ─────────────────────────────────────────────────────────────────────────────
  
-print('\nMerging LoRA adapters …')
-best_ckpt = load_latest_checkpoint('phase6_kd')
-if best_ckpt and 'student_state' in best_ckpt:
-    student.load_state_dict(best_ckpt['student_state'], strict=False)
-    print(f"  Best weights restored (step {best_ckpt.get('opt_step','?')})")
+# print('\nMerging LoRA adapters …')
+# best_ckpt = load_latest_checkpoint('phase6_kd')
+# if best_ckpt and 'student_state' in best_ckpt:
+#     student.load_state_dict(best_ckpt['student_state'], strict=False)
+#     print(f"  Best weights restored (step {best_ckpt.get('opt_step','?')})")
  
-student.eval()
-merged = student.merge_and_unload()
-merged.eval()
-print(f'  Merged params: {count_params(merged):.1f} M')
+# student.eval()
+# merged = student.merge_and_unload()
+# merged.eval()
+# print(f'  Merged params: {count_params(merged):.1f} M')
  
-save_model_to_drive(merged, processor, 'phase6_kd_merged',
-                    manifest_extra={'strategy': 'online_kd_lora',
-                                    'best_chrf': final_chrf})
-print('✓ Saved phase6_kd_merged')
+# save_model_to_drive(merged, processor, 'phase6_kd_merged',
+#                     manifest_extra={'strategy': 'online_kd_lora',
+#                                     'best_chrf': final_chrf})
+# print('✓ Saved phase6_kd_merged')
 
 
 
 Cell56:
-# Full benchmark
-merged_clean, _ = load_model_from_drive('phase6_kd_merged', device_map='cuda:0')
-merged_clean.eval()
+# # Full benchmark
+# merged_clean, _ = load_model_from_drive('phase6_kd_merged', device_map='cuda:0')
+# merged_clean.eval()
+
+# p6_results, p6_summary = run_benchmark_asr(
+#     merged_clean, list(eval_samples), 'P6_KD_Merged', save_n=4)
  
-p6_results, p6_summary = run_benchmark_asr(
-    merged_clean, list(eval_samples), 'P6_KD_Merged', save_n=4)
- 
-p6_detailed = compute_detailed_summary(p6_results, 'P6_KD_Merged',
-                                       p6_summary['params_M'])
-save_checkpoint(dict(results=p6_results, summary=p6_summary,
-                     detailed_summary=p6_detailed), 'phase6_benchmark', 0)
-store_summary(p6_summary)
-store_detailed_summary(p6_detailed)
-print_detailed_summary_table('P6_KD_Merged')
-plot_detailed_phase_comparison()
+# p6_detailed = compute_detailed_summary(p6_results, 'P6_KD_Merged',
+#                                        p6_summary['params_M'])
+# save_checkpoint(dict(results=p6_results, summary=p6_summary,
+#                      detailed_summary=p6_detailed), 'phase6_benchmark', 0)
+# store_summary(p6_summary)
+# store_detailed_summary(p6_detailed)
+# print_detailed_summary_table('P6_KD_Merged')
+# plot_detailed_phase_comparison()
 
 Cell57:
 import torch
@@ -2893,217 +2893,402 @@ cleanup()
 
 Cell58:
 # ─────────────────────────────────────────────────────────────────────────────
-# PHASE 7 — Option C: Hybrid LoRA
-# Based on confirmed architecture from your model printout
+# FORWARD HELPERS — FULLY GPU, NO CPU MIDDLEMAN
+# Teacher runs on cuda:1, top-K selected on cuda:1,
+# transferred directly cuda:1 → cuda:0 via PCIe
 # ─────────────────────────────────────────────────────────────────────────────
 
-import gc, math, os, random, subprocess
+TOP_K_TEACHER  = 256
+KD_TEMPERATURE = 3.0
+
+def _to_dev(batch_dict, device, dtype=torch.float16):
+    return {
+        k: v.to(device=device,
+                dtype=dtype if v.is_floating_point() else v.dtype)
+           if isinstance(v, torch.Tensor) else v
+        for k, v in batch_dict.items()
+    }
+
+
+@torch.no_grad()
+def teacher_topk_direct(feat_cpu, dec_full_cpu, k=TOP_K_TEACHER, T=KD_TEMPERATURE):
+    """
+    Teacher forward on cuda:1.
+    Top-K selection on cuda:1.
+    Direct cuda:1 → cuda:0 transfer (no CPU involved).
+
+    Returns:
+        topk_vals: [B, T, k]  fp32  cuda:0  (softmax probabilities at temp T)
+        topk_idx:  [B, T, k]  long  cuda:0  (indices in T_VOCAB space)
+    """
+    # Load batch to cuda:1
+    feat1 = _to_dev(feat_cpu, 'cuda:1')
+    dec1  = dec_full_cpu.to('cuda:1')
+
+    with torch.cuda.amp.autocast(dtype=torch.float16):
+        out = teacher(
+            input_features    = feat1['input_features'],
+            attention_mask    = feat1.get('attention_mask'),
+            decoder_input_ids = dec1,
+        )
+
+    # All operations on cuda:1 — no CPU touch
+    logits_1 = out.logits.float()                          # [B, T, T_VOCAB] fp32 cuda:1
+    probs_1  = torch.softmax(logits_1 / T, dim=-1)         # [B, T, T_VOCAB] fp32 cuda:1
+    topk_vals_1, topk_idx_1 = torch.topk(
+        probs_1,
+        k=min(k, probs_1.shape[-1]),
+        dim=-1,
+        sorted=False,
+    )                                                       # [B, T, k] on cuda:1
+
+    # Direct GPU-to-GPU transfer: cuda:1 → cuda:0
+    # PyTorch handles this via PCIe without CPU staging
+    topk_vals_0 = topk_vals_1.to('cuda:0')                 # [B, T, k] fp32 cuda:0
+    topk_idx_0  = topk_idx_1.to('cuda:0')                  # [B, T, k] long cuda:0
+
+    del feat1, dec1, out, logits_1, probs_1, topk_vals_1, topk_idx_1
+    torch.cuda.synchronize('cuda:1')
+
+    return topk_vals_0, topk_idx_0
+
+
+
+
+print('✓ Fully GPU forward helpers ready.')
+print(f'  teacher_topk_direct: cuda:1 → top-{TOP_K_TEACHER} → direct to cuda:0')
+print(f'  No CPU involved in teacher→student logit transfer')
+
+Cell59:
+# ─────────────────────────────────────────────────────────────────────────────
+# LOSS FUNCTIONS — all tensors already on cuda:0, no CPU remapping needed
+# ─────────────────────────────────────────────────────────────────────────────
+
+KD_ALPHA = 0.15
+OLD_TO_NEW_GPU = OLD_TO_NEW_CPU.to('cuda:0')   # remap table on GPU
+# Shape: [T_VOCAB] long cuda:0
+# Built once, reused every batch — ~1MB VRAM
+
+def _label_smoothed_nll(logits, targets, smoothing=0.1, ignore_index=-100):
+    """logits: [N, V] fp32 cuda:0,  targets: [N] long cuda:0"""
+    V    = logits.size(-1)
+    mask = targets != ignore_index
+    if not mask.any():
+        return logits.sum() * 0.0
+    with torch.no_grad():
+        smooth = torch.full_like(logits, smoothing / (V - 1))
+        smooth.scatter_(-1, targets.clamp(min=0).unsqueeze(-1), 1.0 - smoothing)
+    log_p = torch.nn.functional.log_softmax(logits, dim=-1)
+    loss  = -(smooth * log_p).sum(-1)
+    return loss[mask].mean()
+
+
+def sparse_kl_from_topk_gpu(s_logits, topk_vals_0, topk_idx_full_0,
+                              T=KD_TEMPERATURE):
+    """
+    KD loss — everything on cuda:0, no CPU involved.
+
+    s_logits:        [B, L, S_VOCAB]  fp32  cuda:0
+    topk_vals_0:     [B, L, k]        fp32  cuda:0  (teacher probs at temp T)
+    topk_idx_full_0: [B, L, k]        long  cuda:0  (T_VOCAB indices)
+    """
+    B, L, V_s = s_logits.shape
+    k = topk_vals_0.shape[-1]
+
+    # Remap T_VOCAB indices → S_VOCAB using GPU lookup table
+    flat_full  = topk_idx_full_0.reshape(-1).clamp(0, T_VOCAB - 1)
+    flat_s     = OLD_TO_NEW_GPU[flat_full]             # [B*L*k] long cuda:0
+    topk_idx_s = flat_s.reshape(B, L, k)              # [B, L, k] cuda:0
+
+    # Valid: mapped tokens only (sentinel = -1)
+    valid = topk_idx_s >= 0                            # [B, L, k] bool cuda:0
+
+    # Renormalize teacher distribution over mapped tokens only
+    vals_masked = topk_vals_0 * valid.float()
+    denom       = vals_masked.sum(-1, keepdim=True).clamp(min=1e-9)
+    topk_t      = vals_masked / denom                  # [B, L, k] cuda:0
+
+    # Gather student logits at teacher positions
+    idx_clamped = topk_idx_s.clamp(min=0, max=V_s - 1)
+    gathered    = s_logits.gather(-1, idx_clamped)     # [B, L, k] cuda:0
+    gathered    = gathered.masked_fill(~valid, -1e9)
+
+    # Student log-probs (temp-scaled)
+    s_log = torch.nn.functional.log_softmax(
+        gathered / T, dim=-1)                          # [B, L, k] cuda:0
+
+    # Only positions with at least one valid mapped token
+    has_valid = valid.any(-1)                          # [B, L] cuda:0
+    if not has_valid.any():
+        return s_logits.sum() * 0.0
+
+    kl = torch.nn.functional.kl_div(
+        s_log[has_valid],
+        topk_t[has_valid],
+        reduction='batchmean',
+    ) * (T ** 2)
+
+    return kl
+
+
+def compute_recovery_loss_gpu(s_logits, labels_dev,
+                               topk_vals_0, topk_idx_0,
+                               alpha=KD_ALPHA, smoothing=0.1):
+    """
+    Full loss — all tensors on cuda:0, no CPU ops.
+    s_logits:     [B, L, S_VOCAB]  fp32  cuda:0
+    labels_dev:   [B, L]           long  cuda:0
+    topk_vals_0:  [B, L, k]        fp32  cuda:0
+    topk_idx_0:   [B, L, k]        long  cuda:0
+    """
+    s_flat = s_logits.contiguous().reshape(-1, s_logits.size(-1))
+    l_flat = labels_dev.contiguous().reshape(-1)
+    ce     = _label_smoothed_nll(s_flat, l_flat, smoothing=smoothing)
+    kd     = sparse_kl_from_topk_gpu(s_logits, topk_vals_0, topk_idx_0)
+    return (1.0 - alpha) * ce + alpha * kd, ce.item(), kd.item()
+
+
+print('✓ GPU-only loss functions ready.')
+print(f'  OLD_TO_NEW_GPU: remap table on cuda:0 '
+      f'({OLD_TO_NEW_GPU.numel()*4/1e6:.1f}MB VRAM)')
+print('  No CPU involved in any loss computation')
+
+Cell60:
+# ─────────────────────────────────────────────────────────────────────────────
+# PHASE 7 — Option C: Hybrid LoRA — SPEED FIXED VERSION
+# ─────────────────────────────────────────────────────────────────────────────
+
+import gc, math, os, random, time
 import torch
 import torch.nn as nn
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import OneCycleLR
 from peft import get_peft_model, LoraConfig, TaskType
 
-# ── 0. Load merged Phase 6 winner ────────────────────────────────────────────
-print('Loading phase6_kd_merged...')
+# ── 0. Load directly to cuda:0 — skip CPU staging ────────────────────────────
+# device_map='cuda:0' loads directly onto GPU, no PCIe round trip
+print('Loading phase6_kd_merged directly to cuda:0...')
 model_p7, processor = load_model_from_drive(
-    'phase6_kd_merged', device_map='cpu')
+    'phase6_kd_merged', device_map='cuda:0')
 model_p7 = model_p7.to(torch.float16)
 print(f'Loaded. Params: {count_params(model_p7):.1f}M')
+gpu_mem()
 
-# Verify key shapes before doing anything
-assert model_p7.shared.num_embeddings == 22767, \
-    f"Expected 22767 vocab, got {model_p7.shared.num_embeddings}"
-assert model_p7.lm_head.out_features == 22767, \
-    f"Expected lm_head 22767, got {model_p7.lm_head.out_features}"
-assert len(model_p7.text_decoder.layers) == 14, \
-    f"Expected 14 decoder layers, got {len(model_p7.text_decoder.layers)}"
-assert len(model_p7.t2u_model.model.encoder.layers) == 4, \
-    f"Expected 4 t2u encoder layers, got {len(model_p7.t2u_model.model.encoder.layers)}"
+# ── 1. KILL gradient checkpointing immediately after load ─────────────────────
+# It may have been saved into config during Phase 6.
+# Must be disabled BEFORE get_peft_model wraps the model.
+
+def disable_all_gradient_checkpointing(model):
+    killed = []
+
+    # HuggingFace API
+    if hasattr(model, 'gradient_checkpointing_disable'):
+        model.gradient_checkpointing_disable()
+        killed.append('model.gradient_checkpointing_disable()')
+
+    # Config flags
+    if hasattr(model, 'config'):
+        if getattr(model.config, 'gradient_checkpointing', False):
+            model.config.gradient_checkpointing = False
+            killed.append('model.config.gradient_checkpointing')
+
+    # Every submodule attribute
+    for name, module in model.named_modules():
+        if getattr(module, 'gradient_checkpointing', False):
+            module.gradient_checkpointing = False
+            killed.append(f'{name}.gradient_checkpointing')
+        if hasattr(module, 'config'):
+            if getattr(module.config, 'gradient_checkpointing', False):
+                module.config.gradient_checkpointing = False
+                killed.append(f'{name}.config.gradient_checkpointing')
+
+    # Direct known locations
+    for attr_path in [
+        'text_decoder',
+        'speech_encoder',
+        'speech_encoder.encoder',
+        't2u_model',
+        't2u_model.model',
+        't2u_model.model.encoder',
+        't2u_model.model.decoder',
+    ]:
+        try:
+            obj = model
+            for part in attr_path.split('.'):
+                obj = getattr(obj, part)
+            if getattr(obj, 'gradient_checkpointing', False):
+                obj.gradient_checkpointing = False
+                killed.append(f'{attr_path}.gradient_checkpointing direct')
+        except AttributeError:
+            pass
+
+    if killed:
+        print(f'✓ Killed gradient checkpointing at {len(killed)} locations:')
+        for k in killed:
+            print(f'    {k}')
+    else:
+        print('✓ No gradient checkpointing found (clean)')
+    return killed
+
+killed = disable_all_gradient_checkpointing(model_p7)
+
+# Verify
+still_on = []
+for name, module in model_p7.named_modules():
+    if getattr(module, 'gradient_checkpointing', False):
+        still_on.append(name)
+if still_on:
+    print(f'⚠ Still on after disable: {still_on}')
+    for name, module in model_p7.named_modules():
+        if name in still_on:
+            module.gradient_checkpointing = False
+    print('  Force-killed remaining')
+else:
+    print('✓ Confirmed: gradient checkpointing fully OFF')
+
+# ── 2. Verify key shapes ──────────────────────────────────────────────────────
+assert model_p7.shared.num_embeddings == 22767
+assert model_p7.lm_head.out_features == 22767
+assert len(model_p7.text_decoder.layers) == 14
+assert len(model_p7.t2u_model.model.encoder.layers) == 4
 print('✓ Architecture assertions passed')
 
-# ── 1. LoRA target modules — confirmed from architecture printout ─────────────
-#
-# text_decoder.layers.*.self_attn:     k_proj, v_proj, q_proj, out_proj
-# text_decoder.layers.*.cross_attention: k_proj, v_proj, q_proj, out_proj
-# text_decoder.layers.*.ffn:           fc1, fc2
-#
-# t2u_model.model.encoder.layers.*.self_attn:  k_proj, v_proj, q_proj, out_proj
-# t2u_model.model.encoder.layers.*.ffn:        fc1, fc2
-#
-# t2u_model.model.decoder.layers.*.self_attn:  k_proj, v_proj, q_proj, out_proj
-# t2u_model.model.decoder has NO ffn fc1/fc2 — only conv1/conv2 (not Linear)
-#
-# speech_encoder: EXCLUDED from LoRA — different attr names (linear_q etc)
-#                 we handle speech_encoder separately via direct unfreeze
-#
-# shared + lm_head: modules_to_save (full rank, outside LoRA)
-# t2u_model.lm_head: modules_to_save (full rank)
-
+# ── 3. LoRA config ────────────────────────────────────────────────────────────
 LORA_TARGET_MODULES = [
-    # text_decoder attention (self + cross)
-    'k_proj',
-    'v_proj',
-    'q_proj',
-    'out_proj',
-    # text_decoder FFN and t2u encoder FFN
-    'fc1',
-    'fc2',
+    'k_proj', 'v_proj', 'q_proj', 'out_proj',
+    'fc1', 'fc2',
 ]
-
-# IMPORTANT: LoRA will apply to ALL Linear layers whose attribute name
-# matches any string in target_modules. This means it will also catch
-# t2u_model.model.encoder fc1/fc2 and decoder k/v/q/out_proj.
-# That is intentional — we want all of those adapted.
-#
-# It will NOT catch:
-#   speech_encoder linear_q/linear_k/linear_v/linear_out (different names)
-#   speech_encoder intermediate_dense/output_dense (different names)
-#   t2u_model.model.decoder conv1/conv2 (Conv1d, not Linear)
-#   vocoder (excluded via layers_to_transform scope below)
-
 LORA_MODULES_TO_SAVE = [
-    # Full-rank updates — critical for vocab adaptation
-    # These are saved separately, outside LoRA approximation
-    'lm_head',        # Linear(1024, 22767) — output projection
-    'shared',         # Embedding(22767, 1024) — input embeddings
-                      # Note: PEFT saves Embedding via modules_to_save
-    't2u_model.lm_head',  # Linear(1024, 10082) — t2u output
+    'lm_head',
+    'shared',
+    't2u_model.lm_head',
 ]
 
-# ── 2. Apply LoRA ─────────────────────────────────────────────────────────────
 lora_config = LoraConfig(
     r=64,
-    lora_alpha=128,        # scaling = alpha/r = 2.0
+    lora_alpha=128,
     lora_dropout=0.05,
     bias='none',
     task_type=TaskType.SEQ_2_SEQ_LM,
-
     target_modules=LORA_TARGET_MODULES,
-
-    # modules_to_save: these get full copies and full gradient updates
-    # PEFT wraps them in ModulesToSaveWrapper
     modules_to_save=LORA_MODULES_TO_SAVE,
-
-    # Scope LoRA only to text_decoder and t2u_model
-    # speech_encoder and vocoder excluded
-    # We do this by checking which layers get wrapped (verified below)
 )
 
 model_p7 = get_peft_model(model_p7, lora_config)
-model_p7 = model_p7.to('cuda:0')
+
+# Disable checkpointing again — get_peft_model can re-enable it
+disable_all_gradient_checkpointing(model_p7)
+disable_all_gradient_checkpointing(model_p7.base_model.model)
+
+# ── 4. Cast trainable params to fp32 (fixes GradScaler ValueError) ────────────
+n_cast = 0
+for name, param in model_p7.named_parameters():
+    if ('lora_A' in name or
+        'lora_B' in name or
+        'modules_to_save' in name):
+        param.data = param.data.to(torch.float32)
+        n_cast += param.numel()
+print(f'✓ Cast {n_cast/1e6:.2f}M trainable params to fp32')
+
 model_p7.train()
 
-# ── 3. Verify what got wrapped ────────────────────────────────────────────────
+# ── 5. Verify wrapping ────────────────────────────────────────────────────────
 print('\n=== LORA WRAPPING AUDIT ===')
-lora_found    = []
-saved_found   = []
-unexpected    = []
-
+lora_found  = []
+saved_found = []
 for name, module in model_p7.named_modules():
     cls = type(module).__name__
-    if 'lora' in cls.lower() or 'Linear4bit' in cls:
+    if 'lora' in cls.lower():
         lora_found.append(name)
     if 'ModulesToSave' in cls:
         saved_found.append(name)
 
-# Check speech_encoder NOT wrapped (would be a problem)
 speech_enc_lora = [n for n in lora_found if 'speech_encoder' in n]
 vocoder_lora    = [n for n in lora_found if 'vocoder' in n]
 decoder_lora    = [n for n in lora_found if 'text_decoder' in n]
 t2u_lora        = [n for n in lora_found if 't2u_model' in n]
 
-print(f'LoRA layers in text_decoder:   {len(decoder_lora)}')
-print(f'LoRA layers in t2u_model:      {len(t2u_lora)}')
-print(f'LoRA layers in speech_encoder: {len(speech_enc_lora)}  ← should be 0')
-print(f'LoRA layers in vocoder:        {len(vocoder_lora)}  ← should be 0')
-print(f'modules_to_save found:         {len(saved_found)}')
-for n in saved_found:
-    print(f'  {n}')
-
-if speech_enc_lora:
-    print('\n⚠ WARNING: speech_encoder got LoRA wrapped unexpectedly!')
-    print('  This may conflict with direct unfreeze below.')
-    print('  Speech encoder attr names should prevent this.')
-
+print(f'LoRA in text_decoder:   {len(decoder_lora)}')
+print(f'LoRA in t2u_model:      {len(t2u_lora)}')
+print(f'LoRA in speech_encoder: {len(speech_enc_lora)}  ← must be 0')
+print(f'LoRA in vocoder:        {len(vocoder_lora)}  ← must be 0')
+print(f'modules_to_save:        {len(saved_found)}')
 model_p7.print_trainable_parameters()
 
-# ── 4. Direct unfreeze for speech encoder components ─────────────────────────
-# LoRA did not touch speech_encoder (different attr names).
-# We directly unfreeze specific parts.
-#
-# Unfreeze:
-#   speech_encoder.adapter        — acoustic adapter (all params)
-#   speech_encoder.inner_layer_norm — final norm
-#   speech_encoder.intermediate_ffn — bridge FFN
-#
-# Keep frozen:
-#   speech_encoder.encoder.layers  — 14 conformer layers (too large, risky)
-#   speech_encoder.feature_projection — acoustic features (leave alone)
-
+# ── 6. Direct unfreeze speech encoder + cast to fp32 ─────────────────────────
 SPEECH_UNFREEZE = [
     'speech_encoder.adapter.',
     'speech_encoder.inner_layer_norm.',
     'speech_encoder.intermediate_ffn.',
 ]
 
-n_speech_unfrozen = 0
-speech_unfrozen_names = []
+n_speech = 0
 for name, param in model_p7.named_parameters():
     if any(pat in name for pat in SPEECH_UNFREEZE):
+        param.data = param.data.to(torch.float32)
         param.requires_grad_(True)
-        n_speech_unfrozen += param.numel()
-        speech_unfrozen_names.append(name)
+        n_speech += param.numel()
+print(f'✓ Speech adapter unfrozen + fp32: {n_speech/1e6:.3f}M params')
 
-print(f'\nSpeech encoder directly unfrozen: {n_speech_unfrozen/1e6:.3f}M params')
-for n in speech_unfrozen_names:
-    print(f'  {n}')
+# ── 7. Freeze vocoder leakage ─────────────────────────────────────────────────
+for name, param in model_p7.named_parameters():
+    if 'vocoder' in name and param.requires_grad:
+        param.requires_grad_(False)
 
-# ── 5. Final trainable parameter count ───────────────────────────────────────
-trainable_params = [(n, p) for n, p in model_p7.named_parameters()
-                    if p.requires_grad]
-n_trainable  = sum(p.numel() for _, p in trainable_params)
-n_total      = sum(p.numel() for p in model_p7.parameters())
+# ── 8. Final fp32 check ───────────────────────────────────────────────────────
+bad = [(n, p.dtype) for n, p in model_p7.named_parameters()
+       if p.requires_grad and p.dtype != torch.float32]
+if bad:
+    print(f'Fixing {len(bad)} remaining fp16 trainable params...')
+    for name, _ in bad:
+        for n, p in model_p7.named_parameters():
+            if n == name:
+                p.data = p.data.to(torch.float32)
+print('✓ All trainable params fp32')
 
-print(f'\n{"─"*60}')
-print(f'  Trainable: {n_trainable/1e6:.1f}M / {n_total/1e6:.1f}M '
-      f'({100*n_trainable/n_total:.1f}%)')
-print(f'{"─"*60}')
+all_trainable_params = [p for p in model_p7.parameters() if p.requires_grad]
+n_trainable = sum(p.numel() for p in all_trainable_params)
+n_total     = sum(p.numel() for p in model_p7.parameters())
+print(f'Trainable: {n_trainable/1e6:.1f}M / {n_total/1e6:.1f}M')
+gpu_mem()
 
-# ── 6. VRAM check ─────────────────────────────────────────────────────────────
-print('\nRunning VRAM check with batch=4...')
+# ── 9. Quick VRAM + speed check ───────────────────────────────────────────────
+print('\nVRAM + speed check...')
 torch.cuda.empty_cache()
-
+_t = time.time()
 _batch = collate_s2t_batch([ft_samples[i] for i in range(4)])
-_feat  = _batch['feat']
-_dec_s = _batch['dec_s'].clamp(0, 22766).to('cuda:0')
+print(f'  Batch load: {time.time()-_t:.2f}s')
 
+_t = time.time()
 with torch.cuda.amp.autocast(dtype=torch.float16):
     _out = model_p7(
-        input_features    = _feat['input_features'].to('cuda:0'),
-        attention_mask    = _feat.get(
+        input_features    = _batch['feat']['input_features'].to('cuda:0'),
+        attention_mask    = _batch['feat'].get(
             'attention_mask',
-            torch.ones(_feat['input_features'].shape[:2])
+            torch.ones(_batch['feat']['input_features'].shape[:2])
         ).to('cuda:0'),
-        decoder_input_ids = _dec_s,
+        decoder_input_ids = _batch['dec_s'].clamp(0, 22766).to('cuda:0'),
     )
-_loss = nn.CrossEntropyLoss()(
-    _out.logits.reshape(-1, 22767),
+print(f'  Forward pass: {time.time()-_t:.2f}s  ← should be <5s')
+
+_loss = nn.CrossEntropyLoss(ignore_index=-100)(
+    _out.logits.float().reshape(-1, 22767),
     _batch['labels_s'].clamp(0, 22766).to('cuda:0').reshape(-1)
 )
+_t = time.time()
 _loss.backward()
+print(f'  Backward pass: {time.time()-_t:.2f}s  ← should be <10s, was 1000s before')
 
 gpu_mem()
 model_p7.zero_grad(set_to_none=True)
 torch.cuda.empty_cache()
-del _batch, _feat, _dec_s, _out, _loss
+del _batch, _out, _loss
 gc.collect()
-print('✓ VRAM check passed')
+print('✓ Speed check complete')
 
-Cell59:
+Cell61:
 # ─────────────────────────────────────────────────────────────────────────────
-# SCOPE FIX: Freeze back any LoRA that leaked into vocoder
-# Run after get_peft_model, before training
+# SCOPE FIX: Freeze back any LoRA that leaked into vocoder or speech_encoder
 # ─────────────────────────────────────────────────────────────────────────────
 
 n_frozen_back = 0
@@ -3118,36 +3303,47 @@ if n_frozen_back == 0:
 else:
     print(f'  Frozen back {n_frozen_back/1e6:.3f}M vocoder params')
 
-# Also freeze back speech_encoder LoRA if it leaked
 for name, param in model_p7.named_parameters():
-    if 'speech_encoder' in name and 'lora_' in name and param.requires_grad:
-        # lora_ params in speech_encoder = unexpected wrapping
-        # But we still want the direct unfreeze ones
-        if not any(pat in name for pat in SPEECH_UNFREEZE):
-            param.requires_grad_(False)
-            print(f'  Frozen back (speech LoRA leak): {name}')
+    if ('speech_encoder' in name and
+        'lora_' in name and
+        param.requires_grad and
+        not any(pat in name for pat in SPEECH_UNFREEZE)):
+        param.requires_grad_(False)
+        print(f'  Frozen back (speech LoRA leak): {name}')
 
-# Re-confirm final count
-trainable_params = [p for p in model_p7.parameters() if p.requires_grad]
-n_trainable = sum(p.numel() for p in trainable_params)
+# Final confirmed count
+all_trainable_params = [p for p in model_p7.parameters() if p.requires_grad]
+n_trainable = sum(p.numel() for p in all_trainable_params)
 print(f'\nFinal trainable: {n_trainable/1e6:.1f}M params')
 
-Cell60:
+# Final dtype check
+bad = [(n, p.dtype) for n, p in model_p7.named_parameters()
+       if p.requires_grad and p.dtype != torch.float32]
+if bad:
+    print(f'⚠ {len(bad)} trainable params not fp32 — fixing...')
+    for name, _ in bad:
+        p = dict(model_p7.named_parameters())[name]
+        p.data = p.data.to(torch.float32)
+    print('  ✓ Fixed')
+else:
+    print('✓ All trainable params are fp32 — GradScaler will work correctly')
+
+Cell62:
 # ─────────────────────────────────────────────────────────────────────────────
 # PHASE 7 TRAINING CONFIG
 # ─────────────────────────────────────────────────────────────────────────────
 
-BATCH_SIZE      = 6      # larger than Phase 6 (6-8 GB VRAM headroom)
-GRAD_ACCUM      = 6      # effective batch = 36
-LR_PEAK         = 8e-5   # LoRA can handle slightly higher than full FT
+BATCH_SIZE      = 8
+GRAD_ACCUM      = 4
+LR_PEAK         = 4e-5
 WEIGHT_DECAY    = 1e-2
-MAX_EPOCHS      = 4
+MAX_EPOCHS      = 6 # was 3
 EVAL_STEPS      = 100
-LOG_STEPS       = 10
-WARMUP_FRACTION = 0.05   # longer warmup — model already adapted
-KD_ALPHA        = 0.2    # keep teacher signal meaningful
-CHUNK_SIZE      = 2000
-S_VOCAB         = 22767  # CONFIRMED from your model
+LOG_STEPS       = 5
+WARMUP_FRACTION = 0.05
+# KD_ALPHA        = 0.2
+# CHUNK_SIZE      = 4000
+S_VOCAB         = 22767
 
 N_TRAIN         = len(ft_samples)
 STEPS_PER_EPOCH = math.ceil(N_TRAIN / (BATCH_SIZE * GRAD_ACCUM))
@@ -3158,14 +3354,20 @@ print(f'Steps per epoch:      {STEPS_PER_EPOCH}')
 print(f'Total steps:          {TOTAL_STEPS}')
 print(f'Vocab size:           {S_VOCAB}')
 
-# Separate LR for different parameter groups
-# lm_head and shared (modules_to_save) get lower LR — they are sensitive
+# Confirm all trainable are fp32 before building optimizer
+# (optimizer stores fp32 master weights internally — params must be fp32)
+for name, param in model_p7.named_parameters():
+    if param.requires_grad and param.dtype != torch.float32:
+        print(f'⚠ Fixing {name}: {param.dtype} → fp32')
+        param.data = param.data.to(torch.float32)
+
+# Parameter groups with different LRs
 trainable_params_grouped = [
     {
         'params': [p for n, p in model_p7.named_parameters()
                    if p.requires_grad and
                    any(x in n for x in ['lm_head', 'shared'])],
-        'lr': LR_PEAK * 0.3,   # 30% LR for output/embedding layers
+        'lr': LR_PEAK * 0.3,
         'name': 'output_layers',
     },
     {
@@ -3205,29 +3407,26 @@ scheduler = OneCycleLR(
     div_factor       = 25.0,
     final_div_factor = 1e4,
 )
+
+# GradScaler — works correctly now that trainable params are fp32
 scaler = torch.cuda.amp.GradScaler()
 
 all_trainable_params = [p for p in model_p7.parameters() if p.requires_grad]
 print(f'\n✓ Phase 7 optimizer ready.')
 print(f'  Total trainable: {sum(p.numel() for p in all_trainable_params)/1e6:.1f}M')
+print(f'  All fp32: {all(p.dtype == torch.float32 for p in all_trainable_params)}')
 
-Cell61:
+Cell63:
 # ─────────────────────────────────────────────────────────────────────────────
 # PHASE 7 FORWARD HELPERS
-# model_p7 is a PeftModel wrapping merged_p6
-# For generate() we use model_p7.base_model.model (same as Phase 6)
-# For training forward() we use model_p7 directly
 # ─────────────────────────────────────────────────────────────────────────────
 
 def student_logits_gpu_p7(feat_dict, dec_s_cpu):
     """
-    Training forward for Phase 7 PeftModel.
-    feat_dict: output of processor on cuda:0
-    dec_s_cpu: decoder input ids on CPU
-    Returns: logits [B, T, 22767] fp16 on cuda:0
+    Student forward on cuda:0.
+    Returns fp32 logits on cuda:0.
     """
-    dec_s = dec_s_cpu.clamp(0, S_VOCAB - 1).to('cuda:0')
-
+    dec_s          = dec_s_cpu.clamp(0, S_VOCAB - 1).to('cuda:0')
     input_features = feat_dict['input_features'].to('cuda:0')
     attention_mask = feat_dict.get('attention_mask')
     if attention_mask is not None:
@@ -3242,58 +3441,92 @@ def student_logits_gpu_p7(feat_dict, dec_s_cpu):
             attention_mask    = attention_mask,
             decoder_input_ids = dec_s,
         )
-    return out.logits   # [B, T, S_VOCAB]
+    return out.logits.float()   # [B, T, S_VOCAB] fp32 cuda:0
 
 
 def _eval_quick_p7(n_samples=32):
-    """
-    Eval for Phase 7.
-    Generation uses base_model.model (bypasses PEFT wrapper for generate).
-    """
     model_p7.eval()
     try:
-        # base_model.model is the actual SeamlessM4Tv2ForSpeechToSpeech
-        gen_model = model_p7.base_model.model
         text_chrf, asr_chrf = quick_eval_chrf_fixed(
-            gen_model, eval_samples, max_samples=n_samples)
+            model_p7, eval_samples, max_samples=n_samples)
     except Exception as e:
         print(f'  [eval error] {e}')
         text_chrf, asr_chrf = 0.0, 0.0
     finally:
         model_p7.train()
+        disable_all_gradient_checkpointing(model_p7)
     return text_chrf, asr_chrf
 
 
 print('✓ Phase 7 forward helpers ready.')
-print(f'  student_logits_gpu_p7: outputs [B, T, {S_VOCAB}]')
-print(f'  _eval_quick_p7: uses model_p7.base_model.model for generation')
+print(f'  student_logits_gpu_p7: returns fp32 logits [B, T, {S_VOCAB}]')
+print(f'  _eval_quick_p7: uses model_p7 for generation')
 
-Cell62:
+Cell64:
+# all_idx = chunk_friendly_shuffle(len(ft_samples), CHUNK_SIZE, BATCH_SIZE)
+
+Cell65:
+# for i, j in enumerate(all_idx):
+#     if i >= 5: break
+#     print(f'{j} -> {ft_samples[j]}')
+
+Cell66:
+# ── Run this once before calling run_phase7_training() ───────────────────────
+
+# KD_ALPHA   = 0.15   # reduced
+# MAX_EPOCHS = 6      # extend to 6
+
+STEPS_PER_EPOCH = math.ceil(len(ft_samples) / (BATCH_SIZE * GRAD_ACCUM))
+TOTAL_STEPS     = STEPS_PER_EPOCH * MAX_EPOCHS
+
+# Rebuild scheduler — keeps optimizer Adam state, resets LR curve
+# load_latest_checkpoint will load model + optimizer state but
+# we skip loading scheduler_state by patching the loop
+scheduler = OneCycleLR(
+    optimizer,
+    max_lr           = [LR_PEAK * 0.3, LR_PEAK],
+    total_steps      = TOTAL_STEPS,
+    pct_start        = 0.0,       # no warmup, already warm
+    anneal_strategy  = 'cos',
+    div_factor       = 1.0,       # start at LR_PEAK immediately
+    final_div_factor = 1e3,
+)
+
+print(f'KD_ALPHA={KD_ALPHA}  MAX_EPOCHS={MAX_EPOCHS}  TOTAL_STEPS={TOTAL_STEPS}')
+print(f'New scheduler created — optimizer Adam state preserved')
+
+# Then call normally:
+# final_step, final_chrf = run_phase7_training()
+
+Cell67:
 # ─────────────────────────────────────────────────────────────────────────────
-# PHASE 7 TRAINING LOOP
+# PHASE 7 TRAINING LOOP — FULLY GPU, NO CPU MIDDLEMAN
 # ─────────────────────────────────────────────────────────────────────────────
 
 def run_phase7_training():
     best_chrf      = 0.0
     best_chrf_step = 0
-    patience_left  = 25          # more patience than Phase 6
+    patience_left  = 25
     opt_step       = 0
     epoch_seeds    = {}
 
-    # ── Resume ──────────────────────────────────────────────────────────────
     ckpt = load_latest_checkpoint('phase7_ft')
     if ckpt:
         try:
             model_p7.load_state_dict(ckpt['model_state'], strict=False)
             optimizer.load_state_dict(ckpt['optimizer_state'])
-            scheduler.load_state_dict(ckpt['scheduler_state'])
+            # scheduler.load_state_dict(ckpt['scheduler_state'])
             opt_step       = ckpt.get('opt_step', 0)
             best_chrf      = ckpt.get('best_chrf', 0.0)
             best_chrf_step = ckpt.get('best_chrf_step', 0)
             epoch_seeds    = ckpt.get('epoch_seeds', {})
-            print(f'[resume] step={opt_step}  best_chrf={best_chrf:.2f}')
+            print(f'[resume] step={opt_step}  best={best_chrf:.2f}')
+            for name, param in model_p7.named_parameters():
+                if param.requires_grad and param.dtype != torch.float32:
+                    param.data = param.data.to(torch.float32)
+            disable_all_gradient_checkpointing(model_p7)
         except Exception as e:
-            print(f'[resume failed] fresh start: {e}')
+            print(f'[resume failed] {e}')
         finally:
             del ckpt
             free_cpu_ram()
@@ -3303,19 +3536,17 @@ def run_phase7_training():
     batches_to_skip           = steps_done_in_start_epoch * GRAD_ACCUM
 
     print(f'\n{"="*65}')
-    print(f'  PHASE 7 — Hybrid LoRA (r=64) + Direct Adapter Unfreeze')
-    print(f'  text_decoder:    LoRA r=64 on k/v/q/out/fc1/fc2')
-    print(f'  t2u_model:       LoRA r=64 on k/v/q/out/fc1/fc2')
-    print(f'  lm_head:         Full rank (modules_to_save)')
-    print(f'  shared:          Full rank (modules_to_save)')
-    print(f'  t2u lm_head:     Full rank (modules_to_save)')
-    print(f'  speech adapter:  Direct unfreeze')
-    print(f'  speech encoder:  FROZEN')
-    print(f'  vocoder:         FROZEN')
-    print(f'  Trainable:       {sum(p.numel() for p in all_trainable_params)/1e6:.1f}M params')
-    print(f'  LR_PEAK={LR_PEAK:.1e}  KD_ALPHA={KD_ALPHA}')
+    print(f'  PHASE 7 — Hybrid LoRA, Fully GPU Pipeline')
+    print(f'  Teacher: cuda:1 → top-{TOP_K_TEACHER} → direct cuda:0')
+    print(f'  Student: cuda:0')
+    print(f'  Loss:    all cuda:0, no CPU ops')
+    print(f'  Gradient checkpointing: OFF')
+    print(f'  Trainable: {sum(p.numel() for p in all_trainable_params)/1e6:.1f}M')
+    print(f'  BATCH={BATCH_SIZE}  ACCUM={GRAD_ACCUM}  LR={LR_PEAK:.1e}')
     print(f'  TOTAL_STEPS={TOTAL_STEPS}')
     print(f'{"="*65}\n')
+
+    step_times = []
 
     for epoch in range(start_epoch, MAX_EPOCHS):
         ep_ce = ep_kd = ep_n = 0
@@ -3331,6 +3562,7 @@ def run_phase7_training():
         random.seed(42)
 
         print(f'  Epoch {epoch+1}/{MAX_EPOCHS} | seed={seed}')
+        t_epoch = time.time()
 
         for batch_idx, batch_start in enumerate(
                 range(0, len(all_idx), BATCH_SIZE)):
@@ -3340,49 +3572,54 @@ def run_phase7_training():
             if opt_step >= TOTAL_STEPS:
                 break
 
-            raw = [ft_samples[i] for i in
-                   all_idx[batch_start:batch_start + BATCH_SIZE]]
+            t0 = time.time()
+
+            # ── Batch ─────────────────────────────────────────────────────
+            raw   = [ft_samples[i] for i in
+                     all_idx[batch_start:batch_start + BATCH_SIZE]]
             batch = collate_s2t_batch(raw)
             del raw
             if batch is None:
                 continue
 
-            # Teacher logits (cuda:1, frozen)
-            t_log = None
+            # ── Teacher: top-K on cuda:1, direct transfer to cuda:0 ───────
+            topk_vals = topk_idx = None
             try:
-                t_log = teacher_logits_cpu(batch['feat'], batch['dec_full'])
-                L     = batch['labels_s'].shape[1]
-                t_log = t_log[:, :L, :].contiguous()
+                topk_vals, topk_idx = teacher_topk_direct(
+                    batch['feat'], batch['dec_full'])
+                L         = batch['labels_s'].shape[1]
+                topk_vals = topk_vals[:, :L, :].contiguous()
+                topk_idx  = topk_idx[:, :L, :].contiguous()
             except Exception as e:
                 print(f'  [teacher skip] {e}')
                 del batch
                 free_cpu_ram()
                 continue
 
-            # Student logits (cuda:0, trainable)
+            # ── Student: forward on cuda:0 ────────────────────────────────
             try:
                 s_log = student_logits_gpu_p7(batch['feat'], batch['dec_s'])
                 s_log = s_log[:, :L, :]
             except torch.cuda.OutOfMemoryError:
                 torch.cuda.empty_cache()
                 free_cpu_ram()
-                print(f'  [OOM] step {opt_step} — skipping batch')
-                del batch, t_log
+                print(f'  [OOM] step {opt_step}')
+                del batch, topk_vals, topk_idx
                 continue
 
             labels_dev = batch['labels_s'].to('cuda:0')
             del batch
 
-            # Loss
+            # ── Loss: fully on cuda:0 ─────────────────────────────────────
             try:
-                loss, ce_v, kd_v = compute_recovery_loss(
-                    s_log, labels_dev, t_log)
+                loss, ce_v, kd_v = compute_recovery_loss_gpu(
+                    s_log, labels_dev, topk_vals, topk_idx)
             except Exception as e:
                 print(f'  [loss error] {e}')
-                del s_log, t_log, labels_dev
+                del s_log, topk_vals, topk_idx, labels_dev
                 continue
             finally:
-                del t_log
+                del topk_vals, topk_idx
 
             scaler.scale(loss / GRAD_ACCUM).backward()
             del s_log, labels_dev, loss
@@ -3402,30 +3639,33 @@ def run_phase7_training():
                 accum    = 0
                 opt_step += 1
 
+                step_times.append(time.time() - t0)
+                if len(step_times) > 50:
+                    step_times.pop(0)
+
                 if opt_step % 20 == 0:
                     free_cpu_ram()
 
                 if opt_step % LOG_STEPS == 0:
-                    lrs = scheduler.get_last_lr()
+                    lrs     = scheduler.get_last_lr()
+                    avg_t   = sum(step_times) / len(step_times)
+                    eta_min = (TOTAL_STEPS - opt_step) * avg_t / 60
                     print(f'  E{epoch+1:02d} | step {opt_step:>5} | '
                           f'CE={ep_ce/max(ep_n,1):.4f}  '
                           f'KD={ep_kd/max(ep_n,1):.4f}  '
-                          f'lr={lrs[-1]:.2e}')
+                          f'lr={lrs[-1]:.2e}  '
+                          f'{avg_t:.1f}s/step  ETA={eta_min:.0f}min')
                     gpu_mem()
 
                 if opt_step % EVAL_STEPS == 0:
                     torch.cuda.empty_cache()
                     free_cpu_ram()
-
                     text_chrf, asr_chrf = _eval_quick_p7(n_samples=32)
-
                     torch.cuda.empty_cache()
                     free_cpu_ram()
 
                     print(f'\n  ★ EVAL step {opt_step}: '
-                          f'Text-ChrF={text_chrf:.2f} | '
-                          f'ASR-ChrF={asr_chrf:.2f}  '
-                          f'(Phase6 best: see above)')
+                          f'Text={text_chrf:.2f} | ASR={asr_chrf:.2f}')
 
                     ckpt_data = dict(
                         model_state     = model_p7.state_dict(),
@@ -3441,19 +3681,19 @@ def run_phase7_training():
                         best_chrf      = asr_chrf
                         best_chrf_step = opt_step
                         patience_left  = 25
-                        ckpt_data['best_chrf'] = best_chrf
+                        ckpt_data['best_chrf']      = best_chrf
+                        ckpt_data['best_chrf_step'] = best_chrf_step
                         save_checkpoint(ckpt_data, 'phase7_ft',
                                         opt_step, keep=3)
-                        print(f'  ✓ NEW BEST: {best_chrf:.2f} @ step {opt_step}')
+                        print(f'  ✓ NEW BEST {best_chrf:.2f} @ step {opt_step}')
                     else:
                         patience_left -= 1
-                        # if opt_step % (EVAL_STEPS * 2) == 0:
                         save_checkpoint(ckpt_data, 'phase7_ft',
                                         opt_step, keep=2)
                         print(f'  Patience {patience_left}/25  '
-                              f'(best={best_chrf:.2f} @ step {best_chrf_step})')
+                              f'(best={best_chrf:.2f} @ {best_chrf_step})')
                         if patience_left <= 0:
-                            print('\n  ✗ Early stopping triggered.')
+                            print('  ✗ Early stop.')
                             return opt_step, best_chrf
 
                     del ckpt_data
@@ -3467,17 +3707,18 @@ def run_phase7_training():
 
         print(f'  Epoch {epoch+1} done | '
               f'CE={ep_ce/max(ep_n,1):.4f}  '
-              f'KD={ep_kd/max(ep_n,1):.4f}\n')
+              f'KD={ep_kd/max(ep_n,1):.4f}  '
+              f'time={( time.time()-t_epoch)/60:.1f}min\n')
         free_cpu_ram()
 
     return opt_step, best_chrf
 
 
 final_step, final_chrf = run_phase7_training()
-print(f'\nPhase 7 complete. steps={final_step}  best_asr_chrf={final_chrf:.2f}')
+print(f'\nPhase 7 complete. steps={final_step}  best={final_chrf:.2f}')
 wait_for_uploads()
 
-Cell63:
+Cell68:
 # ─────────────────────────────────────────────────────────────────────────────
 # SAVE PHASE 7 BEST
 # ─────────────────────────────────────────────────────────────────────────────
@@ -3515,7 +3756,7 @@ store_detailed_summary(detailed)
 print_detailed_summary_table('P7_Final')
 plot_detailed_phase_comparison()
 
-Cell64:
+Cell69:
 # import gc, torch
 
 # # These are PEFT checkpoints — must use base_model.model for generation
@@ -3589,13 +3830,13 @@ Cell64:
 
 # plot_detailed_phase_comparison()
 
-Cell65:
+Cell70:
 # heed
 
-Cell66:
+Cell71:
 
 
-Cell67:
+Cell72:
 # save_checkpoint(dict(
 #     student_state   = student.state_dict(),
 #     optimizer_state = optimizer.state_dict(),
@@ -3604,7 +3845,7 @@ Cell67:
 #     best_chrf       = 35.00,
 # ), 'phase6_kd', 560, keep=3)
 
-Cell68:
+Cell73:
 # # Quick diagnosis: eval on a few training samples vs eval samples
 # student.eval()
 
@@ -3640,7 +3881,7 @@ Cell68:
 
 # student.train()
 
-Cell69:
+Cell74:
 # # ── Full clean restart — run ALL of these in order ───────────────────────────
 
 # import gc
@@ -3718,7 +3959,7 @@ Cell69:
 # print(f'  grad_norm={_norm:.4f}  scaler_scale={scaler.get_scale()}')
 # print('✓ Sanity check passed — safe to run training loop')
 
-Cell70:
+Cell75:
 # batch = collate_s2t_batch([ft_samples[i] for i in range(2)])
 # b = 0
 # dec  = batch['dec_s'][b].tolist()
@@ -3734,12 +3975,12 @@ Cell70:
 #         l_str  = processor.tokenizer.convert_ids_to_tokens([l_full])[0]
 #     print(f'  [{i}] {d_tok:20s} → {l_str}')
 
-Cell71:
+Cell76:
 # final_step, final_chrf = run_phase6_training()
 
-Cell72:
+Cell77:
 !rclone copy /kaggle/working gdrive:seamTL --transfers=8 --multi-thread-streams=4 --drive-chunk-size=64M
 
-Cell73:
+Cell78:
 wait_for_uploads()
 
