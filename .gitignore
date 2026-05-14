@@ -25,9 +25,33 @@
 **/venv
 **/venv/
 
+# Python cache and compiled files (anywhere in the project)
+**/__pycache__
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.Python
+**/*.so
+**/*.egg
+**/*.egg-info
+**/*.egg-info/
+**/dist/
+**/build/
+**/.eggs/
+
 # Local working directories
 seamless_local/local_working/audio/**
 seamless_local/local_working/checkpoints/**
 seamless_local/local_working/figures/**
 seamless_local/local_working/models/**
 seamless_local/local_working/fleurs_parquet/**
+# duplexWebApp specific (models and output directories)
+duplexWebApp/models/
+duplexWebApp/models2/
+duplexWebApp/output/
+duplexWebApp/streaming_output/
+
+# Python package management
+**/uv.lock
+**/.python-version

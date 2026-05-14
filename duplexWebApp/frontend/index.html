@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Duplex Conversation — SeamlessM4T</title>
+    <style>
+      :root {
+        --bg: #0e1014;
+        --panel: #161a21;
+        --fg: #e7ecf3;
+        --muted: #8a93a3;
+        --accent: #6cf;
+        --accent2: #f76;
+        --ok: #6e6;
+        --warn: #fc6;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font:
+          15px/1.45 -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 32px 16px 16px;
+      }
+      h1 {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 24px;
+      }
+      .panel {
+        width: 100%;
+        max-width: 640px;
+        background: var(--panel);
+        border: 1px solid #232936;
+        border-radius: 12px;
+        padding: 20px;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      button {
+        background: #232b3a;
+        color: var(--fg);
+        border: 1px solid #2c3547;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font: inherit;
+      }
+      button:hover:not(:disabled) {
+        background: #2b3548;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      button.primary {
+        background: #1a4d6b;
+        border-color: #2a6c90;
+      }
+      button.danger {
+        background: #5a2120;
+        border-color: #7a3231;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: #11151c;
+        border: 1px solid #1f2632;
+        margin-bottom: 14px;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--muted);
+      }
+      .dot.listening {
+        background: var(--ok);
+        box-shadow: 0 0 12px var(--ok);
+      }
+      .dot.you {
+        background: var(--accent);
+        box-shadow: 0 0 12px var(--accent);
+        animation: pulse 1.1s infinite;
+      }
+      .dot.thinking {
+        background: var(--warn);
+        animation: pulse 0.8s infinite;
+      }
+      .dot.bot {
+        background: var(--accent2);
+        box-shadow: 0 0 12px var(--accent2);
+        animation: pulse 0.6s infinite;
+      }
+      .dot.error {
+        background: #f55;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      .meter {
+        flex: 1;
+        height: 6px;
+        background: #11151c;
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .meter > i {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--ok), var(--accent2));
+        transition: width 0.05s linear;
+      }
+
+      #log {
+        max-height: 300px;
+        overflow: auto;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 12px;
+        color: var(--muted);
+        background: #0a0d12;
+        border: 1px solid #1c222d;
+        border-radius: 8px;
+        padding: 10px;
+      }
+      #log div {
+        white-space: pre-wrap;
+      }
+      #log .ev-user_speech_start {
+        color: var(--accent);
+      }
+      #log .ev-speaking_start {
+        color: var(--accent2);
+      }
+      #log .ev-thinking {
+        color: var(--warn);
+      }
+      #log .ev-error {
+        color: #f55;
+      }
+      #log .ev-stop_playback,
+      #log .ev-speaking_cancelled {
+        color: #f99;
+      }
+      .hint {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Duplex Conversation</h1>
+    <div class="sub">
+      English speech in → Bengali speech out. Talk naturally; the model waits
+      until you pause, and stops if you interrupt.
+    </div>
+
+    <div class="panel">
+      <div class="status">
+        <span id="dot" class="dot"></span>
+        <strong id="state">idle</strong>
+        <div class="meter"><i id="meter"></i></div>
+      </div>
+      <div class="row">
+        <select id="lang">
+          <option value="ben">Bengali</option>
+          <option value="hin">Hindi</option>
+          <option value="arb">Arabic</option>
+        </select>
+        <button id="start" class="primary">Start</button>
+        <button id="stop" class="danger" disabled>Stop</button>
+        <button id="reset" disabled>Reset utterance</button>
+      </div>
+      <div id="log"></div>
+      <div class="hint">
+        Tip: use headphones. The browser does echo cancellation, but a
+        loudspeaker can still trip the VAD into thinking the bot's voice is
+        yours.
+      </div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
