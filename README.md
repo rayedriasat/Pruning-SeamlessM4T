@@ -396,7 +396,7 @@ If you use this work, please cite:
   author={CSE465 Project Team},
   year={2026},
   institution={North South University},
-  note={Available at: https://github.com/YOUR_USERNAME/Pruning-SeamlessM4T}
+  note={Available at: https://github.com/rayedriasat/Pruning-SeamlessM4T}
 }
 ```
 
