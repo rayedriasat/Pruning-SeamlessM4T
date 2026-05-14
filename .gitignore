@@ -1,15 +1,31 @@
-.ipynb_checkpoints
-.vscode
-.DS_Store
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.development
-.env.test
-.env.production
-.venv
+# Jupyter Notebook (anywhere in the project)
+**/.ipynb_checkpoints
+**/.ipynb_checkpoints/
+
+# IDE (anywhere in the project)
+**/.vscode
+**/.vscode/
+
+# macOS (anywhere in the project)
+**/.DS_Store
+
+# Environment variables (anywhere in the project)
+**/.env
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+**/.env.development
+**/.env.test
+**/.env.production
+
+# Python virtual environment (anywhere in the project)
+**/.venv
+**/.venv/
+**/venv
+**/venv/
+
+# Local working directories
 seamless_local/local_working/audio/**
 seamless_local/local_working/checkpoints/**
 seamless_local/local_working/figures/**
