@@ -15,8 +15,6 @@ const meterEl = $("meter");
 const logEl = $("log");
 const modeRadios = Array.from(document.querySelectorAll('input[name="talkMode"]'));
 const holdBtn = $("holdTalk");
-const micStateEl = $("micState");
-const shortcutEl = $("shortcut");
 
 let ws = null;
 let captureCtx = null;
@@ -63,14 +61,14 @@ function updateMicUi() {
   holdBtn.classList.toggle("active", pushHeld);
   holdBtn.disabled = !connected() || talkMode !== "push";
   holdBtn.setAttribute("aria-pressed", String(pushHeld));
-  micStateEl.textContent = open
+  holdBtn.title = open
     ? "Mic open"
     : !connected()
       ? "Start the call"
       : talkMode === "push"
       ? "Hold to talk"
       : "Mic paused";
-  shortcutEl.textContent = talkMode === "push" ? "Ctrl+D" : "Always listening";
+  holdBtn.setAttribute("aria-label", holdBtn.title);
 }
 
 function openPushToTalk() {
