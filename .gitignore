@@ -56,6 +56,6 @@ duplexWebApp/streaming_output/
 **/uv.lock
 **/.python-version
 
-APPENDIX_1.md
-FINAL_REPORT.md
-REPRODUCIBLE_AGENT_PROMPT.md
+# FINAL_REPORT.md
+# REPRODUCIBLE_AGENT_PROMPT.md
+
