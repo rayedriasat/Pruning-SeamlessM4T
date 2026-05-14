@@ -442,9 +442,8 @@ This project builds upon the following research:
 **North South University**  
 **Semester: Spring 2026**
 
-- **Project Lead:** [Your Name]
-- **Team Members:** [Team Member Names]
-- **Supervisor:** [Supervisor Name]
+- **Team Members:** **Rayed Riasat Rabbi**, Md. Tanvir Chowdhury, Nazmus Sakib Nihal
+- **Supervisor:** Dr. Nabeel Mohammed [NbM]
 
 ---
 
