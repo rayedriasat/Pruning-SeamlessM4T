@@ -1,0 +1,360 @@
+<svg width="1340" height="1060" viewBox="0 0 1340 1060" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <!-- Arrow markers -->
+  <marker id="arr-dark" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#2C3E50"/>
+  </marker>
+  <marker id="arr-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#27AE60"/>
+  </marker>
+  <marker id="arr-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#E67E22"/>
+  </marker>
+  <marker id="arr-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#2980B9"/>
+  </marker>
+  <marker id="arr-purple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#8E44AD"/>
+  </marker>
+  <marker id="arr-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#C0392B"/>
+  </marker>
+  <marker id="arr-crimson" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#E74C3C"/>
+  </marker>
+
+  <!-- Drop shadow filter -->
+  <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+    <feDropShadow dx="1" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+  </filter>
+  <!-- Glow for adapter box -->
+  <filter id="glow" x="-8%" y="-8%" width="116%" height="116%">
+    <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#C0392B" flood-opacity="0.4"/>
+  </filter>
+</defs>
+
+<!-- ══════════════════════════════════════════════════════
+     TITLE
+     ══════════════════════════════════════════════════════ -->
+<text x="670" y="40" text-anchor="middle" font-size="26" font-weight="bold" fill="#1a1a2e">CIF Boundary Detector Adapter — Training Pipeline</text>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION LABELS
+     ══════════════════════════════════════════════════════ -->
+<!-- Step 1 background -->
+<rect x="20" y="60" width="530" height="870" rx="12" fill="#EBF5FB" stroke="#AED6F1" stroke-width="2"/>
+<text x="35" y="88" font-size="18" font-weight="bold" fill="#1A5276">STEP 1: Data Extraction</text>
+
+<!-- Step 2 background -->
+<rect x="570" y="60" width="540" height="870" rx="12" fill="#EAFAF1" stroke="#A9DFBF" stroke-width="2"/>
+<text x="585" y="88" font-size="18" font-weight="bold" fill="#1E8449">STEP 2: Adapter Training</text>
+
+<!-- Step 3 background -->
+<rect x="1130" y="60" width="195" height="870" rx="12" fill="#FEF9E7" stroke="#F9E79F" stroke-width="2"/>
+<text x="1145" y="88" font-size="18" font-weight="bold" fill="#7D6608">STEP 3: Inference</text>
+
+<!-- ======================================================
+     STEP 1 BOXES  (column center x=285)
+     ====================================================== -->
+
+<!-- LibriTTS Dataset -->
+<g filter="url(#shadow)">
+  <rect x="130" y="105" width="310" height="60" rx="10" fill="#D5F4E6" stroke="#1E8449" stroke-width="2"/>
+</g>
+<text x="285" y="129" text-anchor="middle" font-size="17" font-weight="bold" fill="#1A5276">LibriTTS Dataset</text>
+<text x="285" y="151" text-anchor="middle" font-size="13" fill="#555" font-style="italic">train-clean-100 (24kHz WAV files)</text>
+
+<!-- Audio 1 -->
+<g filter="url(#shadow)">
+  <rect x="40" y="225" width="150" height="58" rx="9" fill="#AED6F1" stroke="#2471A3" stroke-width="1.8"/>
+</g>
+<text x="115" y="249" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A5276">Audio 1</text>
+<text x="115" y="268" text-anchor="middle" font-size="13" fill="#555" font-style="italic">Random WAV</text>
+
+<!-- Silence -->
+<g filter="url(#shadow)">
+  <rect x="210" y="225" width="150" height="58" rx="9" fill="#AED6F1" stroke="#2471A3" stroke-width="1.8"/>
+</g>
+<text x="285" y="249" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A5276">Silence</text>
+<text x="285" y="268" text-anchor="middle" font-size="13" fill="#555" font-style="italic">1–3 seconds</text>
+
+<!-- Audio 2 -->
+<g filter="url(#shadow)">
+  <rect x="380" y="225" width="150" height="58" rx="9" fill="#AED6F1" stroke="#2471A3" stroke-width="1.8"/>
+</g>
+<text x="455" y="249" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A5276">Audio 2</text>
+<text x="455" y="268" text-anchor="middle" font-size="13" fill="#555" font-style="italic">Random WAV</text>
+
+<!-- Concatenate Audio -->
+<g filter="url(#shadow)">
+  <rect x="140" y="348" width="290" height="60" rx="9" fill="#AED6F1" stroke="#2471A3" stroke-width="1.8"/>
+</g>
+<text x="285" y="372" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A5276">Concatenate Audio</text>
+<text x="285" y="392" text-anchor="middle" font-size="13" fill="#555" font-style="italic">Resample to 16kHz</text>
+
+<!-- Raw Labels -->
+<g filter="url(#shadow)">
+  <rect x="60" y="478" width="200" height="60" rx="9" fill="#AED6F1" stroke="#2471A3" stroke-width="1.8"/>
+</g>
+<text x="160" y="503" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A5276">Raw Labels</text>
+<text x="160" y="523" text-anchor="middle" font-size="12" fill="#555" font-style="italic">[1,1..]+[0,0..]+[1,1..]</text>
+
+<!-- SeamlessM4T Encoder -->
+<g filter="url(#shadow)">
+  <rect x="270" y="468" width="240" height="70" rx="9" fill="#A9DFBF" stroke="#1E8449" stroke-width="2"/>
+</g>
+<text x="390" y="494" text-anchor="middle" font-size="16" font-weight="bold" fill="#145A32">SeamlessM4T</text>
+<text x="390" y="514" text-anchor="middle" font-size="16" font-weight="bold" fill="#145A32">Speech Encoder</text>
+<text x="390" y="530" text-anchor="middle" font-size="12" fill="#555" font-style="italic">Extract hidden states [T, 1024]</text>
+
+<!-- F.interpolate -->
+<g filter="url(#shadow)">
+  <rect x="140" y="610" width="290" height="60" rx="9" fill="#AED6F1" stroke="#2471A3" stroke-width="1.8"/>
+</g>
+<text x="285" y="634" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A5276">F.interpolate (Linear)</text>
+<text x="285" y="654" text-anchor="middle" font-size="13" fill="#555" font-style="italic">Align labels to encoder seq length T</text>
+
+<!-- sample_i_features.pt -->
+<g filter="url(#shadow)">
+  <rect x="40" y="742" width="210" height="58" rx="9" fill="#D7DBDD" stroke="#555" stroke-width="1.8"/>
+</g>
+<text x="145" y="766" text-anchor="middle" font-size="15" font-weight="bold" fill="#2C3E50">sample_i_features.pt</text>
+<text x="145" y="785" text-anchor="middle" font-size="13" fill="#555" font-style="italic">[T, 1024]</text>
+
+<!-- sample_i_labels.pt -->
+<g filter="url(#shadow)">
+  <rect x="320" y="742" width="200" height="58" rx="9" fill="#D7DBDD" stroke="#555" stroke-width="1.8"/>
+</g>
+<text x="420" y="766" text-anchor="middle" font-size="15" font-weight="bold" fill="#2C3E50">sample_i_labels.pt</text>
+<text x="420" y="785" text-anchor="middle" font-size="13" fill="#555" font-style="italic">[T]</text>
+
+<!-- ======================================================
+     STEP 1 ARROWS
+     ====================================================== -->
+<!-- LibriTTS → Audio 1 -->
+<line x1="248" y1="165" x2="155" y2="224" stroke="#2C3E50" stroke-width="2" marker-end="url(#arr-dark)"/>
+<!-- LibriTTS → Silence -->
+<line x1="285" y1="165" x2="285" y2="224" stroke="#2C3E50" stroke-width="2" marker-end="url(#arr-dark)"/>
+<!-- LibriTTS → Audio 2 -->
+<line x1="322" y1="165" x2="415" y2="224" stroke="#2C3E50" stroke-width="2" marker-end="url(#arr-dark)"/>
+
+<!-- Audio 1 → Concat (via bottom-left) -->
+<path d="M 115 283 L 115 328 L 175 328 L 175 347" stroke="#2C3E50" stroke-width="2" fill="none" marker-end="url(#arr-dark)"/>
+<!-- Silence → Concat -->
+<line x1="285" y1="283" x2="285" y2="347" stroke="#2C3E50" stroke-width="2" marker-end="url(#arr-dark)"/>
+<!-- Audio 2 → Concat (via bottom-right) -->
+<path d="M 455 283 L 455 328 L 395 328 L 395 347" stroke="#2C3E50" stroke-width="2" fill="none" marker-end="url(#arr-dark)"/>
+
+<!-- Concat → Raw Labels (left branch) -->
+<path d="M 220 408 L 185 408 L 185 440 L 160 440 L 160 477" stroke="#2C3E50" stroke-width="2" fill="none" marker-end="url(#arr-dark)"/>
+<text x="56" y="436" font-size="13" fill="#27AE60" font-style="italic" font-weight="bold">Generate labels</text>
+
+<!-- Concat → SeamlessM4T (right branch) -->
+<path d="M 350 408 L 390 408 L 390 467" stroke="#27AE60" stroke-width="2.5" fill="none" marker-end="url(#arr-green)"/>
+<text x="352" y="440" font-size="13" fill="#27AE60" font-style="italic" font-weight="bold">Extract features</text>
+
+<!-- Raw Labels → F.interpolate -->
+<path d="M 160 538 L 160 590 L 210 590 L 210 609" stroke="#2C3E50" stroke-width="2" fill="none" marker-end="url(#arr-dark)"/>
+
+<!-- SeamlessM4T → F.interpolate -->
+<path d="M 390 538 L 390 590 L 360 590 L 360 609" stroke="#E67E22" stroke-width="2.2" fill="none" marker-end="url(#arr-orange)"/>
+<text x="362" y="586" font-size="13" fill="#E67E22" font-style="italic" font-weight="bold">Seq len T</text>
+
+<!-- F.interpolate → features.pt -->
+<path d="M 210 670 L 145 670 L 145 741" stroke="#2C3E50" stroke-width="2" fill="none" marker-end="url(#arr-dark)"/>
+
+<!-- F.interpolate → labels.pt -->
+<path d="M 360 670 L 420 670 L 420 741" stroke="#2C3E50" stroke-width="2" fill="none" marker-end="url(#arr-dark)"/>
+
+<!-- ======================================================
+     STEP 2 BOXES  (column center x=840)
+     ====================================================== -->
+
+<!-- Train Split -->
+<g filter="url(#shadow)">
+  <rect x="590" y="105" width="170" height="60" rx="9" fill="#D5F4E6" stroke="#1E8449" stroke-width="1.8"/>
+</g>
+<text x="675" y="129" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A5276">Train Split</text>
+<text x="675" y="149" text-anchor="middle" font-size="13" fill="#555" font-style="italic">5000 pairs</text>
+
+<!-- Val Split -->
+<g filter="url(#shadow)">
+  <rect x="775" y="105" width="170" height="60" rx="9" fill="#D5F4E6" stroke="#1E8449" stroke-width="1.8"/>
+</g>
+<text x="860" y="129" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A5276">Val Split</text>
+<text x="860" y="149" text-anchor="middle" font-size="13" fill="#555" font-style="italic">500 pairs</text>
+
+<!-- Test Split -->
+<g filter="url(#shadow)">
+  <rect x="960" y="105" width="130" height="60" rx="9" fill="#D5F4E6" stroke="#1E8449" stroke-width="1.8"/>
+</g>
+<text x="1025" y="129" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A5276">Test Split</text>
+<text x="1025" y="149" text-anchor="middle" font-size="13" fill="#555" font-style="italic">500 pairs</text>
+
+<!-- DataLoader -->
+<g filter="url(#shadow)">
+  <rect x="630" y="240" width="380" height="62" rx="9" fill="#F9E79F" stroke="#D4AC0D" stroke-width="1.8"/>
+</g>
+<text x="820" y="265" text-anchor="middle" font-size="17" font-weight="bold" fill="#7D6608">DataLoader + pad_collate_fn</text>
+<text x="820" y="287" text-anchor="middle" font-size="13" fill="#555" font-style="italic">Batch=16, Pad variable sequences</text>
+
+<!-- CIF Adapter (highlight) -->
+<g filter="url(#glow)">
+  <rect x="590" y="373" width="460" height="80" rx="11" fill="#E74C3C" stroke="#922B21" stroke-width="3"/>
+</g>
+<text x="820" y="400" text-anchor="middle" font-size="19" font-weight="bold" fill="white">CIF Boundary Detector (MLP)</text>
+<text x="820" y="425" text-anchor="middle" font-size="14" fill="#FFE4E1" font-style="italic">1024 → 512 (LN+ReLU+Drop) → 256 (LN+ReLU+Drop) → 1 (Sigmoid)</text>
+<text x="820" y="445" text-anchor="middle" font-size="13" fill="#FFD0CC" font-style="italic">Trainable Adapter</text>
+
+<!-- Forward Pass -->
+<g filter="url(#shadow)">
+  <rect x="640" y="520" width="360" height="58" rx="9" fill="#F9E79F" stroke="#D4AC0D" stroke-width="1.8"/>
+</g>
+<text x="820" y="544" text-anchor="middle" font-size="16" font-weight="bold" fill="#7D6608">Forward Pass</text>
+<text x="820" y="563" text-anchor="middle" font-size="13" fill="#555" font-style="italic">outputs = model(features)</text>
+
+<!-- BCE Loss -->
+<g filter="url(#shadow)">
+  <rect x="640" y="648" width="360" height="58" rx="9" fill="#E8DAEF" stroke="#7D3C98" stroke-width="1.8"/>
+</g>
+<text x="820" y="672" text-anchor="middle" font-size="16" font-weight="bold" fill="#4A235A">Binary Cross-Entropy Loss</text>
+<text x="820" y="691" text-anchor="middle" font-size="13" fill="#555" font-style="italic">BCELoss(outputs, labels)</text>
+
+<!-- AdamW Optimizer -->
+<g filter="url(#shadow)">
+  <rect x="640" y="776" width="360" height="58" rx="9" fill="#F9E79F" stroke="#D4AC0D" stroke-width="1.8"/>
+</g>
+<text x="820" y="800" text-anchor="middle" font-size="16" font-weight="bold" fill="#7D6608">AdamW Optimizer</text>
+<text x="820" y="819" text-anchor="middle" font-size="13" fill="#555" font-style="italic">lr=1e-3, weight_decay=1e-4</text>
+
+<!-- Training Loop -->
+<g filter="url(#shadow)">
+  <rect x="660" y="904" width="320" height="58" rx="9" fill="#F9E79F" stroke="#D4AC0D" stroke-width="1.8"/>
+</g>
+<text x="820" y="928" text-anchor="middle" font-size="16" font-weight="bold" fill="#7D6608">Training Loop</text>
+<text x="820" y="947" text-anchor="middle" font-size="13" fill="#555" font-style="italic">10 epochs</text>
+
+<!-- ======================================================
+     STEP 2 ARROWS
+     ====================================================== -->
+<!-- Train Split → DataLoader -->
+<line x1="675" y1="165" x2="720" y2="239" stroke="#2C3E50" stroke-width="2" marker-end="url(#arr-dark)"/>
+<!-- Val Split → DataLoader -->
+<line x1="860" y1="165" x2="840" y2="239" stroke="#2C3E50" stroke-width="2" marker-end="url(#arr-dark)"/>
+<!-- Test Split: just label (not directly connected to training flow) -->
+
+<!-- DataLoader → CIF Adapter -->
+<line x1="820" y1="302" x2="820" y2="372" stroke="#2980B9" stroke-width="2.5" marker-end="url(#arr-blue)"/>
+<text x="826" y="340" font-size="13" fill="#2980B9" font-style="italic" font-weight="bold">Batched features</text>
+
+<!-- CIF Adapter → Forward Pass -->
+<line x1="820" y1="453" x2="820" y2="519" stroke="#2C3E50" stroke-width="2" marker-end="url(#arr-dark)"/>
+
+<!-- Forward Pass → BCE Loss -->
+<line x1="820" y1="578" x2="820" y2="647" stroke="#2C3E50" stroke-width="2" marker-end="url(#arr-dark)"/>
+<text x="826" y="616" font-size="13" fill="#555" font-style="italic">predictions</text>
+
+<!-- BCE Loss → AdamW -->
+<line x1="820" y1="706" x2="820" y2="775" stroke="#E74C3C" stroke-width="2.5" marker-end="url(#arr-crimson)"/>
+<text x="826" y="744" font-size="13" fill="#E74C3C" font-style="italic" font-weight="bold">loss.backward()</text>
+
+<!-- AdamW → Training Loop -->
+<line x1="820" y1="834" x2="820" y2="903" stroke="#2C3E50" stroke-width="2" marker-end="url(#arr-dark)"/>
+<text x="826" y="872" font-size="13" fill="#555" font-style="italic">optimizer.step()</text>
+
+<!-- ======================================================
+     STEP 3 BOXES  (column center x=1228)
+     ====================================================== -->
+
+<!-- boundary_adapter.pt (shared output) -->
+<g filter="url(#shadow)">
+  <rect x="1140" y="240" width="175" height="65" rx="9" fill="#D7DBDD" stroke="#555" stroke-width="2"/>
+</g>
+<text x="1228" y="262" text-anchor="middle" font-size="15" font-weight="bold" fill="#2C3E50">boundary_adapter.pt</text>
+<text x="1228" y="281" text-anchor="middle" font-size="13" fill="#555" font-style="italic">Trained weights</text>
+<text x="1228" y="297" text-anchor="middle" font-size="12" fill="#E74C3C" font-weight="bold">Saved output</text>
+
+<!-- Training Loop → boundary_adapter.pt arrow (going right) -->
+<path d="M 980 933 L 1100 933 L 1100 272 L 1139 272" stroke="#2C3E50" stroke-width="2" fill="none" marker-end="url(#arr-dark)"/>
+
+<!-- Input Audio -->
+<g filter="url(#shadow)">
+  <rect x="1140" y="460" width="175" height="60" rx="9" fill="#AED6F1" stroke="#2471A3" stroke-width="1.8"/>
+</g>
+<text x="1228" y="484" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A5276">Input Audio</text>
+<text x="1228" y="503" text-anchor="middle" font-size="13" fill="#555" font-style="italic">test.wav (16kHz)</text>
+
+<!-- SeamlessChunkedWrapper -->
+<g filter="url(#shadow)">
+  <rect x="1130" y="600" width="195" height="72" rx="9" fill="#F5CBA7" stroke="#C0392B" stroke-width="2"/>
+</g>
+<text x="1228" y="626" text-anchor="middle" font-size="15" font-weight="bold" fill="#6E2F1A">SeamlessChunked</text>
+<text x="1228" y="645" text-anchor="middle" font-size="15" font-weight="bold" fill="#6E2F1A">Wrapper</text>
+<text x="1228" y="663" text-anchor="middle" font-size="12" fill="#555" font-style="italic">Base Model + Loaded Adapter</text>
+
+<!-- Input Audio → Wrapper -->
+<line x1="1228" y1="520" x2="1228" y2="599" stroke="#2C3E50" stroke-width="2" marker-end="url(#arr-dark)"/>
+
+<!-- boundary_adapter.pt → Wrapper (load weights) -->
+<line x1="1228" y1="305" x2="1228" y2="459" stroke="#C0392B" stroke-width="2.5" stroke-dasharray="8,5" marker-end="url(#arr-red)"/>
+<rect x="1235" y="368" width="96" height="22" rx="4" fill="white" opacity="0.88"/>
+<text x="1283" y="383" text-anchor="middle" font-size="13" fill="#C0392B" font-style="italic" font-weight="bold">Load weights</text>
+
+<!-- ======================================================
+     CROSS-SECTION ARROWS
+     ====================================================== -->
+<!-- features.pt → Train Split (dashed purple, goes across) -->
+<path d="M 250 771 L 250 830 L 560 830 L 560 135 L 589 135" stroke="#8E44AD" stroke-width="2.5" stroke-dasharray="9,5" fill="none" marker-end="url(#arr-purple)"/>
+<rect x="370" y="795" width="120" height="24" rx="5" fill="white" opacity="0.9"/>
+<text x="430" y="811" text-anchor="middle" font-size="14" fill="#8E44AD" font-style="italic" font-weight="bold">Load dataset</text>
+
+<!-- ======================================================
+     ANNOTATION BOXES
+     ====================================================== -->
+
+<!-- Data Generation details -->
+<rect x="30" y="855" width="220" height="145" rx="10" fill="#ECF0F1" stroke="#34495E" stroke-width="1.5"/>
+<text x="140" y="877" text-anchor="middle" font-size="15" font-weight="bold" fill="#2C3E50">Data Generation</text>
+<text x="45" y="900" font-size="13" fill="#2C3E50">• 5000 train pairs</text>
+<text x="45" y="920" font-size="13" fill="#2C3E50">• 500 val pairs</text>
+<text x="45" y="940" font-size="13" fill="#2C3E50">• 500 test pairs</text>
+<text x="45" y="960" font-size="13" fill="#2C3E50">• Random silence: 1–3s</text>
+<text x="45" y="980" font-size="13" fill="#2C3E50">• Resample: 16kHz</text>
+
+<!-- Training Config details -->
+<rect x="1140" y="740" width="185" height="155" rx="10" fill="#ECF0F1" stroke="#34495E" stroke-width="1.5"/>
+<text x="1232" y="762" text-anchor="middle" font-size="15" font-weight="bold" fill="#2C3E50">Training Config</text>
+<text x="1152" y="785" font-size="13" fill="#2C3E50">• Batch size: 16</text>
+<text x="1152" y="805" font-size="13" fill="#2C3E50">• Epochs: 10</text>
+<text x="1152" y="825" font-size="13" fill="#2C3E50">• LR: 1e-3</text>
+<text x="1152" y="845" font-size="13" fill="#2C3E50">• Dropout: 0.3</text>
+<text x="1152" y="865" font-size="13" fill="#2C3E50">• Loss: BCE</text>
+<text x="1152" y="885" font-size="13" fill="#2C3E50">• Weight decay: 1e-4</text>
+
+<!-- Inference details -->
+<rect x="1130" y="695" width="198" height="30" rx="6" fill="#FEF9E7" stroke="#D4AC0D" stroke-width="1.3"/>
+<text x="1229" y="714" text-anchor="middle" font-size="13" fill="#7D6608" font-style="italic">Threshold: 0.2 | Chunk on silence</text>
+
+<!-- ======================================================
+     LEGEND
+     ====================================================== -->
+<rect x="570" y="990" width="580" height="60" rx="10" fill="#FDFEFE" stroke="#BDC3C7" stroke-width="1.5"/>
+<text x="858" y="1010" text-anchor="middle" font-size="14" font-weight="bold" fill="#2C3E50">Pipeline Components</text>
+
+<!-- Legend items -->
+<rect x="585" y="1020" width="18" height="14" rx="3" fill="#E74C3C" stroke="#922B21" stroke-width="1.5"/>
+<text x="608" y="1032" font-size="12" fill="#2C3E50">CIF Adapter (Trainable)</text>
+
+<rect x="740" y="1020" width="18" height="14" rx="3" fill="#D5F4E6" stroke="#1E8449" stroke-width="1.5"/>
+<text x="763" y="1032" font-size="12" fill="#2C3E50">Dataset / Data Split</text>
+
+<rect x="880" y="1020" width="18" height="14" rx="3" fill="#AED6F1" stroke="#2471A3" stroke-width="1.5"/>
+<text x="903" y="1032" font-size="12" fill="#2C3E50">Data Processing</text>
+
+<rect x="1010" y="1020" width="18" height="14" rx="3" fill="#A9DFBF" stroke="#1E8449" stroke-width="1.5"/>
+<text x="1033" y="1032" font-size="12" fill="#2C3E50">Frozen Encoder</text>
+
+<rect x="1115" y="1020" width="18" height="14" rx="3" fill="#D7DBDD" stroke="#555" stroke-width="1.5"/>
+<text x="1138" y="1032" font-size="12" fill="#2C3E50">Saved Outputs</text>
+
+</svg>
