@@ -6,14 +6,18 @@
     <title>Duplex Conversation — SeamlessM4T</title>
     <style>
       :root {
-        --bg: #0e1014;
-        --panel: #161a21;
-        --fg: #e7ecf3;
-        --muted: #8a93a3;
-        --accent: #6cf;
-        --accent2: #f76;
-        --ok: #6e6;
-        --warn: #fc6;
+        --bg: #0b0f14;
+        --panel: #151b23;
+        --panel-2: #0f141b;
+        --line: #273241;
+        --fg: #eef3f8;
+        --muted: #99a5b5;
+        --accent: #39b6ff;
+        --accent-strong: #168fd6;
+        --accent2: #ff7a66;
+        --ok: #57d987;
+        --warn: #f8c45f;
+        --danger: #ef5f5f;
       }
       * {
         box-sizing: border-box;
@@ -24,7 +28,9 @@
         margin: 0;
       }
       body {
-        background: var(--bg);
+        background:
+          radial-gradient(circle at 20% 0%, rgba(57, 182, 255, 0.14), transparent 30rem),
+          linear-gradient(180deg, #0d1219 0%, var(--bg) 52%);
         color: var(--fg);
         font:
           15px/1.45 -apple-system,
@@ -35,66 +41,161 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 32px 16px 16px;
+        padding: 34px 18px 20px;
+      }
+      .shell {
+        width: min(920px, 100%);
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        align-items: flex-end;
+        margin-bottom: 22px;
       }
       h1 {
-        font-size: 18px;
-        font-weight: 600;
-        margin: 0 0 4px;
+        font-size: clamp(24px, 4vw, 38px);
+        font-weight: 750;
+        margin: 0 0 8px;
+        letter-spacing: 0;
       }
       .sub {
         color: var(--muted);
-        font-size: 13px;
-        margin-bottom: 24px;
+        font-size: 14px;
+        max-width: 650px;
       }
       .panel {
         width: 100%;
-        max-width: 640px;
         background: var(--panel);
-        border: 1px solid #232936;
-        border-radius: 12px;
-        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 22px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
       }
       .row {
         display: flex;
-        gap: 8px;
+        gap: 10px;
         align-items: center;
-        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      .topbar {
+        justify-content: space-between;
+        margin-bottom: 18px;
+      }
+      .controls {
+        display: grid;
+        grid-template-columns: minmax(220px, 0.8fr) minmax(280px, 1.2fr);
+        gap: 18px;
+        align-items: stretch;
+        margin-bottom: 18px;
+      }
+      .control-block {
+        background: var(--panel-2);
+        border: 1px solid #202a38;
+        border-radius: 8px;
+        padding: 14px;
+      }
+      .label {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      select {
+        width: 100%;
+        appearance: none;
+        background: #111822;
+        color: var(--fg);
+        border: 1px solid #2a3748;
+        border-radius: 8px;
+        padding: 10px 38px 10px 12px;
+        font: inherit;
+        background-image:
+          linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+          linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+        background-position:
+          calc(100% - 18px) 50%,
+          calc(100% - 13px) 50%;
+        background-size: 5px 5px;
+        background-repeat: no-repeat;
       }
       button {
-        background: #232b3a;
+        background: #202a38;
         color: var(--fg);
-        border: 1px solid #2c3547;
-        padding: 8px 16px;
+        border: 1px solid #314057;
+        padding: 10px 16px;
         border-radius: 8px;
         cursor: pointer;
         font: inherit;
+        font-weight: 650;
+        transition:
+          transform 0.12s ease,
+          border-color 0.12s ease,
+          background 0.12s ease;
       }
       button:hover:not(:disabled) {
-        background: #2b3548;
+        background: #2a3648;
+        transform: translateY(-1px);
       }
       button:disabled {
         opacity: 0.45;
         cursor: not-allowed;
       }
       button.primary {
-        background: #1a4d6b;
-        border-color: #2a6c90;
+        background: linear-gradient(180deg, #1b9eeb, var(--accent-strong));
+        border-color: #54c4ff;
+        color: white;
       }
       button.danger {
-        background: #5a2120;
-        border-color: #7a3231;
+        background: #3a2025;
+        border-color: #7a3439;
+        color: #ffd8d8;
+      }
+      .mode-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .mode-card {
+        position: relative;
+        display: block;
+      }
+      .mode-card input {
+        position: absolute;
+        opacity: 0;
+      }
+      .mode-card span {
+        display: flex;
+        min-height: 48px;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border: 1px solid #2a3748;
+        border-radius: 8px;
+        background: #121923;
+        color: var(--muted);
+        font-weight: 700;
+        padding: 8px;
+        cursor: pointer;
+      }
+      .mode-card input:checked + span {
+        color: #eaf8ff;
+        background: rgba(57, 182, 255, 0.13);
+        border-color: var(--accent);
       }
 
       .status {
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 12px 14px;
-        border-radius: 10px;
-        background: #11151c;
-        border: 1px solid #1f2632;
-        margin-bottom: 14px;
+        min-width: 240px;
+        padding: 11px 13px;
+        border-radius: 8px;
+        background: var(--panel-2);
+        border: 1px solid #202a38;
       }
       .dot {
         width: 10px;
@@ -136,7 +237,7 @@
       .meter {
         flex: 1;
         height: 6px;
-        background: #11151c;
+        background: #0a0f15;
         border-radius: 3px;
         overflow: hidden;
       }
@@ -147,17 +248,70 @@
         background: linear-gradient(90deg, var(--ok), var(--accent2));
         transition: width 0.05s linear;
       }
+      .talk-pad {
+        display: grid;
+        grid-template-columns: 132px minmax(0, 1fr);
+        gap: 16px;
+        align-items: center;
+      }
+      .mic-button {
+        width: 132px;
+        height: 132px;
+        border-radius: 50%;
+        border: 1px solid #33506a;
+        background:
+          radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.16), transparent 34%),
+          linear-gradient(180deg, #1e5878, #143349);
+        color: white;
+        display: grid;
+        place-items: center;
+        padding: 0;
+      }
+      .mic-button svg {
+        width: 42px;
+        height: 42px;
+      }
+      .mic-button.active,
+      body.mic-open .mic-button:not(:disabled) {
+        background:
+          radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.2), transparent 35%),
+          linear-gradient(180deg, #24be72, #16844f);
+        border-color: #73ecaa;
+        box-shadow: 0 0 0 7px rgba(87, 217, 135, 0.12);
+      }
+      .mic-copy strong {
+        display: block;
+        font-size: 22px;
+        margin-bottom: 5px;
+      }
+      .mic-copy span {
+        color: var(--muted);
+      }
+      .kbd {
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        padding: 3px 8px;
+        margin-top: 10px;
+        border-radius: 6px;
+        color: #d7e5f2;
+        background: #111822;
+        border: 1px solid #2a3748;
+        font-size: 12px;
+        font-weight: 800;
+      }
 
       #log {
-        max-height: 300px;
+        margin-top: 18px;
+        max-height: 310px;
         overflow: auto;
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 12px;
         color: var(--muted);
-        background: #0a0d12;
-        border: 1px solid #1c222d;
+        background: #080c11;
+        border: 1px solid #202a38;
         border-radius: 8px;
-        padding: 10px;
+        padding: 12px;
       }
       #log div {
         white-space: pre-wrap;
@@ -183,38 +337,100 @@
         font-size: 12px;
         margin-top: 12px;
       }
+      @media (max-width: 720px) {
+        header,
+        .topbar {
+          align-items: stretch;
+          flex-direction: column;
+        }
+        .controls {
+          grid-template-columns: 1fr;
+        }
+        .talk-pad {
+          grid-template-columns: 1fr;
+          justify-items: center;
+          text-align: center;
+        }
+        .status {
+          min-width: 0;
+          width: 100%;
+        }
+      }
     </style>
   </head>
   <body>
-    <h1>Duplex Conversation</h1>
-    <div class="sub">
-      English speech in → Bengali speech out. Talk naturally; the model waits
-      until you pause, and stops if you interrupt.
-    </div>
+    <main class="shell">
+      <header>
+        <div>
+          <h1>Duplex Conversation</h1>
+          <div class="sub">
+            English speech in, translated speech out. Hold the mic when you want
+            to speak, or switch to always-listen for hands-free conversation.
+          </div>
+        </div>
+      </header>
 
-    <div class="panel">
-      <div class="status">
-        <span id="dot" class="dot"></span>
-        <strong id="state">idle</strong>
-        <div class="meter"><i id="meter"></i></div>
+      <div class="panel">
+        <div class="row topbar">
+          <div class="status">
+            <span id="dot" class="dot"></span>
+            <strong id="state">idle</strong>
+            <div class="meter"><i id="meter"></i></div>
+          </div>
+          <div class="row">
+            <button id="start" class="primary">Start call</button>
+            <button id="stop" class="danger" disabled>Stop</button>
+            <button id="reset" disabled>Reset</button>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="control-block">
+            <label class="label" for="lang">Translate to</label>
+            <select id="lang">
+              <option value="ben">Bengali</option>
+              <option value="hin">Hindi</option>
+              <option value="arb">Arabic</option>
+              <option value="cmn">Chinese</option>
+              <option value="eng">English</option>
+            </select>
+          </div>
+
+          <div class="control-block">
+            <span class="label">Mic mode</span>
+            <div class="mode-group">
+              <label class="mode-card">
+                <input type="radio" name="talkMode" value="push" checked />
+                <span>Push to talk</span>
+              </label>
+              <label class="mode-card">
+                <input type="radio" name="talkMode" value="always" />
+                <span>Always listen</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-block talk-pad">
+          <button id="holdTalk" class="mic-button" disabled aria-label="Hold to talk" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a1 1 0 1 0-2 0 3 3 0 1 1-6 0 1 1 0 1 0-2 0 5 5 0 0 0 4 4.9V19H8a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2h-3v-3.1A5 5 0 0 0 17 11Z" />
+            </svg>
+          </button>
+          <div class="mic-copy">
+            <strong id="micState">Hold to talk</strong>
+            <span>Press and hold the mic button, or hold Ctrl+D. Release to send the turn.</span>
+            <div id="shortcut" class="kbd">Ctrl+D</div>
+          </div>
+        </div>
+
+        <div id="log"></div>
+        <div class="hint">
+          Tip: use headphones. Echo cancellation helps, but speakers can still
+          leak into the mic during always-listen mode.
+        </div>
       </div>
-      <div class="row">
-        <select id="lang">
-          <option value="ben">Bengali</option>
-          <option value="hin">Hindi</option>
-          <option value="arb">Arabic</option>
-        </select>
-        <button id="start" class="primary">Start</button>
-        <button id="stop" class="danger" disabled>Stop</button>
-        <button id="reset" disabled>Reset utterance</button>
-      </div>
-      <div id="log"></div>
-      <div class="hint">
-        Tip: use headphones. The browser does echo cancellation, but a
-        loudspeaker can still trip the VAD into thinking the bot's voice is
-        yours.
-      </div>
-    </div>
+    </main>
 
     <script src="/app.js"></script>
   </body>

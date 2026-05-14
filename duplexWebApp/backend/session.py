@@ -109,6 +109,9 @@ class Session:
 
     async def cleanup(self) -> None:
         await self._cancel_generation(notify=False)
+        self._chunks.clear()
+        self._total_samples = 0
+        self._last_check_samples = 0
 
     # ----- Inbound ---------------------------------------------------------
 
@@ -140,6 +143,7 @@ class Session:
                 self.tgt_lang = new_lang
 
     def _trim_front(self, drop: int) -> None:
+        original_drop = drop
         while drop > 0 and self._chunks:
             head = self._chunks[0]
             if len(head) <= drop:
@@ -151,7 +155,7 @@ class Session:
                 self._total_samples -= drop
                 drop = 0
         # Adjust last-check pointer so we don't accidentally re-skip work.
-        self._last_check_samples = max(0, self._last_check_samples - drop)
+        self._last_check_samples = max(0, self._last_check_samples - original_drop)
 
     def _snapshot(self) -> np.ndarray:
         """Concatenate the current buffer; safe to hand off to a worker thread."""
@@ -273,10 +277,15 @@ class Session:
     # ----- Generation ------------------------------------------------------
 
     async def _generate_and_stream(self, audio: np.ndarray) -> None:
+        result = None
+        wav = None
         try:
             await self._send_json({"type": "thinking"})
             loop = asyncio.get_running_loop()
             result = await loop.run_in_executor(None, self.translator.translate, audio, self.tgt_lang)
+            # The utterance has been copied/processed by the worker at this point.
+            # Drop the per-turn input so long replies do not keep old mic audio alive.
+            del audio
 
             wav = result.audio
             if wav is None or len(wav) == 0:
@@ -322,6 +331,7 @@ class Session:
                 pass
         finally:
             self._bot_speaking = False
+            del wav, result
 
     async def _cancel_generation(self, notify: bool) -> None:
         task = self._gen_task

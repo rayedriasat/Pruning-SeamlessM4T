@@ -3,11 +3,13 @@
 Full-duplex voice pipeline:
 
 - **Browser** captures the mic at 16 kHz via `AudioWorklet`, streams int16 PCM over a WebSocket.
+- The UI defaults to **push-to-talk**. Hold the on-screen mic or hold **Ctrl+D** to stream mic audio; release to close the turn. **Always listen** is still available as a toggle.
 - **FastAPI backend** runs the **trained CIF boundary adapter** (`models2/boundary_adapter.pt`) on top of SeamlessM4T's speech encoder to detect when you've stopped speaking. A frame is treated as silence when the adapter's sigmoid output drops below `silence_threshold` (0.2 by default), matching `stream.py`'s semantics.
 - On utterance end, it runs the **pruned SeamlessM4T-v2 speech-to-speech** model (`models2/phase7_final_merged`, eng → ben) and decodes both the waveform and intermediate text (using the saved `_vocab_remap_to_old`).
 - Translated audio streams back in 100 ms chunks. If you start speaking again while the bot is talking, the server cancels the in-flight generation and tells the browser to **flush playback** for instant barge-in.
 
 The speech encoder is **shared** between the boundary adapter and the translator — no double-load.
+VAD and translation inference are serialized through a shared lock to avoid overlapping GPU-heavy model passes. Per-turn tensors are released after use, and CUDA cache is compacted only after translations when stale reserved memory has grown large enough to matter, so model weights stay resident without letting unused cache balloon over long sessions.
 
 ## Layout
 
@@ -45,7 +47,7 @@ If you have an NVIDIA GPU, install a CUDA-matched PyTorch wheel first (see https
 # then open http://localhost:8000
 ```
 
-Click **Start**, allow the mic, and speak. The status pill shows the pipeline state and the log shows decoded Bengali text per turn.
+Click **Start call**, allow the mic, then hold the mic button or **Ctrl+D** while speaking. Switch to **Always listen** if you want the older hands-free behavior. The status pill shows the pipeline state and the log shows decoded translated text per turn.
 
 Override paths via env:
 ```

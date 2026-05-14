@@ -13,6 +13,10 @@ const stateEl = $("state");
 const dotEl = $("dot");
 const meterEl = $("meter");
 const logEl = $("log");
+const modeRadios = Array.from(document.querySelectorAll('input[name="talkMode"]'));
+const holdBtn = $("holdTalk");
+const micStateEl = $("micState");
+const shortcutEl = $("shortcut");
 
 let ws = null;
 let captureCtx = null;
@@ -22,10 +26,71 @@ let playCtx = null;
 let playHead = 0; // scheduling head, in playCtx time
 let scheduled = []; // active BufferSourceNodes so we can stop them
 let botSampleRate = 16000;
+let talkMode = "push";
+let pushHeld = false;
+let silenceTailFrames = 0;
+
+const SILENCE_TAIL_FRAMES = 30; // ~960ms @ 512 samples / 16kHz, enough for server VAD.
 
 function setState(s, cls) {
   stateEl.textContent = s;
   dotEl.className = "dot" + (cls ? " " + cls : "");
+}
+
+function connected() {
+  return ws && ws.readyState === WebSocket.OPEN;
+}
+
+function isMicOpen() {
+  return connected() && (talkMode === "always" || pushHeld);
+}
+
+function setTalkMode(mode) {
+  const wasOpen = isMicOpen();
+  talkMode = mode;
+  if (talkMode === "always") {
+    pushHeld = false;
+    silenceTailFrames = 0;
+  } else if (wasOpen) {
+    silenceTailFrames = SILENCE_TAIL_FRAMES;
+  }
+  updateMicUi();
+}
+
+function updateMicUi() {
+  const open = isMicOpen();
+  document.body.classList.toggle("mic-open", open);
+  holdBtn.classList.toggle("active", pushHeld);
+  holdBtn.disabled = !connected() || talkMode !== "push";
+  holdBtn.setAttribute("aria-pressed", String(pushHeld));
+  micStateEl.textContent = open
+    ? "Mic open"
+    : !connected()
+      ? "Start the call"
+      : talkMode === "push"
+      ? "Hold to talk"
+      : "Mic paused";
+  shortcutEl.textContent = talkMode === "push" ? "Ctrl+D" : "Always listening";
+}
+
+function openPushToTalk() {
+  if (talkMode !== "push" || !connected() || pushHeld) return;
+  pushHeld = true;
+  silenceTailFrames = 0;
+  updateMicUi();
+}
+
+function closePushToTalk() {
+  if (talkMode !== "push" || !pushHeld) return;
+  pushHeld = false;
+  // Feed the server a brief silence tail so it can close the utterance without
+  // needing the browser to keep streaming live mic input.
+  silenceTailFrames = SILENCE_TAIL_FRAMES;
+  updateMicUi();
+}
+
+function silentFrame(byteLength) {
+  return new ArrayBuffer(byteLength);
 }
 
 function log(type, extra) {
@@ -74,10 +139,16 @@ async function start() {
     captureNode.port.onmessage = (e) => {
       const { pcm, peak } = e.data;
       if (typeof peak === "number") {
-        meterEl.style.width = Math.min(100, Math.round(peak * 140)) + "%";
+        meterEl.style.width = isMicOpen()
+          ? Math.min(100, Math.round(peak * 140)) + "%"
+          : "0%";
       }
-      if (ws && ws.readyState === WebSocket.OPEN) {
+      if (!connected()) return;
+      if (isMicOpen()) {
         ws.send(pcm);
+      } else if (silenceTailFrames > 0) {
+        ws.send(silentFrame(pcm.byteLength));
+        silenceTailFrames -= 1;
       }
     };
 
@@ -91,6 +162,7 @@ async function start() {
       log("ws_open");
       stopBtn.disabled = false;
       resetBtn.disabled = false;
+      updateMicUi();
     };
     ws.onmessage = (ev) => {
       if (typeof ev.data === "string") {
@@ -120,7 +192,7 @@ function handleControl(m) {
   log(m.type || "msg", m.duration ? `(${m.duration.toFixed(2)}s)` : "");
   switch (m.type) {
     case "ready":
-      setState("listening — start speaking", "listening");
+      setState(talkMode === "push" ? "ready — hold to talk" : "listening", "listening");
       break;
     case "user_speech_start":
       setState("you: speaking…", "you");
@@ -144,12 +216,12 @@ function handleControl(m) {
       if (m.text) log("text", '"' + m.text + '"');
       break;
     case "speaking_end":
-      setState("listening", "listening");
+      setState(talkMode === "push" ? "ready — hold to talk" : "listening", "listening");
       break;
     case "stop_playback":
     case "speaking_cancelled":
       flushPlayback();
-      setState("listening", "listening");
+      setState(talkMode === "push" ? "ready — hold to talk" : "listening", "listening");
       break;
     case "error":
       log("error", m.message || "");
@@ -215,10 +287,13 @@ function stopAll() {
     } catch (e) {}
   }
   ws = null;
+  pushHeld = false;
+  silenceTailFrames = 0;
   startBtn.disabled = false;
   stopBtn.disabled = true;
   resetBtn.disabled = true;
   meterEl.style.width = "0%";
+  updateMicUi();
 }
 
 langSelect.addEventListener("change", () => {
@@ -239,3 +314,36 @@ resetBtn.onclick = () => {
   }
   flushPlayback();
 };
+
+modeRadios.forEach((radio) => {
+  radio.addEventListener("change", () => {
+    if (radio.checked) setTalkMode(radio.value);
+  });
+});
+
+holdBtn.addEventListener("pointerdown", (ev) => {
+  ev.preventDefault();
+  holdBtn.setPointerCapture?.(ev.pointerId);
+  openPushToTalk();
+});
+holdBtn.addEventListener("pointerup", closePushToTalk);
+holdBtn.addEventListener("pointercancel", closePushToTalk);
+holdBtn.addEventListener("lostpointercapture", closePushToTalk);
+holdBtn.addEventListener("contextmenu", (ev) => ev.preventDefault());
+
+window.addEventListener("keydown", (ev) => {
+  if (ev.ctrlKey && ev.key.toLowerCase() === "d") {
+    ev.preventDefault();
+    openPushToTalk();
+  }
+});
+
+window.addEventListener("keyup", (ev) => {
+  if (ev.key.toLowerCase() === "d") {
+    ev.preventDefault();
+    closePushToTalk();
+  }
+});
+
+window.addEventListener("blur", closePushToTalk);
+updateMicUi();
