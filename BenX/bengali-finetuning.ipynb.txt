@@ -1,0 +1,2398 @@
+Cell1:
+# SeamlessM4T v2 – Bengali-Focused Compression
+## 4 Languages: Bengali, English, Hindi, Arabic
+### Aggressive Pruning (Enc 24→8, Dec 24→8, T2U −2 each) + Full Fine-Tuning
+> Goal: Bengali translation quality **above the teacher model**
+
+
+Cell2:
+## ⚙️ Setup — run ALL at the start of EVERY Kaggle session
+
+Cell3:
+import os, sys, subprocess, pathlib, re, glob, json, gc, copy, time, math, shutil, random
+import warnings; warnings.filterwarnings('ignore')
+
+ON_KAGGLE = os.path.exists('/kaggle/working')
+ON_COLAB  = not ON_KAGGLE
+PLATFORM  = 'kaggle' if ON_KAGGLE else 'colab'
+
+GDRIVE_MOUNT = '/content/drive/MyDrive/seamTL_bengali'
+KAGGLE_WORK  = '/kaggle/working'
+
+WORK_DIR  = KAGGLE_WORK if ON_KAGGLE else GDRIVE_MOUNT
+CKPT_DIR  = f'{WORK_DIR}/checkpoints'
+AUDIO_DIR = f'{WORK_DIR}/audio'
+FIG_DIR   = f'{WORK_DIR}/figures'
+MODEL_DIR = f'{WORK_DIR}/models'
+
+GDRIVE_ROOT = 'gdrive:seamTL_bengali'
+
+for d in [WORK_DIR, CKPT_DIR, AUDIO_DIR, FIG_DIR, MODEL_DIR]:
+    os.makedirs(d, exist_ok=True)
+
+print(f'Platform : {PLATFORM}')
+print(f'Work dir : {WORK_DIR}')
+
+
+Cell4:
+if ON_COLAB:
+    from google.colab import drive
+    drive.mount('/content/drive')
+else:
+    subprocess.run('curl -s https://rclone.org/install.sh | sudo bash',
+                   shell=True, capture_output=True)
+    ver = subprocess.run('rclone version', shell=True, capture_output=True, text=True)
+    print(ver.stdout.split('\n')[0])
+
+def _get_secret(key):
+    if ON_KAGGLE:
+        from kaggle_secrets import UserSecretsClient
+        return UserSecretsClient().get_secret(key)
+    from google.colab import userdata
+    return userdata.get(key)
+
+if ON_KAGGLE:
+    RCLONE_CONF = _get_secret('RCLONE_CONF')
+    raw = RCLONE_CONF.strip()
+    raw = re.sub(r'\s*(\[[^\]]+\])\s*', r'\n\1\n', raw)
+    raw = re.sub(r'\s+(type|scope|token|team_drive|client_id|client_secret|'
+                 r'root_folder_id|service_account_file|drive_id)\s*=\s*',
+                 r'\n\1 = ', raw)
+    raw = raw.strip() + '\n'
+    rclone_cfg = pathlib.Path.home() / '.config/rclone/rclone.conf'
+    rclone_cfg.parent.mkdir(parents=True, exist_ok=True)
+    rclone_cfg.write_text(raw)
+    r = subprocess.run('rclone lsd gdrive:', shell=True, capture_output=True, text=True)
+    print('Drive root:' if r.returncode == 0 else 'rclone FAILED:')
+    print(r.stdout[:300] or r.stderr[:300])
+
+try:
+    HF_TOKEN = _get_secret('HF_TOKEN')
+    from huggingface_hub import login
+    login(HF_TOKEN)
+    print('HuggingFace login: OK')
+except Exception as e:
+    print(f'HF login skipped: {e}')
+
+
+Cell5:
+subprocess.run([
+    'pip', 'install', '-q',
+    'transformers>=4.41.0', 'datasets', 'torchaudio', 'speechbrain>=1.0.0',
+    'librosa', 'jiwer', 'evaluate', 'sacrebleu', 'pyarrow',
+    'sentencepiece', 'accelerate', 'matplotlib', 'seaborn',
+    'soundfile', 'requests', 'pandas',
+], check=True)
+print('All packages installed.')
+
+
+Cell6:
+import torch, numpy as np, random
+import torch.nn as nn, torch.nn.functional as F
+import matplotlib.pyplot as plt, matplotlib, seaborn as sns
+import torchaudio
+from IPython.display import Audio as IPAudio, display
+matplotlib.rcParams.update({'font.size':11,'figure.dpi':120,'savefig.bbox':'tight'})
+sns.set_style('whitegrid')
+
+seed = 42
+random.seed(seed); np.random.seed(seed)
+torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
+
+N_GPU = torch.cuda.device_count()
+print(f'PyTorch {torch.__version__} | CUDA {torch.cuda.is_available()} | GPUs {N_GPU}')
+for i in range(N_GPU):
+    p = torch.cuda.get_device_properties(i)
+    print(f'  GPU{i}: {torch.cuda.get_device_name(i)}  {p.total_memory/1e9:.1f} GB')
+
+def count_params(module):
+    return sum(p.numel() for p in module.parameters()) / 1e6
+
+def print_model_breakdown(model, title='Model Breakdown'):
+    bd = {n: count_params(c) for n, c in model.named_children()}
+    total = count_params(model)
+    print(f'\n--- {title} ---')
+    for name, p in sorted(bd.items(), key=lambda x: -x[1]):
+        pct = p / total * 100 if total > 0 else 0
+        print(f'  {name:<35} {p:>8.1f}M  ({pct:>5.1f}%)')
+    print(f'  {"TOTAL":<35} {total:>8.1f}M'); print('---')
+    return {**bd, 'TOTAL': total}
+
+def gpu_mem():
+    if torch.cuda.is_available():
+        for i in range(N_GPU):
+            a = torch.cuda.memory_allocated(i)/1e9
+            r = torch.cuda.memory_reserved(i)/1e9
+            print(f'  GPU{i}: {a:.2f}GB alloc / {r:.2f}GB reserved')
+
+def play(audio, sr, label=''):
+    if hasattr(audio,'numpy'): audio = audio.squeeze().numpy()
+    print(f'  {label}  ({len(audio)/sr:.1f}s | sr={sr})')
+    display(IPAudio(audio, rate=int(sr)))
+
+def save_audio(audio, sr, filename):
+    path = f'{AUDIO_DIR}/{filename}'
+    if not isinstance(audio, torch.Tensor): audio = torch.tensor(audio)
+    torchaudio.save(path, audio.squeeze().unsqueeze(0).float().cpu(), sr)
+    print(f'[audio] Saved {filename}')
+
+def save_figure(fig, name):
+    fig.savefig(f'{FIG_DIR}/{name}', dpi=150, bbox_inches='tight')
+    if ON_KAGGLE: _rclone_push(f'{FIG_DIR}/{name}', 'figures')
+    print(f'[fig] Saved {name}')
+
+print('Core utilities ready.')
+
+
+Cell7:
+import queue, threading
+
+_CUSTOM_STATE_FILE = '_custom_state.pt'
+_PRUNING_MANIFEST  = 'pruning_manifest.pt'
+_upload_q       = queue.Queue()
+_upload_pending = set()
+_upload_lock    = threading.Lock()
+_worker_started = False
+
+def _rclone_push(local_path, remote_subpath):
+    if not ON_KAGGLE: return
+    r = subprocess.run(
+        f'rclone copy "{local_path}" "{GDRIVE_ROOT}/{remote_subpath}/" '
+        f'--transfers=8 --multi-thread-streams=4 --drive-chunk-size=64M',
+        shell=True, capture_output=True, text=True)
+    if r.returncode != 0:
+        print(f'[rclone] WARNING: push failed for {local_path}: {r.stderr[:200]}')
+
+def _rclone_push_blocking(local_path, remote_subpath):
+    cmd = ['rclone','copy', local_path, f'{GDRIVE_ROOT}/{remote_subpath}/',
+           '--transfers=8','--multi-thread-streams=4','--drive-chunk-size=64M',
+           '--progress','--stats=10s','--stats-one-line-date']
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                         text=True, bufsize=1)
+    for line in p.stdout: print(f'[rclone] {line.rstrip()}')
+    rc = p.wait()
+    if rc != 0: print(f'[rclone] WARNING: push failed for {local_path}')
+
+def _upload_worker_loop():
+    while True:
+        local_path, remote_subpath = _upload_q.get()
+        try: _rclone_push_blocking(local_path, remote_subpath)
+        finally:
+            with _upload_lock: _upload_pending.discard(local_path)
+            _upload_q.task_done()
+
+def _start_upload_worker():
+    global _worker_started
+    if _worker_started or not ON_KAGGLE: return
+    threading.Thread(target=_upload_worker_loop, daemon=True).start()
+    _worker_started = True
+
+def _rclone_push_async(local_path, remote_subpath):
+    if not ON_KAGGLE: return
+    _start_upload_worker()
+    with _upload_lock: _upload_pending.add(local_path)
+    _upload_q.put((local_path, remote_subpath))
+
+def _rclone_pull_model(stage_name):
+    if not ON_KAGGLE: return
+    local = f'{MODEL_DIR}/{stage_name}'
+    os.makedirs(local, exist_ok=True)
+    r = subprocess.run(
+        f'rclone sync "{GDRIVE_ROOT}/models/{stage_name}/" "{local}/" '
+        f'--transfers=8 --multi-thread-streams=4 --drive-chunk-size=64M',
+        shell=True, capture_output=True, text=True)
+    if r.returncode != 0:
+        raise RuntimeError(f'[rclone] model pull failed for {stage_name}: {r.stderr[:300]}')
+    print(f'[rclone] Pulled {stage_name} → {local}')
+
+def wait_for_uploads():
+    if ON_KAGGLE: _upload_q.join()
+
+def save_checkpoint(state, name, step=0, keep=3):
+    fname = f'{name}_step{step:06d}.pt'
+    path  = f'{CKPT_DIR}/{fname}'
+    torch.save(state, path)
+    mb = os.path.getsize(path) / 1e6
+    print(f'[ckpt] Saved {fname} ({mb:.1f} MB)')
+    if ON_KAGGLE: _rclone_push_async(path, 'checkpoints')
+    old = sorted(glob.glob(f'{CKPT_DIR}/{name}_step*.pt'))
+    for f in old[:-keep]:
+        with _upload_lock: in_flight = f in _upload_pending
+        if (not in_flight) and os.path.exists(f): os.remove(f)
+
+def load_latest_checkpoint(name):
+    files = sorted(glob.glob(f'{CKPT_DIR}/{name}_step*.pt'))
+    if not files:
+        print(f'[ckpt] No checkpoint for {name!r}'); return None
+    state = torch.load(files[-1], map_location='cpu', weights_only=False)
+    print(f'[ckpt] Loaded {os.path.basename(files[-1])}')
+    return state
+
+def sync_checkpoints_from_drive():
+    if ON_KAGGLE:
+        print('[ckpt] Syncing from rclone remote...')
+        r = subprocess.run(
+            f'rclone sync "{GDRIVE_ROOT}/checkpoints/" "{CKPT_DIR}/" '
+            f'--transfers=8 --multi-thread-streams=4 --drive-chunk-size=64M',
+            shell=True, capture_output=True, text=True)
+        if r.returncode != 0: print(f'[ckpt] WARNING: {r.stderr[:300]}')
+    else:
+        print(f'[ckpt] Colab: reading directly from {CKPT_DIR}')
+    files = sorted(os.listdir(CKPT_DIR)) if os.path.exists(CKPT_DIR) else []
+    print(f'[ckpt] {len(files)} file(s) available')
+    for f in files:
+        mb = os.path.getsize(f'{CKPT_DIR}/{f}') / 1e6
+        print(f'  {f:<55} {mb:>7.1f} MB')
+
+print('Checkpoint helpers ready.')
+
+
+Cell8:
+import torch.nn as nn, torch.nn.functional as F
+
+_CUSTOM_ATTR_NAMES = ['_vocab_remap_to_old']
+
+def _save_custom_state(mdl, path):
+    state = {a: getattr(mdl, a) for a in _CUSTOM_ATTR_NAMES if hasattr(mdl, a)}
+    if state:
+        torch.save(state, os.path.join(path, _CUSTOM_STATE_FILE))
+        print(f'  Saved custom state: {list(state.keys())}')
+
+def _load_custom_state(mdl, path):
+    fpath = os.path.join(path, _CUSTOM_STATE_FILE)
+    if not os.path.exists(fpath): return
+    state = torch.load(fpath, map_location='cpu', weights_only=False)
+    for k, v in state.items(): setattr(mdl, k, v)
+    print(f'  Restored custom state: {list(state.keys())}')
+
+def _find_layers(component):
+    for attr in ['layers', 'inner_layers', 'layer']:
+        mod = getattr(component, attr, None)
+        if isinstance(mod, nn.ModuleList) and len(mod) > 0:
+            return mod
+    return None
+
+def _get_t2u_encoder_decoder(mdl):
+    t2u   = getattr(mdl, 't2u_model', None)
+    if t2u is None: return None, None
+    inner = getattr(t2u, 'model', None)
+    if inner is None: return None, None
+    return getattr(inner, 'encoder', None), getattr(inner, 'decoder', None)
+
+def sync_model_config(mdl):
+    """Keep config in sync with actual ModuleList depths after pruning."""    
+    cfg = mdl.config
+    if hasattr(mdl, 'speech_encoder'):
+        enc = mdl.speech_encoder
+        parent = enc.encoder if hasattr(enc, 'encoder') else enc
+        if hasattr(parent, 'layers'):
+            actual = len(parent.layers)
+            for k in ['speech_encoder_layers']:
+                if hasattr(cfg, k) and getattr(cfg, k) != actual:
+                    print(f'  [config] {k}: {getattr(cfg,k)} -> {actual}')
+                    setattr(cfg, k, actual)
+            sc = getattr(mdl.speech_encoder, 'config', None)
+            if sc and hasattr(sc, 'num_hidden_layers') and sc.num_hidden_layers != actual:
+                sc.num_hidden_layers = actual
+    if hasattr(mdl, 'text_decoder') and mdl.text_decoder is not None:
+        layers = _find_layers(mdl.text_decoder)
+        if layers is not None:
+            actual = len(layers)
+            if hasattr(cfg, 'decoder_layers') and cfg.decoder_layers != actual:
+                print(f'  [config] decoder_layers: {cfg.decoder_layers} -> {actual}')
+                cfg.decoder_layers = actual
+    t2u_enc, t2u_dec = _get_t2u_encoder_decoder(mdl)
+    for sub, attr in [(t2u_enc,'t2u_encoder_layers'), (t2u_dec,'t2u_decoder_layers')]:
+        if sub is None: continue
+        layers = _find_layers(sub)
+        if layers and hasattr(cfg, attr) and getattr(cfg, attr) != len(layers):
+            print(f'  [config] {attr}: {getattr(cfg,attr)} -> {len(layers)}')
+            setattr(cfg, attr, len(layers))
+    t2u = getattr(mdl, 't2u_model', None)
+    if t2u and hasattr(t2u, 'config'):
+        tc = t2u.config
+        for sub, attr in [(t2u_enc,'encoder_layers'), (t2u_dec,'decoder_layers')]:
+            if sub is None: continue
+            layers = _find_layers(sub)
+            if layers and hasattr(tc, attr) and getattr(tc, attr) != len(layers):
+                print(f'  [config] t2u.config.{attr}: {getattr(tc,attr)} -> {len(layers)}')
+                setattr(tc, attr, len(layers))
+    print('  [config] sync done.')
+
+def _consolidate_to_single_gpu(mdl):
+    """Move model to cuda:0 if split by device_map='auto'."""    
+    if not torch.cuda.is_available(): return mdl
+    if not (hasattr(mdl, 'hf_device_map') and len(set(mdl.hf_device_map.values())) > 1):
+        return mdl
+    print('  Multi-device → consolidating to cuda:0...')
+    try:
+        from accelerate.hooks import remove_hook_from_submodules
+        remove_hook_from_submodules(mdl)
+    except Exception: pass
+    mdl = mdl.to('cuda:0')
+    torch.cuda.empty_cache()
+    print(f'  Model now on: {next(mdl.parameters()).device}')
+    return mdl
+
+def load_hf_weights_dict(model_dir):
+    from pathlib import Path
+    safe = Path(model_dir) / 'model.safetensors'
+    if safe.is_file():
+        try:
+            from safetensors.torch import load_file
+            return load_file(str(safe))
+        except ImportError: pass
+    pt = Path(model_dir) / 'pytorch_model.bin'
+    if pt.is_file():
+        blob = torch.load(str(pt), map_location='cpu', weights_only=False)
+        return blob.get('model', blob) if isinstance(blob, dict) else blob
+    return None
+
+def _infer_t2u_layer_counts(model_dir):
+    sd = load_hf_weights_dict(model_dir)
+    if not sd: return None, None
+    enc_idx, dec_idx = set(), set()
+    for k in sd:
+        if k.startswith('t2u_model.model.encoder.layers.'):
+            r = k.split('.')[4]
+            if r.isdigit(): enc_idx.add(int(r))
+        elif k.startswith('t2u_model.model.decoder.layers.'):
+            r = k.split('.')[4]
+            if r.isdigit(): dec_idx.add(int(r))
+    return (max(enc_idx)+1 if enc_idx else None), (max(dec_idx)+1 if dec_idx else None)
+
+def save_model_to_drive(mdl, proc, stage_name, manifest_extra=None):
+    """Save model to Drive using HF save_pretrained (battle-tested from v5)."""    
+    target = f'{MODEL_DIR}/{stage_name}'
+    os.makedirs(target, exist_ok=True)
+    print(f'[model] Saving {stage_name} → {target} ...')
+    sync_model_config(mdl)
+    _save_custom_state(mdl, target)
+    man = {'stage_name': stage_name}
+    if manifest_extra: man.update(manifest_extra)
+    torch.save(man, os.path.join(target, _PRUNING_MANIFEST))
+    try:
+        mdl.save_pretrained(target, safe_serialization=True)
+    except Exception as e:
+        print(f'  safe_serialization failed ({e}); trying .bin')
+        mdl.save_pretrained(target)
+    if proc is not None: proc.save_pretrained(target)
+    total = sum(os.path.getsize(f'{target}/{f}') for f in os.listdir(target)) / 1e6
+    print(f'[model] Local: {total:.0f} MB in {len(os.listdir(target))} files.')
+    if ON_KAGGLE:
+        r = subprocess.run(f'rclone sync "{target}/" "{GDRIVE_ROOT}/models/{stage_name}/" --transfers=8 --multi-thread-streams=4 --drive-chunk-size=64M',
+                           shell=True, capture_output=True, text=True)
+        if r.returncode != 0:
+            print(f'[model] WARNING rclone push failed: {r.stderr[:300]}')
+        else:
+            print(f'[model] Pushed to remote: {GDRIVE_ROOT}/models/{stage_name}/')
+    else:
+        print('[model] Colab: saved directly to Drive.')
+        
+
+def load_model_from_drive(stage_name, device_map='auto'):
+    from transformers import SeamlessM4Tv2ForSpeechToSpeech, SeamlessM4TProcessor, AutoConfig
+    local = f'{MODEL_DIR}/{stage_name}'
+    if ON_KAGGLE and (not os.path.exists(local) or not os.listdir(local)):
+        print(f'[model] Not in local cache — pulling from remote...')
+        _rclone_pull_model(stage_name)
+    if not os.path.exists(local) or not os.listdir(local):
+        raise RuntimeError(f'[model] Not found or empty: {local}')
+    wf = [f for f in os.listdir(local) if f.endswith('.safetensors') or f.endswith('.bin')]
+    if not wf:
+        raise RuntimeError(f'[model] No weight files in {local}')
+    print(f'[model] Loading {stage_name} from {local} ...')
+    cfg = AutoConfig.from_pretrained(local)
+    enc_n, dec_n = _infer_t2u_layer_counts(local)
+    if enc_n and getattr(cfg,'t2u_encoder_layers',None) != enc_n:
+        print(f'  Repair T2U enc depth: {cfg.t2u_encoder_layers} -> {enc_n}')
+        cfg.t2u_encoder_layers = enc_n
+    if dec_n and getattr(cfg,'t2u_decoder_layers',None) != dec_n:
+        print(f'  Repair T2U dec depth: {cfg.t2u_decoder_layers} -> {dec_n}')
+        cfg.t2u_decoder_layers = dec_n
+    mdl = SeamlessM4Tv2ForSpeechToSpeech.from_pretrained(
+        local, config=cfg, torch_dtype=torch.float16, device_map=device_map)
+    _load_custom_state(mdl, local)
+    proc = SeamlessM4TProcessor.from_pretrained(local)
+    mdl.eval()
+    print(f'[model] Loaded {stage_name}.')
+    return mdl, proc
+
+print('Model I/O helpers ready.')
+
+
+Cell9:
+from collections import defaultdict
+
+ALL_SUMMARIES: dict = {}
+ALL_DETAILED_SUMMARIES: dict = {}
+
+def _load_summaries_from_drive():
+    ckpt = load_latest_checkpoint('all_summaries')
+    if ckpt and 'summaries' in ckpt:
+        return {s['label']: s for s in ckpt['summaries']}
+    return {}
+
+def _load_detailed_summaries_from_drive():
+    ckpt = load_latest_checkpoint('all_detailed_summaries')
+    if ckpt and 'detailed_summaries' in ckpt:
+        return {s['label']: s for s in ckpt['detailed_summaries']}
+    return {}
+
+ALL_SUMMARIES = _load_summaries_from_drive()
+ALL_DETAILED_SUMMARIES = _load_detailed_summaries_from_drive()
+
+def store_summary(s):
+    ALL_SUMMARIES[s['label']] = s.copy()
+    save_checkpoint({'summaries': list(ALL_SUMMARIES.values())}, 'all_summaries', 0)
+    print(f'[summary] Stored {s["label"]} ({len(ALL_SUMMARIES)} total)')
+
+def store_detailed_summary(s):
+    ALL_DETAILED_SUMMARIES[s['label']] = s.copy()
+    save_checkpoint({'detailed_summaries': list(ALL_DETAILED_SUMMARIES.values())},
+                    'all_detailed_summaries', 0)
+    print(f'[detailed] Stored {s["label"]}')
+
+def compute_detailed_summary(results, label, params_M):
+    by_pair = defaultdict(list)
+    for r in results:
+        if not math.isnan(r.get('rtf', float('nan'))):
+            by_pair[f"{r['src_lang']}→{r['tgt_lang']}"].append(r)
+    pair_stats = {}
+    for pk, pr in by_pair.items():
+        pair_stats[pk] = {
+            'n_samples':  len(pr),
+            'avg_bleu':   float(np.mean([r['bleu'] for r in pr])),
+            'avg_chrf':   float(np.mean([r['chrf'] for r in pr])),
+            'avg_rtf':    float(np.mean([r['rtf']  for r in pr])),
+            'std_chrf':   float(np.std ([r['chrf'] for r in pr])),
+        }
+    valid = [r for r in results if not math.isnan(r.get('rtf', float('nan')))]
+    by_src, by_tgt = defaultdict(list), defaultdict(list)
+    for r in valid:
+        by_src[r['src_lang']].append(r)
+        by_tgt[r['tgt_lang']].append(r)
+    return {
+        'label': label, 'params_M': params_M, 'n_total': len(valid),
+        'avg_bleu':  float(np.mean([r['bleu'] for r in valid])) if valid else 0,
+        'avg_chrf':  float(np.mean([r['chrf'] for r in valid])) if valid else 0,
+        'avg_rtf':   float(np.mean([r['rtf']  for r in valid])) if valid else 0,
+        'std_chrf':  float(np.std ([r['chrf'] for r in valid])) if valid else 0,
+        'pair_stats': pair_stats,
+        'by_src_lang': {lang: {
+            'n_samples': len(rs),
+            'avg_chrf':  float(np.mean([r['chrf'] for r in rs])),
+            'avg_bleu':  float(np.mean([r['bleu'] for r in rs])),
+        } for lang, rs in by_src.items()},
+        'by_tgt_lang': {lang: {
+            'n_samples': len(rs),
+            'avg_chrf':  float(np.mean([r['chrf'] for r in rs])),
+            'avg_bleu':  float(np.mean([r['bleu'] for r in rs])),
+        } for lang, rs in by_tgt.items()},
+    }
+
+def print_detailed_summary_table(phase_label):
+    s = ALL_DETAILED_SUMMARIES.get(phase_label)
+    if not s:
+        print(f'No detailed summary for {phase_label}'); return
+    print('\n' + '='*80)
+    print(f'  {s["label"]} - {s["params_M"]:.1f}M params')
+    print('='*80)
+    print(f'Overall: BLEU={s["avg_bleu"]:.2f}  ChrF={s["avg_chrf"]:.2f}±{s["std_chrf"]:.2f}  RTF={s["avg_rtf"]:.4f}')
+    print(f'\nPer-Pair ({len(s["pair_stats"])} pairs):')
+    print(f'  {"Pair":<18} {"N":>4} {"BLEU":>8} {"ChrF":>8} {"RTF":>8}')
+    for pk, ps in sorted(s['pair_stats'].items()):
+        print(f'  {pk:<18} {ps["n_samples"]:>4} {ps["avg_bleu"]:>8.2f} {ps["avg_chrf"]:>8.2f} {ps["avg_rtf"]:>8.4f}')
+    print(f'\nBy Source Language:')
+    for lang, ls in sorted(s['by_src_lang'].items()):
+        print(f'  {lang.upper():>6}: BLEU={ls["avg_bleu"]:>6.2f}  ChrF={ls["avg_chrf"]:>6.2f}  (n={ls["n_samples"]})')
+    print(f'\nBy Target Language:')
+    for lang, ls in sorted(s['by_tgt_lang'].items()):
+        print(f'  {lang.upper():>6}: BLEU={ls["avg_bleu"]:>6.2f}  ChrF={ls["avg_chrf"]:>6.2f}  (n={ls["n_samples"]})')
+    print('='*80)
+
+def plot_phase_comparison(summaries=None, save_name='phase_comparison.png'):
+    data = sorted((summaries or list(ALL_SUMMARIES.values())), key=lambda s: s['label'])
+    if not data: print('No summaries yet.'); return
+    labels = [s['label'] for s in data]
+    fig, axes = plt.subplots(2, 2, figsize=(16, 10))
+    fig.suptitle('SeamlessM4T Bengali Compression Pipeline: Phase Comparison',
+                 fontsize=14, fontweight='bold')
+    metrics = [
+        ('avg_bleu', 'ASR-BLEU (↑ better)', '#E84855'),
+        ('avg_chrf', 'ASR-ChrF (↑ better)', '#2196F3'),
+        ('avg_rtf',  'RTF (↓ faster)',       '#FF9800'),
+        ('params_M', 'Parameters (M)',        '#9C27B0'),
+    ]
+    for ax, (key, title, color) in zip(axes.flat, metrics):
+        vals = [s.get(key, 0) for s in data]
+        bars = ax.bar(range(len(labels)), vals, color=color, alpha=0.85, edgecolor='white', width=0.7)
+        ax.set_title(title, fontweight='bold', fontsize=11)
+        ax.set_xticks(range(len(labels)))
+        ax.set_xticklabels(labels, rotation=40, ha='right', fontsize=8)
+        ax.grid(axis='y', alpha=0.3, linestyle='--')
+        for bar, v in zip(bars, vals):
+            if bar.get_height() > 0:
+                ax.text(bar.get_x()+bar.get_width()/2, bar.get_height(),
+                        f'{v:.1f}', ha='center', va='bottom', fontsize=7, fontweight='bold')
+    plt.tight_layout()
+    save_figure(fig, save_name)
+    plt.show()
+
+def plot_detailed_phase_comparison(save_name='detailed_comparison.png'):
+    summaries = sorted(ALL_DETAILED_SUMMARIES.values(), key=lambda s: s['label'])
+    if not summaries: print('No detailed summaries yet.'); return
+    print(f'Plotting detailed comparison for {len(summaries)} phases: {[s["label"] for s in summaries]}')
+    base = save_name.replace('.png','').replace('.jpg','')
+    labels = [s['label'] for s in summaries]
+    bleus  = [s['avg_bleu'] for s in summaries]
+    chrfs  = [s['avg_chrf'] for s in summaries]
+    STYLE  = {
+        'font.family':'DejaVu Sans','axes.spines.top':False,'axes.spines.right':False,
+        'axes.grid':True,'grid.alpha':0.3,'grid.linestyle':'--',
+        'axes.titlesize':15,'axes.titleweight':'bold','axes.labelsize':13,
+        'xtick.labelsize':11,'ytick.labelsize':11,'legend.fontsize':11,'figure.dpi':180,
+    }
+    saved = []
+    def _savefig(fig, tag, title):
+        fname = f'{FIG_DIR}/{base}_{tag}.png'
+        fig.savefig(fname, dpi=180, bbox_inches='tight', facecolor='white')
+        plt.show(); plt.close(fig); saved.append(fname)
+        print(f'  ✓ Saved: {os.path.basename(fname)}  [{title}]')
+
+    # Fig 1 — Overall BLEU + ChrF
+    with plt.rc_context(STYLE):
+        fig, ax = plt.subplots(figsize=(10,6))
+        x = np.arange(len(labels)); bw = 0.35
+        ax.bar(x-bw/2, bleus, bw, label='BLEU', color='#E84855', alpha=0.88, edgecolor='white')
+        ax.bar(x+bw/2, chrfs, bw, label='ChrF', color='#2E86AB', alpha=0.88, edgecolor='white')
+        ax.set_xticks(x); ax.set_xticklabels(labels, rotation=35, ha='right')
+        ax.set_ylabel('Score'); ax.set_title('Overall Translation Quality per Phase (BLEU + ChrF)')
+        ax.legend()
+        for i,(b,c) in enumerate(zip(bleus,chrfs)):
+            ax.text(i-bw/2,b+0.3,f'{b:.1f}',ha='center',va='bottom',fontsize=8)
+            ax.text(i+bw/2,c+0.3,f'{c:.1f}',ha='center',va='bottom',fontsize=8)
+        _savefig(fig,'01_overall_quality','Overall Quality')
+
+    # Fig 2 — BLEU per language pair
+    all_pairs = sorted({pk for s in summaries for pk in s['pair_stats']})
+    with plt.rc_context(STYLE):
+        fig, ax = plt.subplots(figsize=(12,6))
+        x = np.arange(len(all_pairs)); bw = 0.8/len(summaries)
+        for si,s in enumerate(summaries):
+            vals = [s['pair_stats'].get(pk,{}).get('avg_bleu',0) for pk in all_pairs]
+            ax.bar(x+si*bw-(bw*len(summaries)/2)+bw/2, vals, bw*0.9, label=s['label'], alpha=0.88)
+        ax.set_xticks(x); ax.set_xticklabels(all_pairs, rotation=35, ha='right')
+        ax.set_ylabel('BLEU'); ax.set_title('BLEU by Language Pair per Phase')
+        ax.legend(fontsize=8)
+        _savefig(fig,'02_bleu_by_pair','BLEU by Language Pair')
+
+    # Fig 3 — ChrF per language pair
+    with plt.rc_context(STYLE):
+        fig, ax = plt.subplots(figsize=(12,6))
+        for si,s in enumerate(summaries):
+            vals = [s['pair_stats'].get(pk,{}).get('avg_chrf',0) for pk in all_pairs]
+            ax.bar(x+si*bw-(bw*len(summaries)/2)+bw/2, vals, bw*0.9, label=s['label'], alpha=0.88)
+        ax.set_xticks(x); ax.set_xticklabels(all_pairs, rotation=35, ha='right')
+        ax.set_ylabel('ChrF'); ax.set_title('ChrF by Language Pair per Phase')
+        ax.legend(fontsize=8)
+        _savefig(fig,'03_chrf_by_pair','ChrF by Language Pair')
+
+    # Fig 4 — Bengali-specific BLEU+ChrF focus
+    ben_pairs = [p for p in all_pairs if 'ben' in p]
+    if ben_pairs:
+        with plt.rc_context(STYLE):
+            fig, axes2 = plt.subplots(1,2,figsize=(14,6))
+            fig.suptitle('Bengali Translation Quality Focus', fontweight='bold')
+            for mi,(metric,col,mname) in enumerate([('avg_bleu','#E84855','BLEU'),
+                                                    ('avg_chrf','#2E86AB','ChrF')]):
+                ax2 = axes2[mi]
+                xb = np.arange(len(ben_pairs)); bwb = 0.8/max(1,len(summaries))
+                for si,s in enumerate(summaries):
+                    vals = [s['pair_stats'].get(pk,{}).get(metric,0) for pk in ben_pairs]
+                    ax2.bar(xb+si*bwb-(bwb*len(summaries)/2)+bwb/2, vals, bwb*0.9,
+                            label=s['label'], alpha=0.88, color=col if si==0 else None)
+                ax2.set_xticks(xb); ax2.set_xticklabels(ben_pairs, rotation=20, ha='right')
+                ax2.set_ylabel(mname); ax2.set_title(f'Bengali {mname}')
+                ax2.legend(fontsize=8)
+            _savefig(fig,'04_bengali_focus','Bengali Focus')
+
+    # Fig 5 — Size vs Quality
+    with plt.rc_context(STYLE):
+        fig, ax = plt.subplots(figsize=(10,7))
+        params = [s['params_M'] for s in summaries]
+        bleus2 = [s['avg_bleu'] for s in summaries]
+        chrfs2 = [s['avg_chrf'] for s in summaries]
+        ax.scatter(params, bleus2, s=120, c='#E84855', zorder=5, label='BLEU')
+        ax.scatter(params, chrfs2, s=120, c='#2E86AB', marker='s', zorder=5, label='ChrF')
+        for i,lbl in enumerate(labels):
+            ax.annotate(lbl,(params[i],bleus2[i]),fontsize=7,xytext=(5,5),textcoords='offset points')
+        ax.set_xlabel('Parameters (M)'); ax.set_ylabel('Score')
+        ax.set_title('Model Size vs Translation Quality'); ax.legend()
+        _savefig(fig,'05_size_vs_quality','Size vs Quality')
+
+    # Fig 6 — RTF
+    with plt.rc_context(STYLE):
+        fig, ax = plt.subplots(figsize=(10,5))
+        rtfs = [s['avg_rtf'] for s in summaries]
+        ax.bar(range(len(labels)), rtfs, color='#F4A261', alpha=0.88, edgecolor='white')
+        ax.set_xticks(range(len(labels))); ax.set_xticklabels(labels, rotation=35, ha='right')
+        ax.set_ylabel('RTF (lower = faster)'); ax.set_title('Inference Speed per Phase')
+        for i,v in enumerate(rtfs):
+            ax.text(i,v+0.002,f'{v:.3f}',ha='center',va='bottom',fontsize=8)
+        _savefig(fig,'06_rtf','Inference Speed RTF')
+
+    print(f'\n✅ All {len(saved)} figures saved.')
+    for f in saved: print(f'   📄 {os.path.basename(f)}')
+
+print('Summary + plotting helpers ready.')
+
+
+Cell10:
+## Language Configuration — Bengali-Centric (Ben, Eng, Hin, Arb)
+
+Cell11:
+# ── Bengali-centric language pairs: Ben↔X and X↔Ben ─────────────────────────
+# Chinese (cmn) removed entirely.
+
+TARGET_LANGS = ['ben', 'eng', 'hin', 'arb']   # 4 languages
+
+EVAL_LANG_PAIRS = [
+    ('ben', 'eng'),   # Bengali  → English
+    ('eng', 'ben'),   # English  → Bengali   ★ primary
+    ('ben', 'hin'),   # Bengali  → Hindi
+    ('hin', 'ben'),   # Hindi    → Bengali
+    ('ben', 'arb'),   # Bengali  → Arabic
+    ('arb', 'ben'),   # Arabic   → Bengali
+]
+
+# FLEURS parquet folder names
+M4T_FLEURS_MAP = {
+    'eng': 'en_us',
+    'ben': 'bn_in',
+    'hin': 'hi_in',
+    'arb': 'ar_eg',
+}
+
+# ASR backend per target language
+LANG_ASR_CONFIG = {
+    'ben': ('mms', 'ben'),   # MMS for Bengali
+    'hin': ('mms', 'hin'),   # MMS for Hindi
+    'arb': ('mms', 'ara'),   # MMS for Arabic
+    'eng': ('whisper', 'en'),# Whisper for English
+}
+
+N_EVAL_PER_PAIR  = 33
+N_TRAIN_PER_PAIR = 4000
+
+print(f'Target languages : {TARGET_LANGS}')
+print(f'Lang pairs ({len(EVAL_LANG_PAIRS)}): {EVAL_LANG_PAIRS}')
+print(f'Eval samples     : {N_EVAL_PER_PAIR} per pair  = {N_EVAL_PER_PAIR*len(EVAL_LANG_PAIRS)} total')
+print(f'Train samples    : {N_TRAIN_PER_PAIR} per pair = {N_TRAIN_PER_PAIR*len(EVAL_LANG_PAIRS)} total')
+
+
+Cell12:
+## ASR Stack — MMS (Ben/Hin/Arb) + Whisper (Eng)
+
+Cell13:
+import gc as _gc
+
+_MMS_MODEL_ID = 'facebook/mms-1b-all'
+_mms_asr_models, _mms_asr_processors = {}, {}
+_whisper_model = _whisper_processor = None
+
+def _ensure_mms_loaded(lang_code):
+    global _mms_asr_models, _mms_asr_processors
+    if lang_code in _mms_asr_models: return
+    from transformers import Wav2Vec2ForCTC, AutoProcessor
+    print(f'[MMS-ASR] Loading lang={lang_code}...')
+    _mms_asr_processors[lang_code] = AutoProcessor.from_pretrained(
+        _MMS_MODEL_ID, target_lang=lang_code)
+    _mms_asr_models[lang_code] = Wav2Vec2ForCTC.from_pretrained(
+        _MMS_MODEL_ID, target_lang=lang_code,
+        ignore_mismatched_sizes=True, torch_dtype=torch.float16)
+    _mms_asr_models[lang_code].load_adapter(lang_code)
+    _mms_asr_models[lang_code] = _mms_asr_models[lang_code].eval()
+    try: _mms_asr_models[lang_code] = _mms_asr_models[lang_code].to('cuda:0')
+    except RuntimeError: pass
+    print(f'[MMS-ASR] {lang_code} ready.')
+
+def asr_transcribe_mms(audio_np, lang_code, sr=16000):
+    _ensure_mms_loaded(lang_code)
+    if audio_np is None or len(audio_np) < 400: return ''
+    if sr != 16000:
+        audio_np = torchaudio.functional.resample(
+            torch.tensor(audio_np), sr, 16000).numpy()
+    model = _mms_asr_models[lang_code]
+    proc  = _mms_asr_processors[lang_code]
+    device = next(model.parameters()).device
+    dtype  = next(model.parameters()).dtype
+    inputs = proc(audio_np, sampling_rate=16000, return_tensors='pt')
+    input_values = inputs.input_values.to(device).to(dtype)
+    with torch.no_grad():
+        logits = model(input_values=input_values).logits
+    pred_ids = torch.argmax(logits, dim=-1)
+    return proc.batch_decode(pred_ids)[0].strip()
+
+def _ensure_whisper_loaded():
+    global _whisper_model, _whisper_processor
+    if _whisper_model is not None: return
+    from transformers import WhisperForConditionalGeneration, WhisperProcessor
+    print('[Whisper] Loading openai/whisper-medium...')
+    _whisper_processor = WhisperProcessor.from_pretrained('openai/whisper-medium')
+    _whisper_model = WhisperForConditionalGeneration.from_pretrained(
+        'openai/whisper-medium', torch_dtype=torch.float16).eval()
+    device = 'cuda:1' if N_GPU > 1 else 'cuda:0'
+    try: _whisper_model = _whisper_model.to(device)
+    except RuntimeError: pass
+    print('[Whisper] Ready.')
+
+def asr_transcribe_whisper(audio_np, lang='en', sr=16000):
+    _ensure_whisper_loaded()
+    if audio_np is None or len(audio_np) < 400: return ''
+    if sr != 16000:
+        audio_np = torchaudio.functional.resample(
+            torch.tensor(audio_np), sr, 16000).numpy()
+    device = next(_whisper_model.parameters()).device
+    dtype  = next(_whisper_model.parameters()).dtype
+    inputs = _whisper_processor(audio_np, sampling_rate=16000, return_tensors='pt',
+                                return_attention_mask=True)
+    input_features = inputs['input_features'].to(device).to(dtype)
+    with torch.no_grad():
+        predicted_ids = _whisper_model.generate(
+            input_features, language=lang, task='transcribe',
+            max_new_tokens=256, num_beams=1, do_sample=False)
+    return _whisper_processor.batch_decode(predicted_ids, skip_special_tokens=True)[0].strip()
+
+def asr_transcribe(audio_np, lang_code, sr=16000):
+    """Unified ASR dispatch — no Chinese."""
+    cfg = LANG_ASR_CONFIG.get(lang_code)
+    if cfg is None:
+        print(f'[ASR] Unknown lang {lang_code}'); return ''
+    backend, code = cfg
+    if backend == 'whisper':
+        return asr_transcribe_whisper(audio_np, lang=code, sr=sr)
+    return asr_transcribe_mms(audio_np, lang_code=code, sr=sr)
+
+print('ASR stack ready:')
+print('  - Whisper-medium : English')
+print('  - MMS-1b-all     : Bengali, Hindi, Arabic')
+
+
+Cell14:
+from sacrebleu.metrics import BLEU, CHRF
+_bleu = BLEU(effective_order=True)
+_chrf = CHRF()
+
+def compute_bleu(hyp, ref):
+    if not hyp.strip() or not ref.strip(): return 0.0
+    return _bleu.sentence_score(hyp.strip(), [ref.strip()]).score
+
+def compute_chrf(hyp, ref):
+    if not hyp.strip() or not ref.strip(): return 0.0
+    return _chrf.sentence_score(hyp.strip(), [ref.strip()]).score
+
+def _remap_ids_for_decode(mdl, ids):
+    if hasattr(mdl, '_vocab_remap_to_old'):
+        remap = mdl._vocab_remap_to_old
+        ids = ids.clone()
+        mask = (ids >= 0) & (ids < len(remap))
+        ids[mask] = remap[ids[mask]]
+    return ids
+
+def _model_input_device(mdl):
+    if hasattr(mdl,'speech_encoder'):
+        return next(mdl.speech_encoder.parameters()).device
+    return next(mdl.parameters()).device
+
+def run_s2st(mdl, wav, tgt_lang='ben'):
+    inputs = processor(audio=wav, sampling_rate=16000, return_tensors='pt')
+    inputs = {k: v.to(_model_input_device(mdl)) for k, v in inputs.items()}
+    with torch.no_grad():
+        try:
+            out = mdl.generate(**inputs, tgt_lang=tgt_lang,
+                               return_intermediate_token_ids=True)
+            text_ids = _remap_ids_for_decode(mdl, out.sequences.cpu())
+            text = processor.batch_decode(text_ids, skip_special_tokens=True)[0]
+            wav_out = out.waveform.cpu().numpy().squeeze() if out.waveform is not None else np.zeros(16000)
+            return text, wav_out
+        except RuntimeError:
+            return run_s2t_only(mdl, wav, tgt_lang), np.zeros(16000)
+
+def run_s2t_only(mdl, wav, tgt_lang='ben'):
+    inputs = processor(audio=wav, sampling_rate=16000, return_tensors='pt')
+    inputs = {k: v.to(_model_input_device(mdl)) for k, v in inputs.items()}
+    orig_voc = mdl.vocoder
+    inp_dev  = next(iter(inputs.values())).device
+    class _Noop(nn.Module):
+        def forward(self, *a, **kw): return torch.zeros(1,1,device=inp_dev), [1]
+    mdl.vocoder = _Noop()
+    try:
+        with torch.no_grad():
+            out = mdl.generate(**inputs, tgt_lang=tgt_lang,
+                               return_intermediate_token_ids=True)
+    finally:
+        mdl.vocoder = orig_voc
+    text_ids = _remap_ids_for_decode(mdl, out.sequences.cpu())
+    return processor.batch_decode(text_ids, skip_special_tokens=True)[0]
+
+def free_cpu_ram():
+    gc.collect()
+    if torch.cuda.is_available(): torch.cuda.empty_cache()
+
+print('Inference helpers ready.')
+
+
+Cell15:
+## Dataset Loading — Bengali-Centric Streaming
+
+Cell16:
+import pyarrow.parquet as pq
+import concurrent.futures, io, soundfile as sfile, pandas as pd
+
+LOCAL_PARQUET_CACHE = '/kaggle/input/datasets/rayedriasat/fleurs5'  # 5-lang dataset we only need 4
+BASE_PARQUET_URL    = 'https://huggingface.co/datasets/google/fleurs/resolve/refs%2Fconvert%2Fparquet'
+DRIVE_FLEURS_PATH   = f'{GDRIVE_ROOT}/fleurs_parquet'
+
+def _load_wav(audio_cell):
+    audio = audio_cell
+    if isinstance(audio, dict) and 'array' in audio:
+        arr, sr = audio['array'], audio['sampling_rate']
+    elif isinstance(audio, dict) and 'bytes' in audio:
+        wav, sr = sfile.read(io.BytesIO(audio['bytes']))
+        if wav.ndim > 1: wav = wav.mean(axis=1)
+        arr = wav
+    else:
+        raise RuntimeError(f'Unsupported audio format: {type(audio)}')
+    arr = np.array(arr, dtype=np.float32)
+    if sr != 16000:
+        arr = torchaudio.functional.resample(torch.tensor(arr), sr, 16000).numpy()
+    return arr
+
+class ParquetStreamingDataset:
+    def __init__(self, parquet_cache_dir, src_lang, tgt_lang, split='train',
+                 max_samples_per_pair=500):
+        self.cache_dir  = pathlib.Path(parquet_cache_dir)
+        self.src_lang   = src_lang
+        self.tgt_lang   = tgt_lang
+        self.split      = split
+        self.max_samples = max_samples_per_pair
+        self.samples    = []
+        self._build_index()
+
+    def _build_index(self):
+        src_files = sorted(self.cache_dir.glob(
+            f'{M4T_FLEURS_MAP.get(self.src_lang)}/{self.split}_*.parquet'))
+        tgt_files = sorted(self.cache_dir.glob(
+            f'{M4T_FLEURS_MAP.get(self.tgt_lang)}/{self.split}_*.parquet'))
+        if not src_files or not tgt_files:
+            print(f'  WARNING: No parquet files for {self.src_lang}/{self.tgt_lang}'); return
+        src_ids = []
+        for f in src_files:
+            df = pd.read_parquet(f, columns=['id'])
+            src_ids.extend([(str(f), idx, row_id) for idx, row_id in enumerate(df['id'])])
+        tgt_ids = []
+        for f in tgt_files:
+            df = pd.read_parquet(f, columns=['id','transcription'])
+            df = df[df['transcription'].str.strip().str.len() > 0]
+            tgt_ids.extend([(str(f), idx, row_id, trans)
+                            for idx, (row_id, trans) in enumerate(zip(df['id'],df['transcription']))])
+        src_lookup = {row_id: (f, idx) for f, idx, row_id in src_ids}
+        tgt_lookup = {row_id: (f, idx, trans) for f, idx, row_id, trans in tgt_ids}
+        common = set(src_lookup) & set(tgt_lookup)
+        for sid in list(common)[:self.max_samples]:
+            sf, si = src_lookup[sid]
+            tf, ti, txt = tgt_lookup[sid]
+            self.samples.append({
+                'id': f'{self.src_lang}2{self.tgt_lang}_{sid}',
+                'src_lang': self.src_lang, 'tgt_lang': self.tgt_lang,
+                'ref': txt, '_src_file': sf, '_src_idx': si,
+            })
+        print(f'  Indexed {len(self.samples)} samples from {self.src_lang}→{self.tgt_lang}')
+
+    def __len__(self):  return len(self.samples)
+
+    def __getitem__(self, idx):
+        sample = self.samples[idx].copy()
+        if '_src_file' in sample:
+            sample['wav'] = self._load_audio_from_parquet(sample.pop('_src_file'),
+                                                          sample.pop('_src_idx'))
+        return sample
+
+    def _load_audio_from_parquet(self, parquet_file, row_idx):
+        table = pq.read_table(parquet_file, columns=['audio'])
+        audio_cell = table.to_pandas().iloc[row_idx]['audio']
+        return _load_wav(audio_cell)
+
+class MultilingualStreamingDataset:
+    def __init__(self, parquet_cache_dir, lang_pairs, split='train', max_samples_per_pair=25):
+        self.datasets = []
+        for src, tgt in lang_pairs:
+            ds = ParquetStreamingDataset(parquet_cache_dir, src, tgt, split, max_samples_per_pair)
+            if len(ds) > 0: self.datasets.append(ds)
+        self.index = [(di, si) for di, ds in enumerate(self.datasets)
+                      for si in range(len(ds))]
+        print(f'\n✓ Multilingual dataset ready: {len(self.index)} total samples')
+        print(f'  RAM usage: ~{len(self.index)*0.001:.1f} MB (metadata only)')
+
+    def __len__(self):  return len(self.index)
+    def __getitem__(self, idx):
+        di, si = self.index[idx]; return self.datasets[di][si]
+    def __iter__(self):
+        for i in range(len(self)): yield self[i]
+
+print('✓ Streaming dataset classes ready.')
+
+
+Cell17:
+print('Loading evaluation samples (streaming mode)...')
+eval_samples = MultilingualStreamingDataset(
+    parquet_cache_dir=LOCAL_PARQUET_CACHE,
+    lang_pairs=EVAL_LANG_PAIRS,
+    split='test',
+    max_samples_per_pair=N_EVAL_PER_PAIR
+)
+
+print(f'\n✓ Loaded {len(eval_samples)} multilingual eval samples')
+print(f'  Language pairs: {EVAL_LANG_PAIRS}')
+
+test_s = eval_samples[0]
+print(f'\n✓ Test sample loaded:')
+print(f'  ID: {test_s["id"]}')
+print(f'  Audio shape: {test_s["wav"].shape}')
+print(f'  Reference: {test_s["ref"][:60]}...')
+
+
+Cell18:
+print('Loading training samples (streaming mode)...')
+ft_samples = MultilingualStreamingDataset(
+    parquet_cache_dir=LOCAL_PARQUET_CACHE,
+    lang_pairs=EVAL_LANG_PAIRS,
+    split='train',
+    max_samples_per_pair=N_TRAIN_PER_PAIR
+)
+
+print(f'\n✓ Loaded {len(ft_samples)} multilingual training samples')
+print(f'  Language pairs: {len(EVAL_LANG_PAIRS)}')
+print(f'  RAM usage: ~{len(ft_samples)*0.001:.1f} MB (metadata only)')
+
+
+Cell19:
+from transformers import SeamlessM4Tv2ForSpeechToSpeech, SeamlessM4TProcessor
+
+MODEL_NAME = 'facebook/seamless-m4t-v2-large'
+processor  = None
+
+def load_base_model():
+    global processor
+    print(f'Loading processor from {MODEL_NAME}...')
+    proc = SeamlessM4TProcessor.from_pretrained(MODEL_NAME)
+    print(f'Loading model — may take 5-10 min...')
+    mdl = SeamlessM4Tv2ForSpeechToSpeech.from_pretrained(
+        MODEL_NAME, torch_dtype=torch.float16, device_map='auto')
+    mdl.eval()
+    print('Model loaded.'); gpu_mem()
+    processor = proc
+    return mdl, proc
+
+def session_status():
+    from datetime import datetime
+    print('='*65)
+    print(f'  Platform : {PLATFORM}   Time : {datetime.now():%Y-%m-%d %H:%M}')
+    if os.path.exists(CKPT_DIR):
+        files = [f for f in glob.glob(f'{CKPT_DIR}/**/*.pt', recursive=True)
+                 if os.path.isfile(f)]
+        print(f'  Checkpoint files: {len(files)}')
+        for f in sorted(files)[:20]:
+            print(f'    {os.path.relpath(f,CKPT_DIR):<50} {os.path.getsize(f)/1e6:>8.1f} MB')
+    if torch.cuda.is_available():
+        props = torch.cuda.get_device_properties(0)
+        print(f'  GPU: {torch.cuda.get_device_name(0)}  VRAM: {props.total_memory/1e9:.1f} GB')
+    print('='*65)
+
+# Sync checkpoints from Drive
+if not os.path.exists(LOCAL_PARQUET_CACHE):
+    r = subprocess.run(
+        f'rclone copy "{DRIVE_FLEURS_PATH}/" "{LOCAL_PARQUET_CACHE}/" '
+        f'--transfers=8 --multi-thread-streams=4 --drive-chunk-size=64M',
+        shell=True, capture_output=True, text=True)
+
+sync_checkpoints_from_drive()
+session_status()
+print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
+
+
+Cell20:
+## Benchmark Functions — Bengali-Centric (BLEU + ChrF)
+Benchmarks report both **BLEU** and **ChrF** for every language pair.
+Bengali pairs are highlighted in summaries.
+
+
+Cell21:
+def run_benchmark(mdl, samples, label='model', save_n=2, max_samples=None):
+    """
+    Full benchmark: S2ST → ASR → BLEU + ChrF.
+    Reports BLEU and ChrF for every language pair.
+    Bengali pairs are starred ★.
+    """
+    print(f'\n{"="*65}')
+    print(f'  BENCHMARK: {label}  |  Samples: {len(samples)}')
+    print(f'{"="*65}')
+    gpu_mem()
+    results = []
+    by_pair = defaultdict(list)
+    for s in samples:
+        by_pair[f"{s['src_lang']}→{s['tgt_lang']}"].append(s)
+
+    subset = samples if max_samples is None else [samples[i] for i in range(min(max_samples, len(samples)))]
+    by_pair = defaultdict(list)
+    for s in subset:
+        by_pair[f"{s['src_lang']}→{s['tgt_lang']}"].append(s)
+
+    for pair_key, pair_samples in sorted(by_pair.items()):
+        is_ben = 'ben' in pair_key
+        star   = ' ★' if is_ben else ''
+        print(f'\n  === {pair_key}{star} ({len(pair_samples)} samples) ===')
+        for i, s in enumerate(pair_samples):
+            try:
+                dur = len(s['wav']) / 16000
+                t0  = time.time()
+                _, wav_out = run_s2st(mdl, s['wav'], tgt_lang=s['tgt_lang'])
+                rtf  = (time.time() - t0) / max(dur, 0.01)
+                pred = asr_transcribe(wav_out, s['tgt_lang'])
+                bleu = compute_bleu(pred, s['ref'])
+                chrf = compute_chrf(pred, s['ref'])
+                print(f'  [{i+1:>2}/{len(pair_samples)}] BLEU={bleu:5.1f} ChrF={chrf:5.1f} RTF={rtf:.3f}')
+                print(f'              pred: {pred[:80]}')
+                if save_n > 0 and i < save_n:
+                    save_audio(s['wav'],  16000, f'{label}_{pair_key}_s{i+1}in.wav')
+                    save_audio(wav_out,   16000, f'{label}_{pair_key}_s{i+1}out.wav')
+                results.append(dict(
+                    id=s['id'], src_lang=s['src_lang'], tgt_lang=s['tgt_lang'],
+                    bleu=bleu, chrf=chrf, rtf=rtf, pred=pred, ref=s['ref']))
+            except Exception as e:
+                import traceback; traceback.print_exc()
+                results.append(dict(
+                    id=s['id'], src_lang=s.get('src_lang','?'), tgt_lang=s.get('tgt_lang','?'),
+                    bleu=0.0, chrf=0.0, rtf=float('nan'), pred='', ref=s.get('ref','')))
+
+    valid = [r for r in results if not math.isnan(r['rtf'])]
+    print(f'\n  === Summary by Language Pair ===')
+    for pk in sorted(by_pair.keys()):
+        pr = [r for r in valid if f"{r['src_lang']}→{r['tgt_lang']}" == pk]
+        if pr:
+            star = '★' if 'ben' in pk else ' '
+            print(f'  {star} {pk:<18} BLEU={np.mean([r["bleu"] for r in pr]):6.2f}  '
+                  f'ChrF={np.mean([r["chrf"] for r in pr]):6.2f}')
+
+    summary = dict(
+        label=label, n=len(valid),
+        avg_bleu=float(np.mean([r['bleu'] for r in valid])) if valid else 0,
+        avg_chrf=float(np.mean([r['chrf'] for r in valid])) if valid else 0,
+        avg_rtf =float(np.mean([r['rtf']  for r in valid])) if valid else 0,
+        params_M=count_params(mdl),
+    )
+    # Bengali sub-scores
+    ben_valid = [r for r in valid if 'ben' in r['src_lang'] or 'ben' in r['tgt_lang']]
+    summary['ben_bleu'] = float(np.mean([r['bleu'] for r in ben_valid])) if ben_valid else 0
+    summary['ben_chrf'] = float(np.mean([r['chrf'] for r in ben_valid])) if ben_valid else 0
+    print(f'\n  Overall : BLEU={summary["avg_bleu"]:.2f}  ChrF={summary["avg_chrf"]:.2f}'
+          f'  RTF={summary["avg_rtf"]:.4f}  Params={summary["params_M"]:.1f}M')
+    print(f'  Bengali : BLEU={summary["ben_bleu"]:.2f}  ChrF={summary["ben_chrf"]:.2f}  (n={len(ben_valid)})')
+    return results, summary
+
+# Alias kept for backward compat
+run_benchmark_asr = run_benchmark
+print('Benchmark functions ready.')
+
+
+Cell22:
+## Pruning Helpers
+
+### Iterative Pruning Strategy
+| Component | Original | Target | Remove | Primary metric | Fallback |
+|---|---|---|---|---|---|
+| Speech Encoder | 24 | 10 | 14 | text-BLEU | text-ChrF |
+| Text Decoder   | 24 | 14 | 10 | text-BLEU | text-ChrF |
+| T2U Encoder    |  6 | 5 |  1 | ASR-BLEU  | ASR-ChrF  |
+| T2U Decoder    |  6 | 5 |  1 | ASR-BLEU  | ASR-ChrF  |
+
+BLEU is primary. When BLEU is uniformly very low (< 1.0 across all candidates) 
+the signal is too noisy — fall back to ChrF to break ties.
+
+
+Cell23:
+# ── Quick evaluation helpers ──────────────────────────────────────────────────
+BLEU_NOISE_THRESHOLD = 1.0   # if max candidate BLEU < this → use ChrF
+
+def quick_eval_text(mdl, samples, max_samples=12):
+    """
+    Returns (text_bleu, text_chrf): text-output metrics (no ASR backend needed).
+    Uses run_s2t_only for speed.
+    """
+    bleus, chrfs = [], []
+    indices = random.sample(range(len(samples)), min(max_samples, len(samples)))
+    for idx in indices:
+        s = samples[idx]
+        try:
+            pred = run_s2t_only(mdl, s['wav'], tgt_lang=s['tgt_lang'])
+            bleus.append(compute_bleu(pred, s['ref']))
+            chrfs.append(compute_chrf(pred, s['ref']))
+        except Exception:
+            bleus.append(0.0); chrfs.append(0.0)
+    return float(np.mean(bleus)), float(np.mean(chrfs))
+
+def quick_eval_text_score(mdl, samples, max_samples=12):
+    """
+    Single scalar: BLEU if signal good, else ChrF.
+    Used internally by iterative pruning loops.
+    """
+    bleus, chrfs = [], []
+    indices = random.sample(range(len(samples)), min(max_samples, len(samples)))
+    for idx in indices:
+        s = samples[idx]
+        try:
+            pred = run_s2t_only(mdl, s['wav'], tgt_lang=s['tgt_lang'])
+            bleus.append(compute_bleu(pred, s['ref']))
+            chrfs.append(compute_chrf(pred, s['ref']))
+        except Exception:
+            bleus.append(0.0); chrfs.append(0.0)
+    avg_bleu = float(np.mean(bleus))
+    avg_chrf = float(np.mean(chrfs))
+    return avg_bleu, avg_chrf
+
+def quick_eval_asr(mdl, samples, max_samples=12):
+    """
+    Returns (asr_bleu, asr_chrf): full S2ST → ASR pipeline.
+    """
+    bleus, chrfs = [], []
+    indices = random.sample(range(len(samples)), min(max_samples, len(samples)))
+    for idx in indices:
+        s = samples[idx]
+        try:
+            _, wav_out = run_s2st(mdl, s['wav'], tgt_lang=s['tgt_lang'])
+            pred = asr_transcribe(wav_out, s['tgt_lang'])
+            bleus.append(compute_bleu(pred, s['ref']))
+            chrfs.append(compute_chrf(pred, s['ref']))
+        except Exception:
+            bleus.append(0.0); chrfs.append(0.0)
+    return float(np.mean(bleus)), float(np.mean(chrfs))
+
+print('Quick eval helpers ready.')
+
+
+Cell24:
+# ── Encoder pruning helpers ───────────────────────────────────────────────────
+
+def get_encoder_layers(mdl):
+    enc = mdl.speech_encoder
+    parent = enc.encoder if hasattr(enc,'encoder') else enc
+    if hasattr(parent,'layers') and isinstance(parent.layers, nn.ModuleList):
+        return parent, 'layers'
+    raise RuntimeError('Cannot find speech encoder layers')
+
+def compute_encoder_block_influence(mdl, samples, max_n=40):
+    parent, la = get_encoder_layers(mdl)
+    layers = getattr(parent, la)
+    n = len(layers)
+    bi = {i: [] for i in range(n)}
+    hooks = []
+    for i in range(n):
+        def make_hook(idx):
+            def hook(mod, inp, out):
+                x = inp[0] if isinstance(inp,tuple) else inp
+                if x is None or not isinstance(x,torch.Tensor): return
+                y = out[0] if isinstance(out,tuple) else out
+                if y is None or not isinstance(y,torch.Tensor): return
+                x = x.detach().float().reshape(-1,x.shape[-1])
+                y = y.detach().to(x.device).float().reshape(-1,y.shape[-1])
+                bi[idx].append(1.0 - F.cosine_similarity(x,y,dim=-1).mean().item())
+            return hook
+        hooks.append(layers[i].register_forward_hook(make_hook(i)))
+    mdl.eval()
+    dev = next(mdl.speech_encoder.parameters()).device
+    for idx,s in enumerate(samples[:max_n]):
+        if idx%10==0: print(f'  BI calibration {idx}/{min(max_n,len(samples))}...')
+        try:
+            inputs = processor(audio=s['wav'], sampling_rate=16000, return_tensors='pt')
+            inputs = {k:v.to(dev) for k,v in inputs.items()}
+            with torch.no_grad(): _ = mdl.generate(**inputs, tgt_lang=s['tgt_lang'])
+        except Exception as e: print(f'  Sample {idx} failed: {e}')
+    for h in hooks: h.remove()
+    scores = {i: float(np.mean(v)) if v else 0.0 for i,v in bi.items()}
+    ranked = sorted(scores.items(), key=lambda x:x[1])
+    print('  Encoder BI ranking (low=redundant):')
+    for rank,(li,bv) in enumerate(ranked):
+        print(f'    Rank{rank+1:>2}  L{li:>2}  BI={bv:.4f}')
+    return scores
+
+def iterative_enc_prune(mdl, samples, n_remove, max_eval=12,
+                        ckpt_name='phase2_enc_pruning', bi_scores=None,
+                        bi_candidate_ratio=0.5):
+    """
+    Iteratively prune speech encoder layers.
+    Primary metric: text-BLEU. Fallback: text-ChrF when BLEU signal too low.
+    """
+    parent, la = get_encoder_layers(mdl)
+    current = list(getattr(parent, la))
+    orig_idx = list(range(len(current)))
+    protected = {0, len(current)-1}  # always keep first + last
+    removed, log = [], []
+
+    partial = load_latest_checkpoint(ckpt_name)
+    if partial and partial.get('removed'):
+        removed = list(partial['removed'])
+        log = partial.get('log', [])
+        for r in removed:
+            if r in orig_idx:
+                pos = orig_idx.index(r)
+                current.pop(pos); orig_idx.pop(pos)
+        setattr(parent, la, nn.ModuleList(current))
+        print(f'  Resuming: already removed {removed}, {len(current)} layers remain')
+
+    baseline_bleu, baseline_chrf = quick_eval_text_score(mdl, samples, max_samples=max_eval)
+    print(f'  Baseline text-BLEU={baseline_bleu:.2f}  text-ChrF={baseline_chrf:.2f}')
+
+    for it in range(len(removed), n_remove):
+        eligible = [pos for pos in range(len(current)) if orig_idx[pos] not in protected]
+
+        if bi_scores and len(eligible) > 2:
+            by_bi = sorted(eligible, key=lambda pos: bi_scores.get(orig_idx[pos], float('inf')))
+            n_cands = max(2, int(len(by_bi)*bi_candidate_ratio))
+            cands = by_bi[:n_cands]
+            print(f'\n  Iter {it+1}/{n_remove} | BI pre-filter: {len(cands)}/{len(eligible)} cands')
+        else:
+            cands = eligible
+            print(f'\n  Iter {it+1}/{n_remove} | all {len(cands)} eligible')
+
+        if not cands:
+            print('  No candidates left, stopping.'); break
+
+        # Evaluate all candidates
+        candidate_bleus, candidate_chrfs = {}, {}
+        for pos in cands:
+            temp = current[:pos] + current[pos+1:]
+            setattr(parent, la, nn.ModuleList(temp))
+            b, c = quick_eval_text_score(mdl, samples, max_samples=max_eval)
+            bi_note = f'  BI={bi_scores.get(orig_idx[pos],0):.4f}' if bi_scores else ''
+            print(f'    Remove L{orig_idx[pos]:>2} -> text-BLEU={b:.2f}  text-ChrF={c:.2f}{bi_note}')
+            candidate_bleus[pos] = b; candidate_chrfs[pos] = c
+
+        setattr(parent, la, nn.ModuleList(current))
+
+        # Choose primary metric: BLEU if signal is good, else ChrF
+        max_bleu = max(candidate_bleus.values()) if candidate_bleus else 0
+        if max_bleu >= BLEU_NOISE_THRESHOLD:
+            best_pos = max(candidate_bleus, key=lambda k: candidate_bleus[k])
+            used_metric = 'text-BLEU'
+        else:
+            print(f'  ⚠ BLEU signal low (max={max_bleu:.2f}) — using text-ChrF as fallback')
+            best_pos = max(candidate_chrfs, key=lambda k: candidate_chrfs[k])
+            used_metric = 'text-ChrF'
+
+        best_orig = orig_idx[best_pos]
+        current.pop(best_pos); orig_idx.pop(best_pos)
+        setattr(parent, la, nn.ModuleList(current))
+        removed.append(best_orig)
+
+        b_final = candidate_bleus[best_pos]; c_final = candidate_chrfs[best_pos]
+        log.append(dict(iter=it+1, removed=best_orig, text_bleu=b_final, text_chrf=c_final,
+                        remaining=len(current), metric_used=used_metric))
+        print(f'  → Removed L{best_orig} via {used_metric}: '
+              f'text-BLEU={b_final:.2f} text-ChrF={c_final:.2f} | {len(current)} layers remain')
+
+        save_checkpoint(dict(removed=removed, log=log, bi_scores=bi_scores), ckpt_name, 0)
+
+    return removed, log
+
+print('Encoder pruning helpers ready.')
+
+
+Cell25:
+# ── Text Decoder pruning helpers ──────────────────────────────────────────────
+
+def get_text_decoder_layers(mdl):
+    dec = mdl.text_decoder
+    if hasattr(dec,'layers') and isinstance(dec.layers, nn.ModuleList):
+        return dec, 'layers'
+    for attr in ['decoder','model']:
+        if hasattr(dec,attr):
+            sub = getattr(dec,attr)
+            if hasattr(sub,'layers') and isinstance(sub.layers, nn.ModuleList):
+                return sub, 'layers'
+    raise RuntimeError('Cannot find text decoder layers')
+
+def compute_decoder_block_influence(mdl, samples, max_n=40):
+    parent, la = get_text_decoder_layers(mdl)
+    layers = getattr(parent, la)
+    n = len(layers)
+    bi = {i: [] for i in range(n)}
+    hooks = []
+    for i in range(n):
+        def make_hook(idx):
+            def hook(mod, inp, out):
+                x = inp[0]
+                if x is None or not isinstance(x,torch.Tensor): return
+                y = out[0] if isinstance(out,tuple) else out
+                if y is None or not isinstance(y,torch.Tensor): return
+                x = x.detach().float().reshape(-1,x.shape[-1])
+                y = y.detach().to(x.device).float().reshape(-1,y.shape[-1])
+                bi[idx].append(1.0 - F.cosine_similarity(x,y,dim=-1).mean().item())
+            return hook
+        hooks.append(layers[i].register_forward_hook(make_hook(i)))
+    mdl.eval()
+    dev = next(mdl.text_decoder.parameters()).device
+    for idx,s in enumerate(samples[:max_n]):
+        if idx%10==0: print(f'  Calibrating decoder BI {idx}/{min(max_n,len(samples))}...')
+        try:
+            inputs = processor(audio=s['wav'], sampling_rate=16000, return_tensors='pt')
+            inputs = {k:v.to(dev) for k,v in inputs.items()}
+            with torch.no_grad(): _ = mdl.generate(**inputs, tgt_lang=s['tgt_lang'])
+        except Exception as e: print(f'  Sample {idx} failed: {e}')
+    for h in hooks: h.remove()
+    scores = {i: float(np.mean(v)) if v else 0.0 for i,v in bi.items()}
+    ranked = sorted(scores.items(), key=lambda x:x[1])
+    print('  Decoder BI ranking (low=redundant):')
+    for rank,(li,bv) in enumerate(ranked):
+        print(f'    Rank{rank+1:>2}  L{li:>2}  BI={bv:.4f}')
+    return scores
+
+def _get_protected_dec(n_total):
+    return {0, n_total//2, n_total-1}
+
+def iterative_dec_prune(mdl, samples, n_remove, max_eval=12,
+                        ckpt_name='phase4_dec_pruning', bi_scores=None,
+                        bi_candidate_ratio=0.5, protected=None):
+    """
+    Iteratively prune text decoder layers.
+    Primary metric: text-BLEU. Fallback: text-ChrF.
+    """
+    parent, la = get_text_decoder_layers(mdl)
+    current = list(getattr(parent, la))
+    orig_idx = list(range(len(current)))
+    n_total = len(current)
+    removed, log = [], []
+
+    if protected is None:
+        protected = _get_protected_dec(n_total)
+    print(f'  Protected decoder layers: {sorted(protected)}')
+
+    partial = load_latest_checkpoint(ckpt_name)
+    if partial and partial.get('removed'):
+        removed = list(partial['removed'])
+        log = partial.get('log', [])
+        for r in removed:
+            if r in orig_idx:
+                pos = orig_idx.index(r)
+                current.pop(pos); orig_idx.pop(pos)
+        setattr(parent, la, nn.ModuleList(current))
+        print(f'  Resuming: removed {removed}, {len(current)} layers remain')
+
+    b0, c0 = quick_eval_text_score(mdl, samples, max_samples=max_eval)
+    print(f'  Baseline text-BLEU={b0:.2f}  text-ChrF={c0:.2f}')
+
+    for it in range(len(removed), n_remove):
+        eligible = [pos for pos in range(len(current)) if orig_idx[pos] not in protected]
+
+        if bi_scores and len(eligible) > 2:
+            by_bi = sorted(eligible, key=lambda pos: bi_scores.get(orig_idx[pos], float('inf')))
+            n_cands = max(2, int(len(by_bi)*bi_candidate_ratio))
+            cands = by_bi[:n_cands]
+            print(f'\n  Iter {it+1}/{n_remove} | BI pre-filter: {len(cands)}/{len(eligible)} cands')
+        else:
+            cands = eligible
+            print(f'\n  Iter {it+1}/{n_remove} | all {len(cands)} eligible')
+
+        if not cands:
+            print('  No candidates left, stopping.'); break
+
+        cand_bleus, cand_chrfs = {}, {}
+        for pos in cands:
+            temp = current[:pos] + current[pos+1:]
+            setattr(parent, la, nn.ModuleList(temp))
+            b, c = quick_eval_text_score(mdl, samples, max_samples=max_eval)
+            bi_note = f'  BI={bi_scores.get(orig_idx[pos],0):.4f}' if bi_scores else ''
+            print(f'    Remove L{orig_idx[pos]:>2} -> text-BLEU={b:.2f}  text-ChrF={c:.2f}{bi_note}')
+            cand_bleus[pos] = b; cand_chrfs[pos] = c
+
+        setattr(parent, la, nn.ModuleList(current))
+
+        max_bleu = max(cand_bleus.values()) if cand_bleus else 0
+        if max_bleu >= BLEU_NOISE_THRESHOLD:
+            best_pos = max(cand_bleus, key=lambda k: cand_bleus[k])
+            used_metric = 'text-BLEU'
+        else:
+            print(f'  ⚠ BLEU signal low (max={max_bleu:.2f}) — using text-ChrF fallback')
+            best_pos = max(cand_chrfs, key=lambda k: cand_chrfs[k])
+            used_metric = 'text-ChrF'
+
+        best_orig = orig_idx[best_pos]
+        current.pop(best_pos); orig_idx.pop(best_pos)
+        setattr(parent, la, nn.ModuleList(current))
+        removed.append(best_orig)
+
+        b_f = cand_bleus[best_pos]; c_f = cand_chrfs[best_pos]
+        log.append(dict(iter=it+1, removed=best_orig, text_bleu=b_f, text_chrf=c_f,
+                        remaining=len(current), metric_used=used_metric))
+        print(f'  → Removed L{best_orig} via {used_metric}: '
+              f'text-BLEU={b_f:.2f} text-ChrF={c_f:.2f} | {len(current)} layers remain')
+
+        save_checkpoint(dict(removed=removed, log=log, bi_scores=bi_scores), ckpt_name, 0)
+
+    return removed, log
+
+print('Decoder pruning helpers ready.')
+
+
+Cell26:
+# ── T2U pruning helpers (ASR-BLEU primary, ASR-ChrF fallback) ────────────────
+
+def _get_t2u_layers(mdl, which='encoder'):
+    t2u = mdl.t2u_model
+    inner = t2u.model
+    component = inner.encoder if which=='encoder' else inner.decoder
+    layers = _find_layers(component)
+    if layers is None: raise RuntimeError(f'Cannot find T2U {which} layers')
+    return component, layers
+
+def iterative_t2u_prune(mdl, samples, n_remove, which='encoder',
+                        max_eval=12, ckpt_name='phase3_t2u_pruning'):
+    """
+    Iteratively prune T2U encoder or decoder.
+    Primary: ASR-BLEU. Fallback: ASR-ChrF when BLEU signal is too low.
+    """
+    component, layers = _get_t2u_layers(mdl, which)
+    layer_attr = [a for a in ['layers','inner_layers','layer']
+                  if isinstance(getattr(component,a,None), nn.ModuleList)][0]
+    current  = list(layers)
+    orig_idx = list(range(len(current)))
+    protected = {0, len(current)-1}
+    removed, log = [], []
+
+    partial = load_latest_checkpoint(ckpt_name)
+    if partial and partial.get('removed'):
+        removed = list(partial['removed'])
+        log = partial.get('log', [])
+        for r in removed:
+            if r in orig_idx:
+                pos = orig_idx.index(r)
+                current.pop(pos); orig_idx.pop(pos)
+        setattr(component, layer_attr, nn.ModuleList(current))
+        print(f'  Resuming: removed {removed}, {len(current)} T2U-{which} layers remain')
+
+    b0, c0 = quick_eval_asr(mdl, samples, max_samples=max_eval)
+    print(f'  Baseline ASR-BLEU={b0:.2f}  ASR-ChrF={c0:.2f}')
+
+    for it in range(len(removed), n_remove):
+        eligible = [pos for pos in range(len(current)) if orig_idx[pos] not in protected]
+        print(f'\n  Iter {it+1}/{n_remove} | {len(eligible)} eligible T2U-{which} layers')
+
+        if not eligible:
+            print('  No candidates left, stopping.'); break
+
+        cand_bleus, cand_chrfs = {}, {}
+        for pos in eligible:
+            temp = current[:pos] + current[pos+1:]
+            setattr(component, layer_attr, nn.ModuleList(temp))
+            b, c = quick_eval_asr(mdl, samples, max_samples=max_eval)
+            print(f'    Remove L{orig_idx[pos]:>2} -> ASR-BLEU={b:.2f}  ASR-ChrF={c:.2f}')
+            cand_bleus[pos] = b; cand_chrfs[pos] = c
+
+        setattr(component, layer_attr, nn.ModuleList(current))
+
+        max_bleu = max(cand_bleus.values()) if cand_bleus else 0
+        if max_bleu >= BLEU_NOISE_THRESHOLD:
+            best_pos = max(cand_bleus, key=lambda k: cand_bleus[k])
+            used_metric = 'ASR-BLEU'
+        else:
+            print(f'  ⚠ ASR-BLEU signal low (max={max_bleu:.2f}) — using ASR-ChrF fallback')
+            best_pos = max(cand_chrfs, key=lambda k: cand_chrfs[k])
+            used_metric = 'ASR-ChrF'
+
+        best_orig = orig_idx[best_pos]
+        current.pop(best_pos); orig_idx.pop(best_pos)
+        setattr(component, layer_attr, nn.ModuleList(current))
+        removed.append(best_orig)
+
+        b_f = cand_bleus[best_pos]; c_f = cand_chrfs[best_pos]
+        log.append(dict(iter=it+1, removed=best_orig, asr_bleu=b_f, asr_chrf=c_f,
+                        remaining=len(current), metric_used=used_metric))
+        print(f'  → Removed T2U-{which} L{best_orig} via {used_metric}: '
+              f'ASR-BLEU={b_f:.2f} ASR-ChrF={c_f:.2f} | {len(current)} remain')
+
+        save_checkpoint(dict(removed=removed, log=log, which=which), ckpt_name, 0)
+
+    return removed, log
+
+print('T2U pruning helpers ready.')
+
+
+Cell27:
+---
+## Phase 0: Baseline Capture
+Load teacher model, run full benchmark (BLEU + ChrF) across all Bengali-centric pairs.
+
+Cell28:
+p0_bench = load_latest_checkpoint('phase0_benchmark')
+if p0_bench and p0_bench.get('summary', {}).get('avg_bleu', 0) > 0:
+    p0_results = p0_bench['results']
+    p0_summary = p0_bench['summary']
+    p0_detailed = p0_bench.get('detailed_summary')
+    print('Loaded Phase 0 benchmark from checkpoint.')
+    if not p0_detailed:
+        p0_detailed = compute_detailed_summary(p0_results, 'P0_V1_Baseline', p0_summary['params_M'])
+else:
+    p0_results, p0_summary = run_benchmark(model_v1, list(eval_samples), 'P0_V1_Baseline', save_n=2)
+    p0_detailed = compute_detailed_summary(p0_results, 'P0_V1_Baseline', p0_summary['params_M'])
+    save_checkpoint(dict(results=p0_results, summary=p0_summary, detailed_summary=p0_detailed),
+                    'phase0_benchmark', 0)
+
+store_summary(p0_summary)
+store_detailed_summary(p0_detailed)
+print_detailed_summary_table('P0_V1_Baseline')
+plot_phase_comparison()
+plot_detailed_phase_comparison()
+
+
+Cell29:
+
+# ── Benchmark immediately to confirm zero quality loss ────────────────────────
+p1_bench = load_latest_checkpoint('phase1_benchmark')
+if p1_bench and p1_bench.get('summary', {}).get('avg_bleu', 0) > 0:
+    p1_results = p1_bench['results']
+    p1_summary = p1_bench['summary']
+    p1_detailed = p1_bench.get('detailed_summary')
+    print('Loaded Phase 1 benchmark from checkpoint.')
+    if not p1_detailed:
+        p1_detailed = compute_detailed_summary(
+            p1_results, 'P1_Vocab4L', p1_summary['params_M'])
+else:
+    p1_results, p1_summary = run_benchmark(
+        model_p1, list(eval_samples), 'P1_Vocab4L', save_n=2)
+    p1_detailed = compute_detailed_summary(
+        p1_results, 'P1_Vocab4L', p1_summary['params_M'])
+    save_checkpoint(
+        dict(results=p1_results, summary=p1_summary, detailed_summary=p1_detailed),
+        'phase1_benchmark', 0)
+
+store_summary(p1_summary)
+store_detailed_summary(p1_detailed)
+print_detailed_summary_table('P1_Vocab4L')
+
+# Quick sanity: Bengali ChrF should be within ±1 of Phase 0 baseline
+p0_ben_chrf = ALL_DETAILED_SUMMARIES.get('P0_V1_Baseline', {}).get(
+    'by_tgt_lang', {}).get('ben', {}).get('avg_chrf', 0)
+p1_ben_chrf = p1_detailed['by_tgt_lang'].get('ben', {}).get('avg_chrf', 0)
+delta = p1_ben_chrf - p0_ben_chrf
+print(f'\n  ── Quality Gate ──')
+print(f'  Bengali ChrF : P0={p0_ben_chrf:.2f}  →  P1={p1_ben_chrf:.2f}  '
+      f'Δ={delta:+.2f}')
+if abs(delta) <= 1.5:
+    print('  ✓ Within ±1.5 — vocab trim is lossless.')
+elif abs(delta) <= 3.0:
+    print('  ⚠ Between ±1.5 and ±3.0 — marginal, check sangraha availability.')
+else:
+    print('  ✗ Δ > 3.0 — something is wrong. Check streaming errors above.')
+
+plot_phase_comparison()
+plot_detailed_phase_comparison()
+
+Cell30:
+p4_bench = load_latest_checkpoint('phase4_benchmark')
+if p4_bench and p4_bench.get('summary', {}).get('avg_bleu', 0) > 0:
+    p4_results = p4_bench['results']; p4_summary = p4_bench['summary']
+    p4_detailed = p4_bench.get('detailed_summary')
+    if not p4_detailed:
+        p4_detailed = compute_detailed_summary(p4_results, 'P4_Dec14L', p4_summary['params_M'])
+else:
+    p4_results, p4_summary = run_benchmark(model_p4, list(eval_samples), 'P4_Dec14L', save_n=2)
+    p4_detailed = compute_detailed_summary(p4_results, 'P4_Dec14L', p4_summary['params_M'])
+    save_checkpoint(dict(results=p4_results, summary=p4_summary, detailed_summary=p4_detailed),
+                    'phase4_benchmark', 0)
+
+store_summary(p4_summary)
+store_detailed_summary(p4_detailed)
+print_detailed_summary_table('P4_Dec14L')
+plot_phase_comparison()
+plot_detailed_phase_comparison()
+
+
+Cell31:
+---
+## Phase 5: Full Fine-Tuning — Bengali-Focused Recovery
+
+**Objective**: Restore & surpass teacher BLEU/ChrF on Bengali pairs.
+
+### Strategy
+- **Full training** (no LoRA): all parameters unfrozen for maximum capacity.
+- Unfrozen: speech encoder, text decoder, shared embeddings, lm_head,
+  t2u encoder/decoder, t2u lm_head, speech adapter.
+- Vocoder stays frozen (it doesn't affect text quality).
+- Gradient checkpointing: speech encoder + text decoder only (largest components).
+  All other components remain non-checkpointed for speed.
+- AMP fp16 with GradScaler.
+- Bengali-pair weighted sampling: 2× oversample ben→* and *→ben pairs.
+- Knowledge distillation from teacher (fp16, cuda:1) on top-K logits.
+
+
+Cell32:
+# ── Training dataset with Bengali oversampling ────────────────────────────────
+
+import io, soundfile as sfile
+
+def build_bengali_weighted_ft_dataset(ft_samples, ben_weight=2.0):
+    """
+    Returns a list of (dataset_idx, sample_meta) with Bengali pairs oversampled.
+    Draws indices; audio loaded on demand.
+    """
+    indices = []
+    for i in range(len(ft_samples)):
+        meta = ft_samples.datasets[ft_samples.index[i][0]].samples[ft_samples.index[i][1]]
+        is_ben = ('ben' in meta['src_lang']) or ('ben' in meta['tgt_lang'])
+        weight = int(ben_weight) if is_ben else 1
+        indices.extend([i] * weight)
+    random.shuffle(indices)
+    print(f'Weighted FT indices: {len(indices)} '
+          f'(base {len(ft_samples)}, ben weight={ben_weight}x)')
+    return indices
+
+weighted_ft_indices = build_bengali_weighted_ft_dataset(ft_samples, ben_weight=2.0)
+print(f'✓ Weighted training set: {len(weighted_ft_indices)} samples')
+
+
+Cell33:
+# ── Load pruned model for fine-tuning ─────────────────────────────────────────
+
+print('Loading phase4_dec_14L for fine-tuning...')
+student, processor = load_model_from_drive('phase4_dec_14L', device_map='cuda:0')
+student = student.to(torch.float16)
+
+# ── Architecture sanity check ──────────────────────────────────────────────────
+parent_chk, la_chk = get_encoder_layers(student)
+n_enc_chk = len(getattr(parent_chk, la_chk))
+parent_chk2, la_chk2 = get_text_decoder_layers(student)
+n_dec_chk = len(getattr(parent_chk2, la_chk2))
+t2u_enc_chk, t2u_dec_chk = _get_t2u_encoder_decoder(student)
+n_t2u_enc = len(_find_layers(t2u_enc_chk)) if t2u_enc_chk else '?'
+n_t2u_dec = len(_find_layers(t2u_dec_chk)) if t2u_dec_chk else '?'
+print(f'✓ Speech encoder : {n_enc_chk}L  (target=8)')
+print(f'✓ Text decoder   : {n_dec_chk}L  (target=8)')
+print(f'✓ T2U encoder    : {n_t2u_enc}L  (target=4)')
+print(f'✓ T2U decoder    : {n_t2u_dec}L  (target=4)')
+
+S_VOCAB = student.shared.num_embeddings
+print(f'✓ Vocab size     : {S_VOCAB}')
+print_model_breakdown(student, 'Student (Pruned, Pre-FT)')
+gpu_mem()
+
+
+Cell34:
+# ── Load teacher on cuda:1 (or cuda:0 if single GPU) ─────────────────────────
+# Teacher stays in fp16, eval-only, used for KD top-K distillation.
+
+TEACHER_DEVICE = 'cuda:1' if N_GPU > 1 else 'cuda:0'
+TOP_K_TEACHER  = 8   # top-K teacher logits transferred
+
+print(f'Loading teacher model on {TEACHER_DEVICE}...')
+from transformers import SeamlessM4Tv2ForSpeechToSpeech
+teacher = SeamlessM4Tv2ForSpeechToSpeech.from_pretrained(
+    MODEL_NAME, torch_dtype=torch.float16, device_map=TEACHER_DEVICE)
+teacher.eval()
+for p in teacher.parameters():
+    p.requires_grad_(False)
+print(f'Teacher loaded. Params: {count_params(teacher):.1f}M')
+gpu_mem()
+
+
+Cell35:
+# ── Unfreeze maximum components ───────────────────────────────────────────────
+# Strategy: unfreeze everything except the vocoder (audio synth, doesn't affect text).
+
+# First: put student in full train mode
+student.train()
+
+# Freeze vocoder only
+n_frozen = 0
+for name, param in student.named_parameters():
+    if 'vocoder' in name:
+        param.requires_grad_(False)
+        n_frozen += param.numel()
+    else:
+        param.requires_grad_(True)
+        param.data = param.data.to(torch.float32)   # trainable params in fp32
+
+print(f'Frozen (vocoder): {n_frozen/1e6:.2f}M params')
+all_trainable = [p for p in student.parameters() if p.requires_grad]
+n_trainable   = sum(p.numel() for p in all_trainable)
+n_total       = sum(p.numel() for p in student.parameters())
+print(f'Trainable: {n_trainable/1e6:.1f}M / {n_total/1e6:.1f}M ({n_trainable/n_total*100:.1f}%)')
+print(f'All trainable fp32: {all(p.dtype == torch.float32 for p in all_trainable)}')
+gpu_mem()
+
+
+Cell36:
+# # ── Selective per-layer gradient checkpointing ────────────────────────────────
+# # Strategy:
+# #   - NEVER set gradient_checkpointing=True on a parent module (checkpoints ALL layers)
+# #   - Instead: wrap only the LAST 40% of enc + dec layers with checkpoint()
+# #   - First 60% of layers: activations cached normally in VRAM → fast backward
+# #   - Last 40% of layers: activations recomputed on backward → VRAM savings
+# #   - T2U, vocoder, embeddings: untouched (small, not the bottleneck)
+# #   - All ops stay on GPU — no CPU offload anywhere
+# # ─────────────────────────────────────────────────────────────────────────────
+
+# import functools
+# from torch.utils.checkpoint import checkpoint as torch_checkpoint
+
+# # Kill any parent-level gradient_checkpointing flags set earlier
+# def _kill_all_parent_gc(mdl):
+#     killed = []
+#     for name, module in mdl.named_modules():
+#         if getattr(module, 'gradient_checkpointing', False):
+#             module.gradient_checkpointing = False
+#             killed.append(name)
+#     if killed:
+#         print(f'  [GC] Killed parent-level GC on: {killed}')
+
+# _kill_all_parent_gc(student)
+
+# # ── Core wrapper: replaces a layer's forward with checkpointed forward ────────
+# def _make_checkpointed_layer(layer):
+#     """
+#     Wraps layer.forward so activations are recomputed during backward.
+#     Stays 100% on GPU — torch.utils.checkpoint never moves tensors to CPU
+#     unless use_reentrant=True + CPU offload is explicitly set (we don't do that).
+#     """
+#     original_forward = layer.forward
+
+#     @functools.wraps(original_forward)
+#     def checkpointed_forward(*args, **kwargs):
+#         # use_reentrant=False: safer with kwargs, no global state, PyTorch ≥2.0
+#         def _fwd(*a):
+#             return original_forward(*a, **kwargs)
+#         # Only checkpoint if at least one input requires grad
+#         if any(isinstance(a, torch.Tensor) and a.requires_grad for a in args):
+#             return torch_checkpoint(_fwd, *args, use_reentrant=False)
+#         return original_forward(*args, **kwargs)
+
+#     layer.forward = checkpointed_forward
+#     return layer
+
+# def _get_module_layers(module):
+#     """Find the nn.ModuleList of transformer layers inside a component."""
+#     for attr in ['layers', 'inner_layers', 'layer']:
+#         candidate = getattr(module, attr, None)
+#         if isinstance(candidate, nn.ModuleList) and len(candidate) > 0:
+#             return candidate
+#     return None
+
+# def apply_partial_gradient_checkpointing(mdl, checkpoint_fraction=0.40):
+#     """
+#     Apply layer-level gradient checkpointing to the last `checkpoint_fraction`
+#     of speech encoder layers and text decoder layers only.
+
+#     Returns a summary dict of what was done.
+#     """
+#     summary = {}
+
+#     # ── Speech encoder ────────────────────────────────────────────────────────
+#     try:
+#         enc_parent = (mdl.speech_encoder.encoder
+#                       if hasattr(mdl.speech_encoder, 'encoder')
+#                       else mdl.speech_encoder)
+#         enc_layers = _get_module_layers(enc_parent)
+
+#         if enc_layers is not None:
+#             n_enc   = len(enc_layers)
+#             n_ckpt  = max(1, round(n_enc * checkpoint_fraction))
+#             ckpt_start = n_enc - n_ckpt   # last 40% = highest-level layers
+
+#             for i, layer in enumerate(enc_layers):
+#                 if i >= ckpt_start:
+#                     _make_checkpointed_layer(layer)
+
+#             summary['speech_encoder'] = {
+#                 'total_layers':       n_enc,
+#                 'checkpointed_layers': n_ckpt,
+#                 'checkpointed_range': f'L{ckpt_start}–L{n_enc-1}',
+#                 'free_layers':        ckpt_start,
+#             }
+#             print(f'  [GC] Speech encoder: {n_ckpt}/{n_enc} layers checkpointed '
+#                   f'(L{ckpt_start}–L{n_enc-1}) | free: L0–L{ckpt_start-1}')
+#         else:
+#             print('  [GC] Speech encoder: no ModuleList found, skipping')
+
+#     except Exception as e:
+#         print(f'  [GC] Speech encoder error: {e}')
+
+#     # ── Text decoder ──────────────────────────────────────────────────────────
+#     try:
+#         dec_layers = _get_module_layers(mdl.text_decoder)
+#         if dec_layers is None:
+#             # Try one level deeper
+#             for attr in ['decoder', 'model']:
+#                 sub = getattr(mdl.text_decoder, attr, None)
+#                 if sub is not None:
+#                     dec_layers = _get_module_layers(sub)
+#                     if dec_layers: break
+
+#         if dec_layers is not None:
+#             n_dec   = len(dec_layers)
+#             n_ckpt  = max(1, round(n_dec * checkpoint_fraction))
+#             ckpt_start = n_dec - n_ckpt
+
+#             for i, layer in enumerate(dec_layers):
+#                 if i >= ckpt_start:
+#                     _make_checkpointed_layer(layer)
+
+#             summary['text_decoder'] = {
+#                 'total_layers':        n_dec,
+#                 'checkpointed_layers': n_ckpt,
+#                 'checkpointed_range':  f'L{ckpt_start}–L{n_dec-1}',
+#                 'free_layers':         ckpt_start,
+#             }
+#             print(f'  [GC] Text decoder  : {n_ckpt}/{n_dec} layers checkpointed '
+#                   f'(L{ckpt_start}–L{n_dec-1}) | free: L0–L{ckpt_start-1}')
+#         else:
+#             print('  [GC] Text decoder: no ModuleList found, skipping')
+
+#     except Exception as e:
+#         print(f'  [GC] Text decoder error: {e}')
+
+#     # ── Verify: confirm no parent-level flags survived ────────────────────────
+#     for name, module in mdl.named_modules():
+#         if getattr(module, 'gradient_checkpointing', False):
+#             module.gradient_checkpointing = False
+#             print(f'  [GC] WARNING: killed stray parent GC flag on {name!r}')
+
+#     return summary
+
+# # ── Multi-GPU: keep everything on GPU, direct GPU-to-GPU tensors ──────────────
+# def configure_multi_gpu(mdl):
+#     """
+#     If 2 GPUs: put speech_encoder on cuda:0, everything else on cuda:1.
+#     This maximises VRAM usage across both cards and avoids any CPU bounce.
+#     All cross-component tensor transfers go cuda:0 → cuda:1 directly (NVLink
+#     or PCIe — both stay in GPU address space, no host memory involved).
+#     """
+#     if N_GPU < 2:
+#         print(f'  [GPU] Single GPU ({torch.cuda.get_device_name(0)}) — all on cuda:0')
+#         mdl = mdl.to('cuda:0')
+#         return mdl
+
+#     print(f'  [GPU] 2 GPUs detected — splitting:')
+#     print(f'    cuda:0 ({torch.cuda.get_device_name(0)}): speech_encoder')
+#     print(f'    cuda:1 ({torch.cuda.get_device_name(1)}): text_decoder, t2u, vocoder, embeddings')
+
+#     # Move components explicitly — no device_map='auto' (that uses accelerate
+#     # hooks which add CPU dispatch overhead)
+#     mdl.speech_encoder.to('cuda:0')
+#     mdl.text_decoder.to('cuda:1')
+#     mdl.shared.to('cuda:1')
+#     mdl.lm_head.to('cuda:1')
+#     if hasattr(mdl, 'text_encoder') and mdl.text_encoder is not None:
+#         mdl.text_encoder.to('cuda:1')
+#     if hasattr(mdl, 't2u_model') and mdl.t2u_model is not None:
+#         mdl.t2u_model.to('cuda:1')
+#     if hasattr(mdl, 'vocoder') and mdl.vocoder is not None:
+#         mdl.vocoder.to('cuda:1')
+
+#     # Speech adapter sits between encoder and decoder — put it on cuda:1
+#     # so the enc→adapter→dec transfer is a single cuda:0→cuda:1 hop
+#     for name in ['speech_encoder_front_model', 'adaptor', 'speech_adapter']:
+#         mod = getattr(mdl, name, None)
+#         if mod is not None:
+#             mod.to('cuda:1')
+#             print(f'    cuda:1: {name}')
+
+#     return mdl
+
+# # ── Apply everything ──────────────────────────────────────────────────────────
+# print('Configuring training acceleration...')
+# print()
+
+# # 1. Multi-GPU placement (GPU-only, no CPU bounce)
+# student = configure_multi_gpu(student)
+# print()
+
+# # 2. Partial layer-level gradient checkpointing (last 40% of enc + dec only)
+# gc_summary = apply_partial_gradient_checkpointing(student, checkpoint_fraction=0.40)
+# print()
+
+# # 3. Print final VRAM state
+# print('VRAM after configuration:')
+# gpu_mem()
+# print()
+
+# # 4. Readable summary
+# total_ckpt = sum(v['checkpointed_layers'] for v in gc_summary.values())
+# total_free = sum(v['free_layers']         for v in gc_summary.values())
+# print(f'✓ Gradient checkpointing summary:')
+# for comp, info in gc_summary.items():
+#     pct = info['checkpointed_layers'] / info['total_layers'] * 100
+#     print(f'  {comp:<20} {info["checkpointed_layers"]:>2}/{info["total_layers"]} layers '
+#           f'checkpointed ({pct:.0f}%)  range={info["checkpointed_range"]}')
+# print(f'  {"TOTAL":<20} {total_ckpt} checkpointed, {total_free} free (cached)')
+# print()
+# print('Training speed expectation:')
+# print('  Free layers    → activations cached in VRAM, fast backward')
+# print('  Ckpt layers    → activations recomputed, moderate VRAM saving')
+# print('  No CPU offload → all tensors stay on GPU throughout')
+
+Cell37:
+# # ── Selective gradient checkpointing ─────────────────────────────────────────
+# # Enable ONLY on the two largest components: speech_encoder + text_decoder.
+# # This frees peak VRAM for batch size, without slowing every module.
+
+# def enable_selective_gradient_checkpointing(mdl):
+#     enabled_at = []
+#     # Speech encoder
+#     try:
+#         enc = mdl.speech_encoder
+#         parent = enc.encoder if hasattr(enc, 'encoder') else enc
+#         parent.gradient_checkpointing = True
+#         enabled_at.append('speech_encoder.encoder')
+#     except Exception as e:
+#         print(f'  [GC] speech_encoder skip: {e}')
+#     # Text decoder
+#     try:
+#         mdl.text_decoder.gradient_checkpointing = True
+#         enabled_at.append('text_decoder')
+#     except Exception as e:
+#         print(f'  [GC] text_decoder skip: {e}')
+#     # DO NOT enable for t2u, vocoder, shared embeddings — not worth the slowdown
+#     print(f'✓ Gradient checkpointing ON at: {enabled_at}')
+#     return enabled_at
+
+# gc_locations = enable_selective_gradient_checkpointing(student)
+
+# # Verify: non-targeted modules must NOT have it on
+# for name, module in student.named_modules():
+#     if getattr(module, 'gradient_checkpointing', False):
+#         if not any(loc.split('.')[0] in name for loc in gc_locations):
+#             module.gradient_checkpointing = False
+#             print(f'  [GC] Killed unexpected GC at: {name}')
+
+# print('✓ Selective gradient checkpointing configured.')
+# gpu_mem()
+
+
+Cell38:
+# ── Collation + teacher KD helpers ───────────────────────────────────────────
+
+def collate_s2t_batch(raw_samples):
+    """
+    Convert a list of raw samples to a padded feature batch.
+    Returns None if all samples fail.
+    """
+    valid = []
+    for s in raw_samples:
+        try:
+            feat = processor(audio=s['wav'], sampling_rate=16000, return_tensors='pt')
+            # Tokenize reference (target)
+            with processor.tokenizer.as_target_tokenizer():
+                tgt_ids = processor.tokenizer(
+                    s['ref'], return_tensors='pt',
+                    padding=False, truncation=True, max_length=256
+                ).input_ids.squeeze(0)
+            valid.append({'feat': feat, 'tgt_ids': tgt_ids,
+                          'src_lang': s['src_lang'], 'tgt_lang': s['tgt_lang']})
+        except Exception as e:
+            pass
+    if not valid: return None
+
+    # Pad features
+    feats = [v['feat']['input_features'].squeeze(0) for v in valid]
+    max_f = max(f.shape[0] for f in feats)
+    feat_padded = torch.stack([
+        torch.nn.functional.pad(f, (0,0,0,max_f-f.shape[0])) for f in feats])
+    attn_mask = torch.stack([
+        torch.cat([torch.ones(f.shape[0]), torch.zeros(max_f-f.shape[0])]) for f in feats])
+
+    # Pad tgt_ids  (decoder input)
+    pad_id = processor.tokenizer.pad_token_id or 0
+    tgt_ids_list = [v['tgt_ids'] for v in valid]
+    max_t = max(t.shape[0] for t in tgt_ids_list)
+    dec_input = torch.stack([
+        torch.cat([t, torch.full((max_t-t.shape[0],), pad_id, dtype=torch.long)])
+        for t in tgt_ids_list])
+
+    # Labels: shift right, mask padding with -100
+    labels = dec_input.clone()
+    labels[labels == pad_id] = -100
+
+    return {
+        'input_features': feat_padded,
+        'attention_mask': attn_mask,
+        'dec_input': dec_input,     # for student (remapped vocab)
+        'dec_full':  dec_input,     # for teacher (full vocab) — same here since teacher has full vocab
+        'labels':    labels,
+        'tgt_langs': [v['tgt_lang'] for v in valid],
+        'src_langs': [v['src_lang'] for v in valid],
+    }
+
+print('✓ Collation helper ready.')
+
+
+Cell39:
+# ── Loss function: CE + KD distillation ──────────────────────────────────────
+KD_ALPHA = 0.2
+KD_TEMP  = 4.0
+
+def teacher_topk_logits(batch, device_student='cuda:0'):
+    """Forward through teacher on TEACHER_DEVICE, return top-K on student device."""
+    with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.float16):
+        feat = batch['input_features'].to(TEACHER_DEVICE)
+        mask = batch['attention_mask'].to(TEACHER_DEVICE)
+        dec  = batch['dec_full'].to(TEACHER_DEVICE)
+        out  = teacher(
+            input_features=feat,
+            attention_mask=mask,
+            decoder_input_ids=dec,
+        )
+        logits = out.logits.float()   # [B, T, V_teacher]
+        topk_vals, topk_idx = torch.topk(logits, k=TOP_K_TEACHER, dim=-1)
+        return topk_vals.to(device_student), topk_idx.to(device_student)
+
+def compute_loss(s_logits, labels, teacher_topk_vals, teacher_topk_idx):
+    """
+    CE loss on student labels + sparse KD on teacher top-K.
+    s_logits: [B, T, S_VOCAB]  fp32
+    """
+    B, T, V = s_logits.shape
+
+    # ── CE ────────────────────────────────────────────────────────────────────
+    ce_loss = torch.nn.functional.cross_entropy(
+        s_logits.reshape(-1, V),
+        labels.reshape(-1).to(s_logits.device),
+        ignore_index=-100,
+        reduction='mean',
+    )
+
+    # ── KD ────────────────────────────────────────────────────────────────────
+    if teacher_topk_vals is not None and KD_ALPHA > 0:
+        # Remap teacher vocab indices → student vocab if needed
+        if hasattr(student, '_vocab_remap_to_old'):
+            remap = student._vocab_remap_to_old.to(s_logits.device)
+            # Build reverse map: old_id → new_id
+            old_to_new = torch.full((remap.max().item()+1,), -1, dtype=torch.long,
+                                    device=s_logits.device)
+            for new_id, old_id in enumerate(remap.tolist()):
+                old_to_new[old_id] = new_id
+            tk_idx_remapped = old_to_new[teacher_topk_idx.clamp(0, old_to_new.shape[0]-1)]
+            valid_mask = (tk_idx_remapped >= 0) & (tk_idx_remapped < V)
+        else:
+            tk_idx_remapped = teacher_topk_idx
+            valid_mask = (tk_idx_remapped >= 0) & (tk_idx_remapped < V)
+
+        # Gather student logits at teacher top-K positions
+        tk_idx_clamped = tk_idx_remapped.clamp(0, V-1)
+        s_topk = torch.gather(s_logits, -1, tk_idx_clamped)
+
+        # Soft targets from teacher
+        t_soft = torch.nn.functional.softmax(teacher_topk_vals / KD_TEMP, dim=-1)
+        s_log  = torch.nn.functional.log_softmax(s_topk / KD_TEMP, dim=-1)
+
+        kd_loss = -(t_soft * s_log * valid_mask.float()).sum(-1).mean()
+        kd_loss = kd_loss * (KD_TEMP ** 2)
+
+        total = (1 - KD_ALPHA) * ce_loss + KD_ALPHA * kd_loss
+        return total, ce_loss.item(), kd_loss.item()
+
+    return ce_loss, ce_loss.item(), 0.0
+
+print('✓ Loss function ready.')
+print(f'  KD_ALPHA={KD_ALPHA}  KD_TEMP={KD_TEMP}  TOP_K_TEACHER={TOP_K_TEACHER}')
+
+
+Cell40:
+# ── Training configuration ────────────────────────────────────────────────────
+
+BATCH_SIZE      = 4     # per-step (VRAM safe for full training on T4 16GB)
+GRAD_ACCUM      = 8     # effective batch = 32
+LR_PEAK         = 3e-5
+WEIGHT_DECAY    = 1e-2
+MAX_EPOCHS      = 8
+EVAL_STEPS      = 150
+LOG_STEPS       = 5
+WARMUP_FRACTION = 0.04
+
+N_TRAIN         = len(weighted_ft_indices)
+STEPS_PER_EPOCH = math.ceil(N_TRAIN / (BATCH_SIZE * GRAD_ACCUM))
+TOTAL_STEPS     = STEPS_PER_EPOCH * MAX_EPOCHS
+
+print(f'Effective batch size : {BATCH_SIZE * GRAD_ACCUM}')
+print(f'Training samples     : {N_TRAIN} (with Bengali 2x oversampling)')
+print(f'Steps per epoch      : {STEPS_PER_EPOCH}')
+print(f'Total steps          : {TOTAL_STEPS}')
+print(f'Vocab size           : {S_VOCAB}')
+
+from torch.optim import AdamW
+from torch.optim.lr_scheduler import OneCycleLR
+
+# Parameter groups: output layers at lower LR, rest at full LR
+trainable_groups = [
+    {
+        'params': [p for n, p in student.named_parameters()
+                   if p.requires_grad and any(x in n for x in ['lm_head','shared'])],
+        'lr': LR_PEAK * 0.25, 'name': 'output_layers',
+    },
+    {
+        'params': [p for n, p in student.named_parameters()
+                   if p.requires_grad and not any(x in n for x in ['lm_head','shared'])],
+        'lr': LR_PEAK, 'name': 'core',
+    },
+]
+
+# Verify no param missed / double-counted
+all_ids    = set(id(p) for p in student.parameters() if p.requires_grad)
+group_ids  = set(id(p) for g in trainable_groups for p in g['params'])
+assert all_ids == group_ids, f'Param mismatch! {len(all_ids)} trainable vs {len(group_ids)} in groups'
+
+for g in trainable_groups:
+    n = sum(p.numel() for p in g['params'])
+    print(f"  Group '{g['name']}': {n/1e6:.2f}M @ lr={g['lr']:.1e}")
+
+optimizer = AdamW(trainable_groups, weight_decay=WEIGHT_DECAY, betas=(0.9, 0.98), eps=1e-6)
+scheduler = OneCycleLR(optimizer, max_lr=[g['lr'] for g in trainable_groups],
+                       total_steps=TOTAL_STEPS, pct_start=WARMUP_FRACTION,
+                       anneal_strategy='cos', div_factor=25.0, final_div_factor=1e4)
+scaler    = torch.cuda.amp.GradScaler()
+
+all_trainable_params = [p for p in student.parameters() if p.requires_grad]
+print(f'\n✓ Optimizer ready. Total trainable: {sum(p.numel() for p in all_trainable_params)/1e6:.1f}M')
+print(f'  All fp32: {all(p.dtype == torch.float32 for p in all_trainable_params)}')
+
+
+Cell41:
+# ── Training loop ─────────────────────────────────────────────────────────────
+
+def run_phase5_training():
+    best_ben_bleu  = 0.0
+    best_step      = 0
+    opt_step       = 0
+    patience_left  = 30
+    epoch_seeds    = {}
+
+    ckpt = load_latest_checkpoint('phase5_ft')
+    if ckpt:
+        try:
+            student.load_state_dict(ckpt['model_state'], strict=False)
+            optimizer.load_state_dict(ckpt['optimizer_state'])
+            opt_step      = ckpt.get('opt_step', 0)
+            best_ben_bleu = ckpt.get('best_ben_bleu', 0.0)
+            best_step     = ckpt.get('best_step', 0)
+            epoch_seeds   = ckpt.get('epoch_seeds', {})
+            print(f'[resume] step={opt_step}  best_ben_bleu={best_ben_bleu:.2f}')
+            for n, p in student.named_parameters():
+                if p.requires_grad and p.dtype != torch.float32:
+                    p.data = p.data.to(torch.float32)
+            enable_selective_gradient_checkpointing(student)
+        except Exception as e:
+            print(f'[resume failed] {e}')
+        finally:
+            del ckpt; free_cpu_ram()
+
+    start_epoch  = opt_step // STEPS_PER_EPOCH
+    skip_batches = (opt_step % STEPS_PER_EPOCH) * GRAD_ACCUM
+
+    print(f'\n{"="*68}')
+    print(f'  PHASE 5 — Full Fine-Tuning (no LoRA), Bengali-Focused')
+    print(f'  Teacher: {TEACHER_DEVICE}  |  Student: cuda:0')
+    print(f'  Trainable: {sum(p.numel() for p in all_trainable_params)/1e6:.1f}M')
+    print(f'  BATCH={BATCH_SIZE}  ACCUM={GRAD_ACCUM}  LR={LR_PEAK:.1e}  KD_ALPHA={KD_ALPHA}')
+    print(f'  Gradient checkpointing: speech_encoder + text_decoder only')
+    print(f'{"="*68}\n')
+
+    for epoch in range(start_epoch, MAX_EPOCHS):
+        if epoch not in epoch_seeds:
+            epoch_seeds[epoch] = random.randint(0, 2**31)
+        rng = random.Random(epoch_seeds[epoch])
+        epoch_indices = weighted_ft_indices.copy()
+        rng.shuffle(epoch_indices)
+
+        ep_ce = ep_kd = ep_n = 0
+        optimizer.zero_grad(set_to_none=True)
+        accum = 0
+
+        for batch_start in range(0, len(epoch_indices), BATCH_SIZE):
+            global_batch_idx = batch_start // BATCH_SIZE
+            if epoch == start_epoch and global_batch_idx < skip_batches // GRAD_ACCUM:
+                continue
+
+            t0  = time.time()
+            raw = [ft_samples[i] for i in epoch_indices[batch_start:batch_start+BATCH_SIZE]]
+            batch = collate_s2t_batch(raw)
+            del raw
+            if batch is None:
+                continue
+
+            # Teacher KD
+            topk_vals = topk_idx = None
+            try:
+                topk_vals, topk_idx = teacher_topk_logits(batch, device_student='cuda:0')
+                L = batch['labels'].shape[1]
+                topk_vals = topk_vals[:, :L, :].contiguous()
+                topk_idx  = topk_idx[:, :L, :].contiguous()
+            except Exception as e:
+                print(f'  [teacher skip] {e}')
+                del batch; free_cpu_ram(); continue
+
+            # Student forward
+            try:
+                with torch.cuda.amp.autocast(dtype=torch.float16):
+                    out = student(
+                        input_features    = batch['input_features'].to('cuda:0'),
+                        attention_mask    = batch['attention_mask'].to('cuda:0'),
+                        decoder_input_ids = batch['dec_input'].clamp(0, S_VOCAB-1).to('cuda:0'),
+                    )
+                s_logits = out.logits.float()[:, :L, :]
+            except torch.cuda.OutOfMemoryError:
+                torch.cuda.empty_cache(); free_cpu_ram()
+                print(f'  [OOM] step {opt_step}')
+                del batch, topk_vals, topk_idx; continue
+
+            labels_dev = batch['labels'].to('cuda:0')
+            del batch
+
+            try:
+                loss, ce_v, kd_v = compute_loss(s_logits, labels_dev, topk_vals, topk_idx)
+            except Exception as e:
+                print(f'  [loss error] {e}')
+                del s_logits, topk_vals, topk_idx, labels_dev; continue
+            finally:
+                del topk_vals, topk_idx
+
+            scaler.scale(loss / GRAD_ACCUM).backward()
+            del s_logits, labels_dev, loss
+            accum += 1
+            ep_ce += ce_v; ep_kd += kd_v; ep_n += 1
+
+            if accum >= GRAD_ACCUM:
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(all_trainable_params, 1.0)
+                scaler.step(optimizer); scaler.update()
+                scheduler.step()
+                optimizer.zero_grad(set_to_none=True)
+                accum = 0; opt_step += 1
+
+                if opt_step % LOG_STEPS == 0:
+                    lr_now = scheduler.get_last_lr()[-1]
+                    elapsed = time.time() - t0
+                    print(f'  [E{epoch+1} S{opt_step:>4}] CE={ep_ce/ep_n:.4f} '
+                          f'KD={ep_kd/ep_n:.4f} lr={lr_now:.2e} t={elapsed:.1f}s')
+                    ep_ce = ep_kd = ep_n = 0
+
+                if opt_step % EVAL_STEPS == 0:
+                    student.eval()
+                    ben_bleu_ev, ben_chrf_ev = quick_eval_text(student, list(eval_samples), max_samples=24)
+                    print(f'\n  [EVAL S{opt_step}] Ben text-BLEU={ben_bleu_ev:.2f}  '
+                          f'Ben text-ChrF={ben_chrf_ev:.2f}')
+                    gpu_mem()
+                    student.train()
+                    enable_selective_gradient_checkpointing(student)
+
+                    if ben_bleu_ev > best_ben_bleu:
+                        best_ben_bleu = ben_bleu_ev
+                        best_step     = opt_step
+                        patience_left = 30
+                        save_checkpoint(dict(
+                            model_state    = student.state_dict(),
+                            optimizer_state= optimizer.state_dict(),
+                            opt_step       = opt_step,
+                            best_ben_bleu  = best_ben_bleu,
+                            best_step      = best_step,
+                            epoch_seeds    = epoch_seeds,
+                        ), 'phase5_ft', opt_step, keep=3)
+                        print(f'  ★ New best: text-BLEU={best_ben_bleu:.2f} @ step {best_step}')
+                    else:
+                        patience_left -= 1
+                        if patience_left <= 0:
+                            print(f'\n  Early stop: no improvement for 30 eval intervals.')
+                            return opt_step, best_ben_bleu
+
+        print(f'  Epoch {epoch+1} done. best_ben_bleu={best_ben_bleu:.2f} (step {best_step})')
+        free_cpu_ram()
+
+    print(f'\n✓ Training complete. best_ben_bleu={best_ben_bleu:.2f} @ step {best_step}')
+    return opt_step, best_ben_bleu
+
+# ── Run training ──────────────────────────────────────────────────────────────
+final_step, final_ben_bleu = run_phase5_training()
+print(f'\nFinal: step={final_step}  best_ben_bleu={final_ben_bleu:.2f}')
+
+
+Cell42:
+# ── Load best checkpoint and save merged model ────────────────────────────────
+
+print('Loading best Phase 5 checkpoint...')
+best_ckpt = load_latest_checkpoint('phase5_ft')
+if best_ckpt:
+    student.load_state_dict(best_ckpt['model_state'], strict=False)
+    print(f'Best step: {best_ckpt.get("best_step","?")}  '
+          f'Ben BLEU: {best_ckpt.get("best_ben_bleu",0.0):.2f}')
+    del best_ckpt; free_cpu_ram()
+
+student.eval()
+save_model_to_drive(student, processor, 'phase5_ft_merged')
+print('✓ Saved phase5_ft_merged')
+
+
+Cell43:
+# ── Final benchmark ───────────────────────────────────────────────────────────
+
+p5_bench = load_latest_checkpoint('phase5_benchmark')
+if p5_bench and p5_bench.get('summary', {}).get('avg_bleu', 0) > 0:
+    results  = p5_bench['results']
+    summary  = p5_bench['summary']
+    detailed = p5_bench.get('detailed_summary')
+    print('Loaded Phase 5 benchmark from checkpoint.')
+    if not detailed:
+        detailed = compute_detailed_summary(results, 'P5_FullFT', summary['params_M'])
+else:
+    results, summary = run_benchmark(student, list(eval_samples), 'P5_FullFT', save_n=4)
+    detailed = compute_detailed_summary(results, 'P5_FullFT', summary['params_M'])
+    save_checkpoint(dict(results=results, summary=summary, detailed_summary=detailed),
+                    'phase5_benchmark', 0)
+
+store_summary(summary)
+store_detailed_summary(detailed)
+print_detailed_summary_table('P5_FullFT')
+
+# Compare against teacher
+p0_detail = ALL_DETAILED_SUMMARIES.get('P0_V1_Baseline')
+p5_detail = ALL_DETAILED_SUMMARIES.get('P5_FullFT')
+if p0_detail and p5_detail:
+    print('\n' + '='*50)
+    print('  TEACHER vs STUDENT (Bengali pairs):')
+    print('='*50)
+    for pk in sorted(p5_detail['pair_stats']):
+        if 'ben' not in pk: continue
+        t_b = p0_detail['pair_stats'].get(pk, {}).get('avg_bleu', 0)
+        t_c = p0_detail['pair_stats'].get(pk, {}).get('avg_chrf', 0)
+        s_b = p5_detail['pair_stats'][pk]['avg_bleu']
+        s_c = p5_detail['pair_stats'][pk]['avg_chrf']
+        delta_b = s_b - t_b; delta_c = s_c - t_c
+        star_b = '★' if delta_b > 0 else ' '
+        star_c = '★' if delta_c > 0 else ' '
+        print(f'  {pk:<18}  BLEU: Teacher={t_b:.2f}  Student={s_b:.2f}  Δ={delta_b:+.2f}{star_b}'
+              f'  |  ChrF: Teacher={t_c:.2f}  Student={s_c:.2f}  Δ={delta_c:+.2f}{star_c}')
+    print('='*50)
+
+plot_phase_comparison()
+plot_detailed_phase_comparison()
+
+
+Cell44:
+## Summary
+
+| Phase | Description | Enc | Dec | T2U | Metric |
+|---|---|---|---|---|---|
+| P0 | Teacher baseline | 24 | 24 | 6+6 | BLEU+ChrF |
+| P1 | Vocab trim 4L | 24 | 24 | 6+6 | BLEU+ChrF |
+| P2 | Enc prune 24→8 | 8 | 24 | 6+6 | text-BLEU→ChrF |
+| P3 | T2U prune 6→4 enc/dec | 16 | 24 | 4+4 | ASR-BLEU→ChrF |
+| P4 | Dec prune 24→8 | **8** | **8** | 4+4 | text-BLEU→ChrF |
+| P5 | Full fine-tune | 8 | 8 | 4+4 | Bengali-BLEU/ChrF |
+
+**Target**: P5 Bengali BLEU + ChrF ≥ P0 (teacher).
