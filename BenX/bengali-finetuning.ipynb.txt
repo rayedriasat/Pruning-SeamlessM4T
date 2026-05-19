@@ -924,33 +924,135 @@ class ParquetStreamingDataset:
         audio_cell = table.to_pandas().iloc[row_idx]['audio']
         return _load_wav(audio_cell)
 
-class MultilingualStreamingDataset:
-    def __init__(self, parquet_cache_dir, lang_pairs, split='train', max_samples_per_pair=25):
-        self.datasets = []
+class ChunkedStreamingDataset:
+    def __init__(self, index_samples, chunk_size=4000, prefetch=True):
+        import threading
+        self.index_samples = index_samples
+        self.chunk_size = chunk_size
+        self.prefetch = prefetch
+        self._chunk_start = -1
+        self._chunk_data = {}
+        self._next_chunk = {}
+        self._lock = threading.Lock()
+        self._prefetch_thread = None
+
+    def _load_chunk_into(self, chunk_start, target_dict):
+        target_dict.clear()
+        end = min(chunk_start + self.chunk_size, len(self.index_samples))
+        chunk_indices = list(range(chunk_start, end))
+        by_file = {}
+        for idx in chunk_indices:
+            s = self.index_samples[idx]
+            f = s['_src_file']
+            if f not in by_file: by_file[f] = []
+            by_file[f].append((idx, s['_src_idx']))
+        for parquet_file, idx_pairs in by_file.items():
+            try:
+                table = pq.read_table(parquet_file, columns=['audio'])
+                df_col = table.column('audio')
+                for global_idx, row_idx in idx_pairs:
+                    try:
+                        audio_cell = df_col[row_idx].as_py()
+                        target_dict[global_idx] = _load_wav(audio_cell)
+                    except Exception as e:
+                        target_dict[global_idx] = np.zeros(16000, dtype=np.float32)
+                del table, df_col
+            except Exception as e:
+                for global_idx, _ in idx_pairs:
+                    target_dict[global_idx] = np.zeros(16000, dtype=np.float32)
+
+    def _ensure_chunk(self, idx):
+        chunk_start = (idx // self.chunk_size) * self.chunk_size
+        if chunk_start == self._chunk_start: return
+        with self._lock:
+            if chunk_start == self._chunk_start: return
+            if self._next_chunk and chunk_start != self._chunk_start:
+                next_start = self._chunk_start + self.chunk_size
+                if chunk_start == next_start and self._next_chunk:
+                    if self._prefetch_thread and self._prefetch_thread.is_alive():
+                        self._prefetch_thread.join()
+                    self._chunk_data = self._next_chunk
+                    self._chunk_start = chunk_start
+                    self._next_chunk = {}
+                else:
+                    new_chunk = {}
+                    self._load_chunk_into(chunk_start, new_chunk)
+                    self._chunk_data = new_chunk
+                    self._chunk_start = chunk_start
+            else:
+                new_chunk = {}
+                self._load_chunk_into(chunk_start, new_chunk)
+                self._chunk_data = new_chunk
+                self._chunk_start = chunk_start
+            if self.prefetch:
+                import threading
+                next_start = chunk_start + self.chunk_size
+                if next_start < len(self.index_samples):
+                    self._next_chunk = {}
+                    self._prefetch_thread = threading.Thread(
+                        target=self._load_chunk_into,
+                        args=(next_start, self._next_chunk),
+                        daemon=True
+                    )
+                    self._prefetch_thread.start()
+
+    def __len__(self): return len(self.index_samples)
+    
+    def __getitem__(self, idx):
+        if isinstance(idx, slice):
+            return [self[i] for i in range(*idx.indices(len(self)))]
+        self._ensure_chunk(idx)
+        sample = self.index_samples[idx].copy()
+        if idx in self._chunk_data:
+            sample['wav'] = self._chunk_data[idx]
+        else:
+            sample['wav'] = np.zeros(16000, dtype=np.float32)
+        return sample
+
+
+class ChunkedMultilingualDataset:
+    def __init__(self, parquet_cache_dir, lang_pairs, split='train', max_samples_per_pair=25, chunk_size=4000):
+        all_metadata = []
         for src, tgt in lang_pairs:
             ds = ParquetStreamingDataset(parquet_cache_dir, src, tgt, split, max_samples_per_pair)
-            if len(ds) > 0: self.datasets.append(ds)
-        self.index = [(di, si) for di, ds in enumerate(self.datasets)
-                      for si in range(len(ds))]
-        print(f'\n✓ Multilingual dataset ready: {len(self.index)} total samples')
-        print(f'  RAM usage: ~{len(self.index)*0.001:.1f} MB (metadata only)')
+            all_metadata.extend(ds.samples)
+        self._chunked = ChunkedStreamingDataset(all_metadata, chunk_size=chunk_size, prefetch=True)
+        print(f'\n✓ Chunked dataset ready: {len(all_metadata)} total samples')
 
-    def __len__(self):  return len(self.index)
-    def __getitem__(self, idx):
-        di, si = self.index[idx]; return self.datasets[di][si]
+    def __len__(self):  return len(self._chunked)
+    def __getitem__(self, idx): return self._chunked[idx]
     def __iter__(self):
         for i in range(len(self)): yield self[i]
+
+def chunk_friendly_shuffle(indices, chunk_size=4000, rng=None):
+    if rng is None:
+        import random
+        rng = random
+    from collections import defaultdict
+    chunk_to_idx = defaultdict(list)
+    for idx in indices:
+        chunk_id = idx // chunk_size
+        chunk_to_idx[chunk_id].append(idx)
+    chunk_ids = list(chunk_to_idx.keys())
+    rng.shuffle(chunk_ids)
+    order = []
+    for cid in chunk_ids:
+        c_idx = chunk_to_idx[cid]
+        rng.shuffle(c_idx)
+        order.extend(c_idx)
+    return order
 
 print('✓ Streaming dataset classes ready.')
 
 
 Cell17:
 print('Loading evaluation samples (streaming mode)...')
-eval_samples = MultilingualStreamingDataset(
+eval_samples = ChunkedMultilingualDataset(
     parquet_cache_dir=LOCAL_PARQUET_CACHE,
     lang_pairs=EVAL_LANG_PAIRS,
     split='test',
-    max_samples_per_pair=N_EVAL_PER_PAIR
+    max_samples_per_pair=N_EVAL_PER_PAIR,
+    chunk_size=2000
 )
 
 print(f'\n✓ Loaded {len(eval_samples)} multilingual eval samples')
@@ -965,11 +1067,12 @@ print(f'  Reference: {test_s["ref"][:60]}...')
 
 Cell18:
 print('Loading training samples (streaming mode)...')
-ft_samples = MultilingualStreamingDataset(
+ft_samples = ChunkedMultilingualDataset(
     parquet_cache_dir=LOCAL_PARQUET_CACHE,
     lang_pairs=EVAL_LANG_PAIRS,
     split='train',
-    max_samples_per_pair=N_TRAIN_PER_PAIR
+    max_samples_per_pair=N_TRAIN_PER_PAIR,
+    chunk_size=4000
 )
 
 print(f'\n✓ Loaded {len(ft_samples)} multilingual training samples')
@@ -1647,11 +1750,11 @@ def build_bengali_weighted_ft_dataset(ft_samples, ben_weight=2.0):
     """
     indices = []
     for i in range(len(ft_samples)):
-        meta = ft_samples.datasets[ft_samples.index[i][0]].samples[ft_samples.index[i][1]]
+        meta = ft_samples._chunked.index_samples[i]
         is_ben = ('ben' in meta['src_lang']) or ('ben' in meta['tgt_lang'])
         weight = int(ben_weight) if is_ben else 1
         indices.extend([i] * weight)
-    random.shuffle(indices)
+    indices = chunk_friendly_shuffle(indices, chunk_size=4000)
     print(f'Weighted FT indices: {len(indices)} '
           f'(base {len(ft_samples)}, ben weight={ben_weight}x)')
     return indices
@@ -2209,7 +2312,7 @@ def run_phase5_training():
             epoch_seeds[epoch] = random.randint(0, 2**31)
         rng = random.Random(epoch_seeds[epoch])
         epoch_indices = weighted_ft_indices.copy()
-        rng.shuffle(epoch_indices)
+        epoch_indices = chunk_friendly_shuffle(epoch_indices, chunk_size=4000, rng=rng)
 
         ep_ce = ep_kd = ep_n = 0
         optimizer.zero_grad(set_to_none=True)
