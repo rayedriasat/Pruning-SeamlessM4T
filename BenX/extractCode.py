@@ -26,4 +26,4 @@ def notebook_to_text(ipynb_path, output_txt_path):
 
 
 # Example usage
-notebook_to_text("./bengali-finetuning.ipynb", "bengali-finetuning.ipynb.txt")
+notebook_to_text("./bengali-seamless-notebook.ipynb", "bengali-seamless-notebook.ipynb.txt")
