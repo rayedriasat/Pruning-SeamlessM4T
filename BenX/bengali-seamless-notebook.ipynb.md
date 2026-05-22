@@ -1,6 +1,6 @@
 # Notebook: `./bengali-seamless-notebook.ipynb`
 
-> Kernel: **Python 3** | Total cells: **79**
+> Kernel: **Python 3** | Total cells: **82**
 
 ---
 
@@ -19,7 +19,7 @@
 
 ---
 
-## Cell 3 — `code` (execution #1)
+## Cell 3 — `code`
 
 ```python
 import os, sys, subprocess, pathlib, re, glob, json, gc, copy, time, math, shutil, random
@@ -49,17 +49,9 @@ print(f'Platform : {PLATFORM}')
 print(f'Work dir : {WORK_DIR}')
 ```
 
-### Output
-
-**[stdout]**
-```
-Platform : kaggle
-Work dir : /kaggle/working
-```
-
 ---
 
-## Cell 4 — `code` (execution #2)
+## Cell 4 — `code`
 
 ```python
 if ON_COLAB:
@@ -103,24 +95,9 @@ except Exception as e:
 
 ```
 
-### Output
-
-**[stdout]**
-```
-rclone v1.74.1
-Drive root:
-           0 2026-04-17 11:03:10        -1 Colab Notebooks
-           0 2025-11-10 11:33:43        -1 ScholarMate
-           0 2026-04-05 12:59:09        -1 cse465
-           0 2026-04-12 12:42:04        -1 cse465v5
-           0 2026-05-14 11:16:57        -1 seamTL
-           0 2026-05-17 16:27:30  
-HuggingFace login: OK
-```
-
 ---
 
-## Cell 5 — `code` (execution #3)
+## Cell 5 — `code`
 
 ```python
 subprocess.run([
@@ -134,22 +111,9 @@ print('All packages installed.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 33.6 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.1/84.1 kB 6.9 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.8/100.8 kB 7.9 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 87.7 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 kB 9.1 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 788.2/788.2 kB 42.6 MB/s eta 0:00:00
-All packages installed.
-```
-
 ---
 
-## Cell 6 — `code` (execution #4)
+## Cell 6 — `code`
 
 ```python
 import torch, numpy as np, random
@@ -210,19 +174,9 @@ print('Core utilities ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-PyTorch 2.10.0+cu128 | CUDA True | GPUs 2
-  GPU0: Tesla T4  15.6 GB
-  GPU1: Tesla T4  15.6 GB
-Core utilities ready.
-```
-
 ---
 
-## Cell 7 — `code` (execution #5)
+## Cell 7 — `code`
 
 ```python
 import queue, threading
@@ -328,16 +282,9 @@ print('Checkpoint helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Checkpoint helpers ready.
-```
-
 ---
 
-## Cell 8 — `code` (execution #6)
+## Cell 8 — `code`
 
 ```python
 import torch.nn as nn, torch.nn.functional as F
@@ -514,16 +461,9 @@ print('Model I/O helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Model I/O helpers ready.
-```
-
 ---
 
-## Cell 9 — `code` (execution #7)
+## Cell 9 — `code`
 
 ```python
 from collections import defaultdict
@@ -753,15 +693,6 @@ print('Summary + plotting helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] No checkpoint for 'all_summaries'
-[ckpt] No checkpoint for 'all_detailed_summaries'
-Summary + plotting helpers ready.
-```
-
 ---
 
 ## Cell 10 — `markdown`
@@ -770,7 +701,7 @@ Summary + plotting helpers ready.
 
 ---
 
-## Cell 11 — `code` (execution #8)
+## Cell 11 — `code`
 
 ```python
 # ── Bengali-centric language pairs: Ben↔X and X↔Ben ─────────────────────────
@@ -813,16 +744,6 @@ print(f'Train samples    : {N_TRAIN_PER_PAIR} per pair = {N_TRAIN_PER_PAIR*len(E
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Target languages : ['ben', 'eng', 'hin', 'arb']
-Lang pairs (6): [('ben', 'eng'), ('eng', 'ben'), ('ben', 'hin'), ('hin', 'ben'), ('ben', 'arb'), ('arb', 'ben')]
-Eval samples     : 33 per pair  = 198 total
-Train samples    : 4000 per pair = 24000 total
-```
-
 ---
 
 ## Cell 12 — `markdown`
@@ -831,7 +752,7 @@ Train samples    : 4000 per pair = 24000 total
 
 ---
 
-## Cell 13 — `code` (execution #9)
+## Cell 13 — `code`
 
 ```python
 import gc as _gc
@@ -948,18 +869,9 @@ print('  - Whisper-medium : English')
 print('  - MMS-1b-all     : Bengali, Hindi, Arabic')
 ```
 
-### Output
-
-**[stdout]**
-```
-ASR stack ready with dynamic VRAM offloading:
-  - Whisper-medium : English
-  - MMS-1b-all     : Bengali, Hindi, Arabic
-```
-
 ---
 
-## Cell 14 — `code` (execution #10)
+## Cell 14 — `code`
 
 ```python
 from sacrebleu.metrics import BLEU, CHRF
@@ -1058,13 +970,6 @@ print('Inference helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Inference helpers ready.
-```
-
 ---
 
 ## Cell 15 — `markdown`
@@ -1073,7 +978,7 @@ Inference helpers ready.
 
 ---
 
-## Cell 16 — `code` (execution #11)
+## Cell 16 — `code`
 
 ```python
 import pyarrow.parquet as pq
@@ -1174,16 +1079,9 @@ print('✓ Streaming dataset classes ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ Streaming dataset classes ready.
-```
-
 ---
 
-## Cell 17 — `code` (execution #12)
+## Cell 17 — `code`
 
 ```python
 print('Loading evaluation samples (streaming mode)...')
@@ -1205,33 +1103,9 @@ print(f'  Reference: {test_s["ref"][:60]}...')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Loading evaluation samples (streaming mode)...
-  Indexed 33 samples from ben→eng
-  Indexed 33 samples from eng→ben
-  Indexed 33 samples from ben→hin
-  Indexed 33 samples from hin→ben
-  Indexed 33 samples from ben→arb
-  Indexed 33 samples from arb→ben
-
-✓ Multilingual dataset ready: 198 total samples
-  RAM usage: ~0.2 MB (metadata only)
-
-✓ Loaded 198 multilingual eval samples
-  Language pairs: [('ben', 'eng'), ('eng', 'ben'), ('ben', 'hin'), ('hin', 'ben'), ('ben', 'arb'), ('arb', 'ben')]
-
-✓ Test sample loaded:
-  ID: ben2eng_1660
-  Audio shape: (216960,)
-  Reference: romanticism had a large element of cultural determinism draw...
-```
-
 ---
 
-## Cell 18 — `code` (execution #13)
+## Cell 18 — `code`
 
 ```python
 # Cell 18 — Training samples (streaming metadata only, audio loaded per-batch)
@@ -1252,29 +1126,9 @@ print(f'  Language pairs: {len(EVAL_LANG_PAIRS)}')
 print(f'  (Will be upgraded to ChunkedMultilingualDataset below)')
 ```
 
-### Output
-
-**[stdout]**
-```
-Loading training samples (streaming mode)...
-  Indexed 1449 samples from ben→eng
-  Indexed 1449 samples from eng→ben
-  Indexed 1288 samples from ben→hin
-  Indexed 1288 samples from hin→ben
-  Indexed 1250 samples from ben→arb
-  Indexed 1250 samples from arb→ben
-
-✓ Multilingual dataset ready: 7974 total samples
-  RAM usage: ~8.0 MB (metadata only)
-
-✓ Loaded 7974 multilingual training samples
-  Language pairs: 6
-  (Will be upgraded to ChunkedMultilingualDataset below)
-```
-
 ---
 
-## Cell 19 — `code` (execution #14)
+## Cell 19 — `code`
 
 ```python
 # ── Cell 18-A: ChunkedStreamingDataset ────────────────────────────────────────
@@ -1426,16 +1280,9 @@ class ChunkedStreamingDataset:
 print('✓ ChunkedStreamingDataset ready.')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ ChunkedStreamingDataset ready.
-```
-
 ---
 
-## Cell 20 — `code` (execution #15)
+## Cell 20 — `code`
 
 ```python
 # ── Cell 18-B: ChunkedMultilingualDataset ────────────────────────────────────
@@ -1495,16 +1342,9 @@ class ChunkedMultilingualDataset:
 print('✓ ChunkedMultilingualDataset ready.')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ ChunkedMultilingualDataset ready.
-```
-
 ---
 
-## Cell 21 — `code` (execution #16)
+## Cell 21 — `code`
 
 ```python
 # ── Cell 18-C: Rebuild ft_samples with chunk caching ─────────────────────────
@@ -1525,37 +1365,9 @@ print(f'  Total training samples : {len(ft_samples)}')
 print(f'  eval_samples unchanged : {len(eval_samples)} (MultilingualStreamingDataset)')
 ```
 
-### Output
-
-**[stdout]**
-```
-Rebuilding ft_samples with chunk caching...
-  Indexed 1449 samples from ben→eng
-  Indexed 1449 samples from eng→ben
-  Indexed 1288 samples from ben→hin
-  Indexed 1288 samples from hin→ben
-  Indexed 1250 samples from ben→arb
-  Indexed 1250 samples from arb→ben
-  ChunkedStreamingDataset: 7974 samples | chunk=4000 | RAM/chunk≈2000MB
-
-✓ ChunkedMultilingualDataset: 7974 samples
-  arb→ben: 1250
-  ben→arb: 1250
-  ben→eng: 1449
-  ben→hin: 1288
-  eng→ben: 1449
-  hin→ben: 1288
-  Chunk size : 4000
-  RAM/chunk  : ~2000 MB
-
-✓ ft_samples upgraded to ChunkedMultilingualDataset
-  Total training samples : 7974
-  eval_samples unchanged : 198 (MultilingualStreamingDataset)
-```
-
 ---
 
-## Cell 22 — `code` (execution #17)
+## Cell 22 — `code`
 
 ```python
 from transformers import SeamlessM4Tv2ForSpeechToSpeech, SeamlessM4TProcessor
@@ -1603,43 +1415,6 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Syncing from rclone remote...
-[ckpt] 11 file(s) available
-  all_detailed_summaries_step000000.pt                        0.0 MB
-  all_summaries_step000000.pt                                 0.0 MB
-  phase0_benchmark_step000000.pt                              0.1 MB
-  phase1_benchmark_step000000.pt                              0.1 MB
-  phase1_vocab_step000000.pt                                  0.6 MB
-  phase2_enc_pruning_step000000.pt                            0.0 MB
-  phase3_t2u_dec_pruning_step000000.pt                        0.0 MB
-  phase3_t2u_enc_pruning_step000000.pt                        0.0 MB
-  phase4_benchmark_step000000.pt                              0.1 MB
-  phase4_dec_pruning_step000000.pt                            0.0 MB
-  phase5_benchmark_step000000.pt                              0.1 MB
-=================================================================
-  Platform : kaggle   Time : 2026-05-22 05:33
-  Checkpoint files: 11
-    all_detailed_summaries_step000000.pt                    0.0 MB
-    all_summaries_step000000.pt                             0.0 MB
-    phase0_benchmark_step000000.pt                          0.1 MB
-    phase1_benchmark_step000000.pt                          0.1 MB
-    phase1_vocab_step000000.pt                              0.6 MB
-    phase2_enc_pruning_step000000.pt                        0.0 MB
-    phase3_t2u_dec_pruning_step000000.pt                    0.0 MB
-    phase3_t2u_enc_pruning_step000000.pt                    0.0 MB
-    phase4_benchmark_step000000.pt                          0.1 MB
-    phase4_dec_pruning_step000000.pt                        0.0 MB
-    phase5_benchmark_step000000.pt                          0.1 MB
-  GPU: Tesla T4  VRAM: 15.6 GB
-=================================================================
-
-✓ ALL SETUP CELLS COMPLETE — proceed to phases.
-```
-
 ---
 
 ## Cell 23 — `markdown`
@@ -1650,7 +1425,7 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ---
 
-## Cell 24 — `code` (execution #18)
+## Cell 24 — `code`
 
 ```python
 def run_benchmark(mdl, samples, label='model', save_n=2, max_samples=None):
@@ -1731,13 +1506,6 @@ print('Benchmark functions ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Benchmark functions ready.
-```
-
 ---
 
 ## Cell 25 — `markdown`
@@ -1757,7 +1525,7 @@ Benchmark functions ready.
 
 ---
 
-## Cell 26 — `code` (execution #19)
+## Cell 26 — `code`
 
 ```python
 import torch
@@ -1770,16 +1538,9 @@ transformers.models.seamless_m4t_v2.modeling_seamless_m4t_v2.SeamlessM4Tv2ForSpe
 print("✓ SeamlessM4Tv2 class device property successfully patched to cuda:1")
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ SeamlessM4Tv2 class device property successfully patched to cuda:1
-```
-
 ---
 
-## Cell 27 — `code` (execution #20)
+## Cell 27 — `code`
 
 ```python
 # ── Quick evaluation helpers ──────────────────────────────────────────────────
@@ -1929,18 +1690,9 @@ print('chunk_friendly_shuffle ready.')
 print('quick_eval_chrf ready.')
 ```
 
-### Output
-
-**[stdout]**
-```
-Quick eval helpers ready.
-chunk_friendly_shuffle ready.
-quick_eval_chrf ready.
-```
-
 ---
 
-## Cell 28 — `code` (execution #21)
+## Cell 28 — `code`
 
 ```python
 # ── Encoder pruning helpers ───────────────────────────────────────────────────
@@ -2070,16 +1822,9 @@ print('Encoder pruning helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Encoder pruning helpers ready.
-```
-
 ---
 
-## Cell 29 — `code` (execution #22)
+## Cell 29 — `code`
 
 ```python
 # ── Text Decoder pruning helpers ──────────────────────────────────────────────
@@ -2218,16 +1963,9 @@ print('Decoder pruning helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Decoder pruning helpers ready.
-```
-
 ---
 
-## Cell 30 — `code` (execution #23)
+## Cell 30 — `code`
 
 ```python
 # ── T2U pruning helpers (ASR-BLEU primary, ASR-ChrF fallback) ────────────────
@@ -2313,13 +2051,6 @@ print('T2U pruning helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-T2U pruning helpers ready.
-```
-
 ---
 
 ## Cell 31 — `markdown`
@@ -2330,7 +2061,7 @@ T2U pruning helpers ready.
 
 ---
 
-## Cell 32 — `code` (execution #24)
+## Cell 32 — `code`
 
 ```python
 # # Load teacher/base model
@@ -2342,7 +2073,7 @@ T2U pruning helpers ready.
 
 ---
 
-## Cell 33 — `code` (execution #25)
+## Cell 33 — `code`
 
 ```python
 p0_bench = load_latest_checkpoint('phase0_benchmark')
@@ -2367,126 +2098,6 @@ plot_detailed_phase_comparison()
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Loaded phase0_benchmark_step000000.pt
-Loaded Phase 0 benchmark from checkpoint.
-[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
-[summary] Stored P0_V1_Baseline (1 total)
-[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
-[detailed] Stored P0_V1_Baseline
-
-================================================================================
-  P0_V1_Baseline - 1805.5M params
-================================================================================
-Overall: BLEU=9.12  ChrF=40.33±11.80  RTF=0.2094
-
-Per-Pair (6 pairs):
-  Pair                  N     BLEU     ChrF      RTF
-  arb→ben              33     4.66    34.13   0.2625
-  ben→arb              33     5.69    31.39   0.1915
-  ben→eng              33    16.85    52.04   0.1577
-  ben→hin              33     8.86    37.45   0.1703
-  eng→ben              33    11.58    48.11   0.2508
-  hin→ben              33     7.08    38.87   0.2233
-
-By Source Language:
-     ARB: BLEU=  4.66  ChrF= 34.13  (n=33)
-     BEN: BLEU= 10.47  ChrF= 40.29  (n=99)
-     ENG: BLEU= 11.58  ChrF= 48.11  (n=33)
-     HIN: BLEU=  7.08  ChrF= 38.87  (n=33)
-
-By Target Language:
-     ARB: BLEU=  5.69  ChrF= 31.39  (n=33)
-     BEN: BLEU=  7.77  ChrF= 40.37  (n=99)
-     ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
-     HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
-================================================================================
-[rclone] 2026/05/22 05:33:32 -     1.581 KiB / 1.581 KiB, 100%, 1.580 KiB/s, ETA 0s
-[fig] Saved phase_comparison.png
-```
-
-```
-<Figure size 1920x1200 with 4 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
-[rclone] 2026/05/22 05:33:34 -     2.446 KiB / 2.446 KiB, 100%, 0 B/s, ETA -
-```
-
-```
-<Figure size 1800x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
-```
-
-```
-<Figure size 2520x1080 with 2 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
-```
-
-```
-<Figure size 1800x1260 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
-```
-
-```
-<Figure size 1800x900 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
-
-✅ All 6 figures saved.
-   📄 detailed_comparison_01_overall_quality.png
-   📄 detailed_comparison_02_bleu_by_pair.png
-   📄 detailed_comparison_03_chrf_by_pair.png
-   📄 detailed_comparison_04_bengali_focus.png
-   📄 detailed_comparison_05_size_vs_quality.png
-   📄 detailed_comparison_06_rtf.png
-```
-
 ---
 
 ## Cell 34 — `markdown`
@@ -2497,7 +2108,7 @@ Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
 
 ---
 
-## Cell 35 — `code` (execution #26)
+## Cell 35 — `code`
 
 ```python
 # # ══════════════════════════════════════════════════════════════════════════════
@@ -2879,7 +2490,7 @@ Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
 
 ---
 
-## Cell 36 — `code` (execution #27)
+## Cell 36 — `code`
 
 ```python
 
@@ -2925,130 +2536,6 @@ plot_phase_comparison()
 plot_detailed_phase_comparison()
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Loaded phase1_benchmark_step000000.pt
-Loaded Phase 1 benchmark from checkpoint.
-[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
-[summary] Stored P1_Vocab4L (2 total)
-[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
-[detailed] Stored P1_Vocab4L
-
-================================================================================
-  P1_Vocab4L - 1686.3M params
-================================================================================
-Overall: BLEU=9.12  ChrF=40.33±11.80  RTF=0.1609
-
-Per-Pair (6 pairs):
-  Pair                  N     BLEU     ChrF      RTF
-  arb→ben              33     4.66    34.13   0.1938
-  ben→arb              33     5.69    31.39   0.1445
-  ben→eng              33    16.85    52.04   0.1271
-  ben→hin              33     8.86    37.45   0.1393
-  eng→ben              33    11.58    48.11   0.1897
-  hin→ben              33     7.08    38.87   0.1710
-
-By Source Language:
-     ARB: BLEU=  4.66  ChrF= 34.13  (n=33)
-     BEN: BLEU= 10.47  ChrF= 40.29  (n=99)
-     ENG: BLEU= 11.58  ChrF= 48.11  (n=33)
-     HIN: BLEU=  7.08  ChrF= 38.87  (n=33)
-
-By Target Language:
-     ARB: BLEU=  5.69  ChrF= 31.39  (n=33)
-     BEN: BLEU=  7.77  ChrF= 40.37  (n=99)
-     ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
-     HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
-================================================================================
-
-  ── Quality Gate ──
-  Bengali ChrF : P0=40.37  →  P1=40.37  Δ=+0.00
-  ✓ Within ±1.5 — vocab trim is lossless.
-[rclone] 2026/05/22 05:33:38 -     1.769 KiB / 1.769 KiB, 100%, 1.768 KiB/s, ETA 0s
-[fig] Saved phase_comparison.png
-```
-
-```
-<Figure size 1920x1200 with 4 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
-```
-
-```
-<Figure size 1800x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-[rclone] 2026/05/22 05:33:40 -     3.384 KiB / 3.384 KiB, 100%, 3.383 KiB/s, ETA 0s
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
-```
-
-```
-<Figure size 2520x1080 with 2 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
-```
-
-```
-<Figure size 1800x1260 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
-```
-
-```
-<Figure size 1800x900 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
-
-✅ All 6 figures saved.
-   📄 detailed_comparison_01_overall_quality.png
-   📄 detailed_comparison_02_bleu_by_pair.png
-   📄 detailed_comparison_03_chrf_by_pair.png
-   📄 detailed_comparison_04_bengali_focus.png
-   📄 detailed_comparison_05_size_vs_quality.png
-   📄 detailed_comparison_06_rtf.png
-```
-
 ---
 
 ## Cell 37 — `markdown`
@@ -3059,7 +2546,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 38 — `code` (execution #28)
+## Cell 38 — `code`
 
 ```python
 # # Load Phase 1 model to prune
@@ -3107,7 +2594,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 39 — `code` (execution #29)
+## Cell 39 — `code`
 
 ```python
 # p2_bench = load_latest_checkpoint('phase2_benchmark')
@@ -3141,7 +2628,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 41 — `code` (execution #30)
+## Cell 41 — `code`
 
 ```python
 # model_p3 = model_p2   # continue from enc-pruned model
@@ -3183,7 +2670,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 42 — `code` (execution #31)
+## Cell 42 — `code`
 
 ```python
 # p3_bench = load_latest_checkpoint('phase3_benchmark')
@@ -3216,7 +2703,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 44 — `code` (execution #32)
+## Cell 44 — `code`
 
 ```python
 # model_p4 = model_p3
@@ -3274,7 +2761,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 45 — `code` (execution #33)
+## Cell 45 — `code`
 
 ```python
 # model_p4, processor = load_model_from_drive('phase4_dec_14L')
@@ -3282,7 +2769,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 46 — `code` (execution #34)
+## Cell 46 — `code`
 
 ```python
 p4_bench = load_latest_checkpoint('phase4_benchmark')
@@ -3305,128 +2792,9 @@ plot_detailed_phase_comparison()
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Loaded phase4_benchmark_step000000.pt
-[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
-[summary] Stored P4_Dec14L (3 total)
-[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
-[detailed] Stored P4_Dec14L
-
-================================================================================
-  P4_Dec14L - 1056.0M params
-================================================================================
-Overall: BLEU=0.58  ChrF=8.33±6.25  RTF=0.2754
-
-Per-Pair (6 pairs):
-  Pair                  N     BLEU     ChrF      RTF
-  arb→ben              33     0.23     5.21   0.3273
-  ben→arb              33     0.22     5.89   0.2860
-  ben→eng              33     1.70    15.74   0.1019
-  ben→hin              33     0.36     6.06   0.3497
-  eng→ben              32     0.73     7.96   0.2600
-  hin→ben              33     0.25     9.09   0.3269
-
-By Source Language:
-     ARB: BLEU=  0.23  ChrF=  5.21  (n=33)
-     BEN: BLEU=  0.76  ChrF=  9.23  (n=99)
-     ENG: BLEU=  0.73  ChrF=  7.96  (n=32)
-     HIN: BLEU=  0.25  ChrF=  9.09  (n=33)
-
-By Target Language:
-     ARB: BLEU=  0.22  ChrF=  5.89  (n=33)
-     BEN: BLEU=  0.40  ChrF=  7.42  (n=98)
-     ENG: BLEU=  1.70  ChrF= 15.74  (n=33)
-     HIN: BLEU=  0.36  ChrF=  6.06  (n=33)
-================================================================================
-[rclone] 2026/05/22 05:33:44 -     1.956 KiB / 1.956 KiB, 100%, 1.955 KiB/s, ETA 0s
-[fig] Saved phase_comparison.png
-```
-
-```
-<Figure size 1920x1200 with 4 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L']
-[rclone] 2026/05/22 05:33:45 -     4.321 KiB / 4.321 KiB, 100%, 0 B/s, ETA -
-```
-
-```
-<Figure size 1800x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
-```
-
-```
-<Figure size 2520x1080 with 2 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
-```
-
-```
-<Figure size 1800x1260 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
-```
-
-```
-<Figure size 1800x900 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
-
-✅ All 6 figures saved.
-   📄 detailed_comparison_01_overall_quality.png
-   📄 detailed_comparison_02_bleu_by_pair.png
-   📄 detailed_comparison_03_chrf_by_pair.png
-   📄 detailed_comparison_04_bengali_focus.png
-   📄 detailed_comparison_05_size_vs_quality.png
-   📄 detailed_comparison_06_rtf.png
-```
-
 ---
 
-## Cell 47 — `code` (execution #35)
+## Cell 47 — `code`
 
 ```python
 # heed
@@ -3454,7 +2822,7 @@ Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_
 
 ---
 
-## Cell 49 — `code` (execution #36)
+## Cell 49 — `code`
 
 ```python
 # ── Cell 45: Load pruned student for full fine-tuning ──────────────────────────
@@ -3499,46 +2867,9 @@ print_model_breakdown(student, 'Student (Pruned, Pre-FT)')
 gpu_mem()
 ```
 
-### Output
-
-**[stdout]**
-```
-Loading phase5_ft_merged for fine-tuning with Custom Device Split...
-[model] Not in local cache — pulling from remote...
-[rclone] Pulled phase5_ft_merged → /kaggle/working/models/phase5_ft_merged
-[model] Loading phase5_ft_merged from /kaggle/working/models/phase5_ft_merged ...
-```
-
-```
-Loading weights:   0%|          | 0/1106 [00:00<?, ?it/s]
-```
-
-**[stdout]**
-```
-  Restored custom state: ['_vocab_remap_to_old']
-[model] Loaded phase5_ft_merged.
-✓ Speech encoder : 10L
-✓ Text decoder   : 14L
-✓ T2U encoder    : 5L
-✓ T2U decoder    : 5L
-✓ Vocab size     : 139697
-
---- Student (Pruned, Pre-FT) ---
-  text_decoder                           495.7M  ( 46.9%)
-  speech_encoder                         296.5M  ( 28.1%)
-  t2u_model                              221.9M  ( 21.0%)
-  shared                                 143.0M  ( 13.5%)
-  lm_head                                143.0M  ( 13.5%)
-  vocoder                                 41.9M  (  4.0%)
-  TOTAL                                 1056.0M
----
-  GPU0: 0.59GB alloc / 0.60GB reserved
-  GPU1: 1.54GB alloc / 1.56GB reserved
-```
-
 ---
 
-## Cell 50 — `code` (execution #37)
+## Cell 50 — `code`
 
 ```python
 # ── Cell 46: Load teacher on cuda:1 ───────────────────────────────────────────
@@ -3549,9 +2880,17 @@ TEACHER_DEVICE = 'cuda:1' if N_GPU > 1 else 'cuda:0'
 TOP_K_TEACHER  = 256   # ← was 8, now 256 (matches Phase 7 battle-tested)
 
 print(f'Loading teacher model on {TEACHER_DEVICE}...')
-from transformers import SeamlessM4Tv2ForSpeechToSpeech
-teacher = SeamlessM4Tv2ForSpeechToSpeech.from_pretrained(
-    MODEL_NAME, torch_dtype=torch.float16, device_map=TEACHER_DEVICE)
+
+# from transformers import SeamlessM4Tv2ForSpeechToSpeech
+# teacher = SeamlessM4Tv2ForSpeechToSpeech.from_pretrained(
+#     MODEL_NAME, torch_dtype=torch.float16, device_map=TEACHER_DEVICE)
+
+# make sure to switch to float16 when training
+from transformers import SeamlessM4Tv2ForSpeechToText
+teacher = SeamlessM4Tv2ForSpeechToText.from_pretrained(
+    MODEL_NAME, torch_dtype=torch.float32, device_map=TEACHER_DEVICE)
+
+
 teacher.eval()
 for p in teacher.parameters():
     p.requires_grad_(False)
@@ -3559,47 +2898,9 @@ print(f'Teacher loaded. Params: {count_params(teacher):.1f}M')
 gpu_mem()
 ```
 
-### Output
-
-**[stdout]**
-```
-Loading teacher model on cuda:1...
-```
-
-```
-config.json: 0.00B [00:00, ?B/s]
-```
-
-```
-model.safetensors.index.json: 0.00B [00:00, ?B/s]
-```
-
-```
-Downloading (incomplete total...): 0.00B [00:00, ?B/s]
-```
-
-```
-Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]
-```
-
-```
-Loading weights:   0%|          | 0/1846 [00:00<?, ?it/s]
-```
-
-```
-generation_config.json: 0.00B [00:00, ?B/s]
-```
-
-**[stdout]**
-```
-Teacher loaded. Params: 1805.5M
-  GPU0: 0.59GB alloc / 0.60GB reserved
-  GPU1: 5.18GB alloc / 5.20GB reserved
-```
-
 ---
 
-## Cell 51 — `code` (execution #38)
+## Cell 51 — `code`
 
 ```python
 # ── Cell 47: Unfreeze all except vocoder ──────────────────────────────────────
@@ -3637,396 +2938,18 @@ else:
 gpu_mem()
 ```
 
-### Output
-
-**[stdout]**
-```
-Frozen (vocoder): 41.91M params
-Trainable: 1014.1M / 1056.0M (96.0%)
-✓ All trainable params fp32 — GradScaler will work correctly
-  GPU0: 1.19GB alloc / 1.27GB reserved
-  GPU1: 6.62GB alloc / 6.68GB reserved
-```
-
 ---
 
-## Cell 52 — `code` (execution #39)
+## Cell 52 — `code`
 
 ```python
 print(student)
 # heed
 ```
 
-### Output
-
-**[stdout]**
-```
-SeamlessM4Tv2ForSpeechToSpeech(
-  (shared): Embedding(139697, 1024, padding_idx=0)
-  (speech_encoder): SeamlessM4Tv2SpeechEncoder(
-    (feature_projection): SeamlessM4Tv2ConformerFeatureProjection(
-      (layer_norm): LayerNorm((160,), eps=1e-05, elementwise_affine=True)
-      (projection): Linear(in_features=160, out_features=1024, bias=True)
-      (dropout): Dropout(p=0.0, inplace=False)
-    )
-    (encoder): SeamlessM4Tv2ConformerEncoder(
-      (dropout): Dropout(p=0.0, inplace=False)
-      (layers): ModuleList(
-        (0-9): 10 x SeamlessM4Tv2ConformerEncoderLayer(
-          (ffn1_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (ffn1): SeamlessM4Tv2ConformerFeedForward(
-            (intermediate_dropout): Dropout(p=0.0, inplace=False)
-            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
-            (intermediate_act_fn): SiLU()
-            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
-            (output_dropout): Dropout(p=0.0, inplace=False)
-          )
-          (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (self_attn_dropout): Dropout(p=0.0, inplace=False)
-          (self_attn): SeamlessM4Tv2ConformerSelfAttention(
-            (linear_q): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_k): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_v): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_out): Linear(in_features=1024, out_features=1024, bias=True)
-            (dropout): Dropout(p=0.0, inplace=False)
-            (distance_embedding): Embedding(73, 64)
-          )
-          (conv_module): SeamlessM4Tv2ConformerConvolutionModule(
-            (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (pointwise_conv1): Conv1d(1024, 2048, kernel_size=(1,), stride=(1,), bias=False)
-            (glu): GLU(dim=1)
-            (depthwise_conv): Conv1d(1024, 1024, kernel_size=(31,), stride=(1,), groups=1024, bias=False)
-            (depthwise_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (activation): SiLU()
-            (pointwise_conv2): Conv1d(1024, 1024, kernel_size=(1,), stride=(1,), bias=False)
-            (dropout): Dropout(p=0.0, inplace=False)
-          )
-          (ffn2_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (ffn2): SeamlessM4Tv2ConformerFeedForward(
-            (intermediate_dropout): Dropout(p=0.0, inplace=False)
-            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
-            (intermediate_act_fn): SiLU()
-            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
-            (output_dropout): Dropout(p=0.0, inplace=False)
-          )
-          (final_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-        )
-      )
-      (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-    )
-    (intermediate_ffn): SeamlessM4Tv2ConformerFeedForward(
-      (intermediate_dropout): Dropout(p=0.0, inplace=False)
-      (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
-      (intermediate_act_fn): ReLU()
-      (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
-      (output_dropout): Dropout(p=0.0, inplace=False)
-    )
-    (adapter): SeamlessM4Tv2ConformerAdapter(
-      (layers): ModuleList(
-        (0): SeamlessM4Tv2ConformerAdapterLayer(
-          (residual_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (residual_conv): Conv1d(1024, 2048, kernel_size=(8,), stride=(8,), padding=(4,))
-          (activation): GLU(dim=1)
-          (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (self_attn_conv): Conv1d(1024, 2048, kernel_size=(8,), stride=(8,), padding=(4,))
-          (self_attn): SeamlessM4Tv2ConformerSelfAttention(
-            (linear_q): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_k): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_v): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_out): Linear(in_features=1024, out_features=1024, bias=True)
-            (dropout): Dropout(p=0.0, inplace=False)
-          )
-          (self_attn_dropout): Dropout(p=0.1, inplace=False)
-          (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (ffn): SeamlessM4Tv2ConformerFeedForward(
-            (intermediate_dropout): Dropout(p=0.1, inplace=False)
-            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
-            (intermediate_act_fn): ReLU()
-            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
-            (output_dropout): Dropout(p=0.1, inplace=False)
-          )
-        )
-      )
-    )
-    (inner_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-  )
-  (text_decoder): SeamlessM4Tv2Decoder(
-    (embed_tokens): SeamlessM4Tv2ScaledWordEmbedding(139697, 1024, padding_idx=0)
-    (embed_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
-    (layers): ModuleList(
-      (0-13): 14 x SeamlessM4Tv2DecoderLayer(
-        (self_attn): SeamlessM4Tv2Attention(
-          (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
-        )
-        (activation_fn): ReLU()
-        (attn_dropout): Dropout(p=0.1, inplace=False)
-        (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-        (cross_attention): SeamlessM4Tv2Attention(
-          (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
-        )
-        (cross_attention_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-        (ffn): SeamlessM4Tv2FeedForwardNetwork(
-          (fc1): Linear(in_features=1024, out_features=8192, bias=True)
-          (fc2): Linear(in_features=8192, out_features=1024, bias=True)
-          (dropout): Dropout(p=0.0, inplace=False)
-          (act): ReLU()
-        )
-        (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-        (ffn_dropout): Dropout(p=0.0, inplace=False)
-      )
-    )
-    (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-  )
-  (lm_head): Linear(in_features=1024, out_features=139697, bias=False)
-  (t2u_model): SeamlessM4Tv2TextToUnitForConditionalGeneration(
-    (model): SeamlessM4Tv2TextToUnitModel(
-      (encoder): SeamlessM4Tv2Encoder(
-        (layers): ModuleList(
-          (0-4): 5 x SeamlessM4Tv2EncoderLayer(
-            (self_attn): SeamlessM4Tv2Attention(
-              (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
-            )
-            (attn_dropout): Dropout(p=0.1, inplace=False)
-            (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (ffn): SeamlessM4Tv2FeedForwardNetwork(
-              (fc1): Linear(in_features=1024, out_features=8192, bias=True)
-              (fc2): Linear(in_features=8192, out_features=1024, bias=True)
-              (dropout): Dropout(p=0.0, inplace=False)
-              (act): ReLU()
-            )
-            (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (ffn_dropout): Dropout(p=0.0, inplace=False)
-          )
-        )
-        (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-      )
-      (decoder): SeamlessM4Tv2TextToUnitDecoder(
-        (embed_tokens): Embedding(10082, 1024, padding_idx=1)
-        (embed_char): Embedding(10943, 1024)
-        (embed_char_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
-        (duration_predictor): SeamlessM4Tv2VariancePredictor(
-          (conv1): Conv1d(1024, 256, kernel_size=(3,), stride=(1,), padding=same)
-          (activation_function): ReLU()
-          (ln1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
-          (dropout_module): Dropout(p=0.5, inplace=False)
-          (conv2): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=same)
-          (ln2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
-          (proj): Linear(in_features=256, out_features=1, bias=True)
-        )
-        (embed_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
-        (layers): ModuleList(
-          (0-4): 5 x SeamlessM4Tv2TextToUnitDecoderLayer(
-            (self_attn): SeamlessM4Tv2Attention(
-              (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
-            )
-            (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (conv1): Conv1d(1024, 1024, kernel_size=(7,), stride=(1,), padding=same)
-            (activation_fn): ReLU()
-            (conv2): Conv1d(1024, 1024, kernel_size=(7,), stride=(1,), padding=same)
-            (conv_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (conv_dropout): Dropout(p=0.1, inplace=False)
-          )
-        )
-        (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-      )
-    )
-    (lm_head): Linear(in_features=1024, out_features=10082, bias=False)
-  )
-  (vocoder): SeamlessM4Tv2CodeHifiGan(
-    (dur_predictor): SeamlessM4Tv2VariancePredictor(
-      (conv1): Conv1d(1280, 1280, kernel_size=(3,), stride=(1,), padding=same)
-      (activation_function): ReLU()
-      (ln1): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
-      (dropout_module): Dropout(p=0.5, inplace=False)
-      (conv2): Conv1d(1280, 1280, kernel_size=(3,), stride=(1,), padding=same)
-      (ln2): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
-      (proj): Linear(in_features=1280, out_features=1, bias=True)
-    )
-    (unit_embedding): Embedding(10000, 1280)
-    (speaker_embedding): Embedding(200, 256)
-    (language_embedding): Embedding(36, 256)
-    (hifi_gan): SeamlessM4Tv2HifiGan(
-      (conv_pre): Conv1d(1792, 512, kernel_size=(7,), stride=(1,), padding=(3,))
-      (upsampler): ModuleList(
-        (0): ConvTranspose1d(512, 256, kernel_size=(11,), stride=(5,), padding=(3,))
-        (1): ConvTranspose1d(256, 128, kernel_size=(8,), stride=(4,), padding=(2,))
-        (2): ConvTranspose1d(128, 64, kernel_size=(8,), stride=(4,), padding=(2,))
-        (3): ConvTranspose1d(64, 32, kernel_size=(4,), stride=(2,), padding=(1,))
-        (4): ConvTranspose1d(32, 16, kernel_size=(4,), stride=(2,), padding=(1,))
-      )
-      (resblocks): ModuleList(
-        (0): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (1): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (2): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-        (3): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (4): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (5): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-        (6): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (7): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (8): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-        (9): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (10): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (11): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-        (12): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (13): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (14): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-      )
-      (conv_post): Conv1d(16, 1, kernel_size=(7,), stride=(1,), padding=(3,))
-    )
-  )
-)
-```
-
 ---
 
-## Cell 53 — `code` (execution #40)
+## Cell 53 — `code`
 
 ```python
 # ── Cell 48: Gradient checkpointing strategy for full fine-tuning on 2×T4 ─────
@@ -4140,22 +3063,9 @@ print('VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32')
 gpu_mem()
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
-✓ GC selectively ENABLED for: speech_encoder, text_decoder
-⚠ Still on: ['speech_encoder', 'text_decoder']
-
-VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32
-  GPU0: 1.19GB alloc / 1.27GB reserved
-  GPU1: 6.62GB alloc / 6.68GB reserved
-```
-
 ---
 
-## Cell 54 — `code` (execution #41)
+## Cell 54 — `code`
 
 ```python
 # ── Cell 49A: Vocab remap tables (exact Phase 7 / Cell 41+43+48 pattern) ──────
@@ -4230,25 +3140,9 @@ for _l in ['eng', 'ben', 'hin', 'arb']:
 print('✓ Vocab remap ready.')
 ```
 
-### Output
-
-**[stdout]**
-```
-Mapped: 139697/256102 (54.5%)
-EOS (token 3) → student: 3  ← must be 3
-OLD_TO_NEW_GPU: 1.0MB VRAM
-
-Special tokens: PAD_S=0  BOS_S=2  EOS_S=3
-  eng: student_id=139620
-  ben: student_id=139607
-  hin: student_id=139631
-  arb: student_id=139601
-✓ Vocab remap ready.
-```
-
 ---
 
-## Cell 55 — `code` (execution #42)
+## Cell 55 — `code`
 
 ```python
 # ── Cell 49B: Collation — exact Phase 7 / Cell 44 layout ──────────────────────
@@ -4349,18 +3243,9 @@ print(f'  dec layout: [BOS | __tgt__ | content]  length=T+2')
 print(f'  lab layout: [__tgt__ | content | EOS]  length=T+2')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ Collation ready (exact Phase 7 token layout)
-  dec layout: [BOS | __tgt__ | content]  length=T+2
-  lab layout: [__tgt__ | content | EOS]  length=T+2
-```
-
 ---
 
-## Cell 56 — `code` (execution #43)
+## Cell 56 — `code`
 
 ```python
 # ── REPLACE ENTIRE CELL 49C ───────────────────────────────────────
@@ -4426,7 +3311,7 @@ def student_logits_gpu(feat_dict, dec_s_cpu):
 
 ---
 
-## Cell 57 — `code` (execution #44)
+## Cell 57 — `code`
 
 ```python
 # ── Cell 50: Loss functions — all on cuda:0, no CPU ops ───────────────────────
@@ -4525,69 +3410,17 @@ print(f'  OLD_TO_NEW_GPU on cuda:0: {OLD_TO_NEW_GPU.numel()*4/1e6:.1f}MB VRAM')
 print('  No CPU involved in any loss computation')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ GPU-only loss functions ready.
-  KD_ALPHA=0.15  KD_TEMPERATURE=3.0  TOP_K=256
-  OLD_TO_NEW_GPU on cuda:0: 1.0MB VRAM
-  No CPU involved in any loss computation
-```
-
 ---
 
-## Cell 58 — `code` (execution #45)
+## Cell 58 — `code`
 
 ```python
 !pip install bitsandbytes
 ```
 
-### Output
-
-**[stdout]**
-```
-Collecting bitsandbytes
-  Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl.metadata (10 kB)
-Requirement already satisfied: torch<3,>=2.3 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.10.0+cu128)
-Requirement already satisfied: numpy>=1.17 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.0.2)
-Requirement already satisfied: packaging>=20.9 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (26.0)
-Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.24.3)
-Requirement already satisfied: typing-extensions>=4.10.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (4.15.0)
-Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (75.2.0)
-Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.14.0)
-Requirement already satisfied: networkx>=2.5.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.1)
-Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.1.6)
-Requirement already satisfied: fsspec>=0.8.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2026.2.0)
-Requirement already satisfied: cuda-bindings==12.9.4 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.9.4)
-Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
-Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
-Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
-Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (9.10.2.21)
-Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.4.1)
-Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.3.3.83)
-Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (10.3.9.90)
-Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.7.3.90)
-Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.5.8.93)
-Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (0.7.1)
-Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2.27.5)
-Requirement already satisfied: nvidia-nvshmem-cu12==3.4.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.4.5)
-Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
-Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
-Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.13.1.3)
-Requirement already satisfied: triton==3.6.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.0)
-Requirement already satisfied: cuda-pathfinder~=1.1 in /usr/local/lib/python3.12/dist-packages (from cuda-bindings==12.9.4->torch<3,>=2.3->bitsandbytes) (1.3.5)
-Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy>=1.13.3->torch<3,>=2.3->bitsandbytes) (1.3.0)
-Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2->torch<3,>=2.3->bitsandbytes) (3.0.3)
-Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl (60.7 MB)
-[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m60.7/60.7 MB[0m [31m31.1 MB/s[0m eta [36m0:00:00[0m:00:01[0m00:01[0m
-[?25hInstalling collected packages: bitsandbytes
-Successfully installed bitsandbytes-0.49.2
-```
-
 ---
 
-## Cell 59 — `code` (execution #46)
+## Cell 59 — `code`
 
 ```python
 # ── Cell 51: Training configuration + optimizer ────────────────────────────────
@@ -4656,21 +3489,9 @@ all_trainable_params = [p for p in student.parameters() if p.requires_grad]
 print(f'\n✓ Optimizer ready with LR_PEAK = {LR_PEAK}')
 ```
 
-### Output
-
-**[stdout]**
-```
-Effective batch size : 32
-Training samples     : 7974
-Steps per epoch      : 250
-Total steps          : 1500
-
-✓ Optimizer ready with LR_PEAK = 6e-05
-```
-
 ---
 
-## Cell 60 — `code` (execution #47)
+## Cell 60 — `code`
 
 ```python
 # ── Cell 51B: Quick eval helper ────────────────────────────────────────────────
@@ -4716,16 +3537,9 @@ def _eval_quick_p5(n_samples=18):
 print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ _eval_quick_p5 ready with persistent list and dictionary caching.
-```
-
 ---
 
-## Cell 61 — `code` (execution #48)
+## Cell 61 — `code`
 
 ```python
 # heed
@@ -4733,7 +3547,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 62 — `code` (execution #49)
+## Cell 62 — `code`
 
 ```python
 # print("Student: ")
@@ -4745,7 +3559,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 63 — `code` (execution #50)
+## Cell 63 — `code`
 
 ```python
 # s   = eval_samples[2]
@@ -4760,7 +3574,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 64 — `code` (execution #51)
+## Cell 64 — `code`
 
 ```python
 # # ── Cell 52: Training loop — Phase 7 battle-tested flow ───────────────────────
@@ -4970,7 +3784,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 65 — `code` (execution #52)
+## Cell 65 — `code`
 
 ```python
 # import matplotlib.pyplot as plt
@@ -5020,7 +3834,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 66 — `code` (execution #53)
+## Cell 66 — `code`
 
 ```python
 # # ── Cell 53: Load best checkpoint and save merged model ───────────────────────
@@ -5041,7 +3855,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 67 — `code` (execution #54)
+## Cell 67 — `code`
 
 ```python
 # ── Final benchmark ───────────────────────────────────────────────────────────
@@ -5089,138 +3903,9 @@ plot_detailed_phase_comparison()
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Loaded phase5_benchmark_step000000.pt
-Loaded Phase 5 benchmark from checkpoint.
-[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
-[summary] Stored P5_FullFT (4 total)
-[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
-[detailed] Stored P5_FullFT
-
-================================================================================
-  P5_FullFT - 1056.0M params
-================================================================================
-Overall: BLEU=3.95  ChrF=25.95±9.28  RTF=0.1631
-
-Per-Pair (6 pairs):
-  Pair                  N     BLEU     ChrF      RTF
-  arb→ben              33     2.28    20.72   0.1809
-  ben→arb              33     1.94    18.72   0.1491
-  ben→eng              33     5.01    29.76   0.1299
-  ben→hin              33     6.56    27.97   0.1607
-  eng→ben              33     3.99    29.40   0.1932
-  hin→ben              33     3.91    29.12   0.1649
-
-By Source Language:
-     ARB: BLEU=  2.28  ChrF= 20.72  (n=33)
-     BEN: BLEU=  4.50  ChrF= 25.49  (n=99)
-     ENG: BLEU=  3.99  ChrF= 29.40  (n=33)
-     HIN: BLEU=  3.91  ChrF= 29.12  (n=33)
-
-By Target Language:
-     ARB: BLEU=  1.94  ChrF= 18.72  (n=33)
-     BEN: BLEU=  3.39  ChrF= 26.42  (n=99)
-     ENG: BLEU=  5.01  ChrF= 29.76  (n=33)
-     HIN: BLEU=  6.56  ChrF= 27.97  (n=33)
-================================================================================
-
-==================================================
-  TEACHER vs STUDENT (Bengali pairs):
-==================================================
-  arb→ben             BLEU: Teacher=4.66  Student=2.28  Δ=-2.38   |  ChrF: Teacher=34.13  Student=20.72  Δ=-13.41 
-  ben→arb             BLEU: Teacher=5.69  Student=1.94  Δ=-3.75   |  ChrF: Teacher=31.39  Student=18.72  Δ=-12.67 
-  ben→eng             BLEU: Teacher=16.85  Student=5.01  Δ=-11.84   |  ChrF: Teacher=52.04  Student=29.76  Δ=-22.28 
-  ben→hin             BLEU: Teacher=8.86  Student=6.56  Δ=-2.29   |  ChrF: Teacher=37.45  Student=27.97  Δ=-9.48 
-  eng→ben             BLEU: Teacher=11.58  Student=3.99  Δ=-7.59   |  ChrF: Teacher=48.11  Student=29.40  Δ=-18.71 
-  hin→ben             BLEU: Teacher=7.08  Student=3.91  Δ=-3.17   |  ChrF: Teacher=38.87  Student=29.12  Δ=-9.74 
-==================================================
-[fig] Saved phase_comparison.png
-```
-
-```
-<Figure size 1920x1200 with 4 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-Plotting detailed comparison for 4 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L', 'P5_FullFT']
-```
-
-```
-<Figure size 1800x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
-```
-
-```
-<Figure size 2520x1080 with 2 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
-```
-
-```
-<Figure size 1800x1260 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
-```
-
-```
-<Figure size 1800x900 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
-
-✅ All 6 figures saved.
-   📄 detailed_comparison_01_overall_quality.png
-   📄 detailed_comparison_02_bleu_by_pair.png
-   📄 detailed_comparison_03_chrf_by_pair.png
-   📄 detailed_comparison_04_bengali_focus.png
-   📄 detailed_comparison_05_size_vs_quality.png
-   📄 detailed_comparison_06_rtf.png
-```
-
 ---
 
-## Cell 68 — `code` (execution #60)
+## Cell 68 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -5252,9 +3937,9 @@ os.makedirs(PSEUDO_DIR, exist_ok=True)
 # Bengali is priority — do it first and give it the most clips
 LANG_CLIP_BUDGET = {
     'bn': 30000,   # ~4-5 GB of audio streamed, ~600MB of Parquet output
-    'hi': 20000,
-    'ar': 20000,
-    'en': 20000,
+    'hi': 15000,
+    'ar': 15000,
+    'en': 15000,
 }
 
 # How many clips to process before saving a Parquet chunk and (optionally) pushing
@@ -5265,17 +3950,9 @@ print(f'[Config] PSEUDO_DIR={PSEUDO_DIR}')
 print(f'[Config] MDC API key loaded: {"YES" if MDC_API_KEY else "NO — check your Kaggle secret!"}')
 ```
 
-### Output
-
-**[stdout]**
-```
-[Config] PSEUDO_DIR=/kaggle/working/pseudo_cv25
-[Config] MDC API key loaded: YES
-```
-
 ---
 
-## Cell 69 — `code` (execution #61)
+## Cell 69 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -5331,16 +4008,9 @@ def mdc_get_presigned_url(dataset_id: str, force_refresh: bool = False) -> dict:
 print('MDC URL fetcher ready.')
 ```
 
-### Output
-
-**[stdout]**
-```
-MDC URL fetcher ready.
-```
-
 ---
 
-## Cell 70 — `code` (execution #69)
+## Cell 70 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -5467,27 +4137,72 @@ def _push_kaggle_and_cleanup(message: str, lang_cv: str) -> bool:
 # Core: Download a Range of the tar.gz with wget, then parse it
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _wget_range(url: str, dest: str, byte_start: int, byte_end: int,
-                retries: int = 5) -> bool:
+def _wget_range(url: str, dest: str, start: int, end: int, retries: int = 5) -> bool:
     """
-    Download [byte_start, byte_end] of url to dest using wget.
-    wget handles reconnects and is far more robust than requests for large files.
-    Returns True on success.
+    Download bytes[start:end] into dest using wget.
+    Completely silent wget (no progress bar) — we print our own
+    concise progress line every 10 seconds via a background thread.
+    Prevents the thousands of dot-lines that hang Jupyter notebooks.
     """
+    expected = end - start + 1
+
     for attempt in range(retries):
-        cmd = [
-            'wget', '-q', '--show-progress',
-            f'--header=Range: bytes={byte_start}-{byte_end}',
-            f'--tries=3', f'--timeout=60', f'--waitretry=10',
-            '-O', dest, url,
-        ]
-        r = subprocess.run(cmd, capture_output=False)
-        if r.returncode == 0 and os.path.exists(dest) and os.path.getsize(dest) > 1024:
-            return True
-        print(f'  [wget] attempt {attempt+1} failed (rc={r.returncode}), retrying...')
-        _time.sleep(5 * (attempt + 1))
         if os.path.exists(dest):
             os.remove(dest)
+
+        cmd = [
+            'wget',
+            '--quiet',              # NO progress bar — this was the flood source
+            '--no-verbose',         # suppress all non-error output
+            f'--header=Range: bytes={start}-{end}',
+            '--tries=1',
+            '--timeout=300',
+            '--read-timeout=120',
+            '-O', dest, url,
+        ]
+
+        # ── Background progress printer ───────────────────────────────────────
+        # Reads the file size on disk every 10s and prints one clean line.
+        # Total output for a 9 GB download: ~90 lines. Notebook stays responsive.
+        _stop_progress = [False]
+        def _progress_printer():
+            t_start = _time.time()
+            while not _stop_progress[0]:
+                _time.sleep(10)
+                if _stop_progress[0]:
+                    break
+                try:
+                    current = os.path.getsize(dest) if os.path.exists(dest) else 0
+                    elapsed = (_time.time() - t_start) / 60
+                    speed   = current / max(_time.time() - t_start, 1) / 1e6  # MB/s
+                    pct     = current / expected * 100 if expected > 0 else 0
+                    print(f"  [wget] {current/1e9:.2f}/{expected/1e9:.2f} GB "
+                          f"({pct:.0f}%) | {speed:.0f} MB/s | {elapsed:.1f} min",
+                          flush=True)
+                except Exception:
+                    pass
+
+        import threading
+        t = threading.Thread(target=_progress_printer, daemon=True)
+        t.start()
+
+        proc = subprocess.run(cmd)   # blocks until wget finishes or fails
+
+        _stop_progress[0] = True     # signal printer to stop
+        t.join(timeout=1)
+
+        if proc.returncode == 0 and os.path.exists(dest):
+            actual = os.path.getsize(dest)
+            if actual >= expected * 0.99:
+                print(f"  [wget] ✓ Done: {actual/1e9:.2f} GB", flush=True)
+                return True
+            print(f"  [wget] Size mismatch: got {actual/1e9:.2f} GB, "
+                  f"expected {expected/1e9:.2f} GB. Retry {attempt+1}...")
+        else:
+            print(f"  [wget] Failed rc={proc.returncode}. Retry {attempt+1}...")
+
+        _time.sleep(10 * (attempt + 1))
+
     return False
 
 
@@ -5585,654 +4300,539 @@ def _extract_mp3s_from_partial(partial_path: str, tsv_map: dict,
 # Main runner
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def run_streaming_pseudo_labeler(lang_cv: str, max_clips: int = 20000):
-    """
-    Full pipeline:
-      Phase A — Download first ~200 MB → extract validated.tsv
-      Phase B — Download archive in DOWNLOAD_CHUNK_GB slices → extract MP3s
-                → teacher inference → Parquet → Kaggle push → delete → next slice
-    """
-    tgt_m4t    = CV_TO_M4T[lang_cv]
-    dataset_id = MDC_DATASET_IDS[lang_cv]
+# def run_streaming_pseudo_labeler(lang_cv: str, max_clips: int = 20000):
+#     """
+#     Full pipeline:
+#       Phase A — Download first ~200 MB → extract validated.tsv
+#       Phase B — Download archive in DOWNLOAD_CHUNK_GB slices → extract MP3s
+#                 → teacher inference → Parquet → Kaggle push → delete → next slice
+#     """
+#     tgt_m4t    = CV_TO_M4T[lang_cv]
+#     dataset_id = MDC_DATASET_IDS[lang_cv]
 
-    # ── Resume state ──────────────────────────────────────────────────────────
-    state_file = pathlib.Path(PSEUDO_DIR) / f'.state_{lang_cv}.json'
-    state = json.loads(state_file.read_text()) if state_file.exists() else {}
-    already_done   = state.get('clips_done', 0)
-    next_chunk_idx = state.get('next_chunk_idx', 0)
-    # byte_offset: where in the archive to start the next Range download
-    # (so we don't re-download already-processed slices)
-    byte_offset    = state.get('byte_offset', 0)
+#     # ── Resume state ──────────────────────────────────────────────────────────
+#     state_file = pathlib.Path(PSEUDO_DIR) / f'.state_{lang_cv}.json'
+#     state = json.loads(state_file.read_text()) if state_file.exists() else {}
+#     already_done   = state.get('clips_done', 0)
+#     next_chunk_idx = state.get('next_chunk_idx', 0)
+#     # byte_offset: where in the archive to start the next Range download
+#     # (so we don't re-download already-processed slices)
+#     byte_offset    = state.get('byte_offset', 0)
 
-    print(f'\n{"="*70}')
-    print(f'[Phase6] {lang_cv} → {tgt_m4t} | target={max_clips} | done={already_done} | '
-          f'byte_offset={byte_offset/1e9:.2f} GB')
-    print(f'{"="*70}')
+#     print(f'\n{"="*70}')
+#     print(f'[Phase6] {lang_cv} → {tgt_m4t} | target={max_clips} | done={already_done} | '
+#           f'byte_offset={byte_offset/1e9:.2f} GB')
+#     print(f'{"="*70}')
 
-    if already_done >= max_clips:
-        print(f'[Phase6] Already complete.'); return
+#     if already_done >= max_clips:
+#         print(f'[Phase6] Already complete.'); return
 
-    teacher.eval()
-    t_device = next(teacher.text_decoder.parameters()).device
+#     teacher.eval()
+#     t_device = next(teacher.text_decoder.parameters()).device
 
-    # ── Get presigned URL (1 API call, valid 12h per MDC API docs) ────────────
-    url_info   = mdc_get_presigned_url(dataset_id)
-    url        = url_info['downloadUrl']
-    total_bytes = int(url_info.get('sizeBytes', 0))
-    expires_ts  = url_info.get('_expires_ts', _time.time() + 11 * 3600)
-    print(f'[Phase6] Archive: {total_bytes/1e9:.2f} GB | expires in '
-          f'{(expires_ts - _time.time())/3600:.1f}h')
+#     # ── Get presigned URL (1 API call, valid 12h per MDC API docs) ────────────
+#     url_info   = mdc_get_presigned_url(dataset_id)
+#     url        = url_info['downloadUrl']
+#     total_bytes = int(url_info.get('sizeBytes', 0))
+#     expires_ts  = url_info.get('_expires_ts', _time.time() + 11 * 3600)
+#     print(f'[Phase6] Archive: {total_bytes/1e9:.2f} GB | expires in '
+#           f'{(expires_ts - _time.time())/3600:.1f}h')
 
-    def _fresh_url():
-        nonlocal url, expires_ts
-        if _time.time() > expires_ts - 1800:
-            info = mdc_get_presigned_url(dataset_id, force_refresh=True)
-            url  = info['downloadUrl']
-            expires_ts = info.get('_expires_ts', _time.time() + 11 * 3600)
-        return url
+#     def _fresh_url():
+#         nonlocal url, expires_ts
+#         if _time.time() > expires_ts - 1800:
+#             info = mdc_get_presigned_url(dataset_id, force_refresh=True)
+#             url  = info['downloadUrl']
+#             expires_ts = info.get('_expires_ts', _time.time() + 11 * 3600)
+#         return url
 
-    # ── Phase A: Get validated.tsv from the first 300 MB ─────────────────────
-    # (Only needed if we don't have it cached from a previous run)
-    tsv_cache = pathlib.Path(PSEUDO_DIR) / f'.tsv_{lang_cv}.json'
-    if tsv_cache.exists():
-        tsv_map = json.loads(tsv_cache.read_text())
-        print(f'[Phase6] Loaded cached TSV: {len(tsv_map)} entries.')
-    else:
-        tsv_path = f'{RAW_DIR}/{lang_cv}_tsv_head.tar.gz'
-        tsv_end  = min(300 * 1024 * 1024, total_bytes) - 1  # first 300 MB
-        print(f'[Phase6] Phase A: downloading first 300 MB for validated.tsv...')
-        ok = _wget_range(_fresh_url(), tsv_path, 0, tsv_end)
-        if not ok:
-            raise RuntimeError(f'[Phase6] wget failed for TSV extraction on {lang_cv}')
-        tsv_map = _extract_tsv_from_partial(tsv_path)
-        os.remove(tsv_path)
-        if not tsv_map:
-            raise RuntimeError(f'[Phase6] validated.tsv not found in first 300 MB for {lang_cv}')
-        tsv_cache.write_text(json.dumps(tsv_map))
-        print(f'[Phase6] Phase A done. {len(tsv_map)} validated clips.')
+#     # ── Phase A: Get validated.tsv from the first 300 MB ─────────────────────
+#     # (Only needed if we don't have it cached from a previous run)
+#     tsv_cache = pathlib.Path(PSEUDO_DIR) / f'.tsv_{lang_cv}.json'
+#     if tsv_cache.exists():
+#         tsv_map = json.loads(tsv_cache.read_text())
+#         print(f'[Phase6] Loaded cached TSV: {len(tsv_map)} entries.')
+#     else:
+#         tsv_path = f'{RAW_DIR}/{lang_cv}_tsv_head.tar.gz'
+#         tsv_end  = min(300 * 1024 * 1024, total_bytes) - 1  # first 300 MB
+#         print(f'[Phase6] Phase A: downloading first 300 MB for validated.tsv...')
+#         ok = _wget_range(_fresh_url(), tsv_path, 0, tsv_end)
+#         if not ok:
+#             raise RuntimeError(f'[Phase6] wget failed for TSV extraction on {lang_cv}')
+#         tsv_map = _extract_tsv_from_partial(tsv_path)
+#         os.remove(tsv_path)
+#         if not tsv_map:
+#             raise RuntimeError(f'[Phase6] validated.tsv not found in first 300 MB for {lang_cv}')
+#         tsv_cache.write_text(json.dumps(tsv_map))
+#         print(f'[Phase6] Phase A done. {len(tsv_map)} validated clips.')
 
-    # ── Phase B: Download in DOWNLOAD_CHUNK_GB slices, pseudo-label each ──────
-    chunk_bytes   = int(DOWNLOAD_CHUNK_GB * 1024 ** 3)
-    buffer        = []
-    total_saved   = already_done
-    chunks_pushed = 0
-    t0            = _time.time()
+#     # ── Phase B: Download in DOWNLOAD_CHUNK_GB slices, pseudo-label each ──────
+#     chunk_bytes   = int(DOWNLOAD_CHUNK_GB * 1024 ** 3)
+#     buffer        = []
+#     total_saved   = already_done
+#     chunks_pushed = 0
+#     t0            = _time.time()
 
-    # Start from saved byte_offset (resume support)
-    current_offset = byte_offset
+#     # Start from saved byte_offset (resume support)
+#     current_offset = byte_offset
 
-    while current_offset < total_bytes and total_saved < max_clips:
-        slice_end   = min(current_offset + chunk_bytes - 1, total_bytes - 1)
-        slice_gb    = (slice_end - current_offset + 1) / 1e9
-        part_path   = f'{RAW_DIR}/{lang_cv}_part.tar.gz'
+#     while current_offset < total_bytes and total_saved < max_clips:
+#         slice_end   = min(current_offset + chunk_bytes - 1, total_bytes - 1)
+#         slice_gb    = (slice_end - current_offset + 1) / 1e9
+#         part_path   = f'{RAW_DIR}/{lang_cv}_part.tar.gz'
 
-        print(f'\n[Phase6] Downloading slice {current_offset/1e9:.2f}–{slice_end/1e9:.2f} GB '
-              f'({slice_gb:.2f} GB)...')
-        t_dl = _time.time()
-        ok = _wget_range(_fresh_url(), part_path, current_offset, slice_end)
-        if not ok:
-            print(f'[Phase6] wget failed for slice. Retrying with fresh URL...')
-            ok = _wget_range(_fresh_url(), part_path, current_offset, slice_end)
-        if not ok:
-            raise RuntimeError(f'[Phase6] Download failed after retries at offset {current_offset}')
-        dl_gb   = os.path.getsize(part_path) / 1e9
-        dl_time = (_time.time() - t_dl) / 60
-        print(f'[Phase6] Downloaded {dl_gb:.2f} GB in {dl_time:.1f} min. Extracting...')
+#         print(f'\n[Phase6] Downloading slice {current_offset/1e9:.2f}–{slice_end/1e9:.2f} GB '
+#               f'({slice_gb:.2f} GB)...')
+#         t_dl = _time.time()
+#         ok = _wget_range(_fresh_url(), part_path, current_offset, slice_end)
+#         if not ok:
+#             print(f'[Phase6] wget failed for slice. Retrying with fresh URL...')
+#             ok = _wget_range(_fresh_url(), part_path, current_offset, slice_end)
+#         if not ok:
+#             raise RuntimeError(f'[Phase6] Download failed after retries at offset {current_offset}')
+#         dl_gb   = os.path.getsize(part_path) / 1e9
+#         dl_time = (_time.time() - t_dl) / 60
+#         print(f'[Phase6] Downloaded {dl_gb:.2f} GB in {dl_time:.1f} min. Extracting...')
 
-        # How many validated clips to skip in this slice (for resume)
-        # We skip clips from previous SLICES via already_done; within current
-        # slice we track via skip_in_slice
-        skip_in_slice = max(0, already_done - total_saved)
+#         # How many validated clips to skip in this slice (for resume)
+#         # We skip clips from previous SLICES via already_done; within current
+#         # slice we track via skip_in_slice
+#         skip_in_slice = max(0, already_done - total_saved)
 
-        clips_this_slice = 0
-        for audio, sr, ref_text in _extract_mp3s_from_partial(
-                part_path, tsv_map,
-                skip_n=skip_in_slice,
-                max_n=max_clips - total_saved):
+#         clips_this_slice = 0
+#         for audio, sr, ref_text in _extract_mp3s_from_partial(
+#                 part_path, tsv_map,
+#                 skip_n=skip_in_slice,
+#                 max_n=max_clips - total_saved):
 
-            # Teacher inference
-            try:
-                inputs = processor(audio=audio, sampling_rate=sr, return_tensors='pt')
-                inputs = {k: v.to(t_device) for k, v in inputs.items()}
-                with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.float16):
-                    out = teacher.generate(**inputs, tgt_lang=tgt_m4t)
-                text_ids    = _remap_ids_for_decode(teacher, out.sequences.cpu())
-                pseudo_text = processor.batch_decode(text_ids, skip_special_tokens=True)[0].strip()
-                if not pseudo_text:
-                    continue
-            except torch.cuda.OutOfMemoryError:
-                torch.cuda.empty_cache(); continue
-            except Exception:
-                continue
+#             # Teacher inference
+#             try:
+#                 inputs = processor(audio=audio, sampling_rate=sr, return_tensors='pt')
+#                 inputs = {k: v.to(t_device) for k, v in inputs.items()}
+#                 with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.float16):
+#                     out = teacher.generate(**inputs, tgt_lang=tgt_m4t)
+#                 text_ids    = _remap_ids_for_decode(teacher, out.sequences.cpu())
+#                 pseudo_text = processor.batch_decode(text_ids, skip_special_tokens=True)[0].strip()
+#                 if not pseudo_text:
+#                     continue
+#             except torch.cuda.OutOfMemoryError:
+#                 torch.cuda.empty_cache(); continue
+#             except Exception:
+#                 continue
 
-            buffer.append({
-                'id':            f'p6_{lang_cv}2{tgt_m4t}_{total_saved:06d}',
-                'transcription': pseudo_text,
-                'wav_bytes':     _audio_to_wav_bytes(audio, 16000),
-            })
-            total_saved      += 1
-            clips_this_slice += 1
+#             buffer.append({
+#                 'id':            f'p6_{lang_cv}2{tgt_m4t}_{total_saved:06d}',
+#                 'transcription': pseudo_text,
+#                 'wav_bytes':     _audio_to_wav_bytes(audio, 16000),
+#             })
+#             total_saved      += 1
+#             clips_this_slice += 1
 
-            if total_saved % 200 == 0:
-                elapsed = (_time.time() - t0) / 60
-                rate    = (total_saved - already_done) / max(elapsed, 0.01)
-                eta     = (max_clips - total_saved) / max(rate, 0.01)
-                disk_gb = sum(f.stat().st_size for f in pathlib.Path(RAW_DIR).glob('*.tar.gz')
-                              ) / 1e9 if pathlib.Path(RAW_DIR).exists() else 0
-                print(f'  [{lang_cv}] {total_saved}/{max_clips} | '
-                      f'{rate:.1f} clips/min | ETA {eta:.0f} min | '
-                      f'raw disk {disk_gb:.1f} GB')
+#             if total_saved % 200 == 0:
+#                 elapsed = (_time.time() - t0) / 60
+#                 rate    = (total_saved - already_done) / max(elapsed, 0.01)
+#                 eta     = (max_clips - total_saved) / max(rate, 0.01)
+#                 disk_gb = sum(f.stat().st_size for f in pathlib.Path(RAW_DIR).glob('*.tar.gz')
+#                               ) / 1e9 if pathlib.Path(RAW_DIR).exists() else 0
+#                 print(f'  [{lang_cv}] {total_saved}/{max_clips} | '
+#                       f'{rate:.1f} clips/min | ETA {eta:.0f} min | '
+#                       f'raw disk {disk_gb:.1f} GB')
 
-            if len(buffer) >= CHUNK_SAVE_EVERY:
-                _save_pseudo_parquet(buffer, lang_cv, tgt_m4t, next_chunk_idx)
-                buffer          = []; next_chunk_idx += 1; chunks_pushed += 1
-                state = {'clips_done': total_saved, 'next_chunk_idx': next_chunk_idx,
-                         'byte_offset': current_offset}
-                state_file.write_text(json.dumps(state))
-                if chunks_pushed % PUSH_EVERY_CHUNKS == 0:
-                    _push_kaggle_and_cleanup(
-                        f'Phase6 {lang_cv}2{tgt_m4t} step {total_saved}', lang_cv)
+#             if len(buffer) >= CHUNK_SAVE_EVERY:
+#                 _save_pseudo_parquet(buffer, lang_cv, tgt_m4t, next_chunk_idx)
+#                 buffer          = []; next_chunk_idx += 1; chunks_pushed += 1
+#                 state = {'clips_done': total_saved, 'next_chunk_idx': next_chunk_idx,
+#                          'byte_offset': current_offset}
+#                 state_file.write_text(json.dumps(state))
+#                 if chunks_pushed % PUSH_EVERY_CHUNKS == 0:
+#                     _push_kaggle_and_cleanup(
+#                         f'Phase6 {lang_cv}2{tgt_m4t} step {total_saved}', lang_cv)
 
-        print(f'[Phase6] Slice done: {clips_this_slice} clips extracted.')
+#         print(f'[Phase6] Slice done: {clips_this_slice} clips extracted.')
 
-        # Delete the raw slice immediately to free disk
-        if os.path.exists(part_path):
-            os.remove(part_path)
-            print(f'[Phase6] Deleted {lang_cv}_part.tar.gz')
+#         # Delete the raw slice immediately to free disk
+#         if os.path.exists(part_path):
+#             os.remove(part_path)
+#             print(f'[Phase6] Deleted {lang_cv}_part.tar.gz')
 
-        # Advance to next slice
-        current_offset = slice_end + 1
-        state = {'clips_done': total_saved, 'next_chunk_idx': next_chunk_idx,
-                 'byte_offset': current_offset}
-        state_file.write_text(json.dumps(state))
+#         # Advance to next slice
+#         current_offset = slice_end + 1
+#         state = {'clips_done': total_saved, 'next_chunk_idx': next_chunk_idx,
+#                  'byte_offset': current_offset}
+#         state_file.write_text(json.dumps(state))
 
-        if total_saved >= max_clips:
-            print(f'[Phase6] Reached target {max_clips} clips.'); break
+#         if total_saved >= max_clips:
+#             print(f'[Phase6] Reached target {max_clips} clips.'); break
 
-    # Save any leftover buffer
-    if buffer:
-        _save_pseudo_parquet(buffer, lang_cv, tgt_m4t, next_chunk_idx)
-        next_chunk_idx += 1
-        state = {'clips_done': total_saved, 'next_chunk_idx': next_chunk_idx,
-                 'byte_offset': current_offset}
-        state_file.write_text(json.dumps(state))
+#     # Save any leftover buffer
+#     if buffer:
+#         _save_pseudo_parquet(buffer, lang_cv, tgt_m4t, next_chunk_idx)
+#         next_chunk_idx += 1
+#         state = {'clips_done': total_saved, 'next_chunk_idx': next_chunk_idx,
+#                  'byte_offset': current_offset}
+#         state_file.write_text(json.dumps(state))
 
-    _push_kaggle_and_cleanup(
-        f'Phase6 {lang_cv}2{tgt_m4t} FINAL {total_saved} clips', lang_cv)
+#     _push_kaggle_and_cleanup(
+#         f'Phase6 {lang_cv}2{tgt_m4t} FINAL {total_saved} clips', lang_cv)
 
-    elapsed = (_time.time() - t0) / 60
-    print(f'\n✓ [{lang_cv}] Complete: {total_saved} pseudo-labels in {elapsed:.1f} min.')
+#     elapsed = (_time.time() - t0) / 60
+#     print(f'\n✓ [{lang_cv}] Complete: {total_saved} pseudo-labels in {elapsed:.1f} min.')
 
 
 print('Fast + reliable pseudo-labeler ready.')
 print(f'Download chunk size: {DOWNLOAD_CHUNK_GB} GB per slice')
 ```
 
-### Output
-
-**[stdout]**
-```
-Fast + reliable pseudo-labeler ready.
-Download chunk size: 9 GB per slice
-```
-
 ---
 
-## Cell 71 — `code` (execution #70)
+## Cell 71 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
-# ── Cell 70: ALL-IN-ONE — Config, Download, Extract, Pseudo-Label, Push
-# Replace the entire old Cell 70 + 71 + 72 with this one cell.
+# ── Cell 71: ALL-IN-ONE (GDrive Sync + FLAC + Kaggle Dataset Publisher)
 # ═══════════════════════════════════════════════════════════════════════════════
 import tarfile, io, csv, os, subprocess, pathlib, time as _time
 import numpy as np, soundfile as sf, requests, json
 import torch, torchaudio
 import pyarrow as pa, pyarrow.parquet as pq
 
-# ── Tunables ──────────────────────────────────────────────────────────────────
-DOWNLOAD_CHUNK_GB  = 9        # bytes per Range slice (stays safely under 10 GB limit)
-CHUNK_SAVE_EVERY   = 1500     # pseudo-labels per Parquet file
-PUSH_EVERY_CHUNKS  = 3        # Kaggle push after this many saved Parquet files
+DOWNLOAD_CHUNK_GB  = 9        
 RAW_DIR            = f'{WORK_DIR}/cv25_raw'
 PSEUDO_DIR         = f'{WORK_DIR}/pseudo_cv25'
+GDRIVE_RAW_CACHE   = f'{GDRIVE_ROOT}/cv25_raw'
+GDRIVE_PARQUET_DIR = f'{GDRIVE_ROOT}/pseudo_cv25_parquets'
 for _d in [RAW_DIR, PSEUDO_DIR]: os.makedirs(_d, exist_ok=True)
 
-LANG_CLIP_BUDGET = {'bn': 30000, 'hi': 20000, 'ar': 20000, 'en': 20000}
+# EXACT FLEURS SCHEMA MATCH
+_AUDIO_TYPE = pa.struct([pa.field('bytes', pa.binary()), pa.field('path',  pa.string())])
+_PQ_SCHEMA  = pa.schema([pa.field('id', pa.string()), pa.field('transcription', pa.string()), pa.field('audio', _AUDIO_TYPE)])
 
-# ── Parquet schema — MUST match FLEURS exactly ────────────────────────────────
-# ChunkedStreamingDataset calls: pq.read_table(f, columns=['audio'])
-# then: audio_cell = df_col[row_idx].as_py()   →  {'bytes': b'...WAV...', 'path': '...'}
-# then: _load_wav({'bytes': wav_bytes})         →  soundfile.read(BytesIO(wav_bytes))
-_AUDIO_TYPE = pa.struct([pa.field('bytes', pa.large_binary()),
-                          pa.field('path',  pa.string())])
-_PQ_SCHEMA  = pa.schema([pa.field('id',            pa.string()),
-                          pa.field('transcription', pa.string()),
-                          pa.field('audio',         _AUDIO_TYPE)])
+def _is_validated_tsv(name: str) -> bool: return name.split('/')[-1] == 'validated.tsv'
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Helpers
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def _is_validated_tsv(name: str) -> bool:
-    return name.split('/')[-1] == 'validated.tsv'   # exact — never matches invalidated.tsv
-
-def _to_wav_bytes(audio: np.ndarray, sr: int = 16000) -> bytes:
+# FLAC compression saves ~60% space
+def _to_flac_bytes(audio: np.ndarray, sr: int = 16000) -> bytes:
     buf = io.BytesIO()
-    sf.write(buf, audio.astype(np.float32), sr, format='WAV', subtype='PCM_16')
+    sf.write(buf, audio.astype(np.float32), sr, format='FLAC')
     return buf.getvalue()
 
-def _save_parquet(records: list, lang_cv: str, tgt_m4t: str, chunk_idx: int) -> str:
-    path = f'{PSEUDO_DIR}/pseudo_{lang_cv}2{tgt_m4t}_chunk{chunk_idx:04d}.parquet'
+def _save_parquet(records: list, src_cv: str, tgt_m4t: str, chunk_idx: int) -> str:
+    if not records: return ""
+    path = f'{PSEUDO_DIR}/pseudo_{src_cv}2{tgt_m4t}_chunk{chunk_idx:04d}.parquet'
     audio_col = pa.StructArray.from_arrays(
-        [pa.array([r['wav_bytes']      for r in records], type=pa.large_binary()),
-         pa.array([r['id'] + '.wav'   for r in records], type=pa.string())],
-        fields=[pa.field('bytes', pa.large_binary()), pa.field('path', pa.string())])
+        [pa.array([r['flac_bytes'] for r in records], type=pa.binary()),
+         pa.array([r['id'] + '.flac' for r in records], type=pa.string())],
+        fields=[pa.field('bytes', pa.binary()), pa.field('path', pa.string())])
     table = pa.Table.from_arrays(
-        [pa.array([r['id']            for r in records], type=pa.string()),
+        [pa.array([r['id'] for r in records], type=pa.string()),
          pa.array([r['transcription'] for r in records], type=pa.string()),
          audio_col], schema=_PQ_SCHEMA)
     pq.write_table(table, path, compression='snappy')
-    print(f"  [Parquet] chunk{chunk_idx:04d} — {len(records)} samples, "
-          f"{os.path.getsize(path)/1e6:.1f} MB → {os.path.basename(path)}")
+    print(f"  [Parquet] chunk{chunk_idx:04d} — {len(records)} samples, {os.path.getsize(path)/1e6:.1f} MB", flush=True)
     return path
 
-def _kaggle_push_and_clean(message: str, lang_cv: str) -> bool:
+# ── Kaggle & GDrive Syncing ──────────────────────────────────────────────────
+def _rclone_sync_backup():
+    if not ON_KAGGLE: return
+    print(f"  [GDrive] Syncing local parquets to GDrive backup...", flush=True)
+    subprocess.run(f'rclone sync "{PSEUDO_DIR}/" "{GDRIVE_PARQUET_DIR}/" --transfers=8', shell=True)
+
+def publish_kaggle_dataset(dataset_title='fleurs5', message='Added new pseudo-labels'):
+    """Pushes the entire PSEUDO_DIR as a new version to the Kaggle Dataset."""
     if not ON_KAGGLE:
-        print('[Kaggle] Not on Kaggle — skip.'); return False
+        print('[Kaggle] Dataset creation only works on Kaggle.')
+        return False
     try:
         kag_json = _get_secret('KAGGLE_API_TOKEN')
-        kp = pathlib.Path.home() / '.kaggle/kaggle.json'
-        kp.parent.mkdir(parents=True, exist_ok=True)
-        kp.write_text(kag_json); kp.chmod(0o600)
-        user = json.loads(kag_json).get('username', 'rayedriasat')
+        kag_path = pathlib.Path.home() / '.kaggle/kaggle.json'
+        kag_path.parent.mkdir(parents=True, exist_ok=True)
+        kag_path.write_text(kag_json)
+        kag_path.chmod(0o600)
+        username = json.loads(kag_json).get('username', 'rayedriasat')
     except Exception as e:
-        print(f'[Kaggle] key error: {e}'); return False
-    with open(f'{PSEUDO_DIR}/dataset-metadata.json', 'w') as f:
-        json.dump({'title':'fleurs5','id':f'{user}/fleurs5',
-                   'licenses':[{'name':'CC0-1.0'}]}, f)
-    r = subprocess.run(
-        ['kaggle','datasets','version','-p',PSEUDO_DIR,
-         '-m', message,'--dir-mode','tar'],
-        capture_output=True, text=True, timeout=600)
+        print(f'[Kaggle] ERROR: API key missing: {e}')
+        return False
+
+    meta_path = os.path.join(PSEUDO_DIR, 'dataset-metadata.json')
+    with open(meta_path, 'w') as f:
+        json.dump({'title': dataset_title, 'id': f'{username}/{dataset_title}', 'licenses': [{'name': 'CC0-1.0'}]}, f, indent=2)
+
+    print(f'[Kaggle] Pushing {PSEUDO_DIR} to {username}/{dataset_title}...')
+    # Try to update version first
+    r = subprocess.run(['kaggle', 'datasets', 'version', '-p', PSEUDO_DIR, '-m', message, '--dir-mode', 'tar'], text=True)
     if r.returncode == 0:
-        print(f'[Kaggle] ✓ {message}')
-        freed = 0
-        for f in pathlib.Path(PSEUDO_DIR).glob(f'pseudo_{lang_cv}2*.parquet'):
-            freed += f.stat().st_size/1e6; f.unlink()
-        print(f'[Kaggle] Freed {freed:.0f} MB')
+        print(f'[Kaggle] ✓ Version updated successfully!')
         return True
-    print(f'[Kaggle] ❌ Push failed:\n{r.stderr[:400]}'); return False
+    
+    # If update fails (dataset doesn't exist yet), create it
+    print('[Kaggle] Update failed. Trying to create new dataset...')
+    r2 = subprocess.run(['kaggle', 'datasets', 'create', '-p', PSEUDO_DIR, '--dir-mode', 'tar'], text=True)
+    if r2.returncode == 0:
+        print(f'[Kaggle] ✓ Dataset created: {username}/{dataset_title}')
+        return True
+    print('[Kaggle] ❌ Push failed entirely.')
+    return False
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Core download: wget Range request → verified local file
-# ═══════════════════════════════════════════════════════════════════════════════
+def _rclone_check_exists(remote_dir, filename):
+    if not ON_KAGGLE: return False
+    r = subprocess.run(f'rclone lsjson "{remote_dir}/{filename}"', shell=True, capture_output=True, text=True)
+    if r.returncode == 0:
+        try: return len(json.loads(r.stdout)) > 0
+        except: pass
+    return False
 
-def _wget_range(url: str, dest: str, start: int, end: int, retries: int = 5) -> bool:
-    """
-    Download bytes[start:end] of url into dest using wget.
-    wget handles TCP stalls, reconnects, and partial writes natively.
-    We verify the file size after download to confirm integrity.
-    """
+def _rclone_copy_to_local(remote_dir, filename, local_dir):
+    print(f"  [GDrive] Pulling {filename} from Google Drive cache...", flush=True)
+    r = subprocess.run(f'rclone copy "{remote_dir}/{filename}" "{local_dir}/" --transfers=8 --drive-chunk-size=64M', shell=True, capture_output=True, text=True)
+    return r.returncode == 0
+
+def _rclone_copy_to_remote(local_path, remote_dir):
+    if not ON_KAGGLE: return
+    print(f"  [GDrive] Backing up {os.path.basename(local_path)} to Google Drive...", flush=True)
+    subprocess.run(f'rclone copy "{local_path}" "{remote_dir}/" --transfers=8 --drive-chunk-size=64M', shell=True, capture_output=True, text=True)
+
+# ── Wget & Parsing ──────────────────────────────────────────────────────────
+def _wget_range(url: str, dest: str, start: int, end: int, retries: int = 3) -> bool:
     expected = end - start + 1
     for attempt in range(retries):
         if os.path.exists(dest): os.remove(dest)
-        cmd = [
-            'wget', '--quiet', '--show-progress',
-            f'--header=Range: bytes={start}-{end}',
-            '--tries=1',          # wget's own retries often fight our outer loop
-            '--timeout=300',      # 5 min socket timeout — enough for any stall
-            '--read-timeout=120', # 2 min between data packets before retry
-            '-O', dest, url,
-        ]
-        r = subprocess.run(cmd)
-        if r.returncode == 0 and os.path.exists(dest):
-            actual = os.path.getsize(dest)
-            # S3 Range: server may return 200 (full file) if it ignores Range header.
-            # Accept both: exact slice OR full file (actual >= expected).
-            if actual >= expected * 0.99:   # 1% tolerance for S3 rounding
-                return True
-            print(f'  [wget] size mismatch: got {actual/1e9:.2f} GB, '
-                  f'expected {expected/1e9:.2f} GB. Retrying...')
-        else:
-            print(f'  [wget] attempt {attempt+1} failed (rc={r.returncode}). Retrying...')
+        cmd = ['wget', '--quiet', '--no-verbose', f'--header=Range: bytes={start}-{end}',
+               '--tries=1', '--timeout=300', '--read-timeout=120', '-O', dest, url]
+        _stop_progress = [False]
+        def _progress_printer():
+            t_start = _time.time()
+            while not _stop_progress[0]:
+                _time.sleep(10)
+                if _stop_progress[0]: break
+                try:
+                    current = os.path.getsize(dest) if os.path.exists(dest) else 0
+                    print(f"  [wget] {current/1e9:.2f}/{expected/1e9:.2f} GB ({current/expected*100:.0f}%)", flush=True)
+                except: pass
+        import threading
+        t = threading.Thread(target=_progress_printer, daemon=True)
+        t.start()
+        proc = subprocess.run(cmd)
+        _stop_progress[0] = True
+        t.join(timeout=1)
+        if proc.returncode == 0 and os.path.exists(dest) and os.path.getsize(dest) >= expected * 0.99: return True
         _time.sleep(10 * (attempt + 1))
     return False
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# TSV extraction from a partial (head) tar.gz
-# ═══════════════════════════════════════════════════════════════════════════════
-
 def _extract_tsv(partial_path: str) -> dict:
-    """
-    Open a partial tar.gz (first N bytes of the archive) and extract
-    validated.tsv. CV archives list metadata files BEFORE the clips/ directory,
-    so validated.tsv is always in the first ~300 MB of the archive.
-
-    tarfile.ReadError at the end of the partial file is EXPECTED and caught.
-    Returns {mp3_bare_filename: sentence} dict.
-    """
     tsv_map = {}
     try:
-        # mode='r:gz' — non-streaming, seeks within the local partial file.
-        # This is fine because we're reading a local disk file, not a socket.
         with tarfile.open(partial_path, mode='r:gz') as tf:
             for member in tf:
                 if member.isfile() and _is_validated_tsv(member.name):
-                    print(f"  [TSV] Found: {member.name} ({member.size/1024:.0f} KB)")
-                    raw = tf.extractfile(member).read().decode('utf-8', errors='replace')
+                    print(f"  [TSV] Found {member.name} ({member.size/1e6:.1f} MB)", flush=True)
+                    f = tf.extractfile(member)
+                    
+                    # ── MAIN FIX: Read in chunks to safely catch EOFError on truncated files ──
+                    raw_bytes = bytearray()
+                    try:
+                        while True:
+                            chunk = f.read(10 * 1024 * 1024) # 10MB chunks
+                            if not chunk: break
+                            raw_bytes.extend(chunk)
+                    except (EOFError, tarfile.ReadError) as e:
+                        print(f"  [TSV] Partial read stopped (Expected on truncated files). Rescuing downloaded rows...", flush=True)
+                        
+                    raw = raw_bytes.decode('utf-8', errors='ignore')
                     for row in csv.DictReader(io.StringIO(raw), delimiter='\t'):
-                        p = row.get('path','').strip()
-                        s = row.get('sentence','').strip()
-                        if p and s:
-                            tsv_map[p.split('/')[-1]] = s
-                    print(f"  [TSV] {len(tsv_map)} validated entries loaded.")
+                        if row.get('path') and row.get('sentence'): 
+                            tsv_map[row['path'].strip().split('/')[-1]] = row['sentence'].strip()
+                            
+                    print(f"  [TSV] Extracted {len(tsv_map)} validated entries.", flush=True)
                     return tsv_map
-                elif member.isfile() and member.name.endswith('.mp3'):
-                    # Hit audio files before finding the TSV — archive is non-standard.
-                    print(f"  [TSV] WARNING: hit MP3s before validated.tsv "
-                          f"(only {len(tsv_map)} entries so far).")
-                    return tsv_map
-    except tarfile.ReadError:
-        # Expected: tarfile hits the truncated end of the partial file.
-        if tsv_map:
-            print(f"  [TSV] Partial read ended as expected. "
-                  f"{len(tsv_map)} entries extracted.")
-        else:
-            print(f"  [TSV] ERROR: ReadError before finding validated.tsv. "
-                  f"Try increasing head download size beyond 300 MB.")
+    except (tarfile.ReadError, EOFError, Exception): 
+        pass
     return tsv_map
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# MP3 extraction from a partial tar.gz slice
-# ═══════════════════════════════════════════════════════════════════════════════
 
-def _extract_mp3s(partial_path: str, tsv_map: dict, skip_n: int, max_n: int):
-    """
-    Generator. Reads a locally-saved partial tar.gz slice, yields
-    (audio_float32_16kHz, 16000, transcription) for validated MP3s.
-
-    skip_n  : skip this many validated clips (for resume within a slice)
-    max_n   : stop after yielding this many clips
-    tarfile.ReadError at end of slice = EXPECTED, silently caught.
-    """
-    skipped = yielded = 0
+def _extract_all_mp3s_to_ram(partial_path: str, tsv_map: dict, max_n: int) -> list:
+    clips, t0 = [], _time.time()
+    print(f"  [RAM] Decompressing {partial_path} → RAM...", flush=True)
     try:
         with tarfile.open(partial_path, mode='r:gz') as tf:
             for member in tf:
-                if yielded >= max_n: break
+                if len(clips) >= max_n: break
                 if not (member.isfile() and member.name.endswith('.mp3')): continue
                 bare = member.name.split('/')[-1]
                 if bare not in tsv_map: continue
-                if skipped < skip_n: skipped += 1; continue
                 try:
-                    mp3 = tf.extractfile(member).read()
-                    audio, sr = sf.read(io.BytesIO(mp3), dtype='float32')
+                    audio, sr = sf.read(io.BytesIO(tf.extractfile(member).read()), dtype='float32')
                     if audio.ndim > 1: audio = audio.mean(axis=1)
-                    if sr != 16000:
-                        audio = torchaudio.functional.resample(
-                            torch.from_numpy(audio), sr, 16000).numpy()
-                        sr = 16000
-                    if not (0.3 <= len(audio)/sr <= 20.0): continue
-                    yield audio.astype(np.float32), 16000, tsv_map[bare]
-                    yielded += 1
-                except Exception: continue
-    except tarfile.ReadError:
-        pass   # expected at end of partial file
-    print(f"  [Extract] {yielded} clips from slice (skipped {skipped} already-done).")
+                    if sr != 16000: audio = torchaudio.functional.resample(torch.from_numpy(audio), sr, 16000).numpy()
+                    dur = len(audio) / 16000
+                    if 0.3 <= dur <= 20.0: clips.append((audio.astype(np.float32), tsv_map[bare]))
+                except: continue
+                if len(clips) % 2000 == 0: print(f"  [RAM] {len(clips)} clips decoded | {(_time.time()-t0)/60:.1f} min", flush=True)
+    except tarfile.ReadError: pass
+    return clips
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Main runner
-# ═══════════════════════════════════════════════════════════════════════════════
+# ── Inference ────────────────────────────────────────────────────────────────
+INFERENCE_BATCH_SIZE = 24
+LOG_EVERY_SECONDS    = 20
 
-def run_pseudo_labeler(lang_cv: str, max_clips: int = 20000):
-    """
-    Complete pipeline for one language:
-      A. Get presigned URL (1 API call — counts against 30/day MDC limit)
-      B. Download first 300 MB → extract validated.tsv → cache to disk
-      C. Download archive in DOWNLOAD_CHUNK_GB slices:
-           - wget Range → local partial file
-           - tarfile read → extract MP3s
-           - teacher inference → pseudo-label
-           - save Parquet every CHUNK_SAVE_EVERY clips
-           - Kaggle push + delete local Parquet every PUSH_EVERY_CHUNKS
-           - delete partial tar.gz slice immediately after processing
-      D. Final push + cleanup
-    Resume: reads .state_{lang_cv}.json to pick up from last saved byte_offset.
-    """
-    tgt_m4t    = CV_TO_M4T[lang_cv]
-    dataset_id = MDC_DATASET_IDS[lang_cv]
-    state_file = pathlib.Path(PSEUDO_DIR) / f'.state_{lang_cv}.json'
-    state      = json.loads(state_file.read_text()) if state_file.exists() else {}
+def _inference_on_ram_clips(clips: list, src_cv: str, tgt_m4t: str, already_saved: int, max_clips: int, t_dev, buffer_out: list) -> int:
+    total_saved, saved_this_call, failed = already_saved, 0, 0
+    t0, last_log_t = _time.time(), 0
+    print(f"  [INF] Starting batched inference: {len(clips)} clips | batch={INFERENCE_BATCH_SIZE}", flush=True)
+
+    for batch_start in range(0, len(clips), INFERENCE_BATCH_SIZE):
+        if total_saved >= max_clips: break
+        batch_clips = clips[batch_start: batch_start + INFERENCE_BATCH_SIZE][:max_clips - total_saved]
+        if not batch_clips: break
+        audios, refs = [c[0] for c in batch_clips], [c[1] for c in batch_clips]
+
+        try:
+            inputs = processor(audio=audios, sampling_rate=16000, return_tensors='pt', padding=True, pad_to_multiple_of=2)
+            inputs_gpu = {k: v.to(t_dev) for k, v in inputs.items()}
+            del inputs
+        except: failed += len(batch_clips); continue
+
+        try:
+            with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.bfloat16):
+                out = teacher.generate(**inputs_gpu, tgt_lang=tgt_m4t)
+            del inputs_gpu; torch.cuda.empty_cache()
+            
+            seqs = out.sequences if hasattr(out, 'sequences') else out
+            remapped = _remap_ids_for_decode(teacher, seqs.cpu())
+            texts = processor.batch_decode(remapped, skip_special_tokens=True)
+            
+            for audio_np, ref, txt in zip(audios, refs, texts):
+                txt = txt.strip()
+                if txt:
+                    buffer_out.append({
+                        'id': f'p6_{src_cv}2{tgt_m4t}_{total_saved:06d}',
+                        'transcription': txt,
+                        'flac_bytes': _to_flac_bytes(audio_np, 16000), 
+                    })
+                    total_saved += 1; saved_this_call += 1
+                else: failed += 1
+        except torch.cuda.OutOfMemoryError:
+            torch.cuda.empty_cache(); gc.collect()
+            half = len(batch_clips) // 2
+            if half < 1: failed += len(batch_clips); continue
+            for sub_start in [0, half]:
+                sub = batch_clips[sub_start: sub_start + half]
+                if not sub: continue
+                sub_audios, sub_refs = [c[0] for c in sub], [c[1] for c in sub]
+                try:
+                    sub_inp = processor(audio=sub_audios, sampling_rate=16000, return_tensors='pt', padding=True)
+                    sub_inp_gpu = {k: v.to(t_dev) for k, v in sub_inp.items()}
+                    with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.bfloat16):
+                        sub_out = teacher.generate(**sub_inp_gpu, tgt_lang=tgt_m4t)
+                    del sub_inp, sub_inp_gpu; torch.cuda.empty_cache()
+                    sub_seqs = sub_out.sequences if hasattr(sub_out, 'sequences') else sub_out
+                    sub_remapped = _remap_ids_for_decode(teacher, sub_seqs.cpu())
+                    sub_texts = processor.batch_decode(sub_remapped, skip_special_tokens=True)
+                    for audio_np, ref, txt in zip(sub_audios, sub_refs, sub_texts):
+                        txt = txt.strip()
+                        if txt:
+                            buffer_out.append({'id': f'p6_{src_cv}2{tgt_m4t}_{total_saved:06d}', 'transcription': txt, 'flac_bytes': _to_flac_bytes(audio_np, 16000)})
+                            total_saved += 1; saved_this_call += 1
+                except: failed += len(sub)
+        except: failed += len(batch_clips); continue
+
+        if _time.time() - last_log_t >= LOG_EVERY_SECONDS:
+            rate = saved_this_call / max((_time.time() - t0) / 60, 0.01)
+            print(f"  [{src_cv}->{tgt_m4t}] {total_saved}/{max_clips} | {rate:.1f}/min | fail={failed}", flush=True)
+            last_log_t = _time.time()
+
+    return saved_this_call
+
+# ── Main Runner ──────────────────────────────────────────────────────────────
+def run_pseudo_labeler(src_cv: str, tgt_m4t: str, max_clips: int = 20000):
+    dataset_id = MDC_DATASET_IDS[src_cv]
+    state_file = pathlib.Path(PSEUDO_DIR) / f'.state_{src_cv}2{tgt_m4t}.json'
+    state = json.loads(state_file.read_text()) if state_file.exists() else {}
     already_done   = state.get('clips_done', 0)
     next_chunk_idx = state.get('next_chunk_idx', 0)
     byte_offset    = state.get('byte_offset', 0)
 
-    print(f'\n{"="*70}')
-    print(f'[PL] {lang_cv} → {tgt_m4t} | target={max_clips} | '
-          f'done={already_done} | resume_offset={byte_offset/1e9:.2f} GB')
-    print(f'{"="*70}')
-    if already_done >= max_clips:
-        print('[PL] Already complete.'); return
+    print(f'\n{"="*65}\n[PL] {src_cv} Audio → {tgt_m4t} Text | target={max_clips} | done={already_done} | resume={byte_offset/1e9:.2f} GB\n{"="*65}', flush=True)
 
+    if already_done >= max_clips: print('[PL] Complete.'); return
     teacher.eval()
     t_dev = next(teacher.text_decoder.parameters()).device
 
-    # ── A: Presigned URL ─────────────────────────────────────────────────────
-    info         = mdc_get_presigned_url(dataset_id)
-    url          = info['downloadUrl']
-    total_bytes  = int(info.get('sizeBytes', 0))
-    expires_ts   = info.get('_expires_ts', _time.time() + 11*3600)
-    print(f'[PL] Archive: {total_bytes/1e9:.2f} GB | '
-          f'URL expires in {(expires_ts-_time.time())/3600:.1f}h')
+    info = mdc_get_presigned_url(dataset_id)
+    url, expires_ts, total_bytes = info['downloadUrl'], info.get('_expires_ts', _time.time() + 11*3600), int(info.get('sizeBytes', 0))
 
     def fresh_url():
         nonlocal url, expires_ts
         if _time.time() > expires_ts - 1800:
-            print('[MDC] Refreshing URL...')
             i = mdc_get_presigned_url(dataset_id, force_refresh=True)
-            url = i['downloadUrl']; expires_ts = i.get('_expires_ts', _time.time()+11*3600)
+            url, expires_ts = i['downloadUrl'], i.get('_expires_ts', _time.time() + 11*3600)
         return url
 
-    # ── B: validated.tsv (cached across restarts) ─────────────────────────────
-    tsv_cache = pathlib.Path(PSEUDO_DIR) / f'.tsv_{lang_cv}.json'
+    if ON_KAGGLE:
+        print("[GDrive] Ensuring all previously generated parquets are present locally before continuing...")
+        subprocess.run(f'rclone copy "{GDRIVE_PARQUET_DIR}/" "{PSEUDO_DIR}/" --transfers=8', shell=True)
+
+    tsv_cache = pathlib.Path(PSEUDO_DIR) / f'.tsv_{src_cv}.json'
     if tsv_cache.exists():
         tsv_map = json.loads(tsv_cache.read_text())
-        print(f'[PL] Cached TSV: {len(tsv_map)} entries.')
     else:
-        head_path = f'{RAW_DIR}/{lang_cv}_head.tar.gz'
-        head_end  = min(300*1024*1024, total_bytes) - 1
-        print(f'[PL] Phase A: downloading first 300 MB for validated.tsv...')
-        if not _wget_range(fresh_url(), head_path, 0, head_end):
-            raise RuntimeError(f'[PL] Head download failed for {lang_cv}')
+        head_path = f'{RAW_DIR}/{src_cv}_head.tar.gz'
+        
+        # ── MAIN FIX: Increased initial download from 300MB to 1.5GB for massive TSVs (like English) ──
+        _wget_range(fresh_url(), head_path, 0, min(1536 * 1024 * 1024, total_bytes) - 1)
+        
         tsv_map = _extract_tsv(head_path)
         os.remove(head_path)
-        if not tsv_map:
-            raise RuntimeError(f'[PL] validated.tsv not found in first 300 MB for {lang_cv}')
         tsv_cache.write_text(json.dumps(tsv_map))
-        print(f'[PL] Phase A done. {len(tsv_map)} validated clips in TSV.')
 
-    # ── C: Process slices ─────────────────────────────────────────────────────
-    chunk_bytes    = int(DOWNLOAD_CHUNK_GB * 1024**3)
-    buffer         = []
-    total_saved    = already_done
-    chunks_since_push = 0
-    t0             = _time.time()
-    cur_offset     = byte_offset   # start from where we left off
+    chunk_bytes = int(DOWNLOAD_CHUNK_GB * 1024**3)
+    total_saved, cur_offset = already_done, byte_offset
 
     while cur_offset < total_bytes and total_saved < max_clips:
-        slice_end  = min(cur_offset + chunk_bytes - 1, total_bytes - 1)
-        part_path  = f'{RAW_DIR}/{lang_cv}_part.tar.gz'
-        print(f'\n[PL] Slice {cur_offset/1e9:.2f}–{slice_end/1e9:.2f} GB '
-              f'({(slice_end-cur_offset+1)/1e9:.2f} GB) ...')
+        slice_end = min(cur_offset + chunk_bytes - 1, total_bytes - 1)
+        part_name = f'{src_cv}_slice_{cur_offset}.tar.gz'
+        part_path = f'{RAW_DIR}/{part_name}'
+        needs_download = True
 
-        t_dl = _time.time()
-        ok = _wget_range(fresh_url(), part_path, cur_offset, slice_end)
-        if not ok:
-            # One more try with a fresh presigned URL
-            ok = _wget_range(fresh_url(), part_path, cur_offset, slice_end)
-        if not ok:
-            raise RuntimeError(f'[PL] Download failed at offset {cur_offset/1e9:.2f} GB')
-        print(f'[PL] Downloaded in {(_time.time()-t_dl)/60:.1f} min. Processing...')
+        if os.path.exists(part_path) and os.path.getsize(part_path) >= (slice_end - cur_offset + 1) * 0.99:
+            print(f'\n[PL] Slice {cur_offset/1e9:.2f} GB exists locally.', flush=True)
+            needs_download = False
+            
+        if needs_download and _rclone_check_exists(GDRIVE_RAW_CACHE, part_name):
+            if _rclone_copy_to_local(GDRIVE_RAW_CACHE, part_name, RAW_DIR): needs_download = False
 
-        # Within this slice, skip clips we already counted (resume within slice)
-        skip_in_slice = max(0, already_done - total_saved)
-        clips_this_slice = 0
+        if needs_download:
+            print(f'\n[PL] Downloading {cur_offset/1e9:.2f}–{slice_end/1e9:.2f} GB from MDC...', flush=True)
+            if not _wget_range(fresh_url(), part_path, cur_offset, slice_end): raise RuntimeError(f'Download failed.')
+            _rclone_copy_to_remote(part_path, GDRIVE_RAW_CACHE)
 
-        for audio, sr, ref_text in _extract_mp3s(
-                part_path, tsv_map,
-                skip_n=skip_in_slice,
-                max_n=max_clips - total_saved):
+        clips_in_ram = _extract_all_mp3s_to_ram(part_path, tsv_map, max_n=max_clips - total_saved)
+        os.remove(part_path) 
 
-            try:
-                inp = processor(audio=audio, sampling_rate=sr, return_tensors='pt')
-                inp = {k: v.to(t_dev) for k, v in inp.items()}
-                with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.float16):
-                    out = teacher.generate(**inp, tgt_lang=tgt_m4t)
-                ids_  = _remap_ids_for_decode(teacher, out.sequences.cpu())
-                txt   = processor.batch_decode(ids_, skip_special_tokens=True)[0].strip()
-                if not txt: continue
-            except torch.cuda.OutOfMemoryError:
-                torch.cuda.empty_cache(); continue
-            except Exception: continue
+        ram_buffer = []
+        n_saved = _inference_on_ram_clips(clips_in_ram, src_cv, tgt_m4t, total_saved, max_clips, t_dev, ram_buffer)
+        del clips_in_ram; gc.collect(); torch.cuda.empty_cache()
 
-            buffer.append({
-                'id':            f'p6_{lang_cv}2{tgt_m4t}_{total_saved:06d}',
-                'transcription': txt,
-                'wav_bytes':     _to_wav_bytes(audio, 16000),
-            })
-            total_saved      += 1
-            clips_this_slice += 1
-
-            if total_saved % 200 == 0:
-                el   = (_time.time()-t0)/60
-                rate = (total_saved-already_done)/max(el,0.01)
-                eta  = (max_clips-total_saved)/max(rate,0.01)
-                disk = os.path.getsize(part_path)/1e9 if os.path.exists(part_path) else 0
-                print(f'  [{lang_cv}] {total_saved}/{max_clips} | '
-                      f'{rate:.1f}/min | ETA {eta:.0f}min | raw {disk:.1f}GB')
-
-            if len(buffer) >= CHUNK_SAVE_EVERY:
-                _save_parquet(buffer, lang_cv, tgt_m4t, next_chunk_idx)
-                buffer = []; next_chunk_idx += 1; chunks_since_push += 1
-                state_file.write_text(json.dumps({
-                    'clips_done': total_saved, 'next_chunk_idx': next_chunk_idx,
-                    'byte_offset': cur_offset}))   # keep cur_offset, not slice_end
-                                                    # so a crash mid-slice re-downloads
-                                                    # the slice but skips already-done clips
-                if chunks_since_push >= PUSH_EVERY_CHUNKS:
-                    _kaggle_push_and_clean(
-                        f'Phase6 {lang_cv}2{tgt_m4t} step{total_saved}', lang_cv)
-                    chunks_since_push = 0
-
-        print(f'[PL] Slice done: {clips_this_slice} new clips.')
-        # Delete raw slice immediately to free disk
-        if os.path.exists(part_path): os.remove(part_path)
-        # Advance offset — next slice starts where this one ended
+        total_saved += n_saved
         cur_offset = slice_end + 1
-        state_file.write_text(json.dumps({
-            'clips_done': total_saved, 'next_chunk_idx': next_chunk_idx,
-            'byte_offset': cur_offset}))
-        if total_saved >= max_clips: break
+        
+        if ram_buffer:
+            _save_parquet(ram_buffer, src_cv, tgt_m4t, next_chunk_idx)
+            next_chunk_idx += 1
+            state_file.write_text(json.dumps({'clips_done': total_saved, 'next_chunk_idx': next_chunk_idx, 'byte_offset': cur_offset}))
+            _rclone_sync_backup()
 
-    # Save remaining buffer
-    if buffer:
-        _save_parquet(buffer, lang_cv, tgt_m4t, next_chunk_idx)
-        next_chunk_idx += 1
-        state_file.write_text(json.dumps({
-            'clips_done': total_saved, 'next_chunk_idx': next_chunk_idx,
-            'byte_offset': cur_offset}))
+    _rclone_sync_backup()
+    publish_kaggle_dataset(dataset_title='fleurs5', message=f'Added {total_saved} {src_cv}->{tgt_m4t} pseudo-labels')
+    print(f'\n✓ [{src_cv}->{tgt_m4t}] {total_saved} pseudo-labels generated and pushed to Kaggle.')
 
-    _kaggle_push_and_clean(
-        f'Phase6 {lang_cv}2{tgt_m4t} FINAL {total_saved} clips', lang_cv)
-    print(f'\n✓ [{lang_cv}] {total_saved} pseudo-labels in '
-          f'{(_time.time()-t0)/60:.1f} min.')
-
-
-print(f'Pseudo-labeler ready. Chunk size: {DOWNLOAD_CHUNK_GB} GB')
-print(f'RAW_DIR:    {RAW_DIR}')
-print(f'PSEUDO_DIR: {PSEUDO_DIR}')
-```
-
-### Output
-
-**[stdout]**
-```
-Pseudo-labeler + Parquet writer ready (FLEURS-compatible schema).
+print('Cross-Lingual Pseudo-Labeler Ready with FLAC, GDrive Backup, and Kaggle Publishing.')
 ```
 
 ---
 
-## Cell 72 — `code` (execution #71)
+## Cell 72 — `code`
 
 ```python
-# ── Cell 72: EXECUTE Pseudo-Labeling ─────────────────────────────────────────
-# Calls run_pseudo_labeler defined in Cell 71.
-# If you see "[Stream] Pass 1..." in the error, your kernel has the old
-# streaming code in memory. Restart kernel and re-run all cells from top.
-# Each call auto-resumes from .state_{lang}.json if the session dies.
-
-run_pseudo_labeler('bn', max_clips=LANG_CLIP_BUDGET['bn'])   # Bengali FIRST — priority
-run_pseudo_labeler('ar', max_clips=LANG_CLIP_BUDGET['ar'])
-run_pseudo_labeler('hi', max_clips=LANG_CLIP_BUDGET['hi'])
-run_pseudo_labeler('en', max_clips=LANG_CLIP_BUDGET['en'])
-```
-
-### Output
-
-**[stdout]**
-```
-
-======================================================================
-[Phase6] Language: bn → ben
-[Phase6] Target clips: 30000 | Already done: 0
-======================================================================
-[Stream] Pass 1: scanning for validated.tsv...
-[Stream] Found cv-corpus-25.0-2026-03-09/bn/validated.tsv (18178 KB). Parsing...
-[Stream] Loaded 44733 validated transcriptions.
-[Stream] Pass 2: streaming audio clips (skipping first 0)...
-```
-
-**[ERROR]** `ReadError: unexpected end of data`
-```
----------------------------------------------------------------------------
-ReadError                                 Traceback (most recent call last)
-/tmp/ipykernel_57/1679263370.py in <cell line: 0>()
-    158 
-    159 # ── Execute — Bengali first (priority target), then others ────────────────────
---> 160 run_streaming_pseudo_labeler('bn', max_clips=LANG_CLIP_BUDGET['bn'])
-    161 run_streaming_pseudo_labeler('ar', max_clips=LANG_CLIP_BUDGET['ar'])
-    162 run_streaming_pseudo_labeler('hi', max_clips=LANG_CLIP_BUDGET['hi'])
-
-/tmp/ipykernel_57/1679263370.py in run_streaming_pseudo_labeler(lang_cv, max_clips)
-     74         )
-     75 
----> 76         for clip_idx, (audio, sr, ref_text) in enumerate(clip_gen):
-     77 
-     78             # Teacher inference
-
-/tmp/ipykernel_57/2958271981.py in stream_cv25_validated_clips(presigned_url, max_clips, already_done, url_refresh_fn)
-    124         raw_stream = _StreamingBytesIO(resp)
-    125         with tarfile.open(fileobj=raw_stream, mode='r|gz') as tf:
---> 126             for member in tf:
-    127                 if yielded >= max_clips:
-    128                     break
-
-/usr/lib/python3.12/tarfile.py in __iter__(self)
-   2879                 tarinfo = self.members[index]
-   2880             elif not self._loaded:
--> 2881                 tarinfo = self.next()
-   2882                 if not tarinfo:
-   2883                     self._loaded = True
-
-/usr/lib/python3.12/tarfile.py in next(self)
-   2733             self.fileobj.seek(self.offset - 1)
-   2734             if not self.fileobj.read(1):
--> 2735                 raise ReadError("unexpected end of data")
-   2736 
-   2737         # Read the next block.
-
-ReadError: unexpected end of data
+teacher
 ```
 
 ---
@@ -6240,54 +4840,120 @@ ReadError: unexpected end of data
 ## Cell 73 — `code`
 
 ```python
-# ── Cell 71: Load Combined Dataset (FLEURS + Pseudo) ─────────────────────────
-import pandas as pd, pathlib
+# ── Cell 73: EXECUTE CROSS-LINGUAL Pseudo-Labeling ───────────────────────────
 
-PSEUDO_KAGGLE_PATH = '/kaggle/input/fleurs5'
+# 1. Translate INTO Bengali (X Audio -> Bengali Text)
+run_pseudo_labeler(src_cv='en', tgt_m4t='ben', max_clips=20000)
+run_pseudo_labeler(src_cv='hi', tgt_m4t='ben', max_clips=20000)
+run_pseudo_labeler(src_cv='ar', tgt_m4t='ben', max_clips=20000)
 
-def _build_pseudo_metadata(path: str) -> list:
-    meta = []
-    for f in sorted(pathlib.Path(path).glob('pseudo_*.parquet')):
-        stem = f.stem                           # pseudo_bn2ben_chunk0000
-        try: lang_pair = stem.split('_')[1]     # bn2ben
-        except IndexError: continue
-        if '2' not in lang_pair: continue
-        src_cv, tgt_m4t = lang_pair.split('2', 1)
-        src_m4t = CV_TO_M4T.get(src_cv, src_cv)
-        try: df = pd.read_parquet(str(f), columns=['id','transcription'])
-        except Exception as e: print(f'  [skip] {f.name}: {e}'); continue
-        for i, row in enumerate(df.itertuples(index=False)):
-            meta.append({'id': row.id, 'src_lang': src_m4t, 'tgt_lang': tgt_m4t,
-                         'ref': row.transcription, '_src_file': str(f), '_src_idx': i})
-    print(f'  [Pseudo] {len(meta)} entries from {path}')
-    return meta
-
-def load_all_metadata_combined(max_fleurs: int = 4000) -> list:
-    all_meta = []
-    print('Loading FLEURS metadata...')
-    for src, tgt in EVAL_LANG_PAIRS:
-        ds = ParquetStreamingDataset(LOCAL_PARQUET_CACHE, src, tgt, 'train', max_fleurs)
-        all_meta.extend(ds.samples)
-    print(f'  FLEURS: {len(all_meta)} samples')
-    print(f'Loading pseudo-label metadata from {PSEUDO_KAGGLE_PATH}...')
-    pseudo = _build_pseudo_metadata(PSEUDO_KAGGLE_PATH)
-    all_meta.extend(pseudo)
-    from collections import Counter
-    counts = Counter(f"{s['src_lang']}→{s['tgt_lang']}" for s in all_meta)
-    print(f'\n✓ Combined: {len(all_meta)} total')
-    for pair, n in sorted(counts.items()):
-        print(f'  {pair}: {n}{"  ★ Bengali" if "ben" in pair else ""}')
-    return all_meta
-
-combined_metadata = load_all_metadata_combined(max_fleurs=4000)
-ft_samples = ChunkedStreamingDataset(combined_metadata, chunk_size=CHUNK_SIZE, prefetch=True)
-N_TRAIN = len(ft_samples)
-print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples')
+# 2. Translate FROM Bengali (Bengali Audio -> X Text)
+# We set Bengali to have a larger budget since it is our primary focus.
+run_pseudo_labeler(src_cv='bn', tgt_m4t='eng', max_clips=15000)
+run_pseudo_labeler(src_cv='bn', tgt_m4t='hin', max_clips=10000)
+run_pseudo_labeler(src_cv='bn', tgt_m4t='arb', max_clips=10000)
 ```
 
 ---
 
 ## Cell 74 — `code`
+
+```python
+# ── Cell 74: Load Combined Dataset (FLEURS + Kaggle Pseudo Dataset) ──────────
+import pandas as pd, pathlib, os
+
+# This is where you should mount your dataset for Phase 6 training!
+PSEUDO_KAGGLE_PATH = '/kaggle/input/fleurs5'
+
+# Fallback in case you haven't restarted and mounted it yet
+FALLBACK_LOCAL_PATH = f'{WORK_DIR}/pseudo_cv25'
+
+def _build_pseudo_metadata(path: str) -> list:
+    meta = []
+    print(f'Loading pseudo-label metadata from {path}...')
+    parquet_files = list(pathlib.Path(path).glob('pseudo_*.parquet'))
+    
+    if not parquet_files:
+        print(f"  [Warning] No parquets found in {path}!")
+        return meta
+        
+    for f in sorted(parquet_files):
+        stem = f.stem                           
+        try: lang_pair = stem.split('_')[1]     
+        except IndexError: continue
+        if '2' not in lang_pair: continue
+        
+        src_cv, tgt_m4t = lang_pair.split('2', 1)
+        src_m4t = CV_TO_M4T.get(src_cv, src_cv)
+        
+        try: df = pd.read_parquet(str(f), columns=['id','transcription'])
+        except Exception as e: print(f'  [skip] {f.name}: {e}'); continue
+        
+        for i, row in enumerate(df.itertuples(index=False)):
+            meta.append({
+                'id': row.id, 
+                'src_lang': src_m4t, 
+                'tgt_lang': tgt_m4t,
+                'ref': row.transcription, 
+                '_src_file': str(f), 
+                '_src_idx': i
+            })
+    print(f'  [Pseudo] Successfully loaded {len(meta)} entries from {path}')
+    return meta
+
+def load_all_metadata_combined(max_fleurs: int = 4000) -> list:
+    all_meta = []
+    print('Loading original FLEURS metadata...')
+    for src, tgt in EVAL_LANG_PAIRS:
+        ds = ParquetStreamingDataset(LOCAL_PARQUET_CACHE, src, tgt, 'train', max_fleurs)
+        all_meta.extend(ds.samples)
+    print(f'  FLEURS: {len(all_meta)} samples')
+    
+    # Try Kaggle Mount first, fallback to local working directory
+    if os.path.exists(PSEUDO_KAGGLE_PATH) and len(list(pathlib.Path(PSEUDO_KAGGLE_PATH).glob('*.parquet'))) > 0:
+        pseudo = _build_pseudo_metadata(PSEUDO_KAGGLE_PATH)
+    else:
+        print(f'  Kaggle Dataset not mounted at {PSEUDO_KAGGLE_PATH}. Falling back to local directory.')
+        pseudo = _build_pseudo_metadata(FALLBACK_LOCAL_PATH)
+        
+    all_meta.extend(pseudo)
+    
+    from collections import Counter
+    counts = Counter(f"{s['src_lang']}→{s['tgt_lang']}" for s in all_meta)
+    print(f'\n✓ Combined: {len(all_meta)} total training samples')
+    for pair, n in sorted(counts.items()):
+        print(f'  {pair}: {n}{"  ★ Bengali" if "ben" in pair else ""}')
+    return all_meta
+
+# Build combined metadata
+combined_metadata = load_all_metadata_combined(max_fleurs=4000)
+
+# Pass straight to ChunkedStreamingDataset 
+ft_samples = ChunkedStreamingDataset(combined_metadata, chunk_size=CHUNK_SIZE, prefetch=True)
+N_TRAIN = len(ft_samples)
+
+print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples ready for Massive KD Training.')
+```
+
+---
+
+## Cell 75 — `code`
+
+```python
+!rclone copy /kaggle/working/ gdrive:seamTL_bengali/
+```
+
+---
+
+## Cell 76 — `code`
+
+```python
+heed
+```
+
+---
+
+## Cell 77 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -6470,7 +5136,7 @@ print('Bridge modules defined. Call inject_bridges(student) to install.')
 
 ---
 
-## Cell 75 — `code`
+## Cell 78 — `code`
 
 ```python
 # ── Cell: Install Bridges + Warm Up ──────────────────────────────────────────
@@ -6498,7 +5164,7 @@ print('then call set_joint_training(student) and switch to the Phase 6 optimizer
 
 ---
 
-## Cell 76 — `code`
+## Cell 79 — `code`
 
 ```python
 # ── Cell 76: Phase 6A — Bridge Warm-Up (300 steps, bridges only) ─────────────
@@ -6642,17 +5308,9 @@ text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
 print(f"P6A eval → Text ChrF: {text_chrf:.2f} | ASR ChrF: {asr_chrf:.2f}")
 ```
 
-### Output
-
-**[stdout]**
-```
-[rclone] 2026/05/22 05:36:54 -     2.144 KiB / 2.144 KiB, 100%, 2.143 KiB/s, ETA 0s
-[rclone] 2026/05/22 05:36:55 -     5.259 KiB / 5.259 KiB, 100%, 0 B/s, ETA -
-```
-
 ---
 
-## Cell 77 — `code`
+## Cell 80 — `code`
 
 ```python
 # ── Cell 77: Phase 6B — Joint Training (all params + bridges, Bengali focus) ──
@@ -6889,7 +5547,7 @@ print(f"\n✓ Phase 6B complete. Best ASR ChrF: {final_chrf:.2f} at step {final_
 
 ---
 
-## Cell 78 — `code`
+## Cell 81 — `code`
 
 ```python
 # ── Cell 78: Ablation Evaluation (required for EMNLP paper) ──────────────────
@@ -6972,7 +5630,7 @@ print("\nSave this table — it's Table 1 in your EMNLP paper.")
 
 ---
 
-## Cell 79 — `markdown`
+## Cell 82 — `markdown`
 
 > ## Summary
 > 
