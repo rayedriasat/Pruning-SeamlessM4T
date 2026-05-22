@@ -209,7 +209,7 @@ def _rclone_pull_model(stage_name):
 def wait_for_uploads():
     if ON_KAGGLE: _upload_q.join()
 
-def save_checkpoint(state, name, step=0, keep=3):
+def save_checkpoint(state, name, step=0, keep=1):
     fname = f'{name}_step{step:06d}.pt'
     path  = f'{CKPT_DIR}/{fname}'
     torch.save(state, path)
@@ -697,6 +697,8 @@ Cell12:
 
 Cell13:
 import gc as _gc
+import torch
+import torchaudio
 
 _MMS_MODEL_ID = 'facebook/mms-1b-all'
 _mms_asr_models, _mms_asr_processors = {}, {}
@@ -704,19 +706,60 @@ _whisper_model = _whisper_processor = None
 
 def _ensure_mms_loaded(lang_code):
     global _mms_asr_models, _mms_asr_processors
-    if lang_code in _mms_asr_models: return
     from transformers import Wav2Vec2ForCTC, AutoProcessor
-    print(f'[MMS-ASR] Loading lang={lang_code}...')
-    _mms_asr_processors[lang_code] = AutoProcessor.from_pretrained(
-        _MMS_MODEL_ID, target_lang=lang_code)
-    _mms_asr_models[lang_code] = Wav2Vec2ForCTC.from_pretrained(
-        _MMS_MODEL_ID, target_lang=lang_code,
-        ignore_mismatched_sizes=True, torch_dtype=torch.float16)
-    _mms_asr_models[lang_code].load_adapter(lang_code)
-    _mms_asr_models[lang_code] = _mms_asr_models[lang_code].eval()
-    try: _mms_asr_models[lang_code] = _mms_asr_models[lang_code].to('cuda:0')
-    except RuntimeError: pass
-    print(f'[MMS-ASR] {lang_code} ready.')
+    
+    if lang_code not in _mms_asr_models:
+        print(f'[MMS-ASR] Loading lang={lang_code}...')
+        _mms_asr_processors[lang_code] = AutoProcessor.from_pretrained(
+            _MMS_MODEL_ID, target_lang=lang_code)
+        _mms_asr_models[lang_code] = Wav2Vec2ForCTC.from_pretrained(
+            _MMS_MODEL_ID, target_lang=lang_code,
+            ignore_mismatched_sizes=True, torch_dtype=torch.float16)
+        _mms_asr_models[lang_code].load_adapter(lang_code)
+        _mms_asr_models[lang_code] = _mms_asr_models[lang_code].eval()
+        
+    # Move to GPU if it's currently sleeping on the CPU
+    if next(_mms_asr_models[lang_code].parameters()).device.type == 'cpu':
+        try:
+            _mms_asr_models[lang_code] = _mms_asr_models[lang_code].to('cuda:0')
+        except RuntimeError: pass
+
+def _ensure_whisper_loaded():
+    global _whisper_model, _whisper_processor
+    from transformers import WhisperForConditionalGeneration, WhisperProcessor
+    
+    if _whisper_model is None:
+        print('[Whisper] Loading openai/whisper-medium...')
+        _whisper_processor = WhisperProcessor.from_pretrained('openai/whisper-medium')
+        _whisper_model = WhisperForConditionalGeneration.from_pretrained(
+            'openai/whisper-medium', torch_dtype=torch.float16).eval()
+            
+    # Move to GPU if it's currently sleeping on the CPU
+    if next(_whisper_model.parameters()).device.type == 'cpu':
+        device = 'cuda:1' if torch.cuda.device_count() > 1 else 'cuda:0'
+        try:
+            _whisper_model = _whisper_model.to(device)
+        except RuntimeError: pass
+
+def offload_asr_models():
+    """Moves all ASR models to CPU to immediately free up VRAM for training."""
+    global _mms_asr_models, _whisper_model
+    moved = False
+    
+    for lang, model in _mms_asr_models.items():
+        if next(model.parameters()).device.type != 'cpu':
+            _mms_asr_models[lang] = model.to('cpu')
+            moved = True
+            
+    if _whisper_model is not None and next(_whisper_model.parameters()).device.type != 'cpu':
+        _whisper_model = _whisper_model.to('cpu')
+        moved = True
+        
+    if moved:
+        import gc
+        gc.collect()
+        torch.cuda.empty_cache()
+        print("  [ASR] Offloaded models to CPU to clear VRAM for training.")
 
 def asr_transcribe_mms(audio_np, lang_code, sr=16000):
     _ensure_mms_loaded(lang_code)
@@ -734,19 +777,6 @@ def asr_transcribe_mms(audio_np, lang_code, sr=16000):
         logits = model(input_values=input_values).logits
     pred_ids = torch.argmax(logits, dim=-1)
     return proc.batch_decode(pred_ids)[0].strip()
-
-def _ensure_whisper_loaded():
-    global _whisper_model, _whisper_processor
-    if _whisper_model is not None: return
-    from transformers import WhisperForConditionalGeneration, WhisperProcessor
-    print('[Whisper] Loading openai/whisper-medium...')
-    _whisper_processor = WhisperProcessor.from_pretrained('openai/whisper-medium')
-    _whisper_model = WhisperForConditionalGeneration.from_pretrained(
-        'openai/whisper-medium', torch_dtype=torch.float16).eval()
-    device = 'cuda:1' if N_GPU > 1 else 'cuda:0'
-    try: _whisper_model = _whisper_model.to(device)
-    except RuntimeError: pass
-    print('[Whisper] Ready.')
 
 def asr_transcribe_whisper(audio_np, lang='en', sr=16000):
     _ensure_whisper_loaded()
@@ -766,7 +796,7 @@ def asr_transcribe_whisper(audio_np, lang='en', sr=16000):
     return _whisper_processor.batch_decode(predicted_ids, skip_special_tokens=True)[0].strip()
 
 def asr_transcribe(audio_np, lang_code, sr=16000):
-    """Unified ASR dispatch — no Chinese."""
+    """Unified ASR dispatch."""
     cfg = LANG_ASR_CONFIG.get(lang_code)
     if cfg is None:
         print(f'[ASR] Unknown lang {lang_code}'); return ''
@@ -775,10 +805,9 @@ def asr_transcribe(audio_np, lang_code, sr=16000):
         return asr_transcribe_whisper(audio_np, lang=code, sr=sr)
     return asr_transcribe_mms(audio_np, lang_code=code, sr=sr)
 
-print('ASR stack ready:')
+print('ASR stack ready with dynamic VRAM offloading:')
 print('  - Whisper-medium : English')
 print('  - MMS-1b-all     : Bengali, Hindi, Arabic')
-
 
 Cell14:
 from sacrebleu.metrics import BLEU, CHRF
@@ -806,9 +835,21 @@ def _model_input_device(mdl):
         return next(mdl.speech_encoder.parameters()).device
     return next(mdl.parameters()).device
 
+import numpy as np
+import torch.nn as nn
+
 def run_s2st(mdl, wav, tgt_lang='ben'):
     inputs = processor(audio=wav, sampling_rate=16000, return_tensors='pt')
-    inputs = {k: v.to(_model_input_device(mdl)) for k, v in inputs.items()}
+    
+    # CRITICAL FIX: Align input tensors with the text_decoder's device.
+    # HF's generate() uses the input tensor's device to initialize internal variables 
+    # (like attention masks). Since the monkey-patch forces the model device to cuda:1, 
+    # placing inputs on cuda:0 causes a collision (cuda:0 vs cuda:1).
+    # Accelerate will automatically route these inputs to cuda:0 when the speech_encoder 
+    # is called internally.
+    target_device = next(mdl.text_decoder.parameters()).device
+    inputs = {k: v.to(target_device) for k, v in inputs.items()}
+    
     with torch.no_grad():
         try:
             with torch.cuda.amp.autocast(dtype=torch.float16):
@@ -819,16 +860,26 @@ def run_s2st(mdl, wav, tgt_lang='ben'):
             wav_out = (out.waveform.cpu().numpy().squeeze()
                        if out.waveform is not None else np.zeros(16000))
             return text, wav_out
-        except RuntimeError:
+        except Exception as e:
+            # If S2ST fails, fallback gracefully to S2T
+            print(f"  [S2ST failed, falling back to S2T]: {e}")
             return run_s2t_only(mdl, wav, tgt_lang), np.zeros(16000)
 
 def run_s2t_only(mdl, wav, tgt_lang='ben'):
     inputs = processor(audio=wav, sampling_rate=16000, return_tensors='pt')
-    inputs = {k: v.to(_model_input_device(mdl)) for k, v in inputs.items()}
+    
+    # Same device alignment fix as run_s2st
+    target_device = next(mdl.text_decoder.parameters()).device
+    inputs = {k: v.to(target_device) for k, v in inputs.items()}
+    
     orig_voc = mdl.vocoder
-    inp_dev  = next(iter(inputs.values())).device
     class _Noop(nn.Module):
-        def forward(self, *a, **kw): return torch.zeros(1, 1, device=inp_dev), [1]
+        def forward(self, *a, **kw): 
+            # Dynamically match the device of the input tensor passed to the vocoder
+            # to prevent any hardcoded device mismatches.
+            dev = a[0].device if len(a) > 0 else target_device
+            return torch.zeros(1, 1, device=dev), [1]
+            
     mdl.vocoder = _Noop()
     try:
         with torch.no_grad():
@@ -837,6 +888,7 @@ def run_s2t_only(mdl, wav, tgt_lang='ben'):
                                    return_intermediate_token_ids=True)
     finally:
         mdl.vocoder = orig_voc
+        
     text_ids = _remap_ids_for_decode(mdl, out.sequences.cpu())
     return processor.batch_decode(text_ids, skip_special_tokens=True)[0]
 
@@ -1360,6 +1412,16 @@ the signal is too noisy — fall back to ChrF to break ties.
 
 
 Cell26:
+import torch
+import transformers
+
+# Force the generation mixin to use cuda:1 for initializing generation variables
+transformers.models.seamless_m4t_v2.modeling_seamless_m4t_v2.SeamlessM4Tv2ForSpeechToSpeech.device = property(
+    lambda self: torch.device("cuda:1")
+)
+print("✓ SeamlessM4Tv2 class device property successfully patched to cuda:1")
+
+Cell27:
 # ── Quick evaluation helpers ──────────────────────────────────────────────────
 BLEU_NOISE_THRESHOLD = 1.0   # if max candidate BLEU < this → use ChrF
 
@@ -1439,41 +1501,63 @@ def chunk_friendly_shuffle(n_samples, chunk_size, batch_size):
     return order
 
 
-# ── quick_eval_chrf — required by Phase 5 training loop ──────────────────────
-def quick_eval_chrf(mdl, samples, max_samples=32, group_size=None):
-    """
-    Fast eval: S2ST → ASR → ChrF for a subset of samples.
-    Returns (text_chrf, asr_chrf) — both averaged over sampled pairs.
+from collections import defaultdict
+import numpy as np
 
-    group_size: samples per language group (auto-detected from eval_samples
-                if None, else falls back to len(samples)//num_groups).
-    Uses run_s2st + asr_transcribe. Does NOT need run_s2t_only.
+# Global cache for grouped samples
+_QUICK_EVAL_PAIR_CACHE = {}
+
+def quick_eval_chrf(mdl, samples, max_samples=18, group_size=None):
     """
+    Fast eval: S2ST → ASR → ChrF.
+    Dynamically groups by language pair, caching the dictionary to avoid redundant loops.
+    """
+    global _QUICK_EVAL_PAIR_CACHE
+    
+    # Use the memory address of the list as a unique cache key
+    list_id = id(samples)
+    
+    # 1. Fetch from cache, or build it once and store it
+    if list_id in _QUICK_EVAL_PAIR_CACHE:
+        by_pair = _QUICK_EVAL_PAIR_CACHE[list_id]
+    else:
+        by_pair = defaultdict(list)
+        for s in samples:
+            pair_key = f"{s['src_lang']}→{s['tgt_lang']}"
+            by_pair[pair_key].append(s)
+        _QUICK_EVAL_PAIR_CACHE[list_id] = by_pair
+
+    n_pairs = len(by_pair)
+    if n_pairs == 0:
+        return 0.0, 0.0
+
+    # 2. Calculate even distribution
+    per_pair = max(1, max_samples // n_pairs)
+    
+    # 3. Collect the exact subset to evaluate
+    eval_subset = []
+    pair_counts = []
+    for pair_key, pair_samples in sorted(by_pair.items()):
+        selected = pair_samples[:per_pair]
+        eval_subset.extend(selected)
+        pair_counts.append(f"{pair_key}: {len(selected)}")
+        
+    print(f"  [Eval] Selected {len(eval_subset)} samples across {n_pairs} pairs ({', '.join(pair_counts)})")
+
+    # 4. Run S2ST and evaluate
     text_scores, asr_scores = [], []
-
-    # Auto-detect group size: EVAL_LANG_PAIRS has 6 pairs × N_EVAL_PER_PAIR
-    if group_size is None:
-        n_pairs    = len(EVAL_LANG_PAIRS)
-        group_size = max(1, len(samples) // n_pairs)
-
-    num_groups = max(1, len(samples) // group_size)
-    per_group  = max(1, max_samples // num_groups)
-
-    for i in range(num_groups):
-        for j in range(per_group):
-            idx = i * group_size + j
-            if idx >= len(samples):
-                break
-            s   = samples[idx]
-            tgt = s.get('tgt_lang', 'ben')
-            try:
-                text_pred, wav_out = run_s2st(mdl, s['wav'], tgt_lang=tgt)
-                asr_pred           = asr_transcribe(wav_out, tgt)
-                text_scores.append(compute_chrf(text_pred, s['ref']))
-                asr_scores.append(compute_chrf(asr_pred,  s['ref']))
-            except Exception as e:
-                text_scores.append(0.0)
-                asr_scores.append(0.0)
+    for idx, s in enumerate(eval_subset):
+        tgt = s.get('tgt_lang', 'ben')
+        try:
+            text_pred, wav_out = run_s2st(mdl, s['wav'], tgt_lang=tgt)
+            asr_pred           = asr_transcribe(wav_out, tgt)
+            
+            text_scores.append(compute_chrf(text_pred, s['ref']))
+            asr_scores.append(compute_chrf(asr_pred,  s['ref']))
+        except Exception as e:
+            print(f"  [Sample Error at subset idx {idx}]: {e}")
+            text_scores.append(0.0)
+            asr_scores.append(0.0)
 
     text_chrf = float(np.mean(text_scores)) if text_scores else 0.0
     asr_chrf  = float(np.mean(asr_scores))  if asr_scores  else 0.0
@@ -1484,7 +1568,7 @@ print('Quick eval helpers ready.')
 print('chunk_friendly_shuffle ready.')
 print('quick_eval_chrf ready.')
 
-Cell27:
+Cell28:
 # ── Encoder pruning helpers ───────────────────────────────────────────────────
 
 def get_encoder_layers(mdl):
@@ -1611,7 +1695,7 @@ def iterative_enc_prune(mdl, samples, n_remove, max_eval=12,
 print('Encoder pruning helpers ready.')
 
 
-Cell28:
+Cell29:
 # ── Text Decoder pruning helpers ──────────────────────────────────────────────
 
 def get_text_decoder_layers(mdl):
@@ -1747,7 +1831,7 @@ def iterative_dec_prune(mdl, samples, n_remove, max_eval=12,
 print('Decoder pruning helpers ready.')
 
 
-Cell29:
+Cell30:
 # ── T2U pruning helpers (ASR-BLEU primary, ASR-ChrF fallback) ────────────────
 
 def _get_t2u_layers(mdl, which='encoder'):
@@ -1830,19 +1914,19 @@ def iterative_t2u_prune(mdl, samples, n_remove, which='encoder',
 print('T2U pruning helpers ready.')
 
 
-Cell30:
+Cell31:
 ---
 ## Phase 0: Baseline Capture
 Load teacher model, run full benchmark (BLEU + ChrF) across all Bengali-centric pairs.
 
-Cell31:
+Cell32:
 # # Load teacher/base model
 # model_v1, processor = load_base_model()
 # print_model_breakdown(model_v1, 'V1 Baseline (Teacher)')
 # gpu_mem()
 
 
-Cell32:
+Cell33:
 p0_bench = load_latest_checkpoint('phase0_benchmark')
 if p0_bench and p0_bench.get('summary', {}).get('avg_bleu', 0) > 0:
     p0_results = p0_bench['results']
@@ -1864,12 +1948,12 @@ plot_phase_comparison()
 plot_detailed_phase_comparison()
 
 
-Cell33:
+Cell34:
 ---
 ## Phase 1: Vocabulary Pruning — 4 Languages (Ben, Eng, Hin, Arb)
 Remove unused tokens. No Chinese tokens.
 
-Cell34:
+Cell35:
 # # ══════════════════════════════════════════════════════════════════════════════
 # # PHASE 1 — Vocabulary Pruning (Ben, Eng, Hin, Arb)
 # # 
@@ -2246,7 +2330,7 @@ Cell34:
 
 # print_model_breakdown(model_p1, 'After Phase 1: Vocab Trimmed (4 Languages)')
 
-Cell35:
+Cell36:
 
 # ── Benchmark immediately to confirm zero quality loss ────────────────────────
 p1_bench = load_latest_checkpoint('phase1_benchmark')
@@ -2289,12 +2373,12 @@ else:
 plot_phase_comparison()
 plot_detailed_phase_comparison()
 
-Cell36:
+Cell37:
 ---
 ## Phase 2: Speech Encoder Pruning — 24 → 10 layers
 BI-guided iterative pruning. Remove 16 layers. Metric: text-BLEU primary, text-ChrF fallback.
 
-Cell37:
+Cell38:
 # # Load Phase 1 model to prune
 # model_p2 = _consolidate_to_single_gpu(model_p1)
 
@@ -2337,7 +2421,7 @@ Cell37:
 
 # print_model_breakdown(model_p2, 'After Phase 2: Enc10L')
 
-Cell38:
+Cell39:
 # p2_bench = load_latest_checkpoint('phase2_benchmark')
 # if p2_bench and p2_bench.get('summary', {}).get('avg_bleu', 0) > 0:
 #     p2_results = p2_bench['results']
@@ -2358,12 +2442,12 @@ Cell38:
 # plot_detailed_phase_comparison()
 
 
-Cell39:
+Cell40:
 ---
 ## Phase 3: T2U Pruning — Enc 6→5, Dec 6→5 (prune 2 layers each)
 Metric: ASR-BLEU primary, ASR-ChrF fallback.
 
-Cell40:
+Cell41:
 # model_p3 = model_p2   # continue from enc-pruned model
 # model_p3 = _consolidate_to_single_gpu(model_p3)
 
@@ -2400,7 +2484,7 @@ Cell40:
 # print_model_breakdown(model_p3, 'After Phase 3: T2U Pruned (5+5)')
 
 
-Cell41:
+Cell42:
 # p3_bench = load_latest_checkpoint('phase3_benchmark')
 # if p3_bench and p3_bench.get('summary', {}).get('avg_bleu', 0) > 0:
 #     p3_results = p3_bench['results']; p3_summary = p3_bench['summary']
@@ -2420,12 +2504,12 @@ Cell41:
 # plot_detailed_phase_comparison()
 
 
-Cell42:
+Cell43:
 ---
 ## Phase 4: Text Decoder Pruning — 24 → 14 layers (remove 10)
 Metric: text-BLEU primary, text-ChrF fallback.
 
-Cell43:
+Cell44:
 # model_p4 = model_p3
 # model_p4 = _consolidate_to_single_gpu(model_p3)
 
@@ -2478,10 +2562,10 @@ Cell43:
 # print_model_breakdown(model_p4, 'After Phase 4: Enc10L + Dec14L + T2U 5+5L')
 
 
-Cell44:
+Cell45:
 # model_p4, processor = load_model_from_drive('phase4_dec_14L')
 
-Cell45:
+Cell46:
 p4_bench = load_latest_checkpoint('phase4_benchmark')
 if p4_bench and p4_bench.get('summary', {}).get('avg_bleu', 0) > 0:
     p4_results = p4_bench['results']; p4_summary = p4_bench['summary']
@@ -2501,10 +2585,10 @@ plot_phase_comparison()
 plot_detailed_phase_comparison()
 
 
-Cell46:
+Cell47:
 # heed
 
-Cell47:
+Cell48:
 ---
 ## Phase 5: Full Fine-Tuning — Bengali-Focused Recovery
 
@@ -2522,20 +2606,28 @@ Cell47:
 - Knowledge distillation from teacher (fp16, cuda:1) on top-K logits.
 
 
-Cell48:
+Cell49:
 # ── Cell 45: Load pruned student for full fine-tuning ──────────────────────────
 import gc, torch, ctypes
 
 def free_cpu_ram():
-    """Aggressively free CPU RAM."""
     gc.collect()
-    try:
-        ctypes.CDLL('libc.so.6').malloc_trim(0)
-    except Exception:
-        pass
+    try: ctypes.CDLL('libc.so.6').malloc_trim(0)
+    except Exception: pass
 
-print('Loading phase4_dec_14L for fine-tuning...')
-student, processor = load_model_from_drive('phase4_dec_14L', device_map='cuda:0')
+print('Loading phase4_dec_14L for fine-tuning with Custom Device Split...')
+
+# THE SPLIT: Speech Encoder on 0, everything else on 1
+custom_device_map = {
+    'speech_encoder': 0,
+    'shared': 1,
+    'text_decoder': 1,
+    'lm_head': 1,
+    't2u_model': 1,
+    'vocoder': 1
+}
+
+student, processor = load_model_from_drive('phase4_dec_14L', device_map=custom_device_map)
 student = student.to(torch.float16)
 
 # ── Architecture sanity check ──────────────────────────────────────────────────
@@ -2556,7 +2648,7 @@ print(f'✓ Vocab size     : {S_VOCAB}')
 print_model_breakdown(student, 'Student (Pruned, Pre-FT)')
 gpu_mem()
 
-Cell49:
+Cell50:
 # ── Cell 46: Load teacher on cuda:1 ───────────────────────────────────────────
 # Teacher stays in fp16, eval-only, used for KD top-K distillation.
 # TOP_K=256 matches battle-tested Phase 7.
@@ -2574,7 +2666,7 @@ for p in teacher.parameters():
 print(f'Teacher loaded. Params: {count_params(teacher):.1f}M')
 gpu_mem()
 
-Cell50:
+Cell51:
 # ── Cell 47: Unfreeze all except vocoder ──────────────────────────────────────
 # Full finetuning: unfreeze everything except vocoder.
 # Cast all trainable params to fp32 (required for GradScaler to work correctly).
@@ -2609,11 +2701,11 @@ else:
 
 gpu_mem()
 
-Cell51:
+Cell52:
 print(student)
 # heed
 
-Cell52:
+Cell53:
 # ── Cell 48: Gradient checkpointing strategy for full fine-tuning on 2×T4 ─────
 #
 # The pruned student has only 8 speech encoder layers + 8 text decoder layers.
@@ -2724,7 +2816,7 @@ print('VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32')
 
 gpu_mem()
 
-Cell53:
+Cell54:
 # ── Cell 49A: Vocab remap tables (exact Phase 7 / Cell 41+43+48 pattern) ──────
 import torch, math, time, random
 import torch.nn.functional as F
@@ -2754,7 +2846,7 @@ for new_id, old_id in enumerate(remap_to_old.tolist()):
 assert old_to_new_clean[3].item() == 3, 'EOS should map to student EOS=3'
 
 OLD_TO_NEW_CPU = old_to_new_clean   # [T_VOCAB] long CPU — used by collate
-OLD_TO_NEW_GPU = old_to_new_clean.to('cuda:0')  # [T_VOCAB] long cuda:0 — used by loss
+OLD_TO_NEW_GPU = old_to_new_clean.to('cuda:1')  # [T_VOCAB] long cuda:0 — used by loss
 
 n_mapped = (OLD_TO_NEW_CPU >= 0).sum().item()
 print(f'Mapped: {n_mapped}/{T_VOCAB} ({100*n_mapped/T_VOCAB:.1f}%)')
@@ -2796,7 +2888,7 @@ for _l in ['eng', 'ben', 'hin', 'arb']:
     print(f'  {_l}: student_id={_s}')
 print('✓ Vocab remap ready.')
 
-Cell54:
+Cell55:
 # ── Cell 49B: Collation — exact Phase 7 / Cell 44 layout ──────────────────────
 #
 # Token layout (identical to Phase 7):
@@ -2881,33 +2973,24 @@ print('✓ Collation ready (exact Phase 7 token layout)')
 print(f'  dec layout: [BOS | __tgt__ | content]  length=T+2')
 print(f'  lab layout: [__tgt__ | content | EOS]  length=T+2')
 
-Cell55:
-# ── Cell 49C: Forward helpers — GPU-only, no CPU middleman ────────────────────
-#
-# teacher_topk_direct: runs on cuda:1, does top-K selection on cuda:1,
-#   transfers only [B, T, 256] tensors directly to cuda:0 (not full [B,T,256102])
-# student_logits_gpu: runs on cuda:0, returns fp32 logits
-
+Cell56:
+# ── REPLACE ENTIRE CELL 49C ───────────────────────────────────────
 def _to_dev(batch_dict, device, dtype=torch.float16):
     return {
         k: v.to(device=device,
                 dtype=dtype if v.is_floating_point() else v.dtype)
-           if isinstance(v, torch.Tensor) else v
+        if isinstance(v, torch.Tensor) else v
         for k, v in batch_dict.items()
     }
 
-KD_TEMPERATURE = 3.0   # matches Phase 7
+KD_TEMPERATURE = 3.0   
 
 @torch.no_grad()
 def teacher_topk_direct(feat_cpu, dec_full_cpu, k=TOP_K_TEACHER, T=KD_TEMPERATURE):
     """
     Teacher forward on cuda:1.
-    Top-K selection on cuda:1 (avoids transferring full 256K vocab logits).
-    Direct cuda:1 → cuda:0 transfer of only top-K.
-
-    Returns:
-        topk_vals: [B, T, k]  fp32  cuda:0  (teacher softmax probs at temp T)
-        topk_idx:  [B, T, k]  long  cuda:0  (teacher token indices in T_VOCAB space)
+    Top-K selection on cuda:1. 
+    RETURNS directly on cuda:1 (No transfer to cuda:0 needed anymore!)
     """
     feat1 = _to_dev(feat_cpu, 'cuda:1')
     dec1  = dec_full_cpu.to('cuda:1')
@@ -2919,26 +3002,19 @@ def teacher_topk_direct(feat_cpu, dec_full_cpu, k=TOP_K_TEACHER, T=KD_TEMPERATUR
             decoder_input_ids = dec1,
         )
 
-    # Full ops on cuda:1 — no CPU touch
-    logits_1 = out.logits.float()                        # [B,T,T_VOCAB] fp32 cuda:1
-    probs_1  = torch.softmax(logits_1 / T, dim=-1)       # [B,T,T_VOCAB] fp32 cuda:1
+    logits_1 = out.logits.float()                        
+    probs_1  = torch.softmax(logits_1 / T, dim=-1)       
     topk_vals_1, topk_idx_1 = torch.topk(
-        probs_1, k=min(k, probs_1.shape[-1]), dim=-1, sorted=False)  # [B,T,k] cuda:1
+        probs_1, k=min(k, probs_1.shape[-1]), dim=-1, sorted=False)  
 
-    # Direct GPU-to-GPU: cuda:1 → cuda:0 (PCIe, no CPU staging)
-    topk_vals_0 = topk_vals_1.to('cuda:0')              # [B,T,k] fp32 cuda:0
-    topk_idx_0  = topk_idx_1.to('cuda:0')               # [B,T,k] long cuda:0
-
-    del feat1, dec1, out, logits_1, probs_1, topk_vals_1, topk_idx_1
-    torch.cuda.synchronize('cuda:1')
-
-    return topk_vals_0, topk_idx_0
-
+    del feat1, dec1, out, logits_1, probs_1
+    return topk_vals_1, topk_idx_1  # [B,T,k] remaining on cuda:1
 
 def student_logits_gpu(feat_dict, dec_s_cpu):
     """
-    Student forward on cuda:0.
-    Returns fp32 logits [B, T, S_VOCAB] on cuda:0.
+    Student forward. 
+    Inputs hit cuda:0 (Speech Encoder).
+    Outputs emerge and are FORCED to stay on cuda:1.
     """
     dec_s          = dec_s_cpu.clamp(0, S_VOCAB - 1).to('cuda:0')
     input_features = feat_dict['input_features'].to('cuda:0')
@@ -2954,14 +3030,11 @@ def student_logits_gpu(feat_dict, dec_s_cpu):
             attention_mask    = attention_mask,
             decoder_input_ids = dec_s,
         )
-    return out.logits.float()   # [B, T, S_VOCAB] fp32 cuda:0
+        
+    # FORCE output to cuda:1 (Overrides HF pulling it back to cuda:0)
+    return out.logits.float().to('cuda:1')
 
-
-print('✓ Forward helpers ready.')
-print(f'  teacher_topk_direct: cuda:1 → top-{TOP_K_TEACHER} → direct to cuda:0')
-print(f'  student_logits_gpu: returns fp32 [B, T, {S_VOCAB}] on cuda:0')
-
-Cell56:
+Cell57:
 # ── Cell 50: Loss functions — all on cuda:0, no CPU ops ───────────────────────
 #
 # Exact Phase 7 / Cell 60 port:
@@ -3057,24 +3130,23 @@ print(f'  KD_ALPHA={KD_ALPHA}  KD_TEMPERATURE={KD_TEMPERATURE}  TOP_K={TOP_K_TEA
 print(f'  OLD_TO_NEW_GPU on cuda:0: {OLD_TO_NEW_GPU.numel()*4/1e6:.1f}MB VRAM')
 print('  No CPU involved in any loss computation')
 
-Cell57:
-# ── Cell 51: Training configuration + optimizer ────────────────────────────────
-#
-# Full finetuning on 2×T4 (16GB each).
-# Batch=4, Accum=8 → effective batch=32 (matches Phase 7's 8×4=32).
-# LR slightly lower than Phase 7 (4e-5) since full FT vs hybrid LoRA.
+Cell58:
+!pip install bitsandbytes
 
+Cell59:
+# ── Cell 51: Training configuration + optimizer ────────────────────────────────
 from torch.optim import AdamW
+import bitsandbytes as bnb
 from torch.optim.lr_scheduler import OneCycleLR
 
-BATCH_SIZE      = 4      # per GPU forward pass
-GRAD_ACCUM      = 8      # effective batch = 32
-LR_PEAK         = 3e-5   # lower than Phase7 4e-5 because full FT is more sensitive
+BATCH_SIZE      = 4      
+GRAD_ACCUM      = 8      
+LR_PEAK         = 6e-5   # <-- INCREASED from 3e-5 to 6e-5 for faster recovery
 WEIGHT_DECAY    = 1e-2
-MAX_EPOCHS      = 6      # Phase 7 used 6 epochs
+MAX_EPOCHS      = 6      
 EVAL_STEPS      = 100
 LOG_STEPS       = 5
-WARMUP_FRACTION = 0.05   # Phase 7 value
+WARMUP_FRACTION = 0.05   
 
 N_TRAIN         = len(ft_samples)
 STEPS_PER_EPOCH = math.ceil(N_TRAIN / (BATCH_SIZE * GRAD_ACCUM))
@@ -3088,44 +3160,31 @@ print(f'Total steps          : {TOTAL_STEPS}')
 # Verify all trainable are fp32 before building optimizer
 for name, param in student.named_parameters():
     if param.requires_grad and param.dtype != torch.float32:
-        print(f'⚠ Fixing {name}: {param.dtype} → fp32')
         param.data = param.data.to(torch.float32)
 
-# Parameter groups: output layers at lower LR (they're well-trained),
-# everything else at full LR (exact Phase 7 pattern)
 trainable_params_grouped = [
     {
         'params': [p for n, p in student.named_parameters()
-                   if p.requires_grad and
-                   any(x in n for x in ['lm_head', 'shared'])],
+                   if p.requires_grad and any(x in n for x in ['lm_head', 'shared'])],
         'lr': LR_PEAK * 0.3,
         'name': 'output_layers',
     },
     {
         'params': [p for n, p in student.named_parameters()
-                   if p.requires_grad and
-                   not any(x in n for x in ['lm_head', 'shared'])],
+                   if p.requires_grad and not any(x in n for x in ['lm_head', 'shared'])],
         'lr': LR_PEAK,
         'name': 'core_layers',
     },
 ]
 
-# Verify no param missed or double-counted
-all_trainable_ids = set(id(p) for p in student.parameters() if p.requires_grad)
-grouped_ids       = set(id(p) for g in trainable_params_grouped for p in g['params'])
-assert all_trainable_ids == grouped_ids, \
-    f'Param mismatch: {len(all_trainable_ids)} trainable vs {len(grouped_ids)} in groups'
-
-for g in trainable_params_grouped:
-    n = sum(p.numel() for p in g['params'])
-    print(f"  Group '{g['name']}': {n/1e6:.2f}M @ lr={g['lr']:.1e}")
-
-optimizer = AdamW(
+# USE 8-BIT ADAMW
+optimizer = bnb.optim.AdamW8bit(
     trainable_params_grouped,
     weight_decay = WEIGHT_DECAY,
     betas        = (0.9, 0.98),
     eps          = 1e-6,
 )
+
 scheduler = OneCycleLR(
     optimizer,
     max_lr           = [g['lr'] for g in trainable_params_grouped],
@@ -3138,54 +3197,93 @@ scheduler = OneCycleLR(
 scaler = torch.cuda.amp.GradScaler()
 
 all_trainable_params = [p for p in student.parameters() if p.requires_grad]
-print(f'\n✓ Optimizer ready.')
-print(f'  Total trainable: {sum(p.numel() for p in all_trainable_params)/1e6:.1f}M')
-print(f'  All fp32: {all(p.dtype == torch.float32 for p in all_trainable_params)}')
+print(f'\n✓ Optimizer ready with LR_PEAK = {LR_PEAK}')
 
-Cell58:
+Cell60:
 # ── Cell 51B: Quick eval helper ────────────────────────────────────────────────
 # Uses ChrF (more robust than BLEU for morphologically rich languages).
-# Exact Phase 7 / Cell 51 port.
 
-ASR_EVAL_EXCLUDE_LANGS = {'cmn'}   # cmn ASR is slow, skip during training eval
+# ASR_EVAL_EXCLUDE_LANGS = {'cmn'}
 
-def _eval_quick_p5(n_samples=32):
+# Global cache for the filtered evaluation list
+_P5_BEN_EVAL_SAMPLES = None
+
+def _eval_quick_p5(n_samples=18):
+    global _P5_BEN_EVAL_SAMPLES
+    
+    # 1. Build the filtered list EXACTLY ONCE. 
+    # Because it is cached globally, its id() will remain constant across eval calls!
+    if _P5_BEN_EVAL_SAMPLES is None:
+        ben_target = [s for s in eval_samples if s.get('tgt_lang', '') == 'ben']
+        _P5_BEN_EVAL_SAMPLES = ben_target if len(ben_target) > 0 else list(eval_samples)
+
     student.eval()
     try:
+        # VRAM OPTIMIZATION: Only ONE ASR model (MMS) gets loaded.
+        # CACHE OPTIMIZATION: quick_eval_chrf will recognize id(_P5_BEN_EVAL_SAMPLES)
         text_chrf, asr_chrf = quick_eval_chrf(
-            student, eval_samples, max_samples=n_samples)
+            student, _P5_BEN_EVAL_SAMPLES, max_samples=n_samples)
+            
     except Exception as e:
-        print(f'  [eval error] {e}')
+        print(f'  [Critical Eval Failure] {e}')
         text_chrf, asr_chrf = 0.0, 0.0
     finally:
+        # CRITICAL VRAM FIX: Kick the ASR model back to the CPU
+        try:
+            offload_asr_models()
+        except NameError:
+            pass 
+
         student.train()
-        # Kill any GC that eval might have triggered
+        # Re-verify gradient checkpointing strategy for training mode
         disable_all_gradient_checkpointing(student)
 
     return text_chrf, asr_chrf
 
-print('✓ _eval_quick_p5 ready.')
+print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
-Cell59:
+Cell61:
+# heed
+
+Cell62:
+print("Student: ")
+
+Cell63:
+# print(_eval_quick_p5(n_samples=18))
+
+Cell64:
+print ("Teacher: ")
+
+Cell65:
+# print(quick_eval_chrf(teacher, _P5_BEN_EVAL_SAMPLES, max_samples=18))
+
+Cell66:
+# s   = eval_samples[2]
+# tgt = s.get('tgt_lang', 'ben')
+# mdl = student
+# text_pred, wav_out = run_s2st(mdl, s['wav'], tgt_lang=tgt)
+# print("hi")
+# asr_pred           = asr_transcribe(wav_out, tgt)
+# print(compute_chrf(text_pred, s['ref']))
+# print(compute_chrf(asr_pred,  s['ref']))
+
+Cell67:
 # ── Cell 52: Training loop — Phase 7 battle-tested flow ───────────────────────
-#
-# Key differences from old Phase 5 loop:
-#   1. chunk_friendly_shuffle instead of naive shuffle of weighted_ft_indices
-#   2. teacher_topk_direct (GPU-only) instead of teacher_topk_logits (CPU path)
-#   3. student_logits_gpu helper instead of inline forward
-#   4. compute_recovery_loss_gpu (GPU-only) instead of compute_loss (CPU remap)
-#   5. Correct batch_idx-based skip logic for exact resume
-#   6. Track best by asr_chrf (not bleu) — more robust metric
-#   7. Log format includes GPU mem + per-step time
 
-CHUNK_SIZE = 4000   # must match ft_samples ChunkedMultilingualDataset chunk_size
+CHUNK_SIZE = 4000   
 
 def run_phase5_training():
     best_chrf      = 0.0
     best_chrf_step = 0
-    patience_left  = 25   # Phase 7 used 25
+    patience_left  = 25   
     opt_step       = 0
     epoch_seeds    = {}
+    
+    # Trackers for plotting later (using native python floats to prevent leaks)
+    train_history = {
+        'step': [], 'ce': [], 'kd': [], 'lr': [],
+        'eval_step': [], 'eval_text': [], 'eval_asr': []
+    }
 
     # ── Resume from checkpoint ─────────────────────────────────────────────────
     ckpt = load_latest_checkpoint('phase5_ft')
@@ -3193,18 +3291,20 @@ def run_phase5_training():
         try:
             student.load_state_dict(ckpt['model_state'], strict=False)
             optimizer.load_state_dict(ckpt['optimizer_state'])
-            # NOTE: we do NOT load scheduler_state — let it recompute from opt_step
-            # This avoids scheduler drift after session restarts.
             opt_step       = ckpt.get('opt_step', 0)
             best_chrf      = ckpt.get('best_chrf', 0.0)
             best_chrf_step = ckpt.get('best_chrf_step', 0)
             epoch_seeds    = ckpt.get('epoch_seeds', {})
+            
+            # Safely load history if it exists in the checkpoint
+            if 'train_history' in ckpt:
+                train_history = ckpt['train_history']
+                
             print(f'[resume] step={opt_step}  best_chrf={best_chrf:.2f}')
-            # Re-cast trainable params to fp32 after loading
+            
             for name, param in student.named_parameters():
                 if param.requires_grad and param.dtype != torch.float32:
                     param.data = param.data.to(torch.float32)
-            # Kill any GC baked into checkpoint
             disable_all_gradient_checkpointing(student)
             
         except Exception as e:
@@ -3235,21 +3335,17 @@ def run_phase5_training():
         optimizer.zero_grad(set_to_none=True)
         accum = 0
 
-        # ── Reproducible per-epoch shuffle ────────────────────────────────────
         if epoch not in epoch_seeds:
             epoch_seeds[epoch] = random.randint(0, 2**31)
         seed = epoch_seeds[epoch]
         random.seed(seed)
         all_idx = chunk_friendly_shuffle(len(ft_samples), CHUNK_SIZE, BATCH_SIZE)
-        random.seed(42)   # restore global seed
+        random.seed(42)  
 
         print(f'  Epoch {epoch+1}/{MAX_EPOCHS} | seed={seed}')
         t_epoch = time.time()
 
-        for batch_idx, batch_start in enumerate(
-                range(0, len(all_idx), BATCH_SIZE)):
-
-            # ── Exact resume: skip already-done batches ────────────────────────
+        for batch_idx, batch_start in enumerate(range(0, len(all_idx), BATCH_SIZE)):
             if epoch == start_epoch and batch_idx < batches_to_skip:
                 continue
             if opt_step >= TOTAL_STEPS:
@@ -3257,29 +3353,21 @@ def run_phase5_training():
 
             t0 = time.time()
 
-            # ── Load batch ────────────────────────────────────────────────────
-            raw   = [ft_samples[i] for i in
-                     all_idx[batch_start:batch_start + BATCH_SIZE]]
+            raw   = [ft_samples[i] for i in all_idx[batch_start:batch_start + BATCH_SIZE]]
             batch = collate_s2t_batch(raw)
             del raw
             if batch is None:
                 continue
 
-            # ── Teacher: top-K on cuda:1, direct to cuda:0 ────────────────────
-            topk_vals = topk_idx = None
             try:
-                topk_vals, topk_idx = teacher_topk_direct(
-                    batch['feat'], batch['dec_full'])
+                topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
                 L         = batch['labels_s'].shape[1]
                 topk_vals = topk_vals[:, :L, :].contiguous()
                 topk_idx  = topk_idx[:, :L, :].contiguous()
             except Exception as e:
                 print(f'  [teacher skip] {e}')
-                del batch
-                free_cpu_ram()
                 continue
 
-            # ── Student: forward on cuda:0 ─────────────────────────────────────
             try:
                 s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
                 s_log = s_log[:, :L, :]
@@ -3287,32 +3375,25 @@ def run_phase5_training():
                 torch.cuda.empty_cache()
                 free_cpu_ram()
                 print(f'  [OOM] step {opt_step} — skipping batch')
-                del batch, topk_vals, topk_idx
                 continue
 
-            labels_dev = batch['labels_s'].to('cuda:0')
-            del batch
+            labels_dev = batch['labels_s'].to('cuda:1')
 
-            # ── Loss: all on cuda:0 ────────────────────────────────────────────
             try:
-                loss, ce_v, kd_v = compute_recovery_loss_gpu(
-                    s_log, labels_dev, topk_vals, topk_idx)
+                loss, ce_v, kd_v = compute_recovery_loss_gpu(s_log, labels_dev, topk_vals, topk_idx)
             except Exception as e:
                 print(f'  [loss error] {e}')
-                del s_log, topk_vals, topk_idx, labels_dev
                 continue
-            finally:
-                del topk_vals, topk_idx
 
             scaler.scale(loss / GRAD_ACCUM).backward()
-            del s_log, labels_dev, loss
-
+            
+            del batch, topk_vals, topk_idx, s_log, labels_dev, loss
+            
             accum += 1
             ep_ce += ce_v
             ep_kd += kd_v
             ep_n  += 1
-
-            # ── Optimizer step ─────────────────────────────────────────────────
+            
             if accum >= GRAD_ACCUM:
                 scaler.unscale_(optimizer)
                 torch.nn.utils.clip_grad_norm_(all_trainable_params, 1.0)
@@ -3323,26 +3404,40 @@ def run_phase5_training():
                 accum    = 0
                 opt_step += 1
 
-                # ── Logging ────────────────────────────────────────────────────
+                # ── Logging & History Tracking ─────────────────────────────────
                 if opt_step % LOG_STEPS == 0:
                     step_t = time.time() - t0
                     step_times.append(step_t)
                     lr_now = scheduler.get_last_lr()[-1]
-                    eta_min = (TOTAL_STEPS - opt_step) * (
-                        sum(step_times[-20:]) / len(step_times[-20:])) / 60
+                    
+                    avg_ce = float(ep_ce / ep_n)
+                    avg_kd = float(ep_kd / ep_n)
+                    
+                    # Save to RAM history
+                    train_history['step'].append(opt_step)
+                    train_history['ce'].append(avg_ce)
+                    train_history['kd'].append(avg_kd)
+                    train_history['lr'].append(float(lr_now))
+                    
+                    eta_min = (TOTAL_STEPS - opt_step) * (sum(step_times[-20:]) / len(step_times[-20:])) / 60
                     print(f'  E{epoch+1:02d} | step {opt_step:>5} | '
-                          f'CE={ep_ce/ep_n:.4f}  KD={ep_kd/ep_n:.4f}  '
+                          f'CE={avg_ce:.4f}  KD={avg_kd:.4f}  '
                           f'lr={lr_now:.2e}  {step_t:.1f}s/step  ETA={eta_min:.0f}min')
                     gpu_mem()
                     ep_ce = ep_kd = ep_n = 0
 
                 # ── Periodic eval + checkpoint ─────────────────────────────────
                 if opt_step % EVAL_STEPS == 0:
-                    text_chrf, asr_chrf = _eval_quick_p5(n_samples=32)
-                    print(f'\n  ★ EVAL step {opt_step}: '
-                          f'Text={text_chrf:.2f} | ASR={asr_chrf:.2f}')
+                    text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
+                    print(f'\n  ★ EVAL step {opt_step}: Text={text_chrf:.2f} | ASR={asr_chrf:.2f}')
+                    
+                    train_history['eval_step'].append(opt_step)
+                    train_history['eval_text'].append(float(text_chrf))
+                    train_history['eval_asr'].append(float(asr_chrf))
+                    
                     gpu_mem()
 
+                    # Save everything, including the new history dictionary
                     save_checkpoint(dict(
                         model_state     = student.state_dict(),
                         optimizer_state = optimizer.state_dict(),
@@ -3350,7 +3445,8 @@ def run_phase5_training():
                         best_chrf       = best_chrf,
                         best_chrf_step  = best_chrf_step,
                         epoch_seeds     = epoch_seeds,
-                    ), 'phase5_ft', opt_step, keep=3)
+                        train_history   = train_history,  # <--- HISTORY SAVED HERE
+                    ), 'phase5_ft', opt_step, keep=1)
 
                     if asr_chrf > best_chrf:
                         best_chrf      = asr_chrf
@@ -3359,25 +3455,69 @@ def run_phase5_training():
                         print(f'  ✓ NEW BEST {best_chrf:.2f} @ step {best_chrf_step}')
                     else:
                         patience_left -= 1
-                        print(f'  Patience {25 - patience_left}/25  '
-                              f'(best={best_chrf:.2f} @ {best_chrf_step})')
+                        print(f'  Patience {25 - patience_left}/25  (best={best_chrf:.2f} @ {best_chrf_step})')
                         if patience_left <= 0:
                             print(f'\n  Early stop: no improvement for 25 evals.')
-                            return opt_step, best_chrf
+                            return opt_step, best_chrf, train_history
 
         epoch_t = (time.time() - t_epoch) / 60
         print(f'  Epoch {epoch+1} done | time={epoch_t:.1f}min')
         free_cpu_ram()
 
     print(f'\n✓ Training complete. best_chrf={best_chrf:.2f} @ step {best_chrf_step}')
-    return opt_step, best_chrf
+    return opt_step, best_chrf, train_history
 
 
 # ── Run training ───────────────────────────────────────────────────────────────
-final_step, final_chrf = run_phase5_training()
+final_step, final_chrf, final_history = run_phase5_training()
 print(f'\nFinal: step={final_step}  best_chrf={final_chrf:.2f}')
 
-Cell60:
+Cell68:
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def plot_learning_curves(history):
+    if not history or not history.get('step'):
+        print("No history data to plot.")
+        return
+
+    sns.set_style('whitegrid')
+    fig, axes = plt.subplots(3, 1, figsize=(10, 12), sharex=True)
+    
+    # 1. Losses (CE and KD)
+    axes[0].plot(history['step'], history['ce'], label='CE Loss', color='#E84855', linewidth=2)
+    axes[0].plot(history['step'], history['kd'], label='KD Loss', color='#2E86AB', linewidth=2)
+    axes[0].set_ylabel('Loss')
+    axes[0].set_title('Training Losses (Cross Entropy & Knowledge Distillation)', fontweight='bold')
+    axes[0].legend()
+
+    # 2. Learning Rate
+    axes[1].plot(history['step'], history['lr'], label='Learning Rate', color='#F4A261', linewidth=2)
+    axes[1].set_ylabel('Learning Rate')
+    axes[1].set_title('OneCycleLR Schedule', fontweight='bold')
+    axes[1].set_yscale('log')
+    axes[1].legend()
+
+    # 3. Evaluation Metrics
+    if history.get('eval_step'):
+        axes[2].plot(history['eval_step'], history['eval_text'], marker='o', label='Text ChrF', color='#8ECAE6', linewidth=2)
+        axes[2].plot(history['eval_step'], history['eval_asr'], marker='s', label='ASR ChrF', color='#219EBC', linewidth=2)
+    axes[2].set_xlabel('Training Steps')
+    axes[2].set_ylabel('ChrF Score')
+    axes[2].set_title('Evaluation Metrics (Bengali Target)', fontweight='bold')
+    axes[2].legend()
+
+    plt.tight_layout()
+    plt.show()
+
+# If you just finished training, you can plot it directly:
+plot_learning_curves(final_history)
+
+# If you are analyzing a checkpoint later, you can load it like this:
+# ckpt = load_latest_checkpoint('phase5_ft')
+# plot_learning_curves(ckpt['train_history'])
+
+Cell69:
 # ── Cell 53: Load best checkpoint and save merged model ───────────────────────
 
 print('Loading best Phase 5 checkpoint...')
@@ -3393,7 +3533,7 @@ student.eval()
 save_model_to_drive(student, processor, 'phase5_ft_merged')
 print('✓ Saved phase5_ft_merged')
 
-Cell61:
+Cell70:
 # ── Final benchmark ───────────────────────────────────────────────────────────
 
 p5_bench = load_latest_checkpoint('phase5_benchmark')
@@ -3438,7 +3578,7 @@ plot_phase_comparison()
 plot_detailed_phase_comparison()
 
 
-Cell62:
+Cell71:
 ## Summary
 
 | Phase | Description | Enc | Dec | T2U | Metric |
@@ -3453,6 +3593,6 @@ Cell62:
 **Target**: P5 Bengali BLEU + ChrF ≥ P0 (teacher).
 
 
-Cell63:
+Cell72:
 
 
