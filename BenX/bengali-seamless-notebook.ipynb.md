@@ -1,6 +1,6 @@
 # Notebook: `./bengali-seamless-notebook.ipynb`
 
-> Kernel: **Python 3** | Total cells: **82**
+> Kernel: **Python 3** | Total cells: **81**
 
 ---
 
@@ -19,7 +19,7 @@
 
 ---
 
-## Cell 3 — `code`
+## Cell 3 — `code` (execution #1)
 
 ```python
 import os, sys, subprocess, pathlib, re, glob, json, gc, copy, time, math, shutil, random
@@ -49,9 +49,17 @@ print(f'Platform : {PLATFORM}')
 print(f'Work dir : {WORK_DIR}')
 ```
 
+### Output
+
+**[stdout]**
+```
+Platform : kaggle
+Work dir : /kaggle/working
+```
+
 ---
 
-## Cell 4 — `code`
+## Cell 4 — `code` (execution #2)
 
 ```python
 if ON_COLAB:
@@ -95,9 +103,24 @@ except Exception as e:
 
 ```
 
+### Output
+
+**[stdout]**
+```
+rclone v1.74.1
+Drive root:
+           0 2026-04-17 11:03:10        -1 Colab Notebooks
+           0 2025-11-10 11:33:43        -1 ScholarMate
+           0 2026-04-05 12:59:09        -1 cse465
+           0 2026-04-12 12:42:04        -1 cse465v5
+           0 2026-05-14 11:16:57        -1 seamTL
+           0 2026-05-17 16:27:30  
+HuggingFace login: OK
+```
+
 ---
 
-## Cell 5 — `code`
+## Cell 5 — `code` (execution #3)
 
 ```python
 subprocess.run([
@@ -111,9 +134,22 @@ print('All packages installed.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 34.3 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.1/84.1 kB 6.6 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.8/100.8 kB 8.4 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 87.0 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 kB 9.3 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 788.2/788.2 kB 41.3 MB/s eta 0:00:00
+All packages installed.
+```
+
 ---
 
-## Cell 6 — `code`
+## Cell 6 — `code` (execution #4)
 
 ```python
 import torch, numpy as np, random
@@ -174,9 +210,19 @@ print('Core utilities ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+PyTorch 2.10.0+cu128 | CUDA True | GPUs 2
+  GPU0: Tesla T4  15.6 GB
+  GPU1: Tesla T4  15.6 GB
+Core utilities ready.
+```
+
 ---
 
-## Cell 7 — `code`
+## Cell 7 — `code` (execution #5)
 
 ```python
 import queue, threading
@@ -282,9 +328,16 @@ print('Checkpoint helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Checkpoint helpers ready.
+```
+
 ---
 
-## Cell 8 — `code`
+## Cell 8 — `code` (execution #6)
 
 ```python
 import torch.nn as nn, torch.nn.functional as F
@@ -461,9 +514,16 @@ print('Model I/O helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Model I/O helpers ready.
+```
+
 ---
 
-## Cell 9 — `code`
+## Cell 9 — `code` (execution #7)
 
 ```python
 from collections import defaultdict
@@ -693,6 +753,15 @@ print('Summary + plotting helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] No checkpoint for 'all_summaries'
+[ckpt] No checkpoint for 'all_detailed_summaries'
+Summary + plotting helpers ready.
+```
+
 ---
 
 ## Cell 10 — `markdown`
@@ -701,7 +770,7 @@ print('Summary + plotting helpers ready.')
 
 ---
 
-## Cell 11 — `code`
+## Cell 11 — `code` (execution #8)
 
 ```python
 # ── Bengali-centric language pairs: Ben↔X and X↔Ben ─────────────────────────
@@ -744,6 +813,16 @@ print(f'Train samples    : {N_TRAIN_PER_PAIR} per pair = {N_TRAIN_PER_PAIR*len(E
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Target languages : ['ben', 'eng', 'hin', 'arb']
+Lang pairs (6): [('ben', 'eng'), ('eng', 'ben'), ('ben', 'hin'), ('hin', 'ben'), ('ben', 'arb'), ('arb', 'ben')]
+Eval samples     : 33 per pair  = 198 total
+Train samples    : 4000 per pair = 24000 total
+```
+
 ---
 
 ## Cell 12 — `markdown`
@@ -752,7 +831,7 @@ print(f'Train samples    : {N_TRAIN_PER_PAIR} per pair = {N_TRAIN_PER_PAIR*len(E
 
 ---
 
-## Cell 13 — `code`
+## Cell 13 — `code` (execution #9)
 
 ```python
 import gc as _gc
@@ -869,9 +948,18 @@ print('  - Whisper-medium : English')
 print('  - MMS-1b-all     : Bengali, Hindi, Arabic')
 ```
 
+### Output
+
+**[stdout]**
+```
+ASR stack ready with dynamic VRAM offloading:
+  - Whisper-medium : English
+  - MMS-1b-all     : Bengali, Hindi, Arabic
+```
+
 ---
 
-## Cell 14 — `code`
+## Cell 14 — `code` (execution #10)
 
 ```python
 from sacrebleu.metrics import BLEU, CHRF
@@ -970,6 +1058,13 @@ print('Inference helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Inference helpers ready.
+```
+
 ---
 
 ## Cell 15 — `markdown`
@@ -978,13 +1073,13 @@ print('Inference helpers ready.')
 
 ---
 
-## Cell 16 — `code`
+## Cell 16 — `code` (execution #11)
 
 ```python
 import pyarrow.parquet as pq
 import concurrent.futures, io, soundfile as sfile, pandas as pd
 
-LOCAL_PARQUET_CACHE = '/kaggle/input/datasets/rayedriasat/fleurs5'  # 5-lang dataset we only need 4
+LOCAL_PARQUET_CACHE = '/kaggle/input/datasets/rayedriasat/fleurs5/fleurs'  # 5-lang dataset we only need 4
 BASE_PARQUET_URL    = 'https://huggingface.co/datasets/google/fleurs/resolve/refs%2Fconvert%2Fparquet'
 DRIVE_FLEURS_PATH   = f'{GDRIVE_ROOT}/fleurs_parquet'
 
@@ -1079,9 +1174,16 @@ print('✓ Streaming dataset classes ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ Streaming dataset classes ready.
+```
+
 ---
 
-## Cell 17 — `code`
+## Cell 17 — `code` (execution #12)
 
 ```python
 print('Loading evaluation samples (streaming mode)...')
@@ -1103,9 +1205,33 @@ print(f'  Reference: {test_s["ref"][:60]}...')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Loading evaluation samples (streaming mode)...
+  Indexed 33 samples from ben→eng
+  Indexed 33 samples from eng→ben
+  Indexed 33 samples from ben→hin
+  Indexed 33 samples from hin→ben
+  Indexed 33 samples from ben→arb
+  Indexed 33 samples from arb→ben
+
+✓ Multilingual dataset ready: 198 total samples
+  RAM usage: ~0.2 MB (metadata only)
+
+✓ Loaded 198 multilingual eval samples
+  Language pairs: [('ben', 'eng'), ('eng', 'ben'), ('ben', 'hin'), ('hin', 'ben'), ('ben', 'arb'), ('arb', 'ben')]
+
+✓ Test sample loaded:
+  ID: ben2eng_1660
+  Audio shape: (216960,)
+  Reference: romanticism had a large element of cultural determinism draw...
+```
+
 ---
 
-## Cell 18 — `code`
+## Cell 18 — `code` (execution #13)
 
 ```python
 # Cell 18 — Training samples (streaming metadata only, audio loaded per-batch)
@@ -1126,9 +1252,29 @@ print(f'  Language pairs: {len(EVAL_LANG_PAIRS)}')
 print(f'  (Will be upgraded to ChunkedMultilingualDataset below)')
 ```
 
+### Output
+
+**[stdout]**
+```
+Loading training samples (streaming mode)...
+  Indexed 1449 samples from ben→eng
+  Indexed 1449 samples from eng→ben
+  Indexed 1288 samples from ben→hin
+  Indexed 1288 samples from hin→ben
+  Indexed 1250 samples from ben→arb
+  Indexed 1250 samples from arb→ben
+
+✓ Multilingual dataset ready: 7974 total samples
+  RAM usage: ~8.0 MB (metadata only)
+
+✓ Loaded 7974 multilingual training samples
+  Language pairs: 6
+  (Will be upgraded to ChunkedMultilingualDataset below)
+```
+
 ---
 
-## Cell 19 — `code`
+## Cell 19 — `code` (execution #14)
 
 ```python
 # ── Cell 18-A: ChunkedStreamingDataset ────────────────────────────────────────
@@ -1280,9 +1426,16 @@ class ChunkedStreamingDataset:
 print('✓ ChunkedStreamingDataset ready.')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ ChunkedStreamingDataset ready.
+```
+
 ---
 
-## Cell 20 — `code`
+## Cell 20 — `code` (execution #15)
 
 ```python
 # ── Cell 18-B: ChunkedMultilingualDataset ────────────────────────────────────
@@ -1342,9 +1495,16 @@ class ChunkedMultilingualDataset:
 print('✓ ChunkedMultilingualDataset ready.')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ ChunkedMultilingualDataset ready.
+```
+
 ---
 
-## Cell 21 — `code`
+## Cell 21 — `code` (execution #16)
 
 ```python
 # ── Cell 18-C: Rebuild ft_samples with chunk caching ─────────────────────────
@@ -1365,9 +1525,37 @@ print(f'  Total training samples : {len(ft_samples)}')
 print(f'  eval_samples unchanged : {len(eval_samples)} (MultilingualStreamingDataset)')
 ```
 
+### Output
+
+**[stdout]**
+```
+Rebuilding ft_samples with chunk caching...
+  Indexed 1449 samples from ben→eng
+  Indexed 1449 samples from eng→ben
+  Indexed 1288 samples from ben→hin
+  Indexed 1288 samples from hin→ben
+  Indexed 1250 samples from ben→arb
+  Indexed 1250 samples from arb→ben
+  ChunkedStreamingDataset: 7974 samples | chunk=4000 | RAM/chunk≈2000MB
+
+✓ ChunkedMultilingualDataset: 7974 samples
+  arb→ben: 1250
+  ben→arb: 1250
+  ben→eng: 1449
+  ben→hin: 1288
+  eng→ben: 1449
+  hin→ben: 1288
+  Chunk size : 4000
+  RAM/chunk  : ~2000 MB
+
+✓ ft_samples upgraded to ChunkedMultilingualDataset
+  Total training samples : 7974
+  eval_samples unchanged : 198 (MultilingualStreamingDataset)
+```
+
 ---
 
-## Cell 22 — `code`
+## Cell 22 — `code` (execution #17)
 
 ```python
 from transformers import SeamlessM4Tv2ForSpeechToSpeech, SeamlessM4TProcessor
@@ -1415,6 +1603,43 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Syncing from rclone remote...
+[ckpt] 11 file(s) available
+  all_detailed_summaries_step000000.pt                        0.0 MB
+  all_summaries_step000000.pt                                 0.0 MB
+  phase0_benchmark_step000000.pt                              0.1 MB
+  phase1_benchmark_step000000.pt                              0.1 MB
+  phase1_vocab_step000000.pt                                  0.6 MB
+  phase2_enc_pruning_step000000.pt                            0.0 MB
+  phase3_t2u_dec_pruning_step000000.pt                        0.0 MB
+  phase3_t2u_enc_pruning_step000000.pt                        0.0 MB
+  phase4_benchmark_step000000.pt                              0.1 MB
+  phase4_dec_pruning_step000000.pt                            0.0 MB
+  phase5_benchmark_step000000.pt                              0.1 MB
+=================================================================
+  Platform : kaggle   Time : 2026-05-23 06:29
+  Checkpoint files: 11
+    all_detailed_summaries_step000000.pt                    0.0 MB
+    all_summaries_step000000.pt                             0.0 MB
+    phase0_benchmark_step000000.pt                          0.1 MB
+    phase1_benchmark_step000000.pt                          0.1 MB
+    phase1_vocab_step000000.pt                              0.6 MB
+    phase2_enc_pruning_step000000.pt                        0.0 MB
+    phase3_t2u_dec_pruning_step000000.pt                    0.0 MB
+    phase3_t2u_enc_pruning_step000000.pt                    0.0 MB
+    phase4_benchmark_step000000.pt                          0.1 MB
+    phase4_dec_pruning_step000000.pt                        0.0 MB
+    phase5_benchmark_step000000.pt                          0.1 MB
+  GPU: Tesla T4  VRAM: 15.6 GB
+=================================================================
+
+✓ ALL SETUP CELLS COMPLETE — proceed to phases.
+```
+
 ---
 
 ## Cell 23 — `markdown`
@@ -1425,7 +1650,7 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ---
 
-## Cell 24 — `code`
+## Cell 24 — `code` (execution #18)
 
 ```python
 def run_benchmark(mdl, samples, label='model', save_n=2, max_samples=None):
@@ -1506,6 +1731,13 @@ print('Benchmark functions ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Benchmark functions ready.
+```
+
 ---
 
 ## Cell 25 — `markdown`
@@ -1525,7 +1757,7 @@ print('Benchmark functions ready.')
 
 ---
 
-## Cell 26 — `code`
+## Cell 26 — `code` (execution #19)
 
 ```python
 import torch
@@ -1538,9 +1770,16 @@ transformers.models.seamless_m4t_v2.modeling_seamless_m4t_v2.SeamlessM4Tv2ForSpe
 print("✓ SeamlessM4Tv2 class device property successfully patched to cuda:1")
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ SeamlessM4Tv2 class device property successfully patched to cuda:1
+```
+
 ---
 
-## Cell 27 — `code`
+## Cell 27 — `code` (execution #20)
 
 ```python
 # ── Quick evaluation helpers ──────────────────────────────────────────────────
@@ -1690,9 +1929,18 @@ print('chunk_friendly_shuffle ready.')
 print('quick_eval_chrf ready.')
 ```
 
+### Output
+
+**[stdout]**
+```
+Quick eval helpers ready.
+chunk_friendly_shuffle ready.
+quick_eval_chrf ready.
+```
+
 ---
 
-## Cell 28 — `code`
+## Cell 28 — `code` (execution #21)
 
 ```python
 # ── Encoder pruning helpers ───────────────────────────────────────────────────
@@ -1822,9 +2070,16 @@ print('Encoder pruning helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Encoder pruning helpers ready.
+```
+
 ---
 
-## Cell 29 — `code`
+## Cell 29 — `code` (execution #22)
 
 ```python
 # ── Text Decoder pruning helpers ──────────────────────────────────────────────
@@ -1963,9 +2218,16 @@ print('Decoder pruning helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Decoder pruning helpers ready.
+```
+
 ---
 
-## Cell 30 — `code`
+## Cell 30 — `code` (execution #23)
 
 ```python
 # ── T2U pruning helpers (ASR-BLEU primary, ASR-ChrF fallback) ────────────────
@@ -2051,6 +2313,13 @@ print('T2U pruning helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+T2U pruning helpers ready.
+```
+
 ---
 
 ## Cell 31 — `markdown`
@@ -2061,7 +2330,7 @@ print('T2U pruning helpers ready.')
 
 ---
 
-## Cell 32 — `code`
+## Cell 32 — `code` (execution #24)
 
 ```python
 # # Load teacher/base model
@@ -2073,7 +2342,7 @@ print('T2U pruning helpers ready.')
 
 ---
 
-## Cell 33 — `code`
+## Cell 33 — `code` (execution #25)
 
 ```python
 p0_bench = load_latest_checkpoint('phase0_benchmark')
@@ -2098,6 +2367,126 @@ plot_detailed_phase_comparison()
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Loaded phase0_benchmark_step000000.pt
+Loaded Phase 0 benchmark from checkpoint.
+[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
+[summary] Stored P0_V1_Baseline (1 total)
+[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
+[detailed] Stored P0_V1_Baseline
+
+================================================================================
+  P0_V1_Baseline - 1805.5M params
+================================================================================
+Overall: BLEU=9.12  ChrF=40.33±11.80  RTF=0.2094
+
+Per-Pair (6 pairs):
+  Pair                  N     BLEU     ChrF      RTF
+  arb→ben              33     4.66    34.13   0.2625
+  ben→arb              33     5.69    31.39   0.1915
+  ben→eng              33    16.85    52.04   0.1577
+  ben→hin              33     8.86    37.45   0.1703
+  eng→ben              33    11.58    48.11   0.2508
+  hin→ben              33     7.08    38.87   0.2233
+
+By Source Language:
+     ARB: BLEU=  4.66  ChrF= 34.13  (n=33)
+     BEN: BLEU= 10.47  ChrF= 40.29  (n=99)
+     ENG: BLEU= 11.58  ChrF= 48.11  (n=33)
+     HIN: BLEU=  7.08  ChrF= 38.87  (n=33)
+
+By Target Language:
+     ARB: BLEU=  5.69  ChrF= 31.39  (n=33)
+     BEN: BLEU=  7.77  ChrF= 40.37  (n=99)
+     ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
+     HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
+================================================================================
+[rclone] 2026/05/23 06:29:44 -     1.581 KiB / 1.581 KiB, 100%, 0 B/s, ETA -
+[fig] Saved phase_comparison.png
+```
+
+```
+<Figure size 1920x1200 with 4 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
+[rclone] 2026/05/23 06:29:46 -     2.446 KiB / 2.446 KiB, 100%, 0 B/s, ETA -
+```
+
+```
+<Figure size 1800x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
+```
+
+```
+<Figure size 2520x1080 with 2 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+```
+
+```
+<Figure size 1800x1260 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
+```
+
+```
+<Figure size 1800x900 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
+
+✅ All 6 figures saved.
+   📄 detailed_comparison_01_overall_quality.png
+   📄 detailed_comparison_02_bleu_by_pair.png
+   📄 detailed_comparison_03_chrf_by_pair.png
+   📄 detailed_comparison_04_bengali_focus.png
+   📄 detailed_comparison_05_size_vs_quality.png
+   📄 detailed_comparison_06_rtf.png
+```
+
 ---
 
 ## Cell 34 — `markdown`
@@ -2108,7 +2497,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 35 — `code`
+## Cell 35 — `code` (execution #26)
 
 ```python
 # # ══════════════════════════════════════════════════════════════════════════════
@@ -2490,7 +2879,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 36 — `code`
+## Cell 36 — `code` (execution #27)
 
 ```python
 
@@ -2536,6 +2925,130 @@ plot_phase_comparison()
 plot_detailed_phase_comparison()
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Loaded phase1_benchmark_step000000.pt
+Loaded Phase 1 benchmark from checkpoint.
+[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
+[summary] Stored P1_Vocab4L (2 total)
+[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
+[detailed] Stored P1_Vocab4L
+
+================================================================================
+  P1_Vocab4L - 1686.3M params
+================================================================================
+Overall: BLEU=9.12  ChrF=40.33±11.80  RTF=0.1609
+
+Per-Pair (6 pairs):
+  Pair                  N     BLEU     ChrF      RTF
+  arb→ben              33     4.66    34.13   0.1938
+  ben→arb              33     5.69    31.39   0.1445
+  ben→eng              33    16.85    52.04   0.1271
+  ben→hin              33     8.86    37.45   0.1393
+  eng→ben              33    11.58    48.11   0.1897
+  hin→ben              33     7.08    38.87   0.1710
+
+By Source Language:
+     ARB: BLEU=  4.66  ChrF= 34.13  (n=33)
+     BEN: BLEU= 10.47  ChrF= 40.29  (n=99)
+     ENG: BLEU= 11.58  ChrF= 48.11  (n=33)
+     HIN: BLEU=  7.08  ChrF= 38.87  (n=33)
+
+By Target Language:
+     ARB: BLEU=  5.69  ChrF= 31.39  (n=33)
+     BEN: BLEU=  7.77  ChrF= 40.37  (n=99)
+     ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
+     HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
+================================================================================
+
+  ── Quality Gate ──
+  Bengali ChrF : P0=40.37  →  P1=40.37  Δ=+0.00
+  ✓ Within ±1.5 — vocab trim is lossless.
+[rclone] 2026/05/23 06:29:50 -     1.769 KiB / 1.769 KiB, 100%, 0 B/s, ETA -
+[fig] Saved phase_comparison.png
+```
+
+```
+<Figure size 1920x1200 with 4 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
+```
+
+```
+<Figure size 1800x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
+[rclone] 2026/05/23 06:29:52 -     3.384 KiB / 3.384 KiB, 100%, 0 B/s, ETA -
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
+```
+
+```
+<Figure size 2520x1080 with 2 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+```
+
+```
+<Figure size 1800x1260 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
+```
+
+```
+<Figure size 1800x900 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
+
+✅ All 6 figures saved.
+   📄 detailed_comparison_01_overall_quality.png
+   📄 detailed_comparison_02_bleu_by_pair.png
+   📄 detailed_comparison_03_chrf_by_pair.png
+   📄 detailed_comparison_04_bengali_focus.png
+   📄 detailed_comparison_05_size_vs_quality.png
+   📄 detailed_comparison_06_rtf.png
+```
+
 ---
 
 ## Cell 37 — `markdown`
@@ -2546,7 +3059,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 38 — `code`
+## Cell 38 — `code` (execution #28)
 
 ```python
 # # Load Phase 1 model to prune
@@ -2594,7 +3107,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 39 — `code`
+## Cell 39 — `code` (execution #29)
 
 ```python
 # p2_bench = load_latest_checkpoint('phase2_benchmark')
@@ -2628,7 +3141,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 41 — `code`
+## Cell 41 — `code` (execution #30)
 
 ```python
 # model_p3 = model_p2   # continue from enc-pruned model
@@ -2670,7 +3183,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 42 — `code`
+## Cell 42 — `code` (execution #31)
 
 ```python
 # p3_bench = load_latest_checkpoint('phase3_benchmark')
@@ -2703,7 +3216,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 44 — `code`
+## Cell 44 — `code` (execution #32)
 
 ```python
 # model_p4 = model_p3
@@ -2761,7 +3274,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 45 — `code`
+## Cell 45 — `code` (execution #33)
 
 ```python
 # model_p4, processor = load_model_from_drive('phase4_dec_14L')
@@ -2769,7 +3282,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 46 — `code`
+## Cell 46 — `code` (execution #34)
 
 ```python
 p4_bench = load_latest_checkpoint('phase4_benchmark')
@@ -2792,9 +3305,128 @@ plot_detailed_phase_comparison()
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Loaded phase4_benchmark_step000000.pt
+[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
+[summary] Stored P4_Dec14L (3 total)
+[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
+[detailed] Stored P4_Dec14L
+
+================================================================================
+  P4_Dec14L - 1056.0M params
+================================================================================
+Overall: BLEU=0.58  ChrF=8.33±6.25  RTF=0.2754
+
+Per-Pair (6 pairs):
+  Pair                  N     BLEU     ChrF      RTF
+  arb→ben              33     0.23     5.21   0.3273
+  ben→arb              33     0.22     5.89   0.2860
+  ben→eng              33     1.70    15.74   0.1019
+  ben→hin              33     0.36     6.06   0.3497
+  eng→ben              32     0.73     7.96   0.2600
+  hin→ben              33     0.25     9.09   0.3269
+
+By Source Language:
+     ARB: BLEU=  0.23  ChrF=  5.21  (n=33)
+     BEN: BLEU=  0.76  ChrF=  9.23  (n=99)
+     ENG: BLEU=  0.73  ChrF=  7.96  (n=32)
+     HIN: BLEU=  0.25  ChrF=  9.09  (n=33)
+
+By Target Language:
+     ARB: BLEU=  0.22  ChrF=  5.89  (n=33)
+     BEN: BLEU=  0.40  ChrF=  7.42  (n=98)
+     ENG: BLEU=  1.70  ChrF= 15.74  (n=33)
+     HIN: BLEU=  0.36  ChrF=  6.06  (n=33)
+================================================================================
+[rclone] 2026/05/23 06:29:56 -     1.956 KiB / 1.956 KiB, 100%, 0 B/s, ETA -
+[fig] Saved phase_comparison.png
+[rclone] 2026/05/23 06:29:57 -     4.321 KiB / 4.321 KiB, 100%, 0 B/s, ETA -
+```
+
+```
+<Figure size 1920x1200 with 4 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L']
+```
+
+```
+<Figure size 1800x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
+```
+
+```
+<Figure size 2520x1080 with 2 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+```
+
+```
+<Figure size 1800x1260 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
+```
+
+```
+<Figure size 1800x900 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
+
+✅ All 6 figures saved.
+   📄 detailed_comparison_01_overall_quality.png
+   📄 detailed_comparison_02_bleu_by_pair.png
+   📄 detailed_comparison_03_chrf_by_pair.png
+   📄 detailed_comparison_04_bengali_focus.png
+   📄 detailed_comparison_05_size_vs_quality.png
+   📄 detailed_comparison_06_rtf.png
+```
+
 ---
 
-## Cell 47 — `code`
+## Cell 47 — `code` (execution #35)
 
 ```python
 # heed
@@ -2822,7 +3454,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 49 — `code`
+## Cell 49 — `code` (execution #36)
 
 ```python
 # ── Cell 45: Load pruned student for full fine-tuning ──────────────────────────
@@ -2867,9 +3499,46 @@ print_model_breakdown(student, 'Student (Pruned, Pre-FT)')
 gpu_mem()
 ```
 
+### Output
+
+**[stdout]**
+```
+Loading phase5_ft_merged for fine-tuning with Custom Device Split...
+[model] Not in local cache — pulling from remote...
+[rclone] Pulled phase5_ft_merged → /kaggle/working/models/phase5_ft_merged
+[model] Loading phase5_ft_merged from /kaggle/working/models/phase5_ft_merged ...
+```
+
+```
+Loading weights:   0%|          | 0/1106 [00:00<?, ?it/s]
+```
+
+**[stdout]**
+```
+  Restored custom state: ['_vocab_remap_to_old']
+[model] Loaded phase5_ft_merged.
+✓ Speech encoder : 10L
+✓ Text decoder   : 14L
+✓ T2U encoder    : 5L
+✓ T2U decoder    : 5L
+✓ Vocab size     : 139697
+
+--- Student (Pruned, Pre-FT) ---
+  text_decoder                           495.7M  ( 46.9%)
+  speech_encoder                         296.5M  ( 28.1%)
+  t2u_model                              221.9M  ( 21.0%)
+  shared                                 143.0M  ( 13.5%)
+  lm_head                                143.0M  ( 13.5%)
+  vocoder                                 41.9M  (  4.0%)
+  TOTAL                                 1056.0M
+---
+  GPU0: 0.59GB alloc / 0.60GB reserved
+  GPU1: 1.54GB alloc / 1.56GB reserved
+```
+
 ---
 
-## Cell 50 — `code`
+## Cell 50 — `code` (execution #37)
 
 ```python
 # ── Cell 46: Load teacher on cuda:1 ───────────────────────────────────────────
@@ -2881,14 +3550,14 @@ TOP_K_TEACHER  = 256   # ← was 8, now 256 (matches Phase 7 battle-tested)
 
 print(f'Loading teacher model on {TEACHER_DEVICE}...')
 
-# from transformers import SeamlessM4Tv2ForSpeechToSpeech
-# teacher = SeamlessM4Tv2ForSpeechToSpeech.from_pretrained(
-#     MODEL_NAME, torch_dtype=torch.float16, device_map=TEACHER_DEVICE)
+from transformers import SeamlessM4Tv2ForSpeechToSpeech
+teacher = SeamlessM4Tv2ForSpeechToSpeech.from_pretrained(
+    MODEL_NAME, torch_dtype=torch.float32, device_map=TEACHER_DEVICE)
 
 # make sure to switch to float16 when training
-from transformers import SeamlessM4Tv2ForSpeechToText
-teacher = SeamlessM4Tv2ForSpeechToText.from_pretrained(
-    MODEL_NAME, torch_dtype=torch.float32, device_map=TEACHER_DEVICE)
+# from transformers import SeamlessM4Tv2ForSpeechToText
+# teacher = SeamlessM4Tv2ForSpeechToText.from_pretrained(
+#     MODEL_NAME, torch_dtype=torch.float32, device_map=TEACHER_DEVICE)
 
 
 teacher.eval()
@@ -2898,9 +3567,47 @@ print(f'Teacher loaded. Params: {count_params(teacher):.1f}M')
 gpu_mem()
 ```
 
+### Output
+
+**[stdout]**
+```
+Loading teacher model on cuda:1...
+```
+
+```
+config.json: 0.00B [00:00, ?B/s]
+```
+
+```
+model.safetensors.index.json: 0.00B [00:00, ?B/s]
+```
+
+```
+Downloading (incomplete total...): 0.00B [00:00, ?B/s]
+```
+
+```
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]
+```
+
+```
+Loading weights:   0%|          | 0/1846 [00:00<?, ?it/s]
+```
+
+```
+generation_config.json: 0.00B [00:00, ?B/s]
+```
+
+**[stdout]**
+```
+Teacher loaded. Params: 1805.5M
+  GPU0: 0.59GB alloc / 0.60GB reserved
+  GPU1: 8.82GB alloc / 8.83GB reserved
+```
+
 ---
 
-## Cell 51 — `code`
+## Cell 51 — `code` (execution #38)
 
 ```python
 # ── Cell 47: Unfreeze all except vocoder ──────────────────────────────────────
@@ -2938,18 +3645,396 @@ else:
 gpu_mem()
 ```
 
+### Output
+
+**[stdout]**
+```
+Frozen (vocoder): 41.91M params
+Trainable: 1014.1M / 1056.0M (96.0%)
+✓ All trainable params fp32 — GradScaler will work correctly
+  GPU0: 1.19GB alloc / 1.31GB reserved
+  GPU1: 10.25GB alloc / 10.33GB reserved
+```
+
 ---
 
-## Cell 52 — `code`
+## Cell 52 — `code` (execution #39)
 
 ```python
 print(student)
 # heed
 ```
 
+### Output
+
+**[stdout]**
+```
+SeamlessM4Tv2ForSpeechToSpeech(
+  (shared): Embedding(139697, 1024, padding_idx=0)
+  (speech_encoder): SeamlessM4Tv2SpeechEncoder(
+    (feature_projection): SeamlessM4Tv2ConformerFeatureProjection(
+      (layer_norm): LayerNorm((160,), eps=1e-05, elementwise_affine=True)
+      (projection): Linear(in_features=160, out_features=1024, bias=True)
+      (dropout): Dropout(p=0.0, inplace=False)
+    )
+    (encoder): SeamlessM4Tv2ConformerEncoder(
+      (dropout): Dropout(p=0.0, inplace=False)
+      (layers): ModuleList(
+        (0-9): 10 x SeamlessM4Tv2ConformerEncoderLayer(
+          (ffn1_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (ffn1): SeamlessM4Tv2ConformerFeedForward(
+            (intermediate_dropout): Dropout(p=0.0, inplace=False)
+            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
+            (intermediate_act_fn): SiLU()
+            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
+            (output_dropout): Dropout(p=0.0, inplace=False)
+          )
+          (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (self_attn_dropout): Dropout(p=0.0, inplace=False)
+          (self_attn): SeamlessM4Tv2ConformerSelfAttention(
+            (linear_q): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_k): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_v): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_out): Linear(in_features=1024, out_features=1024, bias=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+            (distance_embedding): Embedding(73, 64)
+          )
+          (conv_module): SeamlessM4Tv2ConformerConvolutionModule(
+            (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (pointwise_conv1): Conv1d(1024, 2048, kernel_size=(1,), stride=(1,), bias=False)
+            (glu): GLU(dim=1)
+            (depthwise_conv): Conv1d(1024, 1024, kernel_size=(31,), stride=(1,), groups=1024, bias=False)
+            (depthwise_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (activation): SiLU()
+            (pointwise_conv2): Conv1d(1024, 1024, kernel_size=(1,), stride=(1,), bias=False)
+            (dropout): Dropout(p=0.0, inplace=False)
+          )
+          (ffn2_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (ffn2): SeamlessM4Tv2ConformerFeedForward(
+            (intermediate_dropout): Dropout(p=0.0, inplace=False)
+            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
+            (intermediate_act_fn): SiLU()
+            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
+            (output_dropout): Dropout(p=0.0, inplace=False)
+          )
+          (final_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        )
+      )
+      (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+    )
+    (intermediate_ffn): SeamlessM4Tv2ConformerFeedForward(
+      (intermediate_dropout): Dropout(p=0.0, inplace=False)
+      (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
+      (intermediate_act_fn): ReLU()
+      (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
+      (output_dropout): Dropout(p=0.0, inplace=False)
+    )
+    (adapter): SeamlessM4Tv2ConformerAdapter(
+      (layers): ModuleList(
+        (0): SeamlessM4Tv2ConformerAdapterLayer(
+          (residual_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (residual_conv): Conv1d(1024, 2048, kernel_size=(8,), stride=(8,), padding=(4,))
+          (activation): GLU(dim=1)
+          (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (self_attn_conv): Conv1d(1024, 2048, kernel_size=(8,), stride=(8,), padding=(4,))
+          (self_attn): SeamlessM4Tv2ConformerSelfAttention(
+            (linear_q): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_k): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_v): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_out): Linear(in_features=1024, out_features=1024, bias=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+          )
+          (self_attn_dropout): Dropout(p=0.1, inplace=False)
+          (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (ffn): SeamlessM4Tv2ConformerFeedForward(
+            (intermediate_dropout): Dropout(p=0.1, inplace=False)
+            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
+            (intermediate_act_fn): ReLU()
+            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
+            (output_dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+      )
+    )
+    (inner_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+  )
+  (text_decoder): SeamlessM4Tv2Decoder(
+    (embed_tokens): SeamlessM4Tv2ScaledWordEmbedding(139697, 1024, padding_idx=0)
+    (embed_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
+    (layers): ModuleList(
+      (0-13): 14 x SeamlessM4Tv2DecoderLayer(
+        (self_attn): SeamlessM4Tv2Attention(
+          (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
+        )
+        (activation_fn): ReLU()
+        (attn_dropout): Dropout(p=0.1, inplace=False)
+        (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (cross_attention): SeamlessM4Tv2Attention(
+          (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
+        )
+        (cross_attention_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (ffn): SeamlessM4Tv2FeedForwardNetwork(
+          (fc1): Linear(in_features=1024, out_features=8192, bias=True)
+          (fc2): Linear(in_features=8192, out_features=1024, bias=True)
+          (dropout): Dropout(p=0.0, inplace=False)
+          (act): ReLU()
+        )
+        (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (ffn_dropout): Dropout(p=0.0, inplace=False)
+      )
+    )
+    (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+  )
+  (lm_head): Linear(in_features=1024, out_features=139697, bias=False)
+  (t2u_model): SeamlessM4Tv2TextToUnitForConditionalGeneration(
+    (model): SeamlessM4Tv2TextToUnitModel(
+      (encoder): SeamlessM4Tv2Encoder(
+        (layers): ModuleList(
+          (0-4): 5 x SeamlessM4Tv2EncoderLayer(
+            (self_attn): SeamlessM4Tv2Attention(
+              (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
+            )
+            (attn_dropout): Dropout(p=0.1, inplace=False)
+            (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (ffn): SeamlessM4Tv2FeedForwardNetwork(
+              (fc1): Linear(in_features=1024, out_features=8192, bias=True)
+              (fc2): Linear(in_features=8192, out_features=1024, bias=True)
+              (dropout): Dropout(p=0.0, inplace=False)
+              (act): ReLU()
+            )
+            (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (ffn_dropout): Dropout(p=0.0, inplace=False)
+          )
+        )
+        (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+      )
+      (decoder): SeamlessM4Tv2TextToUnitDecoder(
+        (embed_tokens): Embedding(10082, 1024, padding_idx=1)
+        (embed_char): Embedding(10943, 1024)
+        (embed_char_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
+        (duration_predictor): SeamlessM4Tv2VariancePredictor(
+          (conv1): Conv1d(1024, 256, kernel_size=(3,), stride=(1,), padding=same)
+          (activation_function): ReLU()
+          (ln1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (dropout_module): Dropout(p=0.5, inplace=False)
+          (conv2): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=same)
+          (ln2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (proj): Linear(in_features=256, out_features=1, bias=True)
+        )
+        (embed_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
+        (layers): ModuleList(
+          (0-4): 5 x SeamlessM4Tv2TextToUnitDecoderLayer(
+            (self_attn): SeamlessM4Tv2Attention(
+              (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
+            )
+            (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (conv1): Conv1d(1024, 1024, kernel_size=(7,), stride=(1,), padding=same)
+            (activation_fn): ReLU()
+            (conv2): Conv1d(1024, 1024, kernel_size=(7,), stride=(1,), padding=same)
+            (conv_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (conv_dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+      )
+    )
+    (lm_head): Linear(in_features=1024, out_features=10082, bias=False)
+  )
+  (vocoder): SeamlessM4Tv2CodeHifiGan(
+    (dur_predictor): SeamlessM4Tv2VariancePredictor(
+      (conv1): Conv1d(1280, 1280, kernel_size=(3,), stride=(1,), padding=same)
+      (activation_function): ReLU()
+      (ln1): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
+      (dropout_module): Dropout(p=0.5, inplace=False)
+      (conv2): Conv1d(1280, 1280, kernel_size=(3,), stride=(1,), padding=same)
+      (ln2): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
+      (proj): Linear(in_features=1280, out_features=1, bias=True)
+    )
+    (unit_embedding): Embedding(10000, 1280)
+    (speaker_embedding): Embedding(200, 256)
+    (language_embedding): Embedding(36, 256)
+    (hifi_gan): SeamlessM4Tv2HifiGan(
+      (conv_pre): Conv1d(1792, 512, kernel_size=(7,), stride=(1,), padding=(3,))
+      (upsampler): ModuleList(
+        (0): ConvTranspose1d(512, 256, kernel_size=(11,), stride=(5,), padding=(3,))
+        (1): ConvTranspose1d(256, 128, kernel_size=(8,), stride=(4,), padding=(2,))
+        (2): ConvTranspose1d(128, 64, kernel_size=(8,), stride=(4,), padding=(2,))
+        (3): ConvTranspose1d(64, 32, kernel_size=(4,), stride=(2,), padding=(1,))
+        (4): ConvTranspose1d(32, 16, kernel_size=(4,), stride=(2,), padding=(1,))
+      )
+      (resblocks): ModuleList(
+        (0): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (1): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (2): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+        (3): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (4): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (5): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+        (6): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (7): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (8): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+        (9): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (10): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (11): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+        (12): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (13): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (14): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+      )
+      (conv_post): Conv1d(16, 1, kernel_size=(7,), stride=(1,), padding=(3,))
+    )
+  )
+)
+```
+
 ---
 
-## Cell 53 — `code`
+## Cell 53 — `code` (execution #40)
 
 ```python
 # ── Cell 48: Gradient checkpointing strategy for full fine-tuning on 2×T4 ─────
@@ -3063,9 +4148,22 @@ print('VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32')
 gpu_mem()
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
+✓ GC selectively ENABLED for: speech_encoder, text_decoder
+⚠ Still on: ['speech_encoder', 'text_decoder']
+
+VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32
+  GPU0: 1.19GB alloc / 1.31GB reserved
+  GPU1: 10.25GB alloc / 10.33GB reserved
+```
+
 ---
 
-## Cell 54 — `code`
+## Cell 54 — `code` (execution #41)
 
 ```python
 # ── Cell 49A: Vocab remap tables (exact Phase 7 / Cell 41+43+48 pattern) ──────
@@ -3140,9 +4238,25 @@ for _l in ['eng', 'ben', 'hin', 'arb']:
 print('✓ Vocab remap ready.')
 ```
 
+### Output
+
+**[stdout]**
+```
+Mapped: 139697/256102 (54.5%)
+EOS (token 3) → student: 3  ← must be 3
+OLD_TO_NEW_GPU: 1.0MB VRAM
+
+Special tokens: PAD_S=0  BOS_S=2  EOS_S=3
+  eng: student_id=139620
+  ben: student_id=139607
+  hin: student_id=139631
+  arb: student_id=139601
+✓ Vocab remap ready.
+```
+
 ---
 
-## Cell 55 — `code`
+## Cell 55 — `code` (execution #42)
 
 ```python
 # ── Cell 49B: Collation — exact Phase 7 / Cell 44 layout ──────────────────────
@@ -3243,9 +4357,18 @@ print(f'  dec layout: [BOS | __tgt__ | content]  length=T+2')
 print(f'  lab layout: [__tgt__ | content | EOS]  length=T+2')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ Collation ready (exact Phase 7 token layout)
+  dec layout: [BOS | __tgt__ | content]  length=T+2
+  lab layout: [__tgt__ | content | EOS]  length=T+2
+```
+
 ---
 
-## Cell 56 — `code`
+## Cell 56 — `code` (execution #43)
 
 ```python
 # ── REPLACE ENTIRE CELL 49C ───────────────────────────────────────
@@ -3311,7 +4434,7 @@ def student_logits_gpu(feat_dict, dec_s_cpu):
 
 ---
 
-## Cell 57 — `code`
+## Cell 57 — `code` (execution #44)
 
 ```python
 # ── Cell 50: Loss functions — all on cuda:0, no CPU ops ───────────────────────
@@ -3410,17 +4533,69 @@ print(f'  OLD_TO_NEW_GPU on cuda:0: {OLD_TO_NEW_GPU.numel()*4/1e6:.1f}MB VRAM')
 print('  No CPU involved in any loss computation')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ GPU-only loss functions ready.
+  KD_ALPHA=0.15  KD_TEMPERATURE=3.0  TOP_K=256
+  OLD_TO_NEW_GPU on cuda:0: 1.0MB VRAM
+  No CPU involved in any loss computation
+```
+
 ---
 
-## Cell 58 — `code`
+## Cell 58 — `code` (execution #45)
 
 ```python
 !pip install bitsandbytes
 ```
 
+### Output
+
+**[stdout]**
+```
+Collecting bitsandbytes
+  Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl.metadata (10 kB)
+Requirement already satisfied: torch<3,>=2.3 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.10.0+cu128)
+Requirement already satisfied: numpy>=1.17 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.0.2)
+Requirement already satisfied: packaging>=20.9 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (26.0)
+Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.24.3)
+Requirement already satisfied: typing-extensions>=4.10.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (4.15.0)
+Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (75.2.0)
+Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.14.0)
+Requirement already satisfied: networkx>=2.5.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.1)
+Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.1.6)
+Requirement already satisfied: fsspec>=0.8.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2026.2.0)
+Requirement already satisfied: cuda-bindings==12.9.4 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.9.4)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
+Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (9.10.2.21)
+Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.4.1)
+Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.3.3.83)
+Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (10.3.9.90)
+Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.7.3.90)
+Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.5.8.93)
+Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (0.7.1)
+Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2.27.5)
+Requirement already satisfied: nvidia-nvshmem-cu12==3.4.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.4.5)
+Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
+Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.13.1.3)
+Requirement already satisfied: triton==3.6.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.0)
+Requirement already satisfied: cuda-pathfinder~=1.1 in /usr/local/lib/python3.12/dist-packages (from cuda-bindings==12.9.4->torch<3,>=2.3->bitsandbytes) (1.3.5)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy>=1.13.3->torch<3,>=2.3->bitsandbytes) (1.3.0)
+Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2->torch<3,>=2.3->bitsandbytes) (3.0.3)
+Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl (60.7 MB)
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m60.7/60.7 MB[0m [31m30.9 MB/s[0m eta [36m0:00:00[0m:00:01[0m00:01[0m
+[?25hInstalling collected packages: bitsandbytes
+Successfully installed bitsandbytes-0.49.2
+```
+
 ---
 
-## Cell 59 — `code`
+## Cell 59 — `code` (execution #46)
 
 ```python
 # ── Cell 51: Training configuration + optimizer ────────────────────────────────
@@ -3489,9 +4664,21 @@ all_trainable_params = [p for p in student.parameters() if p.requires_grad]
 print(f'\n✓ Optimizer ready with LR_PEAK = {LR_PEAK}')
 ```
 
+### Output
+
+**[stdout]**
+```
+Effective batch size : 32
+Training samples     : 7974
+Steps per epoch      : 250
+Total steps          : 1500
+
+✓ Optimizer ready with LR_PEAK = 6e-05
+```
+
 ---
 
-## Cell 60 — `code`
+## Cell 60 — `code` (execution #47)
 
 ```python
 # ── Cell 51B: Quick eval helper ────────────────────────────────────────────────
@@ -3537,9 +4724,16 @@ def _eval_quick_p5(n_samples=18):
 print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ _eval_quick_p5 ready with persistent list and dictionary caching.
+```
+
 ---
 
-## Cell 61 — `code`
+## Cell 61 — `code` (execution #48)
 
 ```python
 # heed
@@ -3547,7 +4741,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 62 — `code`
+## Cell 62 — `code` (execution #49)
 
 ```python
 # print("Student: ")
@@ -3559,7 +4753,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 63 — `code`
+## Cell 63 — `code` (execution #50)
 
 ```python
 # s   = eval_samples[2]
@@ -3574,7 +4768,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 64 — `code`
+## Cell 64 — `code` (execution #51)
 
 ```python
 # # ── Cell 52: Training loop — Phase 7 battle-tested flow ───────────────────────
@@ -3784,7 +4978,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 65 — `code`
+## Cell 65 — `code` (execution #52)
 
 ```python
 # import matplotlib.pyplot as plt
@@ -3834,7 +5028,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 66 — `code`
+## Cell 66 — `code` (execution #53)
 
 ```python
 # # ── Cell 53: Load best checkpoint and save merged model ───────────────────────
@@ -3855,7 +5049,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 67 — `code`
+## Cell 67 — `code` (execution #54)
 
 ```python
 # ── Final benchmark ───────────────────────────────────────────────────────────
@@ -3903,9 +5097,140 @@ plot_detailed_phase_comparison()
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Loaded phase5_benchmark_step000000.pt
+Loaded Phase 5 benchmark from checkpoint.
+[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
+[summary] Stored P5_FullFT (4 total)
+[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
+[detailed] Stored P5_FullFT
+
+================================================================================
+  P5_FullFT - 1056.0M params
+================================================================================
+Overall: BLEU=3.95  ChrF=25.95±9.28  RTF=0.1631
+
+Per-Pair (6 pairs):
+  Pair                  N     BLEU     ChrF      RTF
+  arb→ben              33     2.28    20.72   0.1809
+  ben→arb              33     1.94    18.72   0.1491
+  ben→eng              33     5.01    29.76   0.1299
+  ben→hin              33     6.56    27.97   0.1607
+  eng→ben              33     3.99    29.40   0.1932
+  hin→ben              33     3.91    29.12   0.1649
+
+By Source Language:
+     ARB: BLEU=  2.28  ChrF= 20.72  (n=33)
+     BEN: BLEU=  4.50  ChrF= 25.49  (n=99)
+     ENG: BLEU=  3.99  ChrF= 29.40  (n=33)
+     HIN: BLEU=  3.91  ChrF= 29.12  (n=33)
+
+By Target Language:
+     ARB: BLEU=  1.94  ChrF= 18.72  (n=33)
+     BEN: BLEU=  3.39  ChrF= 26.42  (n=99)
+     ENG: BLEU=  5.01  ChrF= 29.76  (n=33)
+     HIN: BLEU=  6.56  ChrF= 27.97  (n=33)
+================================================================================
+
+==================================================
+  TEACHER vs STUDENT (Bengali pairs):
+==================================================
+  arb→ben             BLEU: Teacher=4.66  Student=2.28  Δ=-2.38   |  ChrF: Teacher=34.13  Student=20.72  Δ=-13.41 
+  ben→arb             BLEU: Teacher=5.69  Student=1.94  Δ=-3.75   |  ChrF: Teacher=31.39  Student=18.72  Δ=-12.67 
+  ben→eng             BLEU: Teacher=16.85  Student=5.01  Δ=-11.84   |  ChrF: Teacher=52.04  Student=29.76  Δ=-22.28 
+  ben→hin             BLEU: Teacher=8.86  Student=6.56  Δ=-2.29   |  ChrF: Teacher=37.45  Student=27.97  Δ=-9.48 
+  eng→ben             BLEU: Teacher=11.58  Student=3.99  Δ=-7.59   |  ChrF: Teacher=48.11  Student=29.40  Δ=-18.71 
+  hin→ben             BLEU: Teacher=7.08  Student=3.91  Δ=-3.17   |  ChrF: Teacher=38.87  Student=29.12  Δ=-9.74 
+==================================================
+[rclone] 2026/05/23 06:32:47 -     2.144 KiB / 2.144 KiB, 100%, 0 B/s, ETA -
+[fig] Saved phase_comparison.png
+```
+
+```
+<Figure size 1920x1200 with 4 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+Plotting detailed comparison for 4 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L', 'P5_FullFT']
+[rclone] 2026/05/23 06:32:48 -     5.259 KiB / 5.259 KiB, 100%, 0 B/s, ETA -
+```
+
+```
+<Figure size 1800x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
+```
+
+```
+<Figure size 2520x1080 with 2 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+```
+
+```
+<Figure size 1800x1260 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
+```
+
+```
+<Figure size 1800x900 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
+
+✅ All 6 figures saved.
+   📄 detailed_comparison_01_overall_quality.png
+   📄 detailed_comparison_02_bleu_by_pair.png
+   📄 detailed_comparison_03_chrf_by_pair.png
+   📄 detailed_comparison_04_bengali_focus.png
+   📄 detailed_comparison_05_size_vs_quality.png
+   📄 detailed_comparison_06_rtf.png
+```
+
 ---
 
-## Cell 68 — `code`
+## Cell 68 — `code` (execution #55)
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -3950,9 +5275,17 @@ print(f'[Config] PSEUDO_DIR={PSEUDO_DIR}')
 print(f'[Config] MDC API key loaded: {"YES" if MDC_API_KEY else "NO — check your Kaggle secret!"}')
 ```
 
+### Output
+
+**[stdout]**
+```
+[Config] PSEUDO_DIR=/kaggle/working/pseudo_cv25
+[Config] MDC API key loaded: YES
+```
+
 ---
 
-## Cell 69 — `code`
+## Cell 69 — `code` (execution #56)
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -4008,9 +5341,16 @@ def mdc_get_presigned_url(dataset_id: str, force_refresh: bool = False) -> dict:
 print('MDC URL fetcher ready.')
 ```
 
+### Output
+
+**[stdout]**
+```
+MDC URL fetcher ready.
+```
+
 ---
 
-## Cell 70 — `code`
+## Cell 70 — `code` (execution #57)
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -4483,9 +5823,17 @@ print('Fast + reliable pseudo-labeler ready.')
 print(f'Download chunk size: {DOWNLOAD_CHUNK_GB} GB per slice')
 ```
 
+### Output
+
+**[stdout]**
+```
+Fast + reliable pseudo-labeler ready.
+Download chunk size: 9 GB per slice
+```
+
 ---
 
-## Cell 71 — `code`
+## Cell 71 — `code` (execution #58)
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -4536,41 +5884,89 @@ def _rclone_sync_backup():
     print(f"  [GDrive] Syncing local parquets to GDrive backup...", flush=True)
     subprocess.run(f'rclone sync "{PSEUDO_DIR}/" "{GDRIVE_PARQUET_DIR}/" --transfers=8', shell=True)
 
-def publish_kaggle_dataset(dataset_title='fleurs5', message='Added new pseudo-labels'):
-    """Pushes the entire PSEUDO_DIR as a new version to the Kaggle Dataset."""
-    if not ON_KAGGLE:
-        print('[Kaggle] Dataset creation only works on Kaggle.')
-        return False
+def publish_kaggle_dataset(dataset_title='fleurs5', message='Added structured pseudo-labels'):
+    """Assembles the dataset efficiently without duplicating local files, then pushes to Kaggle."""
+    if not ON_KAGGLE: return False
+    
+    # 1. Safely handle API credentials
     try:
         kag_json = _get_secret('KAGGLE_API_TOKEN')
-        kag_path = pathlib.Path.home() / '.kaggle/kaggle.json'
-        kag_path.parent.mkdir(parents=True, exist_ok=True)
-        kag_path.write_text(kag_json)
-        kag_path.chmod(0o600)
-        username = json.loads(kag_json).get('username', 'rayedriasat')
+        if not kag_json: kag_json = ""
+        kp = pathlib.Path.home() / '.kaggle/kaggle.json'
+        kp.parent.mkdir(parents=True, exist_ok=True)
+        kp.write_text(kag_json)
+        kp.chmod(0o600)
     except Exception as e:
-        print(f'[Kaggle] ERROR: API key missing: {e}')
+        print(f'[Kaggle] file write error: {e}')
         return False
 
-    meta_path = os.path.join(PSEUDO_DIR, 'dataset-metadata.json')
-    with open(meta_path, 'w') as f:
-        json.dump({'title': dataset_title, 'id': f'{username}/{dataset_title}', 'licenses': [{'name': 'CC0-1.0'}]}, f, indent=2)
+    try: user = json.loads(kag_json).get('username', 'rayedriasat')
+    except: user = 'rayedriasat'
 
-    print(f'[Kaggle] Pushing {PSEUDO_DIR} to {username}/{dataset_title}...')
-    # Try to update version first
-    r = subprocess.run(['kaggle', 'datasets', 'version', '-p', PSEUDO_DIR, '-m', message, '--dir-mode', 'tar'], text=True)
-    if r.returncode == 0:
-        print(f'[Kaggle] ✓ Version updated successfully!')
-        return True
+    # 2. Setup the lean Export Directory
+    EXPORT_DIR = f"{WORK_DIR}/kaggle_dataset_export"
+    os.makedirs(f"{EXPORT_DIR}/fleurs", exist_ok=True)
+    os.makedirs(f"{EXPORT_DIR}/pseudo_cv25", exist_ok=True)
+
+    print(f"\n[Kaggle] Assembling highly-efficient export folder at {EXPORT_DIR}...")
     
-    # If update fails (dataset doesn't exist yet), create it
-    print('[Kaggle] Update failed. Trying to create new dataset...')
-    r2 = subprocess.run(['kaggle', 'datasets', 'create', '-p', PSEUDO_DIR, '--dir-mode', 'tar'], text=True)
-    if r2.returncode == 0:
-        print(f'[Kaggle] ✓ Dataset created: {username}/{dataset_title}')
+    # Direct sync from GDrive to Export folder (bypasses any local duplication)
+    print("  -> Syncing original FLEURS from GDrive...")
+    subprocess.run(f'rclone sync "{GDRIVE_ROOT}/fleurs_parquet/" "{EXPORT_DIR}/fleurs/" --transfers=8', shell=True)
+    
+    print("  -> Syncing Pseudo-labels from GDrive...")
+    subprocess.run(f'rclone sync "{GDRIVE_PARQUET_DIR}/" "{EXPORT_DIR}/pseudo_cv25/" --transfers=8', shell=True)
+
+    # 3. MOVE (not copy) any un-synced local parquets to the export folder
+    # Moving files on the same disk takes 0 seconds and uses 0 extra megabytes!
+    import shutil
+    moved_mb = 0
+    for f in pathlib.Path(PSEUDO_DIR).glob("*.parquet"):
+        moved_mb += f.stat().st_size / 1e6
+        shutil.move(str(f), f"{EXPORT_DIR}/pseudo_cv25/{f.name}")
+        
+    if moved_mb > 0:
+        print(f"  -> Moved {moved_mb:.1f} MB of local parquets to export folder (Zero-copy).")
+
+    # 4. Write Metadata
+    meta_path = os.path.join(EXPORT_DIR, 'dataset-metadata.json')
+    with open(meta_path, 'w') as f:
+        json.dump({'title': dataset_title, 'id': f'{user}/{dataset_title}', 'licenses': [{'name': 'CC0-1.0'}]}, f, indent=2)
+
+    # 5. Push to Kaggle
+    print(f'[Kaggle] Pushing structured dataset to {user}/{dataset_title}...')
+    r = subprocess.run(['kaggle', 'datasets', 'version', '-p', EXPORT_DIR, '-m', message, '--dir-mode', 'tar'], text=True, capture_output=True)
+    
+    # 6. INSTANT CLEANUP to free all disk space
+    shutil.rmtree(EXPORT_DIR, ignore_errors=True)
+    
+    if r.returncode == 0:
+        print(f'[Kaggle] ✓ Version updated successfully! Structure preserved and Disk freed.')
         return True
-    print('[Kaggle] ❌ Push failed entirely.')
+        
+    print(f'[Kaggle] Update failed. Trying to create new dataset...')
+    r2 = subprocess.run(['kaggle', 'datasets', 'create', '-p', EXPORT_DIR, '--dir-mode', 'tar'], text=True, capture_output=True)
+    if r2.returncode == 0:
+        print(f'[Kaggle] ✓ Dataset created: {user}/{dataset_title}')
+        return True
+        
+    print(f'[Kaggle] ❌ Push failed.\nError:\n{r.stderr[:400] if r.stderr else r2.stderr[:400]}')
     return False
+
+
+def _kaggle_push_and_clean(message: str, src_cv: str, tgt_m4t: str) -> bool:
+    """Backs up to GDrive, then DELETES local files immediately to save Kaggle disk space."""
+    # Sync generated files safely to Google Drive
+    _rclone_sync_backup()
+    
+    # Delete local files to aggressively save disk space during the generation loop!
+    freed = 0
+    for f in pathlib.Path(PSEUDO_DIR).glob(f'pseudo_{src_cv}2{tgt_m4t}*.parquet'):
+        freed += f.stat().st_size / 1e6
+        f.unlink()
+        
+    print(f'[Local] Backed up to GDrive and freed {freed:.1f} MB local cache. (Will push to Kaggle at the very end).')
+    return True
 
 def _rclone_check_exists(remote_dir, filename):
     if not ON_KAGGLE: return False
@@ -4827,46 +6223,52 @@ def run_pseudo_labeler(src_cv: str, tgt_m4t: str, max_clips: int = 20000):
 print('Cross-Lingual Pseudo-Labeler Ready with FLAC, GDrive Backup, and Kaggle Publishing.')
 ```
 
----
+### Output
 
-## Cell 72 — `code`
-
-```python
-teacher
+**[stdout]**
+```
+Cross-Lingual Pseudo-Labeler Ready with FLAC, GDrive Backup, and Kaggle Publishing.
 ```
 
 ---
 
-## Cell 73 — `code`
+## Cell 72 — `code` (execution #59)
 
 ```python
-# ── Cell 73: EXECUTE CROSS-LINGUAL Pseudo-Labeling ───────────────────────────
+# # ── Cell 73: EXECUTE CROSS-LINGUAL Pseudo-Labeling ───────────────────────────
 
-# 1. Translate INTO Bengali (X Audio -> Bengali Text)
-run_pseudo_labeler(src_cv='en', tgt_m4t='ben', max_clips=20000)
-run_pseudo_labeler(src_cv='hi', tgt_m4t='ben', max_clips=20000)
-run_pseudo_labeler(src_cv='ar', tgt_m4t='ben', max_clips=20000)
+# # 1. Translate INTO Bengali (X Audio -> Bengali Text)
+# run_pseudo_labeler(src_cv='en', tgt_m4t='ben', max_clips=20000)
+# run_pseudo_labeler(src_cv='hi', tgt_m4t='ben', max_clips=20000)
+# run_pseudo_labeler(src_cv='ar', tgt_m4t='ben', max_clips=20000)
 
-# 2. Translate FROM Bengali (Bengali Audio -> X Text)
-# We set Bengali to have a larger budget since it is our primary focus.
-run_pseudo_labeler(src_cv='bn', tgt_m4t='eng', max_clips=15000)
-run_pseudo_labeler(src_cv='bn', tgt_m4t='hin', max_clips=10000)
-run_pseudo_labeler(src_cv='bn', tgt_m4t='arb', max_clips=10000)
+# # 2. Translate FROM Bengali (Bengali Audio -> X Text)
+# # We set Bengali to have a larger budget since it is our primary focus.
+# run_pseudo_labeler(src_cv='bn', tgt_m4t='eng', max_clips=15000)
+# run_pseudo_labeler(src_cv='bn', tgt_m4t='hin', max_clips=10000)
+# run_pseudo_labeler(src_cv='bn', tgt_m4t='arb', max_clips=10000)
 ```
 
 ---
 
-## Cell 74 — `code`
+## Cell 73 — `code` (execution #60)
 
 ```python
 # ── Cell 74: Load Combined Dataset (FLEURS + Kaggle Pseudo Dataset) ──────────
 import pandas as pd, pathlib, os
 
-# This is where you should mount your dataset for Phase 6 training!
-PSEUDO_KAGGLE_PATH = '/kaggle/input/fleurs5'
+# If you attach the Kaggle dataset to your notebook, it lives here:
+KAGGLE_DATASET_ROOT = '/kaggle/input/datasets/rayedriasat/fleurs5'
 
-# Fallback in case you haven't restarted and mounted it yet
-FALLBACK_LOCAL_PATH = f'{WORK_DIR}/pseudo_cv25'
+# Auto-detect routing based on the new structured hierarchy
+if os.path.exists(f"{KAGGLE_DATASET_ROOT}/fleurs"):
+    print(f"✓ Structured Kaggle Dataset detected at {KAGGLE_DATASET_ROOT}!")
+    ACTIVE_FLEURS_PATH = f"{KAGGLE_DATASET_ROOT}/fleurs"
+    ACTIVE_PSEUDO_PATH = f"{KAGGLE_DATASET_ROOT}/pseudo_cv25"
+else:
+    print(f"⚠ Kaggle Dataset not mounted properly. Falling back to local working directories.")
+    ACTIVE_FLEURS_PATH = LOCAL_PARQUET_CACHE  # Defined in Cell 16
+    ACTIVE_PSEUDO_PATH = PSEUDO_DIR           # Defined in Cell 71
 
 def _build_pseudo_metadata(path: str) -> list:
     meta = []
@@ -4903,19 +6305,13 @@ def _build_pseudo_metadata(path: str) -> list:
 
 def load_all_metadata_combined(max_fleurs: int = 4000) -> list:
     all_meta = []
-    print('Loading original FLEURS metadata...')
+    print(f'Loading original FLEURS metadata from {ACTIVE_FLEURS_PATH}...')
     for src, tgt in EVAL_LANG_PAIRS:
-        ds = ParquetStreamingDataset(LOCAL_PARQUET_CACHE, src, tgt, 'train', max_fleurs)
+        ds = ParquetStreamingDataset(ACTIVE_FLEURS_PATH, src, tgt, 'train', max_fleurs)
         all_meta.extend(ds.samples)
     print(f'  FLEURS: {len(all_meta)} samples')
     
-    # Try Kaggle Mount first, fallback to local working directory
-    if os.path.exists(PSEUDO_KAGGLE_PATH) and len(list(pathlib.Path(PSEUDO_KAGGLE_PATH).glob('*.parquet'))) > 0:
-        pseudo = _build_pseudo_metadata(PSEUDO_KAGGLE_PATH)
-    else:
-        print(f'  Kaggle Dataset not mounted at {PSEUDO_KAGGLE_PATH}. Falling back to local directory.')
-        pseudo = _build_pseudo_metadata(FALLBACK_LOCAL_PATH)
-        
+    pseudo = _build_pseudo_metadata(ACTIVE_PSEUDO_PATH)
     all_meta.extend(pseudo)
     
     from collections import Counter
@@ -4935,25 +6331,53 @@ N_TRAIN = len(ft_samples)
 print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples ready for Massive KD Training.')
 ```
 
----
+### Output
 
-## Cell 75 — `code`
+**[stdout]**
+```
+✓ Structured Kaggle Dataset detected at /kaggle/input/datasets/rayedriasat/fleurs5!
+Loading original FLEURS metadata from /kaggle/input/datasets/rayedriasat/fleurs5/fleurs...
+  Indexed 1449 samples from ben→eng
+  Indexed 1449 samples from eng→ben
+  Indexed 1288 samples from ben→hin
+  Indexed 1288 samples from hin→ben
+  Indexed 1250 samples from ben→arb
+  Indexed 1250 samples from arb→ben
+  FLEURS: 7974 samples
+Loading pseudo-label metadata from /kaggle/input/datasets/rayedriasat/fleurs5/pseudo_cv25...
+  [Pseudo] Successfully loaded 86106 entries from /kaggle/input/datasets/rayedriasat/fleurs5/pseudo_cv25
 
-```python
-!rclone copy /kaggle/working/ gdrive:seamTL_bengali/
+✓ Combined: 94080 total training samples
+  arb→ben: 21248  ★ Bengali
+  ben→arb: 11250  ★ Bengali
+  ben→eng: 16449  ★ Bengali
+  ben→hin: 11288  ★ Bengali
+  eng→ben: 21449  ★ Bengali
+  hin→ben: 12396  ★ Bengali
+  ChunkedStreamingDataset: 94080 samples | chunk=4000 | RAM/chunk≈2000MB
+
+✓ ft_samples Phase 6: 94080 samples ready for Massive KD Training.
 ```
 
 ---
 
-## Cell 76 — `code`
+## Cell 74 — `code` (execution #61)
 
 ```python
-heed
+# !rclone copy /kaggle/working/ gdrive:seamTL_bengali/
 ```
 
 ---
 
-## Cell 77 — `code`
+## Cell 75 — `code` (execution #62)
+
+```python
+# publish_kaggle_dataset(message='Restored FLEURS and added structured Pseudo-Labels')
+```
+
+---
+
+## Cell 76 — `code` (execution #63)
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -5134,9 +6558,16 @@ def set_joint_training(student_model, bridge_lr_mult: float = 3.0):
 print('Bridge modules defined. Call inject_bridges(student) to install.')
 ```
 
+### Output
+
+**[stdout]**
+```
+Bridge modules defined. Call inject_bridges(student) to install.
+```
+
 ---
 
-## Cell 78 — `code`
+## Cell 77 — `code` (execution #64)
 
 ```python
 # ── Cell: Install Bridges + Warm Up ──────────────────────────────────────────
@@ -5162,9 +6593,22 @@ print('Run 300 steps of the normal training loop with this optimizer,')
 print('then call set_joint_training(student) and switch to the Phase 6 optimizer.')
 ```
 
+### Output
+
+**[stdout]**
+```
+  [Bridge] Injected 10 AcousticBridges into encoder.
+  [Bridge] Injected 14 SemanticBridges into decoder.
+  [Bridge] Total new bridge params: 16.46M
+  [Bridge] Bridge-only mode: 16.46M trainable params.
+Bridge warm-up optimizer ready.
+Run 300 steps of the normal training loop with this optimizer,
+then call set_joint_training(student) and switch to the Phase 6 optimizer.
+```
+
 ---
 
-## Cell 79 — `code`
+## Cell 78 — `code` (execution #65)
 
 ```python
 # ── Cell 76: Phase 6A — Bridge Warm-Up (300 steps, bridges only) ─────────────
@@ -5308,9 +6752,200 @@ text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
 print(f"P6A eval → Text ChrF: {text_chrf:.2f} | ASR ChrF: {asr_chrf:.2f}")
 ```
 
+### Output
+
+**[stdout]**
+```
+Loading Phase 5 weights...
+[ckpt] No checkpoint for 'phase5_ft'
+⚠ No Phase 5 checkpoint — using current student weights.
+✓ Bridges already present — skipping injection.
+  [Bridge] Bridge-only mode: 16.46M trainable params.
+
+============================================================
+Phase 6A — Bridge Warm-Up | 300 steps | LR=0.0003
+Trainable: 16.46M params (bridges only)
+============================================================
+```
+
+**[ERROR]** `RuntimeError: Expected all tensors to be on the same device, but got weight is on cpu, different from other tensors on cuda:0 (when checking argument in method wrapper_CUDA___conv_depthwise2d)`
+```
+---------------------------------------------------------------------------
+RuntimeError                              Traceback (most recent call last)
+/tmp/ipykernel_57/122485319.py in <cell line: 0>()
+     95 
+     96     try:
+---> 97         s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
+     98         s_log = s_log[:, :L, :]
+     99     except torch.cuda.OutOfMemoryError:
+
+/tmp/ipykernel_57/198125865.py in student_logits_gpu(feat_dict, dec_s_cpu)
+     50 
+     51     with torch.cuda.amp.autocast(dtype=torch.float16):
+---> 52         out = student(
+     53             input_features    = input_features,
+     54             attention_mask    = attention_mask,
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
+   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
+   1775         else:
+-> 1776             return self._call_impl(*args, **kwargs)
+   1777 
+   1778     # torchrec tests the code consistency with the following code
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
+   1785                 or _global_backward_pre_hooks or _global_backward_hooks
+   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
+-> 1787             return forward_call(*args, **kwargs)
+   1788 
+   1789         result = None
+
+/usr/local/lib/python3.12/dist-packages/accelerate/hooks.py in new_forward(module, *args, **kwargs)
+    173                 output = module._old_forward(*args, **kwargs)
+    174         else:
+--> 175             output = module._old_forward(*args, **kwargs)
+    176         return module._hf_hook.post_forward(module, output)
+    177 
+
+/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in forward(self, input_features, attention_mask, decoder_input_ids, decoder_attention_mask, encoder_outputs, past_key_values, inputs_embeds, decoder_inputs_embeds, labels, use_cache, output_attentions, output_hidden_states, return_dict, **kwargs)
+   3600             )
+   3601 
+-> 3602             encoder_outputs = self.speech_encoder(
+   3603                 input_features=input_features,
+   3604                 attention_mask=attention_mask,
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
+   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
+   1775         else:
+-> 1776             return self._call_impl(*args, **kwargs)
+   1777 
+   1778     # torchrec tests the code consistency with the following code
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
+   1785                 or _global_backward_pre_hooks or _global_backward_hooks
+   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
+-> 1787             return forward_call(*args, **kwargs)
+   1788 
+   1789         result = None
+
+/usr/local/lib/python3.12/dist-packages/accelerate/hooks.py in new_forward(module, *args, **kwargs)
+    173                 output = module._old_forward(*args, **kwargs)
+    174         else:
+--> 175             output = module._old_forward(*args, **kwargs)
+    176         return module._hf_hook.post_forward(module, output)
+    177 
+
+/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in forward(self, input_features, attention_mask, output_attentions, output_hidden_states, return_dict, **kwargs)
+   1534         hidden_states = self.feature_projection(input_features)
+   1535 
+-> 1536         encoder_outputs = self.encoder(
+   1537             hidden_states,
+   1538             attention_mask=attention_mask,
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
+   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
+   1775         else:
+-> 1776             return self._call_impl(*args, **kwargs)
+   1777 
+   1778     # torchrec tests the code consistency with the following code
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
+   1785                 or _global_backward_pre_hooks or _global_backward_hooks
+   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
+-> 1787             return forward_call(*args, **kwargs)
+   1788 
+   1789         result = None
+
+/usr/local/lib/python3.12/dist-packages/accelerate/hooks.py in new_forward(module, *args, **kwargs)
+    173                 output = module._old_forward(*args, **kwargs)
+    174         else:
+--> 175             output = module._old_forward(*args, **kwargs)
+    176         return module._hf_hook.post_forward(module, output)
+    177 
+
+/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in forward(self, hidden_states, attention_mask, output_attentions, output_hidden_states, return_dict)
+    593             if not skip_the_layer or synced_gpus:
+    594                 # under fsdp or deepspeed zero3 all gpus must run in sync
+--> 595                 layer_outputs = layer(
+    596                     hidden_states,
+    597                     attention_mask=attention_mask,
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
+   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
+   1775         else:
+-> 1776             return self._call_impl(*args, **kwargs)
+   1777 
+   1778     # torchrec tests the code consistency with the following code
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
+   1785                 or _global_backward_pre_hooks or _global_backward_hooks
+   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
+-> 1787             return forward_call(*args, **kwargs)
+   1788 
+   1789         result = None
+
+/tmp/ipykernel_57/2481550111.py in forward(self, hidden_states, *args, **kwargs)
+    141         # Encoder layers return a tuple (hidden_states, ...) or just hidden_states
+    142         if isinstance(out, tuple):
+--> 143             hs = self.bridge(out[0])
+    144             return (hs,) + out[1:]
+    145         return self.bridge(out)
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
+   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
+   1775         else:
+-> 1776             return self._call_impl(*args, **kwargs)
+   1777 
+   1778     # torchrec tests the code consistency with the following code
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
+   1785                 or _global_backward_pre_hooks or _global_backward_hooks
+   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
+-> 1787             return forward_call(*args, **kwargs)
+   1788 
+   1789         result = None
+
+/tmp/ipykernel_57/2481550111.py in forward(self, x)
+     49         # Depthwise temporal conv
+     50         h = x.transpose(1, 2)                        # (B, C, T)
+---> 51         h = self.conv(h).transpose(1, 2)              # (B, T, C)
+     52         x = self.conv_norm(x + self.scale_conv * h)
+     53         # Bottleneck FFN
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
+   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
+   1775         else:
+-> 1776             return self._call_impl(*args, **kwargs)
+   1777 
+   1778     # torchrec tests the code consistency with the following code
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
+   1785                 or _global_backward_pre_hooks or _global_backward_hooks
+   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
+-> 1787             return forward_call(*args, **kwargs)
+   1788 
+   1789         result = None
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/modules/conv.py in forward(self, input)
+    373 
+    374     def forward(self, input: Tensor) -> Tensor:
+--> 375         return self._conv_forward(input, self.weight, self.bias)
+    376 
+    377 
+
+/usr/local/lib/python3.12/dist-packages/torch/nn/modules/conv.py in _conv_forward(self, input, weight, bias)
+    368             )
+    369 
+--> 370         return F.conv1d(
+    371             input, weight, bias, self.stride, self.padding, self.dilation, self.groups
+    372         )
+
+RuntimeError: Expected all tensors to be on the same device, but got weight is on cpu, different from other tensors on cuda:0 (when checking argument in method wrapper_CUDA___conv_depthwise2d)
+```
+
 ---
 
-## Cell 80 — `code`
+## Cell 79 — `code`
 
 ```python
 # ── Cell 77: Phase 6B — Joint Training (all params + bridges, Bengali focus) ──
@@ -5547,7 +7182,7 @@ print(f"\n✓ Phase 6B complete. Best ASR ChrF: {final_chrf:.2f} at step {final_
 
 ---
 
-## Cell 81 — `code`
+## Cell 80 — `code`
 
 ```python
 # ── Cell 78: Ablation Evaluation (required for EMNLP paper) ──────────────────
@@ -5630,7 +7265,7 @@ print("\nSave this table — it's Table 1 in your EMNLP paper.")
 
 ---
 
-## Cell 82 — `markdown`
+## Cell 81 — `markdown`
 
 > ## Summary
 > 
