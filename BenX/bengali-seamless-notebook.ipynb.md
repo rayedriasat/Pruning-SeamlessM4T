@@ -1,6 +1,6 @@
 # Notebook: `./bengali-seamless-notebook.ipynb`
 
-> Kernel: **Python 3** | Total cells: **81**
+> Kernel: **Python 3** | Total cells: **84**
 
 ---
 
@@ -19,7 +19,7 @@
 
 ---
 
-## Cell 3 — `code` (execution #1)
+## Cell 3 — `code`
 
 ```python
 import os, sys, subprocess, pathlib, re, glob, json, gc, copy, time, math, shutil, random
@@ -49,17 +49,9 @@ print(f'Platform : {PLATFORM}')
 print(f'Work dir : {WORK_DIR}')
 ```
 
-### Output
-
-**[stdout]**
-```
-Platform : kaggle
-Work dir : /kaggle/working
-```
-
 ---
 
-## Cell 4 — `code` (execution #2)
+## Cell 4 — `code`
 
 ```python
 if ON_COLAB:
@@ -103,24 +95,9 @@ except Exception as e:
 
 ```
 
-### Output
-
-**[stdout]**
-```
-rclone v1.74.1
-Drive root:
-           0 2026-04-17 11:03:10        -1 Colab Notebooks
-           0 2025-11-10 11:33:43        -1 ScholarMate
-           0 2026-04-05 12:59:09        -1 cse465
-           0 2026-04-12 12:42:04        -1 cse465v5
-           0 2026-05-14 11:16:57        -1 seamTL
-           0 2026-05-17 16:27:30  
-HuggingFace login: OK
-```
-
 ---
 
-## Cell 5 — `code` (execution #3)
+## Cell 5 — `code`
 
 ```python
 subprocess.run([
@@ -134,22 +111,9 @@ print('All packages installed.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 34.3 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.1/84.1 kB 6.6 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.8/100.8 kB 8.4 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 87.0 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 kB 9.3 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 788.2/788.2 kB 41.3 MB/s eta 0:00:00
-All packages installed.
-```
-
 ---
 
-## Cell 6 — `code` (execution #4)
+## Cell 6 — `code`
 
 ```python
 import torch, numpy as np, random
@@ -210,19 +174,9 @@ print('Core utilities ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-PyTorch 2.10.0+cu128 | CUDA True | GPUs 2
-  GPU0: Tesla T4  15.6 GB
-  GPU1: Tesla T4  15.6 GB
-Core utilities ready.
-```
-
 ---
 
-## Cell 7 — `code` (execution #5)
+## Cell 7 — `code`
 
 ```python
 import queue, threading
@@ -328,16 +282,9 @@ print('Checkpoint helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Checkpoint helpers ready.
-```
-
 ---
 
-## Cell 8 — `code` (execution #6)
+## Cell 8 — `code`
 
 ```python
 import torch.nn as nn, torch.nn.functional as F
@@ -514,16 +461,9 @@ print('Model I/O helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Model I/O helpers ready.
-```
-
 ---
 
-## Cell 9 — `code` (execution #7)
+## Cell 9 — `code`
 
 ```python
 from collections import defaultdict
@@ -753,15 +693,6 @@ print('Summary + plotting helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] No checkpoint for 'all_summaries'
-[ckpt] No checkpoint for 'all_detailed_summaries'
-Summary + plotting helpers ready.
-```
-
 ---
 
 ## Cell 10 — `markdown`
@@ -770,7 +701,7 @@ Summary + plotting helpers ready.
 
 ---
 
-## Cell 11 — `code` (execution #8)
+## Cell 11 — `code`
 
 ```python
 # ── Bengali-centric language pairs: Ben↔X and X↔Ben ─────────────────────────
@@ -813,16 +744,6 @@ print(f'Train samples    : {N_TRAIN_PER_PAIR} per pair = {N_TRAIN_PER_PAIR*len(E
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Target languages : ['ben', 'eng', 'hin', 'arb']
-Lang pairs (6): [('ben', 'eng'), ('eng', 'ben'), ('ben', 'hin'), ('hin', 'ben'), ('ben', 'arb'), ('arb', 'ben')]
-Eval samples     : 33 per pair  = 198 total
-Train samples    : 4000 per pair = 24000 total
-```
-
 ---
 
 ## Cell 12 — `markdown`
@@ -831,7 +752,7 @@ Train samples    : 4000 per pair = 24000 total
 
 ---
 
-## Cell 13 — `code` (execution #9)
+## Cell 13 — `code`
 
 ```python
 import gc as _gc
@@ -948,18 +869,9 @@ print('  - Whisper-medium : English')
 print('  - MMS-1b-all     : Bengali, Hindi, Arabic')
 ```
 
-### Output
-
-**[stdout]**
-```
-ASR stack ready with dynamic VRAM offloading:
-  - Whisper-medium : English
-  - MMS-1b-all     : Bengali, Hindi, Arabic
-```
-
 ---
 
-## Cell 14 — `code` (execution #10)
+## Cell 14 — `code`
 
 ```python
 from sacrebleu.metrics import BLEU, CHRF
@@ -1019,31 +931,43 @@ def run_s2st(mdl, wav, tgt_lang='ben'):
 
 def run_s2t_only(mdl, wav, tgt_lang='ben'):
     inputs = processor(audio=wav, sampling_rate=16000, return_tensors='pt')
-    
-    # Same device alignment fix as run_s2st
     target_device = next(mdl.text_decoder.parameters()).device
     inputs = {k: v.to(target_device) for k, v in inputs.items()}
     
-    orig_voc = mdl.vocoder
-    class _Noop(nn.Module):
-        def forward(self, *a, **kw): 
-            # Dynamically match the device of the input tensor passed to the vocoder
-            # to prevent any hardcoded device mismatches.
-            dev = a[0].device if len(a) > 0 else target_device
-            return torch.zeros(1, 1, device=dev), [1]
-            
-    mdl.vocoder = _Noop()
-    try:
-        with torch.no_grad():
-            with torch.cuda.amp.autocast(dtype=torch.float16):
-                out = mdl.generate(**inputs, tgt_lang=tgt_lang,
-                                   return_intermediate_token_ids=True)
-    finally:
-        mdl.vocoder = orig_voc
-        
-    text_ids = _remap_ids_for_decode(mdl, out.sequences.cpu())
-    return processor.batch_decode(text_ids, skip_special_tokens=True)[0]
+    orig_t2u = getattr(mdl, 't2u_model', None)
+    
+    # ── ULTIMATE EVAL FIX: The Dummy T2U Module ──
+    # We replace the T2U model entirely during eval. It instantly returns zeroes,
+    # completely bypassing the 1D Convolution Kernel crash.
+    class DummyT2U(nn.Module):
+        def __init__(self, orig_cfg):
+            super().__init__()
+            self.config = orig_cfg
+        def generate(self, *args, **kwargs):
+            from transformers.utils import ModelOutput
+            class DummyOut(ModelOutput):
+                waveform = torch.zeros((1, 16000), device=target_device)
+                sequences = torch.zeros((1, 1), dtype=torch.long, device=target_device)
+            return DummyOut()
 
+    try:
+        if orig_t2u is not None:
+            mdl.t2u_model = DummyT2U(getattr(orig_t2u, 'config', None))
+            
+        with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.float16):
+            out = mdl.generate(**inputs, tgt_lang=tgt_lang, return_intermediate_token_ids=True)
+            
+    except Exception as e:
+        print(f"    [S2T internal error] {e}")
+        return ""
+    finally:
+        # Put the real module back so training isn't permanently affected
+        if orig_t2u is not None: 
+            mdl.t2u_model = orig_t2u
+        
+    seqs = out.sequences if hasattr(out, 'sequences') else out
+    text_ids = _remap_ids_for_decode(mdl, seqs.cpu())
+    return processor.batch_decode(text_ids, skip_special_tokens=True)[0]
 
 def free_cpu_ram():
     """Aggressively free CPU RAM back to OS (Kaggle Linux)."""
@@ -1058,13 +982,6 @@ print('Inference helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Inference helpers ready.
-```
-
 ---
 
 ## Cell 15 — `markdown`
@@ -1073,7 +990,7 @@ Inference helpers ready.
 
 ---
 
-## Cell 16 — `code` (execution #11)
+## Cell 16 — `code`
 
 ```python
 import pyarrow.parquet as pq
@@ -1174,16 +1091,9 @@ print('✓ Streaming dataset classes ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ Streaming dataset classes ready.
-```
-
 ---
 
-## Cell 17 — `code` (execution #12)
+## Cell 17 — `code`
 
 ```python
 print('Loading evaluation samples (streaming mode)...')
@@ -1205,33 +1115,9 @@ print(f'  Reference: {test_s["ref"][:60]}...')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Loading evaluation samples (streaming mode)...
-  Indexed 33 samples from ben→eng
-  Indexed 33 samples from eng→ben
-  Indexed 33 samples from ben→hin
-  Indexed 33 samples from hin→ben
-  Indexed 33 samples from ben→arb
-  Indexed 33 samples from arb→ben
-
-✓ Multilingual dataset ready: 198 total samples
-  RAM usage: ~0.2 MB (metadata only)
-
-✓ Loaded 198 multilingual eval samples
-  Language pairs: [('ben', 'eng'), ('eng', 'ben'), ('ben', 'hin'), ('hin', 'ben'), ('ben', 'arb'), ('arb', 'ben')]
-
-✓ Test sample loaded:
-  ID: ben2eng_1660
-  Audio shape: (216960,)
-  Reference: romanticism had a large element of cultural determinism draw...
-```
-
 ---
 
-## Cell 18 — `code` (execution #13)
+## Cell 18 — `code`
 
 ```python
 # Cell 18 — Training samples (streaming metadata only, audio loaded per-batch)
@@ -1252,29 +1138,9 @@ print(f'  Language pairs: {len(EVAL_LANG_PAIRS)}')
 print(f'  (Will be upgraded to ChunkedMultilingualDataset below)')
 ```
 
-### Output
-
-**[stdout]**
-```
-Loading training samples (streaming mode)...
-  Indexed 1449 samples from ben→eng
-  Indexed 1449 samples from eng→ben
-  Indexed 1288 samples from ben→hin
-  Indexed 1288 samples from hin→ben
-  Indexed 1250 samples from ben→arb
-  Indexed 1250 samples from arb→ben
-
-✓ Multilingual dataset ready: 7974 total samples
-  RAM usage: ~8.0 MB (metadata only)
-
-✓ Loaded 7974 multilingual training samples
-  Language pairs: 6
-  (Will be upgraded to ChunkedMultilingualDataset below)
-```
-
 ---
 
-## Cell 19 — `code` (execution #14)
+## Cell 19 — `code`
 
 ```python
 # ── Cell 18-A: ChunkedStreamingDataset ────────────────────────────────────────
@@ -1290,7 +1156,7 @@ Loading training samples (streaming mode)...
 import pyarrow.parquet as pq
 import threading
 
-CHUNK_SIZE = 4000   # samples loaded into RAM at once (~2 GB RAM per chunk)
+CHUNK_SIZE = 2000   # samples loaded into RAM at once (~2 GB RAM per chunk)
                     # Reduce to 1000 (~500 MB) if you hit RAM limits
 
 class ChunkedStreamingDataset:
@@ -1426,16 +1292,9 @@ class ChunkedStreamingDataset:
 print('✓ ChunkedStreamingDataset ready.')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ ChunkedStreamingDataset ready.
-```
-
 ---
 
-## Cell 20 — `code` (execution #15)
+## Cell 20 — `code`
 
 ```python
 # ── Cell 18-B: ChunkedMultilingualDataset ────────────────────────────────────
@@ -1495,16 +1354,9 @@ class ChunkedMultilingualDataset:
 print('✓ ChunkedMultilingualDataset ready.')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ ChunkedMultilingualDataset ready.
-```
-
 ---
 
-## Cell 21 — `code` (execution #16)
+## Cell 21 — `code`
 
 ```python
 # ── Cell 18-C: Rebuild ft_samples with chunk caching ─────────────────────────
@@ -1525,37 +1377,9 @@ print(f'  Total training samples : {len(ft_samples)}')
 print(f'  eval_samples unchanged : {len(eval_samples)} (MultilingualStreamingDataset)')
 ```
 
-### Output
-
-**[stdout]**
-```
-Rebuilding ft_samples with chunk caching...
-  Indexed 1449 samples from ben→eng
-  Indexed 1449 samples from eng→ben
-  Indexed 1288 samples from ben→hin
-  Indexed 1288 samples from hin→ben
-  Indexed 1250 samples from ben→arb
-  Indexed 1250 samples from arb→ben
-  ChunkedStreamingDataset: 7974 samples | chunk=4000 | RAM/chunk≈2000MB
-
-✓ ChunkedMultilingualDataset: 7974 samples
-  arb→ben: 1250
-  ben→arb: 1250
-  ben→eng: 1449
-  ben→hin: 1288
-  eng→ben: 1449
-  hin→ben: 1288
-  Chunk size : 4000
-  RAM/chunk  : ~2000 MB
-
-✓ ft_samples upgraded to ChunkedMultilingualDataset
-  Total training samples : 7974
-  eval_samples unchanged : 198 (MultilingualStreamingDataset)
-```
-
 ---
 
-## Cell 22 — `code` (execution #17)
+## Cell 22 — `code`
 
 ```python
 from transformers import SeamlessM4Tv2ForSpeechToSpeech, SeamlessM4TProcessor
@@ -1603,43 +1427,6 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Syncing from rclone remote...
-[ckpt] 11 file(s) available
-  all_detailed_summaries_step000000.pt                        0.0 MB
-  all_summaries_step000000.pt                                 0.0 MB
-  phase0_benchmark_step000000.pt                              0.1 MB
-  phase1_benchmark_step000000.pt                              0.1 MB
-  phase1_vocab_step000000.pt                                  0.6 MB
-  phase2_enc_pruning_step000000.pt                            0.0 MB
-  phase3_t2u_dec_pruning_step000000.pt                        0.0 MB
-  phase3_t2u_enc_pruning_step000000.pt                        0.0 MB
-  phase4_benchmark_step000000.pt                              0.1 MB
-  phase4_dec_pruning_step000000.pt                            0.0 MB
-  phase5_benchmark_step000000.pt                              0.1 MB
-=================================================================
-  Platform : kaggle   Time : 2026-05-23 06:29
-  Checkpoint files: 11
-    all_detailed_summaries_step000000.pt                    0.0 MB
-    all_summaries_step000000.pt                             0.0 MB
-    phase0_benchmark_step000000.pt                          0.1 MB
-    phase1_benchmark_step000000.pt                          0.1 MB
-    phase1_vocab_step000000.pt                              0.6 MB
-    phase2_enc_pruning_step000000.pt                        0.0 MB
-    phase3_t2u_dec_pruning_step000000.pt                    0.0 MB
-    phase3_t2u_enc_pruning_step000000.pt                    0.0 MB
-    phase4_benchmark_step000000.pt                          0.1 MB
-    phase4_dec_pruning_step000000.pt                        0.0 MB
-    phase5_benchmark_step000000.pt                          0.1 MB
-  GPU: Tesla T4  VRAM: 15.6 GB
-=================================================================
-
-✓ ALL SETUP CELLS COMPLETE — proceed to phases.
-```
-
 ---
 
 ## Cell 23 — `markdown`
@@ -1650,7 +1437,7 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ---
 
-## Cell 24 — `code` (execution #18)
+## Cell 24 — `code`
 
 ```python
 def run_benchmark(mdl, samples, label='model', save_n=2, max_samples=None):
@@ -1731,13 +1518,6 @@ print('Benchmark functions ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Benchmark functions ready.
-```
-
 ---
 
 ## Cell 25 — `markdown`
@@ -1757,7 +1537,7 @@ Benchmark functions ready.
 
 ---
 
-## Cell 26 — `code` (execution #19)
+## Cell 26 — `code`
 
 ```python
 import torch
@@ -1770,16 +1550,9 @@ transformers.models.seamless_m4t_v2.modeling_seamless_m4t_v2.SeamlessM4Tv2ForSpe
 print("✓ SeamlessM4Tv2 class device property successfully patched to cuda:1")
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ SeamlessM4Tv2 class device property successfully patched to cuda:1
-```
-
 ---
 
-## Cell 27 — `code` (execution #20)
+## Cell 27 — `code`
 
 ```python
 # ── Quick evaluation helpers ──────────────────────────────────────────────────
@@ -1929,18 +1702,9 @@ print('chunk_friendly_shuffle ready.')
 print('quick_eval_chrf ready.')
 ```
 
-### Output
-
-**[stdout]**
-```
-Quick eval helpers ready.
-chunk_friendly_shuffle ready.
-quick_eval_chrf ready.
-```
-
 ---
 
-## Cell 28 — `code` (execution #21)
+## Cell 28 — `code`
 
 ```python
 # ── Encoder pruning helpers ───────────────────────────────────────────────────
@@ -2070,16 +1834,9 @@ print('Encoder pruning helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Encoder pruning helpers ready.
-```
-
 ---
 
-## Cell 29 — `code` (execution #22)
+## Cell 29 — `code`
 
 ```python
 # ── Text Decoder pruning helpers ──────────────────────────────────────────────
@@ -2218,16 +1975,9 @@ print('Decoder pruning helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Decoder pruning helpers ready.
-```
-
 ---
 
-## Cell 30 — `code` (execution #23)
+## Cell 30 — `code`
 
 ```python
 # ── T2U pruning helpers (ASR-BLEU primary, ASR-ChrF fallback) ────────────────
@@ -2313,13 +2063,6 @@ print('T2U pruning helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-T2U pruning helpers ready.
-```
-
 ---
 
 ## Cell 31 — `markdown`
@@ -2330,7 +2073,7 @@ T2U pruning helpers ready.
 
 ---
 
-## Cell 32 — `code` (execution #24)
+## Cell 32 — `code`
 
 ```python
 # # Load teacher/base model
@@ -2342,7 +2085,7 @@ T2U pruning helpers ready.
 
 ---
 
-## Cell 33 — `code` (execution #25)
+## Cell 33 — `code`
 
 ```python
 p0_bench = load_latest_checkpoint('phase0_benchmark')
@@ -2367,126 +2110,6 @@ plot_detailed_phase_comparison()
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Loaded phase0_benchmark_step000000.pt
-Loaded Phase 0 benchmark from checkpoint.
-[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
-[summary] Stored P0_V1_Baseline (1 total)
-[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
-[detailed] Stored P0_V1_Baseline
-
-================================================================================
-  P0_V1_Baseline - 1805.5M params
-================================================================================
-Overall: BLEU=9.12  ChrF=40.33±11.80  RTF=0.2094
-
-Per-Pair (6 pairs):
-  Pair                  N     BLEU     ChrF      RTF
-  arb→ben              33     4.66    34.13   0.2625
-  ben→arb              33     5.69    31.39   0.1915
-  ben→eng              33    16.85    52.04   0.1577
-  ben→hin              33     8.86    37.45   0.1703
-  eng→ben              33    11.58    48.11   0.2508
-  hin→ben              33     7.08    38.87   0.2233
-
-By Source Language:
-     ARB: BLEU=  4.66  ChrF= 34.13  (n=33)
-     BEN: BLEU= 10.47  ChrF= 40.29  (n=99)
-     ENG: BLEU= 11.58  ChrF= 48.11  (n=33)
-     HIN: BLEU=  7.08  ChrF= 38.87  (n=33)
-
-By Target Language:
-     ARB: BLEU=  5.69  ChrF= 31.39  (n=33)
-     BEN: BLEU=  7.77  ChrF= 40.37  (n=99)
-     ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
-     HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
-================================================================================
-[rclone] 2026/05/23 06:29:44 -     1.581 KiB / 1.581 KiB, 100%, 0 B/s, ETA -
-[fig] Saved phase_comparison.png
-```
-
-```
-<Figure size 1920x1200 with 4 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
-[rclone] 2026/05/23 06:29:46 -     2.446 KiB / 2.446 KiB, 100%, 0 B/s, ETA -
-```
-
-```
-<Figure size 1800x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
-```
-
-```
-<Figure size 2520x1080 with 2 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
-```
-
-```
-<Figure size 1800x1260 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
-```
-
-```
-<Figure size 1800x900 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
-
-✅ All 6 figures saved.
-   📄 detailed_comparison_01_overall_quality.png
-   📄 detailed_comparison_02_bleu_by_pair.png
-   📄 detailed_comparison_03_chrf_by_pair.png
-   📄 detailed_comparison_04_bengali_focus.png
-   📄 detailed_comparison_05_size_vs_quality.png
-   📄 detailed_comparison_06_rtf.png
-```
-
 ---
 
 ## Cell 34 — `markdown`
@@ -2497,7 +2120,7 @@ Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
 
 ---
 
-## Cell 35 — `code` (execution #26)
+## Cell 35 — `code`
 
 ```python
 # # ══════════════════════════════════════════════════════════════════════════════
@@ -2879,7 +2502,7 @@ Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
 
 ---
 
-## Cell 36 — `code` (execution #27)
+## Cell 36 — `code`
 
 ```python
 
@@ -2925,130 +2548,6 @@ plot_phase_comparison()
 plot_detailed_phase_comparison()
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Loaded phase1_benchmark_step000000.pt
-Loaded Phase 1 benchmark from checkpoint.
-[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
-[summary] Stored P1_Vocab4L (2 total)
-[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
-[detailed] Stored P1_Vocab4L
-
-================================================================================
-  P1_Vocab4L - 1686.3M params
-================================================================================
-Overall: BLEU=9.12  ChrF=40.33±11.80  RTF=0.1609
-
-Per-Pair (6 pairs):
-  Pair                  N     BLEU     ChrF      RTF
-  arb→ben              33     4.66    34.13   0.1938
-  ben→arb              33     5.69    31.39   0.1445
-  ben→eng              33    16.85    52.04   0.1271
-  ben→hin              33     8.86    37.45   0.1393
-  eng→ben              33    11.58    48.11   0.1897
-  hin→ben              33     7.08    38.87   0.1710
-
-By Source Language:
-     ARB: BLEU=  4.66  ChrF= 34.13  (n=33)
-     BEN: BLEU= 10.47  ChrF= 40.29  (n=99)
-     ENG: BLEU= 11.58  ChrF= 48.11  (n=33)
-     HIN: BLEU=  7.08  ChrF= 38.87  (n=33)
-
-By Target Language:
-     ARB: BLEU=  5.69  ChrF= 31.39  (n=33)
-     BEN: BLEU=  7.77  ChrF= 40.37  (n=99)
-     ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
-     HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
-================================================================================
-
-  ── Quality Gate ──
-  Bengali ChrF : P0=40.37  →  P1=40.37  Δ=+0.00
-  ✓ Within ±1.5 — vocab trim is lossless.
-[rclone] 2026/05/23 06:29:50 -     1.769 KiB / 1.769 KiB, 100%, 0 B/s, ETA -
-[fig] Saved phase_comparison.png
-```
-
-```
-<Figure size 1920x1200 with 4 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
-```
-
-```
-<Figure size 1800x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-[rclone] 2026/05/23 06:29:52 -     3.384 KiB / 3.384 KiB, 100%, 0 B/s, ETA -
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
-```
-
-```
-<Figure size 2520x1080 with 2 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
-```
-
-```
-<Figure size 1800x1260 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
-```
-
-```
-<Figure size 1800x900 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
-
-✅ All 6 figures saved.
-   📄 detailed_comparison_01_overall_quality.png
-   📄 detailed_comparison_02_bleu_by_pair.png
-   📄 detailed_comparison_03_chrf_by_pair.png
-   📄 detailed_comparison_04_bengali_focus.png
-   📄 detailed_comparison_05_size_vs_quality.png
-   📄 detailed_comparison_06_rtf.png
-```
-
 ---
 
 ## Cell 37 — `markdown`
@@ -3059,7 +2558,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 38 — `code` (execution #28)
+## Cell 38 — `code`
 
 ```python
 # # Load Phase 1 model to prune
@@ -3107,7 +2606,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 39 — `code` (execution #29)
+## Cell 39 — `code`
 
 ```python
 # p2_bench = load_latest_checkpoint('phase2_benchmark')
@@ -3141,7 +2640,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 41 — `code` (execution #30)
+## Cell 41 — `code`
 
 ```python
 # model_p3 = model_p2   # continue from enc-pruned model
@@ -3183,7 +2682,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 42 — `code` (execution #31)
+## Cell 42 — `code`
 
 ```python
 # p3_bench = load_latest_checkpoint('phase3_benchmark')
@@ -3216,7 +2715,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 44 — `code` (execution #32)
+## Cell 44 — `code`
 
 ```python
 # model_p4 = model_p3
@@ -3274,7 +2773,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 45 — `code` (execution #33)
+## Cell 45 — `code`
 
 ```python
 # model_p4, processor = load_model_from_drive('phase4_dec_14L')
@@ -3282,7 +2781,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 46 — `code` (execution #34)
+## Cell 46 — `code`
 
 ```python
 p4_bench = load_latest_checkpoint('phase4_benchmark')
@@ -3305,128 +2804,9 @@ plot_detailed_phase_comparison()
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Loaded phase4_benchmark_step000000.pt
-[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
-[summary] Stored P4_Dec14L (3 total)
-[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
-[detailed] Stored P4_Dec14L
-
-================================================================================
-  P4_Dec14L - 1056.0M params
-================================================================================
-Overall: BLEU=0.58  ChrF=8.33±6.25  RTF=0.2754
-
-Per-Pair (6 pairs):
-  Pair                  N     BLEU     ChrF      RTF
-  arb→ben              33     0.23     5.21   0.3273
-  ben→arb              33     0.22     5.89   0.2860
-  ben→eng              33     1.70    15.74   0.1019
-  ben→hin              33     0.36     6.06   0.3497
-  eng→ben              32     0.73     7.96   0.2600
-  hin→ben              33     0.25     9.09   0.3269
-
-By Source Language:
-     ARB: BLEU=  0.23  ChrF=  5.21  (n=33)
-     BEN: BLEU=  0.76  ChrF=  9.23  (n=99)
-     ENG: BLEU=  0.73  ChrF=  7.96  (n=32)
-     HIN: BLEU=  0.25  ChrF=  9.09  (n=33)
-
-By Target Language:
-     ARB: BLEU=  0.22  ChrF=  5.89  (n=33)
-     BEN: BLEU=  0.40  ChrF=  7.42  (n=98)
-     ENG: BLEU=  1.70  ChrF= 15.74  (n=33)
-     HIN: BLEU=  0.36  ChrF=  6.06  (n=33)
-================================================================================
-[rclone] 2026/05/23 06:29:56 -     1.956 KiB / 1.956 KiB, 100%, 0 B/s, ETA -
-[fig] Saved phase_comparison.png
-[rclone] 2026/05/23 06:29:57 -     4.321 KiB / 4.321 KiB, 100%, 0 B/s, ETA -
-```
-
-```
-<Figure size 1920x1200 with 4 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L']
-```
-
-```
-<Figure size 1800x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
-```
-
-```
-<Figure size 2520x1080 with 2 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
-```
-
-```
-<Figure size 1800x1260 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
-```
-
-```
-<Figure size 1800x900 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
-
-✅ All 6 figures saved.
-   📄 detailed_comparison_01_overall_quality.png
-   📄 detailed_comparison_02_bleu_by_pair.png
-   📄 detailed_comparison_03_chrf_by_pair.png
-   📄 detailed_comparison_04_bengali_focus.png
-   📄 detailed_comparison_05_size_vs_quality.png
-   📄 detailed_comparison_06_rtf.png
-```
-
 ---
 
-## Cell 47 — `code` (execution #35)
+## Cell 47 — `code`
 
 ```python
 # heed
@@ -3454,7 +2834,7 @@ Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_
 
 ---
 
-## Cell 49 — `code` (execution #36)
+## Cell 49 — `code`
 
 ```python
 # ── Cell 45: Load pruned student for full fine-tuning ──────────────────────────
@@ -3499,46 +2879,9 @@ print_model_breakdown(student, 'Student (Pruned, Pre-FT)')
 gpu_mem()
 ```
 
-### Output
-
-**[stdout]**
-```
-Loading phase5_ft_merged for fine-tuning with Custom Device Split...
-[model] Not in local cache — pulling from remote...
-[rclone] Pulled phase5_ft_merged → /kaggle/working/models/phase5_ft_merged
-[model] Loading phase5_ft_merged from /kaggle/working/models/phase5_ft_merged ...
-```
-
-```
-Loading weights:   0%|          | 0/1106 [00:00<?, ?it/s]
-```
-
-**[stdout]**
-```
-  Restored custom state: ['_vocab_remap_to_old']
-[model] Loaded phase5_ft_merged.
-✓ Speech encoder : 10L
-✓ Text decoder   : 14L
-✓ T2U encoder    : 5L
-✓ T2U decoder    : 5L
-✓ Vocab size     : 139697
-
---- Student (Pruned, Pre-FT) ---
-  text_decoder                           495.7M  ( 46.9%)
-  speech_encoder                         296.5M  ( 28.1%)
-  t2u_model                              221.9M  ( 21.0%)
-  shared                                 143.0M  ( 13.5%)
-  lm_head                                143.0M  ( 13.5%)
-  vocoder                                 41.9M  (  4.0%)
-  TOTAL                                 1056.0M
----
-  GPU0: 0.59GB alloc / 0.60GB reserved
-  GPU1: 1.54GB alloc / 1.56GB reserved
-```
-
 ---
 
-## Cell 50 — `code` (execution #37)
+## Cell 50 — `code`
 
 ```python
 # ── Cell 46: Load teacher on cuda:1 ───────────────────────────────────────────
@@ -3552,7 +2895,7 @@ print(f'Loading teacher model on {TEACHER_DEVICE}...')
 
 from transformers import SeamlessM4Tv2ForSpeechToSpeech
 teacher = SeamlessM4Tv2ForSpeechToSpeech.from_pretrained(
-    MODEL_NAME, torch_dtype=torch.float32, device_map=TEACHER_DEVICE)
+    MODEL_NAME, torch_dtype=torch.float16, device_map=TEACHER_DEVICE)
 
 # make sure to switch to float16 when training
 # from transformers import SeamlessM4Tv2ForSpeechToText
@@ -3567,47 +2910,9 @@ print(f'Teacher loaded. Params: {count_params(teacher):.1f}M')
 gpu_mem()
 ```
 
-### Output
-
-**[stdout]**
-```
-Loading teacher model on cuda:1...
-```
-
-```
-config.json: 0.00B [00:00, ?B/s]
-```
-
-```
-model.safetensors.index.json: 0.00B [00:00, ?B/s]
-```
-
-```
-Downloading (incomplete total...): 0.00B [00:00, ?B/s]
-```
-
-```
-Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]
-```
-
-```
-Loading weights:   0%|          | 0/1846 [00:00<?, ?it/s]
-```
-
-```
-generation_config.json: 0.00B [00:00, ?B/s]
-```
-
-**[stdout]**
-```
-Teacher loaded. Params: 1805.5M
-  GPU0: 0.59GB alloc / 0.60GB reserved
-  GPU1: 8.82GB alloc / 8.83GB reserved
-```
-
 ---
 
-## Cell 51 — `code` (execution #38)
+## Cell 51 — `code`
 
 ```python
 # ── Cell 47: Unfreeze all except vocoder ──────────────────────────────────────
@@ -3645,396 +2950,18 @@ else:
 gpu_mem()
 ```
 
-### Output
-
-**[stdout]**
-```
-Frozen (vocoder): 41.91M params
-Trainable: 1014.1M / 1056.0M (96.0%)
-✓ All trainable params fp32 — GradScaler will work correctly
-  GPU0: 1.19GB alloc / 1.31GB reserved
-  GPU1: 10.25GB alloc / 10.33GB reserved
-```
-
 ---
 
-## Cell 52 — `code` (execution #39)
+## Cell 52 — `code`
 
 ```python
 print(student)
 # heed
 ```
 
-### Output
-
-**[stdout]**
-```
-SeamlessM4Tv2ForSpeechToSpeech(
-  (shared): Embedding(139697, 1024, padding_idx=0)
-  (speech_encoder): SeamlessM4Tv2SpeechEncoder(
-    (feature_projection): SeamlessM4Tv2ConformerFeatureProjection(
-      (layer_norm): LayerNorm((160,), eps=1e-05, elementwise_affine=True)
-      (projection): Linear(in_features=160, out_features=1024, bias=True)
-      (dropout): Dropout(p=0.0, inplace=False)
-    )
-    (encoder): SeamlessM4Tv2ConformerEncoder(
-      (dropout): Dropout(p=0.0, inplace=False)
-      (layers): ModuleList(
-        (0-9): 10 x SeamlessM4Tv2ConformerEncoderLayer(
-          (ffn1_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (ffn1): SeamlessM4Tv2ConformerFeedForward(
-            (intermediate_dropout): Dropout(p=0.0, inplace=False)
-            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
-            (intermediate_act_fn): SiLU()
-            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
-            (output_dropout): Dropout(p=0.0, inplace=False)
-          )
-          (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (self_attn_dropout): Dropout(p=0.0, inplace=False)
-          (self_attn): SeamlessM4Tv2ConformerSelfAttention(
-            (linear_q): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_k): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_v): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_out): Linear(in_features=1024, out_features=1024, bias=True)
-            (dropout): Dropout(p=0.0, inplace=False)
-            (distance_embedding): Embedding(73, 64)
-          )
-          (conv_module): SeamlessM4Tv2ConformerConvolutionModule(
-            (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (pointwise_conv1): Conv1d(1024, 2048, kernel_size=(1,), stride=(1,), bias=False)
-            (glu): GLU(dim=1)
-            (depthwise_conv): Conv1d(1024, 1024, kernel_size=(31,), stride=(1,), groups=1024, bias=False)
-            (depthwise_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (activation): SiLU()
-            (pointwise_conv2): Conv1d(1024, 1024, kernel_size=(1,), stride=(1,), bias=False)
-            (dropout): Dropout(p=0.0, inplace=False)
-          )
-          (ffn2_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (ffn2): SeamlessM4Tv2ConformerFeedForward(
-            (intermediate_dropout): Dropout(p=0.0, inplace=False)
-            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
-            (intermediate_act_fn): SiLU()
-            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
-            (output_dropout): Dropout(p=0.0, inplace=False)
-          )
-          (final_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-        )
-      )
-      (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-    )
-    (intermediate_ffn): SeamlessM4Tv2ConformerFeedForward(
-      (intermediate_dropout): Dropout(p=0.0, inplace=False)
-      (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
-      (intermediate_act_fn): ReLU()
-      (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
-      (output_dropout): Dropout(p=0.0, inplace=False)
-    )
-    (adapter): SeamlessM4Tv2ConformerAdapter(
-      (layers): ModuleList(
-        (0): SeamlessM4Tv2ConformerAdapterLayer(
-          (residual_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (residual_conv): Conv1d(1024, 2048, kernel_size=(8,), stride=(8,), padding=(4,))
-          (activation): GLU(dim=1)
-          (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (self_attn_conv): Conv1d(1024, 2048, kernel_size=(8,), stride=(8,), padding=(4,))
-          (self_attn): SeamlessM4Tv2ConformerSelfAttention(
-            (linear_q): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_k): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_v): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_out): Linear(in_features=1024, out_features=1024, bias=True)
-            (dropout): Dropout(p=0.0, inplace=False)
-          )
-          (self_attn_dropout): Dropout(p=0.1, inplace=False)
-          (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (ffn): SeamlessM4Tv2ConformerFeedForward(
-            (intermediate_dropout): Dropout(p=0.1, inplace=False)
-            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
-            (intermediate_act_fn): ReLU()
-            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
-            (output_dropout): Dropout(p=0.1, inplace=False)
-          )
-        )
-      )
-    )
-    (inner_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-  )
-  (text_decoder): SeamlessM4Tv2Decoder(
-    (embed_tokens): SeamlessM4Tv2ScaledWordEmbedding(139697, 1024, padding_idx=0)
-    (embed_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
-    (layers): ModuleList(
-      (0-13): 14 x SeamlessM4Tv2DecoderLayer(
-        (self_attn): SeamlessM4Tv2Attention(
-          (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
-        )
-        (activation_fn): ReLU()
-        (attn_dropout): Dropout(p=0.1, inplace=False)
-        (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-        (cross_attention): SeamlessM4Tv2Attention(
-          (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
-        )
-        (cross_attention_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-        (ffn): SeamlessM4Tv2FeedForwardNetwork(
-          (fc1): Linear(in_features=1024, out_features=8192, bias=True)
-          (fc2): Linear(in_features=8192, out_features=1024, bias=True)
-          (dropout): Dropout(p=0.0, inplace=False)
-          (act): ReLU()
-        )
-        (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-        (ffn_dropout): Dropout(p=0.0, inplace=False)
-      )
-    )
-    (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-  )
-  (lm_head): Linear(in_features=1024, out_features=139697, bias=False)
-  (t2u_model): SeamlessM4Tv2TextToUnitForConditionalGeneration(
-    (model): SeamlessM4Tv2TextToUnitModel(
-      (encoder): SeamlessM4Tv2Encoder(
-        (layers): ModuleList(
-          (0-4): 5 x SeamlessM4Tv2EncoderLayer(
-            (self_attn): SeamlessM4Tv2Attention(
-              (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
-            )
-            (attn_dropout): Dropout(p=0.1, inplace=False)
-            (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (ffn): SeamlessM4Tv2FeedForwardNetwork(
-              (fc1): Linear(in_features=1024, out_features=8192, bias=True)
-              (fc2): Linear(in_features=8192, out_features=1024, bias=True)
-              (dropout): Dropout(p=0.0, inplace=False)
-              (act): ReLU()
-            )
-            (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (ffn_dropout): Dropout(p=0.0, inplace=False)
-          )
-        )
-        (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-      )
-      (decoder): SeamlessM4Tv2TextToUnitDecoder(
-        (embed_tokens): Embedding(10082, 1024, padding_idx=1)
-        (embed_char): Embedding(10943, 1024)
-        (embed_char_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
-        (duration_predictor): SeamlessM4Tv2VariancePredictor(
-          (conv1): Conv1d(1024, 256, kernel_size=(3,), stride=(1,), padding=same)
-          (activation_function): ReLU()
-          (ln1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
-          (dropout_module): Dropout(p=0.5, inplace=False)
-          (conv2): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=same)
-          (ln2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
-          (proj): Linear(in_features=256, out_features=1, bias=True)
-        )
-        (embed_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
-        (layers): ModuleList(
-          (0-4): 5 x SeamlessM4Tv2TextToUnitDecoderLayer(
-            (self_attn): SeamlessM4Tv2Attention(
-              (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
-            )
-            (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (conv1): Conv1d(1024, 1024, kernel_size=(7,), stride=(1,), padding=same)
-            (activation_fn): ReLU()
-            (conv2): Conv1d(1024, 1024, kernel_size=(7,), stride=(1,), padding=same)
-            (conv_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (conv_dropout): Dropout(p=0.1, inplace=False)
-          )
-        )
-        (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-      )
-    )
-    (lm_head): Linear(in_features=1024, out_features=10082, bias=False)
-  )
-  (vocoder): SeamlessM4Tv2CodeHifiGan(
-    (dur_predictor): SeamlessM4Tv2VariancePredictor(
-      (conv1): Conv1d(1280, 1280, kernel_size=(3,), stride=(1,), padding=same)
-      (activation_function): ReLU()
-      (ln1): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
-      (dropout_module): Dropout(p=0.5, inplace=False)
-      (conv2): Conv1d(1280, 1280, kernel_size=(3,), stride=(1,), padding=same)
-      (ln2): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
-      (proj): Linear(in_features=1280, out_features=1, bias=True)
-    )
-    (unit_embedding): Embedding(10000, 1280)
-    (speaker_embedding): Embedding(200, 256)
-    (language_embedding): Embedding(36, 256)
-    (hifi_gan): SeamlessM4Tv2HifiGan(
-      (conv_pre): Conv1d(1792, 512, kernel_size=(7,), stride=(1,), padding=(3,))
-      (upsampler): ModuleList(
-        (0): ConvTranspose1d(512, 256, kernel_size=(11,), stride=(5,), padding=(3,))
-        (1): ConvTranspose1d(256, 128, kernel_size=(8,), stride=(4,), padding=(2,))
-        (2): ConvTranspose1d(128, 64, kernel_size=(8,), stride=(4,), padding=(2,))
-        (3): ConvTranspose1d(64, 32, kernel_size=(4,), stride=(2,), padding=(1,))
-        (4): ConvTranspose1d(32, 16, kernel_size=(4,), stride=(2,), padding=(1,))
-      )
-      (resblocks): ModuleList(
-        (0): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (1): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (2): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-        (3): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (4): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (5): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-        (6): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (7): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (8): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-        (9): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (10): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (11): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-        (12): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (13): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (14): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-      )
-      (conv_post): Conv1d(16, 1, kernel_size=(7,), stride=(1,), padding=(3,))
-    )
-  )
-)
-```
-
 ---
 
-## Cell 53 — `code` (execution #40)
+## Cell 53 — `code`
 
 ```python
 # ── Cell 48: Gradient checkpointing strategy for full fine-tuning on 2×T4 ─────
@@ -4148,22 +3075,9 @@ print('VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32')
 gpu_mem()
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
-✓ GC selectively ENABLED for: speech_encoder, text_decoder
-⚠ Still on: ['speech_encoder', 'text_decoder']
-
-VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32
-  GPU0: 1.19GB alloc / 1.31GB reserved
-  GPU1: 10.25GB alloc / 10.33GB reserved
-```
-
 ---
 
-## Cell 54 — `code` (execution #41)
+## Cell 54 — `code`
 
 ```python
 # ── Cell 49A: Vocab remap tables (exact Phase 7 / Cell 41+43+48 pattern) ──────
@@ -4238,25 +3152,9 @@ for _l in ['eng', 'ben', 'hin', 'arb']:
 print('✓ Vocab remap ready.')
 ```
 
-### Output
-
-**[stdout]**
-```
-Mapped: 139697/256102 (54.5%)
-EOS (token 3) → student: 3  ← must be 3
-OLD_TO_NEW_GPU: 1.0MB VRAM
-
-Special tokens: PAD_S=0  BOS_S=2  EOS_S=3
-  eng: student_id=139620
-  ben: student_id=139607
-  hin: student_id=139631
-  arb: student_id=139601
-✓ Vocab remap ready.
-```
-
 ---
 
-## Cell 55 — `code` (execution #42)
+## Cell 55 — `code`
 
 ```python
 # ── Cell 49B: Collation — exact Phase 7 / Cell 44 layout ──────────────────────
@@ -4357,18 +3255,9 @@ print(f'  dec layout: [BOS | __tgt__ | content]  length=T+2')
 print(f'  lab layout: [__tgt__ | content | EOS]  length=T+2')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ Collation ready (exact Phase 7 token layout)
-  dec layout: [BOS | __tgt__ | content]  length=T+2
-  lab layout: [__tgt__ | content | EOS]  length=T+2
-```
-
 ---
 
-## Cell 56 — `code` (execution #43)
+## Cell 56 — `code`
 
 ```python
 # ── REPLACE ENTIRE CELL 49C ───────────────────────────────────────
@@ -4434,7 +3323,7 @@ def student_logits_gpu(feat_dict, dec_s_cpu):
 
 ---
 
-## Cell 57 — `code` (execution #44)
+## Cell 57 — `code`
 
 ```python
 # ── Cell 50: Loss functions — all on cuda:0, no CPU ops ───────────────────────
@@ -4533,69 +3422,17 @@ print(f'  OLD_TO_NEW_GPU on cuda:0: {OLD_TO_NEW_GPU.numel()*4/1e6:.1f}MB VRAM')
 print('  No CPU involved in any loss computation')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ GPU-only loss functions ready.
-  KD_ALPHA=0.15  KD_TEMPERATURE=3.0  TOP_K=256
-  OLD_TO_NEW_GPU on cuda:0: 1.0MB VRAM
-  No CPU involved in any loss computation
-```
-
 ---
 
-## Cell 58 — `code` (execution #45)
+## Cell 58 — `code`
 
 ```python
 !pip install bitsandbytes
 ```
 
-### Output
-
-**[stdout]**
-```
-Collecting bitsandbytes
-  Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl.metadata (10 kB)
-Requirement already satisfied: torch<3,>=2.3 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.10.0+cu128)
-Requirement already satisfied: numpy>=1.17 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.0.2)
-Requirement already satisfied: packaging>=20.9 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (26.0)
-Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.24.3)
-Requirement already satisfied: typing-extensions>=4.10.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (4.15.0)
-Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (75.2.0)
-Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.14.0)
-Requirement already satisfied: networkx>=2.5.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.1)
-Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.1.6)
-Requirement already satisfied: fsspec>=0.8.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2026.2.0)
-Requirement already satisfied: cuda-bindings==12.9.4 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.9.4)
-Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
-Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
-Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
-Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (9.10.2.21)
-Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.4.1)
-Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.3.3.83)
-Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (10.3.9.90)
-Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.7.3.90)
-Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.5.8.93)
-Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (0.7.1)
-Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2.27.5)
-Requirement already satisfied: nvidia-nvshmem-cu12==3.4.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.4.5)
-Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
-Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
-Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.13.1.3)
-Requirement already satisfied: triton==3.6.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.0)
-Requirement already satisfied: cuda-pathfinder~=1.1 in /usr/local/lib/python3.12/dist-packages (from cuda-bindings==12.9.4->torch<3,>=2.3->bitsandbytes) (1.3.5)
-Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy>=1.13.3->torch<3,>=2.3->bitsandbytes) (1.3.0)
-Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2->torch<3,>=2.3->bitsandbytes) (3.0.3)
-Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl (60.7 MB)
-[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m60.7/60.7 MB[0m [31m30.9 MB/s[0m eta [36m0:00:00[0m:00:01[0m00:01[0m
-[?25hInstalling collected packages: bitsandbytes
-Successfully installed bitsandbytes-0.49.2
-```
-
 ---
 
-## Cell 59 — `code` (execution #46)
+## Cell 59 — `code`
 
 ```python
 # ── Cell 51: Training configuration + optimizer ────────────────────────────────
@@ -4664,21 +3501,9 @@ all_trainable_params = [p for p in student.parameters() if p.requires_grad]
 print(f'\n✓ Optimizer ready with LR_PEAK = {LR_PEAK}')
 ```
 
-### Output
-
-**[stdout]**
-```
-Effective batch size : 32
-Training samples     : 7974
-Steps per epoch      : 250
-Total steps          : 1500
-
-✓ Optimizer ready with LR_PEAK = 6e-05
-```
-
 ---
 
-## Cell 60 — `code` (execution #47)
+## Cell 60 — `code`
 
 ```python
 # ── Cell 51B: Quick eval helper ────────────────────────────────────────────────
@@ -4724,16 +3549,9 @@ def _eval_quick_p5(n_samples=18):
 print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ _eval_quick_p5 ready with persistent list and dictionary caching.
-```
-
 ---
 
-## Cell 61 — `code` (execution #48)
+## Cell 61 — `code`
 
 ```python
 # heed
@@ -4741,7 +3559,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 62 — `code` (execution #49)
+## Cell 62 — `code`
 
 ```python
 # print("Student: ")
@@ -4753,7 +3571,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 63 — `code` (execution #50)
+## Cell 63 — `code`
 
 ```python
 # s   = eval_samples[2]
@@ -4768,7 +3586,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 64 — `code` (execution #51)
+## Cell 64 — `code`
 
 ```python
 # # ── Cell 52: Training loop — Phase 7 battle-tested flow ───────────────────────
@@ -4978,7 +3796,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 65 — `code` (execution #52)
+## Cell 65 — `code`
 
 ```python
 # import matplotlib.pyplot as plt
@@ -5028,7 +3846,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 66 — `code` (execution #53)
+## Cell 66 — `code`
 
 ```python
 # # ── Cell 53: Load best checkpoint and save merged model ───────────────────────
@@ -5049,7 +3867,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 67 — `code` (execution #54)
+## Cell 67 — `code`
 
 ```python
 # ── Final benchmark ───────────────────────────────────────────────────────────
@@ -5097,140 +3915,9 @@ plot_detailed_phase_comparison()
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Loaded phase5_benchmark_step000000.pt
-Loaded Phase 5 benchmark from checkpoint.
-[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
-[summary] Stored P5_FullFT (4 total)
-[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
-[detailed] Stored P5_FullFT
-
-================================================================================
-  P5_FullFT - 1056.0M params
-================================================================================
-Overall: BLEU=3.95  ChrF=25.95±9.28  RTF=0.1631
-
-Per-Pair (6 pairs):
-  Pair                  N     BLEU     ChrF      RTF
-  arb→ben              33     2.28    20.72   0.1809
-  ben→arb              33     1.94    18.72   0.1491
-  ben→eng              33     5.01    29.76   0.1299
-  ben→hin              33     6.56    27.97   0.1607
-  eng→ben              33     3.99    29.40   0.1932
-  hin→ben              33     3.91    29.12   0.1649
-
-By Source Language:
-     ARB: BLEU=  2.28  ChrF= 20.72  (n=33)
-     BEN: BLEU=  4.50  ChrF= 25.49  (n=99)
-     ENG: BLEU=  3.99  ChrF= 29.40  (n=33)
-     HIN: BLEU=  3.91  ChrF= 29.12  (n=33)
-
-By Target Language:
-     ARB: BLEU=  1.94  ChrF= 18.72  (n=33)
-     BEN: BLEU=  3.39  ChrF= 26.42  (n=99)
-     ENG: BLEU=  5.01  ChrF= 29.76  (n=33)
-     HIN: BLEU=  6.56  ChrF= 27.97  (n=33)
-================================================================================
-
-==================================================
-  TEACHER vs STUDENT (Bengali pairs):
-==================================================
-  arb→ben             BLEU: Teacher=4.66  Student=2.28  Δ=-2.38   |  ChrF: Teacher=34.13  Student=20.72  Δ=-13.41 
-  ben→arb             BLEU: Teacher=5.69  Student=1.94  Δ=-3.75   |  ChrF: Teacher=31.39  Student=18.72  Δ=-12.67 
-  ben→eng             BLEU: Teacher=16.85  Student=5.01  Δ=-11.84   |  ChrF: Teacher=52.04  Student=29.76  Δ=-22.28 
-  ben→hin             BLEU: Teacher=8.86  Student=6.56  Δ=-2.29   |  ChrF: Teacher=37.45  Student=27.97  Δ=-9.48 
-  eng→ben             BLEU: Teacher=11.58  Student=3.99  Δ=-7.59   |  ChrF: Teacher=48.11  Student=29.40  Δ=-18.71 
-  hin→ben             BLEU: Teacher=7.08  Student=3.91  Δ=-3.17   |  ChrF: Teacher=38.87  Student=29.12  Δ=-9.74 
-==================================================
-[rclone] 2026/05/23 06:32:47 -     2.144 KiB / 2.144 KiB, 100%, 0 B/s, ETA -
-[fig] Saved phase_comparison.png
-```
-
-```
-<Figure size 1920x1200 with 4 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-Plotting detailed comparison for 4 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L', 'P5_FullFT']
-[rclone] 2026/05/23 06:32:48 -     5.259 KiB / 5.259 KiB, 100%, 0 B/s, ETA -
-```
-
-```
-<Figure size 1800x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
-```
-
-```
-<Figure size 2520x1080 with 2 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
-```
-
-```
-<Figure size 1800x1260 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
-```
-
-```
-<Figure size 1800x900 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
-
-✅ All 6 figures saved.
-   📄 detailed_comparison_01_overall_quality.png
-   📄 detailed_comparison_02_bleu_by_pair.png
-   📄 detailed_comparison_03_chrf_by_pair.png
-   📄 detailed_comparison_04_bengali_focus.png
-   📄 detailed_comparison_05_size_vs_quality.png
-   📄 detailed_comparison_06_rtf.png
-```
-
 ---
 
-## Cell 68 — `code` (execution #55)
+## Cell 68 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -5275,17 +3962,9 @@ print(f'[Config] PSEUDO_DIR={PSEUDO_DIR}')
 print(f'[Config] MDC API key loaded: {"YES" if MDC_API_KEY else "NO — check your Kaggle secret!"}')
 ```
 
-### Output
-
-**[stdout]**
-```
-[Config] PSEUDO_DIR=/kaggle/working/pseudo_cv25
-[Config] MDC API key loaded: YES
-```
-
 ---
 
-## Cell 69 — `code` (execution #56)
+## Cell 69 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -5341,16 +4020,9 @@ def mdc_get_presigned_url(dataset_id: str, force_refresh: bool = False) -> dict:
 print('MDC URL fetcher ready.')
 ```
 
-### Output
-
-**[stdout]**
-```
-MDC URL fetcher ready.
-```
-
 ---
 
-## Cell 70 — `code` (execution #57)
+## Cell 70 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -5823,17 +4495,9 @@ print('Fast + reliable pseudo-labeler ready.')
 print(f'Download chunk size: {DOWNLOAD_CHUNK_GB} GB per slice')
 ```
 
-### Output
-
-**[stdout]**
-```
-Fast + reliable pseudo-labeler ready.
-Download chunk size: 9 GB per slice
-```
-
 ---
 
-## Cell 71 — `code` (execution #58)
+## Cell 71 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -6223,16 +4887,9 @@ def run_pseudo_labeler(src_cv: str, tgt_m4t: str, max_clips: int = 20000):
 print('Cross-Lingual Pseudo-Labeler Ready with FLAC, GDrive Backup, and Kaggle Publishing.')
 ```
 
-### Output
-
-**[stdout]**
-```
-Cross-Lingual Pseudo-Labeler Ready with FLAC, GDrive Backup, and Kaggle Publishing.
-```
-
 ---
 
-## Cell 72 — `code` (execution #59)
+## Cell 72 — `code`
 
 ```python
 # # ── Cell 73: EXECUTE CROSS-LINGUAL Pseudo-Labeling ───────────────────────────
@@ -6251,7 +4908,7 @@ Cross-Lingual Pseudo-Labeler Ready with FLAC, GDrive Backup, and Kaggle Publishi
 
 ---
 
-## Cell 73 — `code` (execution #60)
+## Cell 73 — `code`
 
 ```python
 # ── Cell 74: Load Combined Dataset (FLEURS + Kaggle Pseudo Dataset) ──────────
@@ -6331,37 +4988,9 @@ N_TRAIN = len(ft_samples)
 print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples ready for Massive KD Training.')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ Structured Kaggle Dataset detected at /kaggle/input/datasets/rayedriasat/fleurs5!
-Loading original FLEURS metadata from /kaggle/input/datasets/rayedriasat/fleurs5/fleurs...
-  Indexed 1449 samples from ben→eng
-  Indexed 1449 samples from eng→ben
-  Indexed 1288 samples from ben→hin
-  Indexed 1288 samples from hin→ben
-  Indexed 1250 samples from ben→arb
-  Indexed 1250 samples from arb→ben
-  FLEURS: 7974 samples
-Loading pseudo-label metadata from /kaggle/input/datasets/rayedriasat/fleurs5/pseudo_cv25...
-  [Pseudo] Successfully loaded 86106 entries from /kaggle/input/datasets/rayedriasat/fleurs5/pseudo_cv25
-
-✓ Combined: 94080 total training samples
-  arb→ben: 21248  ★ Bengali
-  ben→arb: 11250  ★ Bengali
-  ben→eng: 16449  ★ Bengali
-  ben→hin: 11288  ★ Bengali
-  eng→ben: 21449  ★ Bengali
-  hin→ben: 12396  ★ Bengali
-  ChunkedStreamingDataset: 94080 samples | chunk=4000 | RAM/chunk≈2000MB
-
-✓ ft_samples Phase 6: 94080 samples ready for Massive KD Training.
-```
-
 ---
 
-## Cell 74 — `code` (execution #61)
+## Cell 74 — `code`
 
 ```python
 # !rclone copy /kaggle/working/ gdrive:seamTL_bengali/
@@ -6369,7 +4998,7 @@ Loading pseudo-label metadata from /kaggle/input/datasets/rayedriasat/fleurs5/ps
 
 ---
 
-## Cell 75 — `code` (execution #62)
+## Cell 75 — `code`
 
 ```python
 # publish_kaggle_dataset(message='Restored FLEURS and added structured Pseudo-Labels')
@@ -6377,118 +5006,92 @@ Loading pseudo-label metadata from /kaggle/input/datasets/rayedriasat/fleurs5/ps
 
 ---
 
-## Cell 76 — `code` (execution #63)
+## Cell 76 — `code`
+
+```python
+text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
+print(f"pre p6 eval → Text ChrF: {text_chrf:.2f} | ASR ChrF: {asr_chrf:.2f}")
+```
+
+---
+
+## Cell 77 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
-# ── Cell: Lightweight Adapter Bridges (Paper Contribution)
-#
-# Theory: Each surviving transformer layer now has to do the work of 2-3 layers.
-# We insert cheap "bridge" modules between layers that:
-#   1. Conv1D temporal kernel: captures local acoustic patterns the pruned
-#      convolutional-style lower layers used to handle
-#   2. Bottleneck FFN: extra nonlinear capacity without attention cost
-#   3. Learnable LayerScale: controls how aggressively the bridge fires
-#      (initialised near zero so training is stable from the start)
-#
-# Parameter cost: ~0.8M params per bridge × 24 bridges = ~19M params total
-# vs the 400M+ params removed by pruning. Very efficient.
-#
-# This is directly analogous to "ConvAdapter" in vision (Jie & Duan, 2022)
-# and "Houlsby adapters" (Houlsby et al., 2019) but with the conv kernel
-# added specifically to recover the lost temporal modeling of the pruned
-# speech encoder layers — this is the novel contribution for EMNLP.
+# ── Cell 75: Dilated Temporal & SwiGLU Semantic Bottleneck Adapters (Zero-Init)
 # ═══════════════════════════════════════════════════════════════════════════════
-
 import torch.nn as nn, torch.nn.functional as F
+import torch
 
-class AcousticBridge(nn.Module):
+class AcousticDilatedBridge(nn.Module):
     """
-    Lightweight bridge inserted after each surviving encoder layer.
-    Recovers temporal acoustic modeling lost by pruning lower encoder layers.
-
-    d_model    : encoder hidden size (SeamlessM4T: 1024)
-    kernel     : Conv1D kernel size — 7 captures ~40ms context at 16kHz/320 stride
-    bottleneck : inner dim of FFN (d_model // 4 keeps params tiny)
+    Dilated Temporal Bottleneck (DTB) Adapter.
+    Expands the receptive field to recover acoustic context lost from pruning 14 layers.
     """
-    def __init__(self, d_model: int = 1024, kernel: int = 7, bottleneck: int = 256):
+    def __init__(self, d_model=1024, bottleneck=256, kernel=11, dilation=2):
         super().__init__()
-        # Temporal conv — operates on (B, T, C) via permute
-        self.conv = nn.Conv1d(d_model, d_model, kernel_size=kernel,
-                              padding=kernel//2, groups=d_model,  # depthwise
-                              bias=False)
-        self.conv_norm  = nn.LayerNorm(d_model)
-        # Bottleneck FFN for extra capacity
-        self.ffn_up     = nn.Linear(d_model, bottleneck)
-        self.ffn_down   = nn.Linear(bottleneck, d_model)
-        self.ffn_norm   = nn.LayerNorm(d_model)
-        # LayerScale: init near zero → bridge starts silent, learns to activate
-        self.scale_conv = nn.Parameter(torch.full((d_model,), 1e-4))
-        self.scale_ffn  = nn.Parameter(torch.full((d_model,), 1e-4))
+        self.norm = nn.LayerNorm(d_model)
+        self.down = nn.Linear(d_model, bottleneck, bias=False)
+        
+        # Dilated Depthwise Conv (Padding preserves sequence length)
+        pad = (kernel - 1) * dilation // 2
+        self.conv = nn.Conv1d(bottleneck, bottleneck, kernel_size=kernel, 
+                              stride=1, padding=pad, dilation=dilation, 
+                              groups=bottleneck, bias=False)
+        
+        self.up = nn.Linear(bottleneck, d_model, bias=False)
+        
+        # ── STRICT ZERO INIT: Guarantees mathematically safe insertion ──
+        nn.init.zeros_(self.up.weight)
 
     def forward(self, x):
-        # x: (B, T, C)
-        # Depthwise temporal conv
-        h = x.transpose(1, 2)                        # (B, C, T)
-        h = self.conv(h).transpose(1, 2)              # (B, T, C)
-        x = self.conv_norm(x + self.scale_conv * h)
-        # Bottleneck FFN
-        h = F.gelu(self.ffn_up(x))
-        h = self.ffn_down(h)
-        x = self.ffn_norm(x + self.scale_ffn * h)
-        return x
+        h = self.norm(x)
+        h = F.silu(self.down(h))
+        
+        h = h.transpose(1, 2)
+        h = self.conv(h)
+        h = h.transpose(1, 2)
+        
+        h = F.silu(h)
+        return x + self.up(h)
 
 
-class SemanticBridge(nn.Module):
+class SemanticSwiGLUBridge(nn.Module):
     """
-    Lightweight bridge inserted after each surviving decoder layer.
-    Recovers cross-lingual semantic capacity lost by pruning upper decoder layers.
-    Lighter than AcousticBridge — no conv (decoder operates on token sequences,
-    not continuous audio), just a gated bottleneck FFN.
-
-    d_model    : decoder hidden size (SeamlessM4T: 1024)
-    bottleneck : inner dim
+    SwiGLU Semantic Bottleneck (SSB) Adapter.
+    Uses Llama-style gated routing to recover cross-lingual mapping capacity.
     """
-    def __init__(self, d_model: int = 1024, bottleneck: int = 256):
+    def __init__(self, d_model=1024, bottleneck=256):
         super().__init__()
-        self.gate    = nn.Linear(d_model, bottleneck)
-        self.value   = nn.Linear(d_model, bottleneck)
-        self.out     = nn.Linear(bottleneck, d_model)
-        self.norm    = nn.LayerNorm(d_model)
-        self.scale   = nn.Parameter(torch.full((d_model,), 1e-4))
+        self.norm = nn.LayerNorm(d_model)
+        self.down_gate = nn.Linear(d_model, bottleneck, bias=False)
+        self.down_val  = nn.Linear(d_model, bottleneck, bias=False)
+        self.up        = nn.Linear(bottleneck, d_model, bias=False)
+        
+        # ── STRICT ZERO INIT ──
+        nn.init.zeros_(self.up.weight)
 
     def forward(self, x):
-        g = torch.sigmoid(self.gate(x))
-        h = F.gelu(self.value(x))
-        h = self.out(g * h)
-        return self.norm(x + self.scale * h)
+        h = self.norm(x)
+        gate = F.silu(self.down_gate(h))
+        val  = self.down_val(h)
+        h = gate * val  # SwiGLU gating
+        return x + self.up(h)
 
 
-def inject_bridges(student_model,
-                   enc_d_model: int = 1024,
-                   dec_d_model: int = 1024,
-                   enc_kernel:  int = 7,
-                   bottleneck:  int = 256):
-    """
-    Wrap each surviving encoder and decoder layer with a bridge module.
-    Uses nn.Sequential so the existing forward() calls are unmodified.
-    Only the bridge parameters are trainable initially (encoder/decoder frozen).
-    """
-    # ── Encoder bridges ───────────────────────────────────────────────────────
+def inject_bridges(student_model, enc_d_model=1024, dec_d_model=1024, bottleneck=256):
     enc = student_model.speech_encoder
-    # SeamlessM4T speech encoder: enc.encoder.layers (W2Vec2-style)
     parent = enc.encoder if hasattr(enc, 'encoder') else enc
     if hasattr(parent, 'layers'):
         new_layers = nn.ModuleList()
         for layer in parent.layers:
-            bridge = AcousticBridge(enc_d_model, enc_kernel, bottleneck)
-            # Wrap: forward runs layer then bridge
-            wrapped = _BridgeWrapper(layer, bridge)
-            new_layers.append(wrapped)
+            layer_device = next(layer.parameters()).device
+            bridge = AcousticDilatedBridge(enc_d_model, bottleneck, kernel=11, dilation=2).to(device=layer_device, dtype=torch.float32)
+            new_layers.append(_BridgeWrapper(layer, bridge))
         parent.layers = new_layers
-        print(f'  [Bridge] Injected {len(new_layers)} AcousticBridges into encoder.')
+        print(f'  [DTB] Injected {len(new_layers)} Dilated Acoustic Bridges.')
 
-    # ── Decoder bridges ───────────────────────────────────────────────────────
     dec = student_model.text_decoder
     dec_layers = None
     for attr in ['layers', 'inner_layers']:
@@ -6498,21 +5101,17 @@ def inject_bridges(student_model,
     if dec_layers is not None:
         new_layers = nn.ModuleList()
         for layer in dec_layers:
-            bridge = SemanticBridge(dec_d_model, bottleneck)
+            layer_device = next(layer.parameters()).device
+            bridge = SemanticSwiGLUBridge(dec_d_model, bottleneck).to(device=layer_device, dtype=torch.float32)
             new_layers.append(_BridgeWrapper(layer, bridge))
         setattr(dec, attr, new_layers)
-        print(f'  [Bridge] Injected {len(new_layers)} SemanticBridges into decoder.')
+        print(f'  [SSB] Injected {len(new_layers)} SwiGLU Semantic Bridges.')
 
-    total_bridge_params = sum(
-        p.numel() for n, p in student_model.named_parameters()
-        if 'bridge' in n
-    )
-    print(f'  [Bridge] Total new bridge params: {total_bridge_params/1e6:.2f}M')
+    total_bridge_params = sum(p.numel() for n, p in student_model.named_parameters() if 'bridge' in n)
+    print(f'  [Architecture] Total new PEFT params: {total_bridge_params/1e6:.2f}M')
     return student_model
 
-
 class _BridgeWrapper(nn.Module):
-    """Transparent wrapper: runs base_layer then bridge, passes all kwargs through."""
     def __init__(self, base_layer, bridge):
         super().__init__()
         self.base_layer = base_layer
@@ -6520,427 +5119,27 @@ class _BridgeWrapper(nn.Module):
 
     def forward(self, hidden_states, *args, **kwargs):
         out = self.base_layer(hidden_states, *args, **kwargs)
-        # Encoder layers return a tuple (hidden_states, ...) or just hidden_states
-        if isinstance(out, tuple):
-            hs = self.bridge(out[0])
-            return (hs,) + out[1:]
+        if isinstance(out, tuple): return (self.bridge(out[0]),) + out[1:]
         return self.bridge(out)
 
-
-def set_bridge_only_training(student_model):
-    """
-    Phase 6A: freeze everything except bridges.
-    Train bridges for ~500 steps to let them activate before joint fine-tuning.
-    """
-    for name, param in student_model.named_parameters():
-        param.requires_grad = 'bridge' in name
-    bridge_p = sum(p.numel() for p in student_model.parameters() if p.requires_grad)
-    print(f'  [Bridge] Bridge-only mode: {bridge_p/1e6:.2f}M trainable params.')
-
-
 def set_joint_training(student_model, bridge_lr_mult: float = 3.0):
-    """
-    Phase 6B: unfreeze everything; return param groups with higher LR for bridges.
-    """
-    bridge_params = []
-    other_params  = []
+    bridge_params, other_params = [], []
     for name, param in student_model.named_parameters():
         param.requires_grad = True
-        if 'bridge' in name:
-            bridge_params.append(param)
-        else:
-            other_params.append(param)
-    print(f'  [Bridge] Joint mode: bridge={len(bridge_params)} params '
-          f'(lr×{bridge_lr_mult}), other={len(other_params)} params.')
+        if 'bridge' in name: bridge_params.append(param)
+        else: other_params.append(param)
+    print(f'  [Optim] Joint mode: bridge={len(bridge_params)} params (lr×{bridge_lr_mult}), other={len(other_params)} params.')
     return bridge_params, other_params
 
-
-print('Bridge modules defined. Call inject_bridges(student) to install.')
-```
-
-### Output
-
-**[stdout]**
-```
-Bridge modules defined. Call inject_bridges(student) to install.
+print('DTB and SSB modules defined. Call inject_bridges(student) to install.')
 ```
 
 ---
 
-## Cell 77 — `code` (execution #64)
+## Cell 78 — `code`
 
 ```python
-# ── Cell: Install Bridges + Warm Up ──────────────────────────────────────────
-# Run ONCE after loading student weights from Phase 5.
-
-# Install bridges into the already-pruned student
-student = inject_bridges(
-    student,
-    enc_d_model = 1024,   # SeamlessM4T encoder hidden size
-    dec_d_model = 1024,   # SeamlessM4T decoder hidden size
-    enc_kernel  = 7,      # 7-frame Conv1D ≈ 45ms acoustic context
-    bottleneck  = 256,    # keeps bridge params small: ~0.8M per bridge
-)
-
-# Phase 6A: bridge warm-up — only bridge params train for 300 steps
-set_bridge_only_training(student)
-
-bridge_params_list = [p for n,p in student.named_parameters() if p.requires_grad]
-warmup_opt = torch.optim.AdamW(bridge_params_list, lr=3e-4, weight_decay=1e-2)
-
-print('Bridge warm-up optimizer ready.')
-print('Run 300 steps of the normal training loop with this optimizer,')
-print('then call set_joint_training(student) and switch to the Phase 6 optimizer.')
-```
-
-### Output
-
-**[stdout]**
-```
-  [Bridge] Injected 10 AcousticBridges into encoder.
-  [Bridge] Injected 14 SemanticBridges into decoder.
-  [Bridge] Total new bridge params: 16.46M
-  [Bridge] Bridge-only mode: 16.46M trainable params.
-Bridge warm-up optimizer ready.
-Run 300 steps of the normal training loop with this optimizer,
-then call set_joint_training(student) and switch to the Phase 6 optimizer.
-```
-
----
-
-## Cell 78 — `code` (execution #65)
-
-```python
-# ── Cell 76: Phase 6A — Bridge Warm-Up (300 steps, bridges only) ─────────────
-#
-# Goal: let the newly-injected bridge modules activate before joint training.
-# All encoder/decoder weights are FROZEN. Only bridge params train.
-# This takes ~10-15 min and prevents the bridges from being overwhelmed
-# by gradient noise from the full model at startup.
-#
-# Run AFTER: Cell 73 (ft_samples built), Cell 74 (bridges defined),
-#            Cell 75 (inject_bridges called)
-# Run BEFORE: Cell 77 (Phase 6B joint training)
-# ─────────────────────────────────────────────────────────────────────────────
-
-import bitsandbytes as bnb
-from transformers import get_cosine_schedule_with_warmup
-import math, time, random
-
-# ── Load Phase 5 weights into student ────────────────────────────────────────
-print("Loading Phase 5 weights...")
-ckpt = load_latest_checkpoint('phase5_ft')
-if ckpt:
-    student.load_state_dict(ckpt['model_state'], strict=False)
-    print("✓ Loaded Phase 5 weights.")
-else:
-    print("⚠ No Phase 5 checkpoint — using current student weights.")
-
-# ── Inject bridges (idempotent check — skip if already injected) ─────────────
-already_injected = any('bridge' in n for n, _ in student.named_parameters())
-if not already_injected:
-    student = inject_bridges(
-        student, enc_d_model=1024, dec_d_model=1024, enc_kernel=7, bottleneck=256)
-    print("✓ Bridges injected.")
-else:
-    print("✓ Bridges already present — skipping injection.")
-
-# ── Phase 6A hyperparameters ──────────────────────────────────────────────────
-P6A_STEPS      = 300
-P6A_LR         = 3e-4
-P6A_BATCH      = 4
-P6A_GRAD_ACCUM = 4
-P6A_KD_ALPHA   = 0.6
-P6A_LOG_EVERY  = 20
-
-# ── Freeze everything except bridges ─────────────────────────────────────────
-set_bridge_only_training(student)
-
-# Cast bridge params to float32 (bridges are new, always float32)
-for n, p in student.named_parameters():
-    if p.requires_grad and p.dtype != torch.float32:
-        p.data = p.data.to(torch.float32)
-
-p6a_bridge_params = [p for n, p in student.named_parameters() if p.requires_grad]
-p6a_optimizer = torch.optim.AdamW(p6a_bridge_params, lr=P6A_LR, weight_decay=1e-2)
-p6a_scheduler = get_cosine_schedule_with_warmup(
-    p6a_optimizer, num_warmup_steps=30, num_training_steps=P6A_STEPS)
-p6a_scaler    = torch.cuda.amp.GradScaler()
-
-student.train()
-teacher.eval()
-t_dev = next(teacher.text_decoder.parameters()).device
-
-print(f"\n{'='*60}")
-print(f"Phase 6A — Bridge Warm-Up | {P6A_STEPS} steps | LR={P6A_LR}")
-print(f"Trainable: {sum(p.numel() for p in p6a_bridge_params)/1e6:.2f}M params (bridges only)")
-print(f"{'='*60}\n")
-
-# ── Shuffle training samples ──────────────────────────────────────────────────
-random.seed(0)
-all_idx_6a = chunk_friendly_shuffle(len(ft_samples), CHUNK_SIZE, P6A_BATCH)
-random.seed(42)
-
-p6a_step  = 0
-p6a_accum = 0
-p6a_ce    = p6a_kd = p6a_n = 0.0
-t0 = time.time()
-
-p6a_optimizer.zero_grad(set_to_none=True)
-
-for batch_start in range(0, len(all_idx_6a), P6A_BATCH):
-    if p6a_step >= P6A_STEPS:
-        break
-
-    raw   = [ft_samples[i] for i in all_idx_6a[batch_start:batch_start + P6A_BATCH]]
-    batch = collate_s2t_batch(raw)
-    del raw
-    if batch is None:
-        continue
-
-    try:
-        topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
-        L = batch['labels_s'].shape[1]
-        topk_vals = topk_vals[:, :L, :].contiguous()
-        topk_idx  = topk_idx[:, :L, :].contiguous()
-    except Exception:
-        continue
-
-    try:
-        s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
-        s_log = s_log[:, :L, :]
-    except torch.cuda.OutOfMemoryError:
-        torch.cuda.empty_cache(); continue
-
-    labels_dev = batch['labels_s'].to('cuda:1')
-
-    try:
-        loss, ce_v, kd_v = compute_recovery_loss_gpu(
-            s_log, labels_dev, topk_vals, topk_idx, alpha=P6A_KD_ALPHA)
-    except Exception:
-        continue
-
-    p6a_scaler.scale(loss / P6A_GRAD_ACCUM).backward()
-    del batch, topk_vals, topk_idx, s_log, labels_dev, loss
-    p6a_ce += ce_v; p6a_kd += kd_v; p6a_n += 1
-    p6a_accum += 1
-
-    if p6a_accum >= P6A_GRAD_ACCUM:
-        p6a_scaler.unscale_(p6a_optimizer)
-        torch.nn.utils.clip_grad_norm_(p6a_bridge_params, 1.0)
-        p6a_scaler.step(p6a_optimizer)
-        p6a_scaler.update()
-        p6a_scheduler.step()
-        p6a_optimizer.zero_grad(set_to_none=True)
-        p6a_accum = 0
-        p6a_step += 1
-
-        if p6a_step % P6A_LOG_EVERY == 0:
-            lr_now = p6a_scheduler.get_last_lr()[-1]
-            elapsed = (time.time() - t0) / 60
-            eta     = elapsed / p6a_step * (P6A_STEPS - p6a_step)
-            print(f"  P6A step {p6a_step:>4}/{P6A_STEPS} | "
-                  f"CE={p6a_ce/p6a_n:.4f} KD={p6a_kd/p6a_n:.4f} | "
-                  f"lr={lr_now:.2e} | ETA {eta:.0f}min")
-            p6a_ce = p6a_kd = p6a_n = 0.0
-
-print(f"\n✓ Phase 6A complete in {(time.time()-t0)/60:.1f} min.")
-print("Bridges are now activated. Proceed to Cell 77 for joint training.")
-
-# Quick eval to confirm bridges helped
-text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
-print(f"P6A eval → Text ChrF: {text_chrf:.2f} | ASR ChrF: {asr_chrf:.2f}")
-```
-
-### Output
-
-**[stdout]**
-```
-Loading Phase 5 weights...
-[ckpt] No checkpoint for 'phase5_ft'
-⚠ No Phase 5 checkpoint — using current student weights.
-✓ Bridges already present — skipping injection.
-  [Bridge] Bridge-only mode: 16.46M trainable params.
-
-============================================================
-Phase 6A — Bridge Warm-Up | 300 steps | LR=0.0003
-Trainable: 16.46M params (bridges only)
-============================================================
-```
-
-**[ERROR]** `RuntimeError: Expected all tensors to be on the same device, but got weight is on cpu, different from other tensors on cuda:0 (when checking argument in method wrapper_CUDA___conv_depthwise2d)`
-```
----------------------------------------------------------------------------
-RuntimeError                              Traceback (most recent call last)
-/tmp/ipykernel_57/122485319.py in <cell line: 0>()
-     95 
-     96     try:
----> 97         s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
-     98         s_log = s_log[:, :L, :]
-     99     except torch.cuda.OutOfMemoryError:
-
-/tmp/ipykernel_57/198125865.py in student_logits_gpu(feat_dict, dec_s_cpu)
-     50 
-     51     with torch.cuda.amp.autocast(dtype=torch.float16):
----> 52         out = student(
-     53             input_features    = input_features,
-     54             attention_mask    = attention_mask,
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-   1778     # torchrec tests the code consistency with the following code
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1785                 or _global_backward_pre_hooks or _global_backward_hooks
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-   1789         result = None
-
-/usr/local/lib/python3.12/dist-packages/accelerate/hooks.py in new_forward(module, *args, **kwargs)
-    173                 output = module._old_forward(*args, **kwargs)
-    174         else:
---> 175             output = module._old_forward(*args, **kwargs)
-    176         return module._hf_hook.post_forward(module, output)
-    177 
-
-/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in forward(self, input_features, attention_mask, decoder_input_ids, decoder_attention_mask, encoder_outputs, past_key_values, inputs_embeds, decoder_inputs_embeds, labels, use_cache, output_attentions, output_hidden_states, return_dict, **kwargs)
-   3600             )
-   3601 
--> 3602             encoder_outputs = self.speech_encoder(
-   3603                 input_features=input_features,
-   3604                 attention_mask=attention_mask,
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-   1778     # torchrec tests the code consistency with the following code
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1785                 or _global_backward_pre_hooks or _global_backward_hooks
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-   1789         result = None
-
-/usr/local/lib/python3.12/dist-packages/accelerate/hooks.py in new_forward(module, *args, **kwargs)
-    173                 output = module._old_forward(*args, **kwargs)
-    174         else:
---> 175             output = module._old_forward(*args, **kwargs)
-    176         return module._hf_hook.post_forward(module, output)
-    177 
-
-/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in forward(self, input_features, attention_mask, output_attentions, output_hidden_states, return_dict, **kwargs)
-   1534         hidden_states = self.feature_projection(input_features)
-   1535 
--> 1536         encoder_outputs = self.encoder(
-   1537             hidden_states,
-   1538             attention_mask=attention_mask,
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-   1778     # torchrec tests the code consistency with the following code
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1785                 or _global_backward_pre_hooks or _global_backward_hooks
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-   1789         result = None
-
-/usr/local/lib/python3.12/dist-packages/accelerate/hooks.py in new_forward(module, *args, **kwargs)
-    173                 output = module._old_forward(*args, **kwargs)
-    174         else:
---> 175             output = module._old_forward(*args, **kwargs)
-    176         return module._hf_hook.post_forward(module, output)
-    177 
-
-/usr/local/lib/python3.12/dist-packages/transformers/models/seamless_m4t_v2/modeling_seamless_m4t_v2.py in forward(self, hidden_states, attention_mask, output_attentions, output_hidden_states, return_dict)
-    593             if not skip_the_layer or synced_gpus:
-    594                 # under fsdp or deepspeed zero3 all gpus must run in sync
---> 595                 layer_outputs = layer(
-    596                     hidden_states,
-    597                     attention_mask=attention_mask,
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-   1778     # torchrec tests the code consistency with the following code
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1785                 or _global_backward_pre_hooks or _global_backward_hooks
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-   1789         result = None
-
-/tmp/ipykernel_57/2481550111.py in forward(self, hidden_states, *args, **kwargs)
-    141         # Encoder layers return a tuple (hidden_states, ...) or just hidden_states
-    142         if isinstance(out, tuple):
---> 143             hs = self.bridge(out[0])
-    144             return (hs,) + out[1:]
-    145         return self.bridge(out)
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-   1778     # torchrec tests the code consistency with the following code
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1785                 or _global_backward_pre_hooks or _global_backward_hooks
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-   1789         result = None
-
-/tmp/ipykernel_57/2481550111.py in forward(self, x)
-     49         # Depthwise temporal conv
-     50         h = x.transpose(1, 2)                        # (B, C, T)
----> 51         h = self.conv(h).transpose(1, 2)              # (B, T, C)
-     52         x = self.conv_norm(x + self.scale_conv * h)
-     53         # Bottleneck FFN
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)
-   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]
-   1775         else:
--> 1776             return self._call_impl(*args, **kwargs)
-   1777 
-   1778     # torchrec tests the code consistency with the following code
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)
-   1785                 or _global_backward_pre_hooks or _global_backward_hooks
-   1786                 or _global_forward_hooks or _global_forward_pre_hooks):
--> 1787             return forward_call(*args, **kwargs)
-   1788 
-   1789         result = None
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/conv.py in forward(self, input)
-    373 
-    374     def forward(self, input: Tensor) -> Tensor:
---> 375         return self._conv_forward(input, self.weight, self.bias)
-    376 
-    377 
-
-/usr/local/lib/python3.12/dist-packages/torch/nn/modules/conv.py in _conv_forward(self, input, weight, bias)
-    368             )
-    369 
---> 370         return F.conv1d(
-    371             input, weight, bias, self.stride, self.padding, self.dilation, self.groups
-    372         )
-
-RuntimeError: Expected all tensors to be on the same device, but got weight is on cpu, different from other tensors on cuda:0 (when checking argument in method wrapper_CUDA___conv_depthwise2d)
+student = inject_bridges(student)
 ```
 
 ---
@@ -6948,158 +5147,302 @@ RuntimeError: Expected all tensors to be on the same device, but got weight is o
 ## Cell 79 — `code`
 
 ```python
-# ── Cell 77: Phase 6B — Joint Training (all params + bridges, Bengali focus) ──
-#
-# Now unfreeze everything. Bridges get 3× higher LR because:
-#   - They are new and need faster adaptation
-#   - The backbone weights are already trained from Phase 5
-#   - This mimics the "differential learning rates" pattern from ULMFiT
-#
-# Bengali-biased sampling: the combined ft_samples already has more Bengali
-# pseudo-labels (30k vs 20k per other language). The training loop uses those
-# naturally. The eval metric is ASR ChrF on Bengali → that's what we optimize.
-# ─────────────────────────────────────────────────────────────────────────────
+# ── Cell: Install Bridges + Warm Up ──────────────────────────────────────────
+# Run ONCE after loading student weights from Phase 5.
 
+# Install bridges into the already-pruned student
+# student = inject_bridges(
+#     student,
+#     enc_d_model = 1024,   # SeamlessM4T encoder hidden size
+#     dec_d_model = 1024,   # SeamlessM4T decoder hidden size
+#     enc_kernel  = 7,      # 7-frame Conv1D ≈ 45ms acoustic context
+#     bottleneck  = 256,    # keeps bridge params small: ~0.8M per bridge
+# )
+
+# Phase 6A: bridge warm-up — only bridge params train for 300 steps
+# set_bridge_only_training(student)
+
+# bridge_params_list = [p for n,p in student.named_parameters() if p.requires_grad]
+# warmup_opt = torch.optim.AdamW(bridge_params_list, lr=3e-4, weight_decay=1e-2)
+
+# print('Bridge warm-up optimizer ready.')
+# print('Run 300 steps of the normal training loop with this optimizer,')
+# print('then call set_joint_training(student) and switch to the Phase 6 optimizer.')
+```
+
+---
+
+## Cell 80 — `code`
+
+```python
+student
+```
+
+---
+
+## Cell 81 — `code`
+
+```python
+# # ── Cell 76: Phase 6A — Bridge Warm-Up (300 steps, bridges only) ─────────────
+# import bitsandbytes as bnb
+# from transformers import get_cosine_schedule_with_warmup
+# import math, time, random
+
+# print("Loading Phase 5 weights...")
+# ckpt = load_latest_checkpoint('phase5_ft')
+# if ckpt:
+#     student.load_state_dict(ckpt['model_state'], strict=False)
+#     print("✓ Loaded Phase 5 weights.")
+
+# already_injected = any('bridge' in n for n, _ in student.named_parameters())
+# if not already_injected:
+#     student = inject_bridges(student, enc_d_model=1024, dec_d_model=1024, enc_kernel=7, bottleneck=256)
+
+# P6A_STEPS, P6A_LR, P6A_BATCH, P6A_GRAD_ACCUM, P6A_KD_ALPHA, P6A_LOG_EVERY = 300, 1e-4, 4, 4, 0.6, 20
+
+# set_bridge_only_training(student)
+# for n, p in student.named_parameters():
+#     if p.requires_grad and p.dtype != torch.float32: p.data = p.data.to(torch.float32)
+
+# p6a_bridge_params = [p for n, p in student.named_parameters() if p.requires_grad]
+# p6a_optimizer = bnb.optim.AdamW8bit(p6a_bridge_params, lr=P6A_LR, weight_decay=1e-2)
+# p6a_scheduler = get_cosine_schedule_with_warmup(p6a_optimizer, num_warmup_steps=30, num_training_steps=P6A_STEPS)
+# p6a_scaler    = torch.cuda.amp.GradScaler()
+
+# student.train()
+# teacher.eval()
+# t_dev = next(teacher.text_decoder.parameters()).device
+
+# random.seed(0)
+# # Use the safe 2000 chunk size for tracking
+# all_idx_6a = chunk_friendly_shuffle(len(ft_samples), CHUNK_SIZE, P6A_BATCH)
+# random.seed(42)
+
+# p6a_step, p6a_accum = 0, 0
+# p6a_ce, p6a_kd, p6a_n = 0.0, 0.0, 0.0
+# t0 = time.time()
+# p6a_optimizer.zero_grad(set_to_none=True)
+
+# print(f"\n{'='*60}\nPhase 6A — Bridge Warm-Up | {P6A_STEPS} steps | LR={P6A_LR}\n{'='*60}\n")
+
+# for batch_start in range(0, len(all_idx_6a), P6A_BATCH):
+#     if p6a_step >= P6A_STEPS: break
+
+#     raw   = [ft_samples[i] for i in all_idx_6a[batch_start:batch_start + P6A_BATCH]]
+#     batch = collate_s2t_batch(raw)
+#     del raw
+#     if batch is None: continue
+
+#     # ── SEQUENTIAL EXECUTION FOR WARMUP (PREVENTS CLOSURE RAM LEAKS) ──
+#     try:
+#         topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
+#         L = batch['labels_s'].shape[1]
+#         topk_vals = topk_vals[:, :L, :].contiguous()
+#         topk_idx  = topk_idx[:, :L, :].contiguous()
+        
+#         s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
+#         s_log = s_log[:, :L, :].contiguous()
+        
+#         labels_dev = batch['labels_s'].to('cuda:1', non_blocking=True)
+#         loss, ce_v, kd_v = compute_recovery_loss_gpu(s_log, labels_dev, topk_vals, topk_idx, alpha=P6A_KD_ALPHA)
+        
+#         p6a_scaler.scale(loss / P6A_GRAD_ACCUM).backward()
+        
+#     except torch.cuda.OutOfMemoryError:
+#         print("  [OOM] Skipping batch")
+#         del batch; torch.cuda.empty_cache(); gc.collect()
+#         continue
+#     except Exception as e:
+#         print(f"  [Error] {e}")
+#         del batch; torch.cuda.empty_cache(); gc.collect()
+#         continue
+
+#     # ── AGGRESSIVE MEMORY CLEANUP ──
+#     del batch, topk_vals, topk_idx, s_log, labels_dev, loss
+    
+#     p6a_ce += ce_v; p6a_kd += kd_v; p6a_n += 1; p6a_accum += 1
+
+#     if p6a_accum >= P6A_GRAD_ACCUM:
+#         p6a_scaler.unscale_(p6a_optimizer)
+#         torch.nn.utils.clip_grad_norm_(p6a_bridge_params, 1.0)
+#         p6a_scaler.step(p6a_optimizer)
+#         p6a_scaler.update()
+#         p6a_scheduler.step()
+#         p6a_optimizer.zero_grad(set_to_none=True)
+#         p6a_accum = 0; p6a_step += 1
+
+#         if p6a_step % P6A_LOG_EVERY == 0:
+#             lr_now = p6a_scheduler.get_last_lr()[-1]
+#             elapsed = (time.time() - t0) / 60
+#             eta     = elapsed / p6a_step * (P6A_STEPS - p6a_step)
+#             print(f"  P6A step {p6a_step:>4}/{P6A_STEPS} | CE={p6a_ce/p6a_n:.4f} KD={p6a_kd/p6a_n:.4f} | lr={lr_now:.2e} | ETA {eta:.0f}min")
+#             p6a_ce = p6a_kd = p6a_n = 0.0
+#             free_cpu_ram()
+
+# print(f"\n✓ Phase 6A complete in {(time.time()-t0)/60:.1f} min.")
+# text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
+# print(f"P6A eval → Text ChrF: {text_chrf:.2f} | ASR ChrF: {asr_chrf:.2f}")
+```
+
+---
+
+## Cell 82 — `code`
+
+```python
+# ── Cell 77: Phase 6B — Joint Training (Explicit Parallel Exec + Background Prefetch) ──
 import bitsandbytes as bnb
 from transformers import get_cosine_schedule_with_warmup
 import math, time, random
+import concurrent.futures
+import queue
 
-# ── Phase 6B hyperparameters ──────────────────────────────────────────────────
-BATCH_SIZE      = 4
-GRAD_ACCUM      = 8
-LR_BACKBONE     = 4e-5     # lower than P6A — backbone is already trained
-LR_BRIDGE_MULT  = 3.0      # bridges get LR_BACKBONE × 3.0
-WEIGHT_DECAY    = 1e-2
-MAX_EPOCHS      = 5
-EVAL_STEPS      = 500
-LOG_STEPS       = 10
-KD_ALPHA        = 0.60
+BATCH_SIZE, GRAD_ACCUM = 4, 8
+LR_BACKBONE, LR_BRIDGE_MULT = 4e-5, 3.0      
+WEIGHT_DECAY, MAX_EPOCHS = 1e-2, 7
+EVAL_STEPS, LOG_STEPS, KD_ALPHA = 500, 10, 0.60
 
+# We use 2000 for tight RAM budgeting
 STEPS_PER_EPOCH = math.ceil(len(ft_samples) / (BATCH_SIZE * GRAD_ACCUM))
 TOTAL_STEPS     = STEPS_PER_EPOCH * MAX_EPOCHS
 WARMUP_STEPS    = min(500, int(TOTAL_STEPS * 0.05))
 
-# ── Unfreeze all params, split into bridge vs backbone groups ─────────────────
 bridge_params, other_params = set_joint_training(student, bridge_lr_mult=LR_BRIDGE_MULT)
-
-# Cast all trainable params to float32
 for p in bridge_params + other_params:
-    if p.requires_grad and p.dtype != torch.float32:
-        p.data = p.data.to(torch.float32)
+    if p.requires_grad and p.dtype != torch.float32: p.data = p.data.to(torch.float32)
 
-# Param groups: backbone (lower LR) + lm_head/shared (even lower) + bridges (high LR)
 lm_head_keys = ['lm_head', 'shared']
-backbone_other = [p for n, p in student.named_parameters()
-                  if p.requires_grad
-                  and 'bridge' not in n
-                  and not any(k in n for k in lm_head_keys)]
-lm_head_ps     = [p for n, p in student.named_parameters()
-                  if p.requires_grad
-                  and 'bridge' not in n
-                  and any(k in n for k in lm_head_keys)]
+backbone_other = [p for n, p in student.named_parameters() if p.requires_grad and 'bridge' not in n and not any(k in n for k in lm_head_keys)]
+lm_head_ps     = [p for n, p in student.named_parameters() if p.requires_grad and 'bridge' not in n and any(k in n for k in lm_head_keys)]
 
 param_groups = [
-    {'params': lm_head_ps,     'lr': LR_BACKBONE * 0.3,   'name': 'lm_head'},
-    {'params': backbone_other, 'lr': LR_BACKBONE,          'name': 'backbone'},
-    {'params': bridge_params,  'lr': LR_BACKBONE * LR_BRIDGE_MULT, 'name': 'bridges'},
+    {'params': lm_head_ps,     'lr': LR_BACKBONE * 0.3},
+    {'params': backbone_other, 'lr': LR_BACKBONE},
+    {'params': bridge_params,  'lr': LR_BACKBONE * LR_BRIDGE_MULT},
 ]
 
-optimizer = bnb.optim.AdamW8bit(param_groups, weight_decay=WEIGHT_DECAY,
-                                  betas=(0.9, 0.98), eps=1e-6)
-scheduler = get_cosine_schedule_with_warmup(
-    optimizer, num_warmup_steps=WARMUP_STEPS, num_training_steps=TOTAL_STEPS)
+optimizer = bnb.optim.AdamW8bit(param_groups, weight_decay=WEIGHT_DECAY, betas=(0.9, 0.98), eps=1e-6)
+scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=WARMUP_STEPS, num_training_steps=TOTAL_STEPS)
 scaler    = torch.cuda.amp.GradScaler()
 
 all_trainable_p6b = [p for g in param_groups for p in g['params']]
-total_trainable   = sum(p.numel() for p in all_trainable_p6b) / 1e6
+print(f"\n{'='*60}\nPhase 6B — Joint Training (Parallel CPU+GPU)\nTotal: {TOTAL_STEPS} Steps | Trainable: {sum(p.numel() for p in all_trainable_p6b)/1e6:.1f}M\n{'='*60}\n")
 
-print(f"\n{'='*60}")
-print(f"Phase 6B — Joint Training")
-print(f"  Total steps : {TOTAL_STEPS} ({MAX_EPOCHS} epochs × {STEPS_PER_EPOCH} steps)")
-print(f"  Warmup      : {WARMUP_STEPS} steps")
-print(f"  LR backbone : {LR_BACKBONE:.0e}")
-print(f"  LR bridges  : {LR_BACKBONE*LR_BRIDGE_MULT:.0e}  (×{LR_BRIDGE_MULT})")
-print(f"  KD alpha    : {KD_ALPHA}")
-print(f"  Trainable   : {total_trainable:.1f}M params")
-print(f"{'='*60}\n")
+# ── BACKGROUND DATA PREFETCHER ──
+class BatchPrefetcher:
+    def __init__(self, dataset, indices, batch_size, collate_fn, prefetch_size=4):
+        self.dataset = dataset
+        self.indices = indices
+        self.batch_size = batch_size
+        self.collate_fn = collate_fn
+        self.queue = queue.Queue(maxsize=prefetch_size)
+        self.stop_event = threading.Event()
+        self.thread = threading.Thread(target=self._worker)
+        self.thread.daemon = True
+        self.thread.start()
 
-# ── Training loop ─────────────────────────────────────────────────────────────
+    def _worker(self):
+        for batch_start in range(0, len(self.indices), self.batch_size):
+            if self.stop_event.is_set(): break
+            chunk = self.indices[batch_start : batch_start + self.batch_size]
+            try:
+                raw = [self.dataset[i] for i in chunk]
+                batch = self.collate_fn(raw)
+                self.queue.put(batch)
+            except Exception as e:
+                self.queue.put(None)
+        self.queue.put("DONE")
+
+    def __iter__(self): return self
+    def __next__(self):
+        item = self.queue.get()
+        if item == "DONE": raise StopIteration
+        return item
+    def stop(self):
+        self.stop_event.set()
+        while not self.queue.empty():
+            try: self.queue.get_nowait()
+            except: pass
+
+# ── NO-CLOSURE TARGET FUNCTIONS ──
+def _exec_teacher(feat, dec_full):
+    return teacher_topk_direct(feat, dec_full)
+
+def _exec_student(feat, dec_s):
+    return student_logits_gpu(feat, dec_s)
+
 def run_phase6b():
-    best_chrf     = 0.0
-    patience_left = 25
-    opt_step      = 0
-    train_history = {
-        'step': [], 'ce': [], 'kd': [], 'lr_backbone': [], 'lr_bridge': [],
-        'eval_step': [], 'eval_text': [], 'eval_asr': []
-    }
+    best_chrf, patience_left, opt_step = 0.0, 25, 0
+    train_history = {'step': [], 'ce': [], 'kd': [], 'lr_backbone': [], 'lr_bridge': [], 'eval_step': [], 'eval_text': [], 'eval_asr': []}
 
-    # Resume Phase 6B if checkpoint exists
     p6b_ckpt = load_latest_checkpoint('phase6b_ft')
     if p6b_ckpt:
         student.load_state_dict(p6b_ckpt['model_state'], strict=False)
         optimizer.load_state_dict(p6b_ckpt['optimizer_state'])
         scheduler.load_state_dict(p6b_ckpt['scheduler_state'])
-        opt_step  = p6b_ckpt['opt_step']
-        best_chrf = p6b_ckpt['best_chrf']
-        if 'train_history' in p6b_ckpt:
-            train_history = p6b_ckpt['train_history']
+        opt_step, best_chrf = p6b_ckpt['opt_step'], p6b_ckpt['best_chrf']
+        if 'train_history' in p6b_ckpt: train_history = p6b_ckpt['train_history']
         print(f"✓ Resumed Phase 6B at step {opt_step}")
 
-    start_epoch     = opt_step // STEPS_PER_EPOCH
+    start_epoch = opt_step // STEPS_PER_EPOCH
     batches_to_skip = (opt_step % STEPS_PER_EPOCH) * GRAD_ACCUM
-    step_times      = []
+    step_times = []
+
+    # ── POOL EXECUTOR: Reuses 2 threads endlessly, NO LEAKS! ──
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 
     for epoch in range(start_epoch, MAX_EPOCHS):
         ep_ce = ep_kd = ep_n = 0.0
         optimizer.zero_grad(set_to_none=True)
         accum = 0
 
-        random.seed(epoch + 100)   # different seed from P6A
+        random.seed(epoch + 100)
         all_idx = chunk_friendly_shuffle(len(ft_samples), CHUNK_SIZE, BATCH_SIZE)
         random.seed(42)
+        
+        if epoch == start_epoch and batches_to_skip > 0:
+            all_idx = all_idx[batches_to_skip * BATCH_SIZE:]
 
         print(f"\n  Phase 6B — Epoch {epoch+1}/{MAX_EPOCHS}")
         t_epoch = time.time()
+        prefetcher = BatchPrefetcher(ft_samples, all_idx, BATCH_SIZE, collate_s2t_batch)
 
-        for batch_idx, batch_start in enumerate(range(0, len(all_idx), BATCH_SIZE)):
-            if epoch == start_epoch and batch_idx < batches_to_skip:
-                continue
-            if opt_step >= TOTAL_STEPS:
+        for batch in prefetcher:
+            if opt_step >= TOTAL_STEPS: 
+                prefetcher.stop()
                 break
 
+            if batch is None: continue
             t0  = time.time()
-            raw = [ft_samples[i] for i in all_idx[batch_start:batch_start + BATCH_SIZE]]
-            batch = collate_s2t_batch(raw)
-            del raw
-            if batch is None:
-                continue
+
+            # Pass variables EXPLICITLY to avoid closure leaks
+            future_t = executor.submit(_exec_teacher, batch['feat'], batch['dec_full'])
+            future_s = executor.submit(_exec_student, batch['feat'], batch['dec_s'])
 
             try:
-                topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
+                topk_vals, topk_idx = future_t.result()
+                s_log = future_s.result()
+                
                 L = batch['labels_s'].shape[1]
                 topk_vals = topk_vals[:, :L, :].contiguous()
                 topk_idx  = topk_idx[:, :L, :].contiguous()
-            except Exception:
-                continue
+                s_log     = s_log[:, :L, :].contiguous()
+                labels_dev = batch['labels_s'].to('cuda:1', non_blocking=True)
 
-            try:
-                s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
-                s_log = s_log[:, :L, :]
+                loss, ce_v, kd_v = compute_recovery_loss_gpu(s_log, labels_dev, topk_vals, topk_idx, alpha=KD_ALPHA)
+                scaler.scale(loss / GRAD_ACCUM).backward()
+                
             except torch.cuda.OutOfMemoryError:
-                torch.cuda.empty_cache(); continue
-
-            labels_dev = batch['labels_s'].to('cuda:1')
-
-            try:
-                loss, ce_v, kd_v = compute_recovery_loss_gpu(
-                    s_log, labels_dev, topk_vals, topk_idx, alpha=KD_ALPHA)
-            except Exception:
+                print("  [OOM] Skipping batch")
+                del batch; torch.cuda.empty_cache(); gc.collect()
+                continue
+            except Exception as e:
+                print(f"  [Error] {e}")
+                del batch; torch.cuda.empty_cache(); gc.collect()
                 continue
 
-            scaler.scale(loss / GRAD_ACCUM).backward()
             del batch, topk_vals, topk_idx, s_log, labels_dev, loss
-            ep_ce += ce_v; ep_kd += kd_v; ep_n += 1
-            accum += 1
+            
+            ep_ce += ce_v; ep_kd += kd_v; ep_n += 1; accum += 1
 
             if accum >= GRAD_ACCUM:
                 scaler.unscale_(optimizer)
@@ -7108,81 +5451,71 @@ def run_phase6b():
                 scaler.update()
                 scheduler.step()
                 optimizer.zero_grad(set_to_none=True)
-                accum = 0
-                opt_step += 1
+                accum = 0; opt_step += 1
 
                 if opt_step % LOG_STEPS == 0:
                     step_times.append(time.time() - t0)
-                    # Log both backbone and bridge LR separately
                     lrs = scheduler.get_last_lr()
-                    lr_bb  = lrs[1] if len(lrs) > 1 else lrs[0]   # backbone group
-                    lr_br  = lrs[2] if len(lrs) > 2 else lrs[0]   # bridge group
-                    avg_ce = ep_ce / max(ep_n, 1)
-                    avg_kd = ep_kd / max(ep_n, 1)
-                    eta    = (TOTAL_STEPS - opt_step) * (
-                        sum(step_times[-20:]) / max(len(step_times[-20:]), 1)) / 60
+                    lr_bb = lrs[1] if len(lrs) > 1 else lrs[0]   
+                    lr_br = lrs[2] if len(lrs) > 2 else lrs[0]   
+                    avg_ce, avg_kd = ep_ce / max(ep_n, 1), ep_kd / max(ep_n, 1)
+                    eta = (TOTAL_STEPS - opt_step) * (sum(step_times[-20:]) / max(len(step_times[-20:]), 1)) / 60
 
-                    train_history['step'].append(opt_step)
-                    train_history['ce'].append(avg_ce)
-                    train_history['kd'].append(avg_kd)
-                    train_history['lr_backbone'].append(float(lr_bb))
-                    train_history['lr_bridge'].append(float(lr_br))
+                    train_history['step'].extend([opt_step])
+                    train_history['ce'].extend([avg_ce])
+                    train_history['kd'].extend([avg_kd])
+                    train_history['lr_backbone'].extend([float(lr_bb)])
+                    train_history['lr_bridge'].extend([float(lr_br)])
 
-                    print(f"  P6B step {opt_step:>5}/{TOTAL_STEPS} | "
-                          f"CE={avg_ce:.4f} KD={avg_kd:.4f} | "
-                          f"lr_bb={lr_bb:.1e} lr_br={lr_br:.1e} | "
-                          f"ETA={eta:.0f}min")
+                    print(f"  P6B step {opt_step:>5}/{TOTAL_STEPS} | CE={avg_ce:.4f} KD={avg_kd:.4f} | lr_bb={lr_bb:.1e} lr_br={lr_br:.1e} | ETA={eta:.0f}min")
                     ep_ce = ep_kd = ep_n = 0.0
+                    free_cpu_ram()
 
                 if opt_step % EVAL_STEPS == 0:
+                    # ── MAIN FIX: DO NOT STOP PREFETCHER ──
+                    # Just let it sleep safely in the background while eval happens!
+                    
                     text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
-                    print(f"\n  ★ P6B step {opt_step} eval → "
-                          f"Text={text_chrf:.2f} | ASR={asr_chrf:.2f}")
+                    print(f"\n  ★ P6B step {opt_step} eval → Text={text_chrf:.2f} | ASR={asr_chrf:.2f}")
 
                     train_history['eval_step'].append(opt_step)
                     train_history['eval_text'].append(float(text_chrf))
                     train_history['eval_asr'].append(float(asr_chrf))
 
-                    save_checkpoint(dict(
-                        model_state     = student.state_dict(),
-                        optimizer_state = optimizer.state_dict(),
-                        scheduler_state = scheduler.state_dict(),
-                        opt_step        = opt_step,
-                        best_chrf       = best_chrf,
-                        train_history   = train_history,
-                    ), 'phase6b_ft', opt_step, keep=2)
-
                     if asr_chrf > best_chrf:
-                        best_chrf     = asr_chrf
-                        patience_left = 25
-                        # Also save as 'best' separately
+                        best_chrf, patience_left = asr_chrf, 25
                         save_checkpoint(dict(
-                            model_state   = student.state_dict(),
-                            opt_step      = opt_step,
-                            best_chrf     = best_chrf,
-                            train_history = train_history,
+                            model_state=student.state_dict(), opt_step=opt_step, best_chrf=best_chrf, train_history=train_history
                         ), 'phase6b_best', opt_step, keep=1)
                         print(f"  ✓ NEW BEST: {best_chrf:.2f} ChrF")
                     else:
+                        save_checkpoint(dict(
+                            model_state=student.state_dict(), optimizer_state=optimizer.state_dict(),
+                            scheduler_state=scheduler.state_dict(), opt_step=opt_step, best_chrf=best_chrf,
+                            train_history=train_history
+                        ), 'phase6b_ft', opt_step, keep=1)
+                        
                         patience_left -= 1
                         print(f"  patience={patience_left}/25")
                         if patience_left <= 0:
                             print("\n  Early stop triggered.")
+                            executor.shutdown(wait=False)
+                            prefetcher.stop()
                             return opt_step, best_chrf, train_history
-
+                            
+        prefetcher.stop()
         print(f"  Epoch {epoch+1} done | {(time.time()-t_epoch)/60:.1f} min")
 
+    executor.shutdown(wait=False)
     return opt_step, best_chrf, train_history
 
-
-# ── Run ───────────────────────────────────────────────────────────────────────
 final_step, final_chrf, p6b_history = run_phase6b()
 print(f"\n✓ Phase 6B complete. Best ASR ChrF: {final_chrf:.2f} at step {final_step}")
 ```
 
 ---
 
-## Cell 80 — `code`
+## Cell 83 — `code`
 
 ```python
 # ── Cell 78: Ablation Evaluation (required for EMNLP paper) ──────────────────
@@ -7265,7 +5598,7 @@ print("\nSave this table — it's Table 1 in your EMNLP paper.")
 
 ---
 
-## Cell 81 — `markdown`
+## Cell 84 — `markdown`
 
 > ## Summary
 > 
