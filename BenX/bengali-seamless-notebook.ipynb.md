@@ -1,6 +1,6 @@
 # Notebook: `./bengali-seamless-notebook.ipynb`
 
-> Kernel: **Python 3** | Total cells: **84**
+> Kernel: **Python 3** | Total cells: **89**
 
 ---
 
@@ -116,6 +116,24 @@ print('All packages installed.')
 ## Cell 6 — `code`
 
 ```python
+import torch
+import random
+import numpy as np
+
+autocast_dtype = torch.float16
+seed = 42
+
+random.seed(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)
+```
+
+---
+
+## Cell 7 — `code`
+
+```python
 import torch, numpy as np, random
 import torch.nn as nn, torch.nn.functional as F
 import matplotlib.pyplot as plt, matplotlib, seaborn as sns
@@ -176,7 +194,7 @@ print('Core utilities ready.')
 
 ---
 
-## Cell 7 — `code`
+## Cell 8 — `code`
 
 ```python
 import queue, threading
@@ -284,7 +302,7 @@ print('Checkpoint helpers ready.')
 
 ---
 
-## Cell 8 — `code`
+## Cell 9 — `code`
 
 ```python
 import torch.nn as nn, torch.nn.functional as F
@@ -463,7 +481,7 @@ print('Model I/O helpers ready.')
 
 ---
 
-## Cell 9 — `code`
+## Cell 10 — `code`
 
 ```python
 from collections import defaultdict
@@ -695,13 +713,13 @@ print('Summary + plotting helpers ready.')
 
 ---
 
-## Cell 10 — `markdown`
+## Cell 11 — `markdown`
 
 > ## Language Configuration — Bengali-Centric (Ben, Eng, Hin, Arb)
 
 ---
 
-## Cell 11 — `code`
+## Cell 12 — `code`
 
 ```python
 # ── Bengali-centric language pairs: Ben↔X and X↔Ben ─────────────────────────
@@ -746,13 +764,13 @@ print(f'Train samples    : {N_TRAIN_PER_PAIR} per pair = {N_TRAIN_PER_PAIR*len(E
 
 ---
 
-## Cell 12 — `markdown`
+## Cell 13 — `markdown`
 
 > ## ASR Stack — MMS (Ben/Hin/Arb) + Whisper (Eng)
 
 ---
 
-## Cell 13 — `code`
+## Cell 14 — `code`
 
 ```python
 import gc as _gc
@@ -871,7 +889,7 @@ print('  - MMS-1b-all     : Bengali, Hindi, Arabic')
 
 ---
 
-## Cell 14 — `code`
+## Cell 15 — `code`
 
 ```python
 from sacrebleu.metrics import BLEU, CHRF
@@ -894,103 +912,52 @@ def _remap_ids_for_decode(mdl, ids):
         ids[mask] = remap[ids[mask]]
     return ids
 
-def _model_input_device(mdl):
-    if hasattr(mdl,'speech_encoder'):
-        return next(mdl.speech_encoder.parameters()).device
-    return next(mdl.parameters()).device
-
 import numpy as np
-import torch.nn as nn
+import torch
 
 def run_s2st(mdl, wav, tgt_lang='ben'):
     inputs = processor(audio=wav, sampling_rate=16000, return_tensors='pt')
-    
-    # CRITICAL FIX: Align input tensors with the text_decoder's device.
-    # HF's generate() uses the input tensor's device to initialize internal variables 
-    # (like attention masks). Since the monkey-patch forces the model device to cuda:1, 
-    # placing inputs on cuda:0 causes a collision (cuda:0 vs cuda:1).
-    # Accelerate will automatically route these inputs to cuda:0 when the speech_encoder 
-    # is called internally.
     target_device = next(mdl.text_decoder.parameters()).device
     inputs = {k: v.to(target_device) for k, v in inputs.items()}
     
-    with torch.no_grad():
-        try:
-            with torch.cuda.amp.autocast(dtype=torch.float16):
-                out = mdl.generate(**inputs, tgt_lang=tgt_lang,
-                                   return_intermediate_token_ids=True)
-            text_ids = _remap_ids_for_decode(mdl, out.sequences.cpu())
-            text = processor.batch_decode(text_ids, skip_special_tokens=True)[0]
-            wav_out = (out.waveform.cpu().numpy().squeeze()
-                       if out.waveform is not None else np.zeros(16000))
-            return text, wav_out
-        except Exception as e:
-            # If S2ST fails, fallback gracefully to S2T
-            print(f"  [S2ST failed, falling back to S2T]: {e}")
-            return run_s2t_only(mdl, wav, tgt_lang), np.zeros(16000)
-
-def run_s2t_only(mdl, wav, tgt_lang='ben'):
-    inputs = processor(audio=wav, sampling_rate=16000, return_tensors='pt')
-    target_device = next(mdl.text_decoder.parameters()).device
-    inputs = {k: v.to(target_device) for k, v in inputs.items()}
-    
-    orig_t2u = getattr(mdl, 't2u_model', None)
-    
-    # ── ULTIMATE EVAL FIX: The Dummy T2U Module ──
-    # We replace the T2U model entirely during eval. It instantly returns zeroes,
-    # completely bypassing the 1D Convolution Kernel crash.
-    class DummyT2U(nn.Module):
-        def __init__(self, orig_cfg):
-            super().__init__()
-            self.config = orig_cfg
-        def generate(self, *args, **kwargs):
-            from transformers.utils import ModelOutput
-            class DummyOut(ModelOutput):
-                waveform = torch.zeros((1, 16000), device=target_device)
-                sequences = torch.zeros((1, 1), dtype=torch.long, device=target_device)
-            return DummyOut()
-
     try:
-        if orig_t2u is not None:
-            mdl.t2u_model = DummyT2U(getattr(orig_t2u, 'config', None))
-            
         with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.float16):
             out = mdl.generate(**inputs, tgt_lang=tgt_lang, return_intermediate_token_ids=True)
             
-    except Exception as e:
-        print(f"    [S2T internal error] {e}")
-        return ""
-    finally:
-        # Put the real module back so training isn't permanently affected
-        if orig_t2u is not None: 
-            mdl.t2u_model = orig_t2u
+        seqs = out.sequences if hasattr(out, 'sequences') else out
+        text_ids = _remap_ids_for_decode(mdl, seqs.cpu())
+        text = processor.batch_decode(text_ids, skip_special_tokens=True)[0]
         
-    seqs = out.sequences if hasattr(out, 'sequences') else out
-    text_ids = _remap_ids_for_decode(mdl, seqs.cpu())
-    return processor.batch_decode(text_ids, skip_special_tokens=True)[0]
+        wav_out = out.waveform.cpu().numpy().squeeze() if hasattr(out, 'waveform') and out.waveform is not None else np.zeros(16000)
+        return text, wav_out
+
+    except Exception as e:
+        error_str = str(e)
+        if "Kernel size can't be greater than actual input size" in error_str:
+            # Model predicted empty string [BOS, EOS]. T2U crashed. Safely return empty string!
+            return "", np.zeros(16000)
+        else:
+            print(f"  [S2ST unexpected error]: {error_str}")
+            return "", np.zeros(16000)
 
 def free_cpu_ram():
-    """Aggressively free CPU RAM back to OS (Kaggle Linux)."""
-    import ctypes
+    import ctypes, gc
     gc.collect()
-    try:
-        ctypes.CDLL('libc.so.6').malloc_trim(0)
-    except Exception:
-        pass
+    try: ctypes.CDLL('libc.so.6').malloc_trim(0)
+    except Exception: pass
 
-print('Inference helpers ready.')
-
+print('Inference helpers ready (with elegant empty-string catch).')
 ```
 
 ---
 
-## Cell 15 — `markdown`
+## Cell 16 — `markdown`
 
 > ## Dataset Loading — Bengali-Centric Streaming
 
 ---
 
-## Cell 16 — `code`
+## Cell 17 — `code`
 
 ```python
 import pyarrow.parquet as pq
@@ -1093,7 +1060,7 @@ print('✓ Streaming dataset classes ready.')
 
 ---
 
-## Cell 17 — `code`
+## Cell 18 — `code`
 
 ```python
 print('Loading evaluation samples (streaming mode)...')
@@ -1117,90 +1084,62 @@ print(f'  Reference: {test_s["ref"][:60]}...')
 
 ---
 
-## Cell 18 — `code`
+## Cell 19 — `code`
 
 ```python
-# Cell 18 — Training samples (streaming metadata only, audio loaded per-batch)
-# ft_samples stays as MultilingualStreamingDataset here.
-# It will be REPLACED by ChunkedMultilingualDataset in Cell 18-C below
-# after the Chunked classes are defined.
+# # Cell 18 — Training samples (streaming metadata only, audio loaded per-batch)
+# # ft_samples stays as MultilingualStreamingDataset here.
+# # It will be REPLACED by ChunkedMultilingualDataset in Cell 18-C below
+# # after the Chunked classes are defined.
 
-print('Loading training samples (streaming mode)...')
-ft_samples = MultilingualStreamingDataset(
-    parquet_cache_dir=LOCAL_PARQUET_CACHE,
-    lang_pairs=EVAL_LANG_PAIRS,
-    split='train',
-    max_samples_per_pair=N_TRAIN_PER_PAIR
-)
+# print('Loading training samples (streaming mode)...')
+# ft_samples = MultilingualStreamingDataset(
+#     parquet_cache_dir=LOCAL_PARQUET_CACHE,
+#     lang_pairs=EVAL_LANG_PAIRS,
+#     split='train',
+#     max_samples_per_pair=N_TRAIN_PER_PAIR
+# )
 
-print(f'\n✓ Loaded {len(ft_samples)} multilingual training samples')
-print(f'  Language pairs: {len(EVAL_LANG_PAIRS)}')
-print(f'  (Will be upgraded to ChunkedMultilingualDataset below)')
+# print(f'\n✓ Loaded {len(ft_samples)} multilingual training samples')
+# print(f'  Language pairs: {len(EVAL_LANG_PAIRS)}')
+# print(f'  (Will be upgraded to ChunkedMultilingualDataset below)')
 ```
 
 ---
 
-## Cell 19 — `code`
+## Cell 20 — `code`
 
 ```python
-# ── Cell 18-A: ChunkedStreamingDataset ────────────────────────────────────────
-# Loads audio in RAM chunks of CHUNK_SIZE samples.
-# Evicts previous chunk when moving to next chunk.
-# Thread-safe with background prefetch of the next chunk.
-#
-# Why: MultilingualStreamingDataset reads 1 parquet row per __getitem__ call.
-# With batch=4, that's 4 separate parquet file opens per batch = very slow.
-# ChunkedStreamingDataset reads CHUNK_SIZE rows in one parquet scan,
-# giving ~1000x fewer disk reads during training.
-
+# ── Cell 18-A: ChunkedStreamingDataset (No Silent Failures) ────────────────────
 import pyarrow.parquet as pq
 import threading
 
-CHUNK_SIZE = 2000   # samples loaded into RAM at once (~2 GB RAM per chunk)
-                    # Reduce to 1000 (~500 MB) if you hit RAM limits
+CHUNK_SIZE = 2000   
 
 class ChunkedStreamingDataset:
-    """
-    Holds CHUNK_SIZE audio arrays in RAM at a time.
-    Access pattern: sequential within a chunk → nearly zero disk I/O during training.
-    Automatically prefetches the next chunk in background.
-    """
-
     def __init__(self, index_samples, chunk_size=CHUNK_SIZE, prefetch=True):
-        """
-        index_samples : list of metadata dicts (from ParquetStreamingDataset.samples)
-                        Each dict has '_src_file', '_src_idx', 'ref', 'src_lang', etc.
-                        No audio — tiny RAM footprint.
-        chunk_size    : how many samples to hold in RAM at once
-        prefetch      : if True, load the next chunk in background while consuming current
-        """
         self.index_samples = index_samples
         self.chunk_size    = chunk_size
         self.prefetch      = prefetch
 
-        self._chunk_start       = -1      # which chunk is currently in RAM
-        self._chunk_data        = {}      # {global_idx: wav_array}
-        self._next_chunk        = {}      # prefetched next chunk
+        self._chunk_start       = -1      
+        self._chunk_data        = {}      
+        self._next_chunk        = {}      
         self._lock              = threading.Lock()
         self._prefetch_thread   = None
 
-        print(f'  ChunkedStreamingDataset: {len(index_samples)} samples | '
-              f'chunk={chunk_size} | '
-              f'RAM/chunk≈{chunk_size * 0.5:.0f}MB')
+        print(f'  ChunkedStreamingDataset: {len(index_samples)} samples | chunk={chunk_size}')
 
     def _load_chunk_into(self, chunk_start, target_dict):
-        """Read one chunk of audio from parquet into target_dict."""
         target_dict.clear()
-        end           = min(chunk_start + self.chunk_size, len(self.index_samples))
+        end = min(chunk_start + self.chunk_size, len(self.index_samples))
         chunk_indices = list(range(chunk_start, end))
 
-        # Group by parquet file so each file is opened only once per chunk
         by_file = {}
         for idx in chunk_indices:
             s = self.index_samples[idx]
             f = s['_src_file']
-            if f not in by_file:
-                by_file[f] = []
+            if f not in by_file: by_file[f] = []
             by_file[f].append((idx, s['_src_idx']))
 
         for parquet_file, idx_pairs in by_file.items():
@@ -1211,90 +1150,55 @@ class ChunkedStreamingDataset:
                     try:
                         audio_cell = df_col[row_idx].as_py()
                         target_dict[global_idx] = _load_wav(audio_cell)
-                    except Exception:
+                    except Exception as e:
+                        # LOUD FAILURE - NO MORE SILENT ZEROS
+                        print(f"\n[CRITICAL ERROR] Failed to decode audio at row {row_idx} in {parquet_file}!\nError: {e}\n")
                         target_dict[global_idx] = np.zeros(16000, dtype=np.float32)
-                del table, df_col
             except Exception as e:
-                print(f'  [ChunkLoad] Failed {parquet_file}: {e}')
+                print(f'\n[CRITICAL ERROR] Failed to read Parquet chunk from {parquet_file}: {e}\n')
                 for global_idx, _ in idx_pairs:
                     target_dict[global_idx] = np.zeros(16000, dtype=np.float32)
 
     def _ensure_chunk(self, idx):
-        """Make sure the chunk containing idx is in RAM."""
         chunk_start = (idx // self.chunk_size) * self.chunk_size
-        if chunk_start == self._chunk_start:
-            return   # already loaded
-
+        if chunk_start == self._chunk_start: return  
         with self._lock:
-            if chunk_start == self._chunk_start:
-                return   # double-check after acquiring lock
-
-            # Check if the prefetch thread already loaded this chunk
+            if chunk_start == self._chunk_start: return  
             next_start = self._chunk_start + self.chunk_size
             if chunk_start == next_start and self._next_chunk:
-                # Wait for prefetch thread to finish if still running
-                if self._prefetch_thread and self._prefetch_thread.is_alive():
-                    self._prefetch_thread.join()
-                self._chunk_data  = self._next_chunk
-                self._chunk_start = chunk_start
-                self._next_chunk  = {}
+                if self._prefetch_thread and self._prefetch_thread.is_alive(): self._prefetch_thread.join()
+                self._chunk_data, self._chunk_start, self._next_chunk = self._next_chunk, chunk_start, {}
             else:
-                # Random access or first access — load directly
                 new_chunk = {}
                 self._load_chunk_into(chunk_start, new_chunk)
-                self._chunk_data  = new_chunk
-                self._chunk_start = chunk_start
+                self._chunk_data, self._chunk_start = new_chunk, chunk_start
 
-            # Kick off prefetch of the next chunk in background
             if self.prefetch:
                 nxt = chunk_start + self.chunk_size
                 if nxt < len(self.index_samples):
-                    self._next_chunk     = {}
-                    self._prefetch_thread = threading.Thread(
-                        target=self._load_chunk_into,
-                        args=(nxt, self._next_chunk),
-                        daemon=True
-                    )
+                    self._next_chunk = {}
+                    self._prefetch_thread = threading.Thread(target=self._load_chunk_into, args=(nxt, self._next_chunk), daemon=True)
                     self._prefetch_thread.start()
 
     def invalidate_cache(self):
-        """Call after a non-sequential shuffle to force a fresh chunk load."""
-        with self._lock:
-            self._chunk_start = -1
-            self._chunk_data  = {}
-            self._next_chunk  = {}
+        with self._lock: self._chunk_start, self._chunk_data, self._next_chunk = -1, {}, {}
 
-    def __len__(self):
-        return len(self.index_samples)
-
+    def __len__(self): return len(self.index_samples)
     def __getitem__(self, idx):
-        if isinstance(idx, slice):
-            return [self[i] for i in range(*idx.indices(len(self)))]
-
+        if isinstance(idx, slice): return [self[i] for i in range(*idx.indices(len(self)))]
         self._ensure_chunk(idx)
-
         meta = self.index_samples[idx]
         wav  = self._chunk_data.get(idx, np.zeros(16000, dtype=np.float32))
-
-        return {
-            'id':       meta['id'],
-            'src_lang': meta['src_lang'],
-            'tgt_lang': meta['tgt_lang'],
-            'ref':      meta['ref'],
-            'wav':      wav,
-        }
-
+        return {'id': meta['id'], 'src_lang': meta['src_lang'], 'tgt_lang': meta['tgt_lang'], 'ref': meta['ref'], 'wav': wav}
     def __iter__(self):
-        for i in range(len(self)):
-            yield self[i]
+        for i in range(len(self)): yield self[i]
 
-
-print('✓ ChunkedStreamingDataset ready.')
+print('✓ ChunkedStreamingDataset ready (with strict error logging).')
 ```
 
 ---
 
-## Cell 20 — `code`
+## Cell 21 — `code`
 
 ```python
 # ── Cell 18-B: ChunkedMultilingualDataset ────────────────────────────────────
@@ -1356,30 +1260,38 @@ print('✓ ChunkedMultilingualDataset ready.')
 
 ---
 
-## Cell 21 — `code`
+## Cell 22 — `code`
 
 ```python
-# ── Cell 18-C: Rebuild ft_samples with chunk caching ─────────────────────────
-# eval_samples keeps MultilingualStreamingDataset (small, no benefit to chunk)
-# ft_samples is rebuilt as ChunkedMultilingualDataset for fast training access
+# # ── Cell 18-C: Rebuild ft_samples with chunk caching ─────────────────────────
+# # eval_samples keeps MultilingualStreamingDataset (small, no benefit to chunk)
+# # ft_samples is rebuilt as ChunkedMultilingualDataset for fast training access
 
-print('Rebuilding ft_samples with chunk caching...')
-ft_samples = ChunkedMultilingualDataset(
-    parquet_cache_dir    = LOCAL_PARQUET_CACHE,
-    lang_pairs           = EVAL_LANG_PAIRS,
-    split                = 'train',
-    max_samples_per_pair = N_TRAIN_PER_PAIR,
-    chunk_size           = CHUNK_SIZE,
-)
+# print('Rebuilding ft_samples with chunk caching...')
+# ft_samples = ChunkedMultilingualDataset(
+#     parquet_cache_dir    = LOCAL_PARQUET_CACHE,
+#     lang_pairs           = EVAL_LANG_PAIRS,
+#     split                = 'train',
+#     max_samples_per_pair = N_TRAIN_PER_PAIR,
+#     chunk_size           = CHUNK_SIZE,
+# )
 
-print(f'\n✓ ft_samples upgraded to ChunkedMultilingualDataset')
-print(f'  Total training samples : {len(ft_samples)}')
-print(f'  eval_samples unchanged : {len(eval_samples)} (MultilingualStreamingDataset)')
+# print(f'\n✓ ft_samples upgraded to ChunkedMultilingualDataset')
+# print(f'  Total training samples : {len(ft_samples)}')
+# print(f'  eval_samples unchanged : {len(eval_samples)} (MultilingualStreamingDataset)')
 ```
 
 ---
 
-## Cell 22 — `code`
+## Cell 23 — `code`
+
+```python
+# heed dataset
+```
+
+---
+
+## Cell 24 — `code`
 
 ```python
 from transformers import SeamlessM4Tv2ForSpeechToSpeech, SeamlessM4TProcessor
@@ -1429,7 +1341,7 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ---
 
-## Cell 23 — `markdown`
+## Cell 25 — `markdown`
 
 > ## Benchmark Functions — Bengali-Centric (BLEU + ChrF)
 > Benchmarks report both **BLEU** and **ChrF** for every language pair.
@@ -1437,7 +1349,7 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ---
 
-## Cell 24 — `code`
+## Cell 26 — `code`
 
 ```python
 def run_benchmark(mdl, samples, label='model', save_n=2, max_samples=None):
@@ -1476,8 +1388,11 @@ def run_benchmark(mdl, samples, label='model', save_n=2, max_samples=None):
                 print(f'  [{i+1:>2}/{len(pair_samples)}] BLEU={bleu:5.1f} ChrF={chrf:5.1f} RTF={rtf:.3f}')
                 print(f'              pred: {pred[:80]}')
                 if save_n > 0 and i < save_n:
-                    save_audio(s['wav'],  16000, f'{label}_{pair_key}_s{i+1}in.wav')
-                    save_audio(wav_out,   16000, f'{label}_{pair_key}_s{i+1}out.wav')
+                    play(s['wav'], 16000, label=f'{label}_{pair_key}_s{i+1}in.wav')
+                    save_audio(s['wav'], 16000, f'{label}_{pair_key}_s{i+1}in.wav')
+                    play(wav_out, 16000, label=f'{label}_{pair_key}_s{i+1}out.wav')
+                    save_audio(wav_out, 16000, f'{label}_{pair_key}_s{i+1}out.wav')
+                    
                 results.append(dict(
                     id=s['id'], src_lang=s['src_lang'], tgt_lang=s['tgt_lang'],
                     bleu=bleu, chrf=chrf, rtf=rtf, pred=pred, ref=s['ref']))
@@ -1520,7 +1435,7 @@ print('Benchmark functions ready.')
 
 ---
 
-## Cell 25 — `markdown`
+## Cell 27 — `markdown`
 
 > ## Pruning Helpers
 > 
@@ -1537,7 +1452,7 @@ print('Benchmark functions ready.')
 
 ---
 
-## Cell 26 — `code`
+## Cell 28 — `code`
 
 ```python
 import torch
@@ -1552,7 +1467,7 @@ print("✓ SeamlessM4Tv2 class device property successfully patched to cuda:1")
 
 ---
 
-## Cell 27 — `code`
+## Cell 29 — `code`
 
 ```python
 # ── Quick evaluation helpers ──────────────────────────────────────────────────
@@ -1704,7 +1619,7 @@ print('quick_eval_chrf ready.')
 
 ---
 
-## Cell 28 — `code`
+## Cell 30 — `code`
 
 ```python
 # ── Encoder pruning helpers ───────────────────────────────────────────────────
@@ -1836,7 +1751,7 @@ print('Encoder pruning helpers ready.')
 
 ---
 
-## Cell 29 — `code`
+## Cell 31 — `code`
 
 ```python
 # ── Text Decoder pruning helpers ──────────────────────────────────────────────
@@ -1977,7 +1892,7 @@ print('Decoder pruning helpers ready.')
 
 ---
 
-## Cell 30 — `code`
+## Cell 32 — `code`
 
 ```python
 # ── T2U pruning helpers (ASR-BLEU primary, ASR-ChrF fallback) ────────────────
@@ -2065,7 +1980,7 @@ print('T2U pruning helpers ready.')
 
 ---
 
-## Cell 31 — `markdown`
+## Cell 33 — `markdown`
 
 > ---
 > ## Phase 0: Baseline Capture
@@ -2073,7 +1988,7 @@ print('T2U pruning helpers ready.')
 
 ---
 
-## Cell 32 — `code`
+## Cell 34 — `code`
 
 ```python
 # # Load teacher/base model
@@ -2085,7 +2000,7 @@ print('T2U pruning helpers ready.')
 
 ---
 
-## Cell 33 — `code`
+## Cell 35 — `code`
 
 ```python
 p0_bench = load_latest_checkpoint('phase0_benchmark')
@@ -2112,7 +2027,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 34 — `markdown`
+## Cell 36 — `markdown`
 
 > ---
 > ## Phase 1: Vocabulary Pruning — 4 Languages (Ben, Eng, Hin, Arb)
@@ -2120,7 +2035,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 35 — `code`
+## Cell 37 — `code`
 
 ```python
 # # ══════════════════════════════════════════════════════════════════════════════
@@ -2502,7 +2417,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 36 — `code`
+## Cell 38 — `code`
 
 ```python
 
@@ -2550,7 +2465,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 37 — `markdown`
+## Cell 39 — `markdown`
 
 > ---
 > ## Phase 2: Speech Encoder Pruning — 24 → 10 layers
@@ -2558,7 +2473,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 38 — `code`
+## Cell 40 — `code`
 
 ```python
 # # Load Phase 1 model to prune
@@ -2606,7 +2521,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 39 — `code`
+## Cell 41 — `code`
 
 ```python
 # p2_bench = load_latest_checkpoint('phase2_benchmark')
@@ -2632,7 +2547,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 40 — `markdown`
+## Cell 42 — `markdown`
 
 > ---
 > ## Phase 3: T2U Pruning — Enc 6→5, Dec 6→5 (prune 2 layers each)
@@ -2640,7 +2555,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 41 — `code`
+## Cell 43 — `code`
 
 ```python
 # model_p3 = model_p2   # continue from enc-pruned model
@@ -2682,7 +2597,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 42 — `code`
+## Cell 44 — `code`
 
 ```python
 # p3_bench = load_latest_checkpoint('phase3_benchmark')
@@ -2707,7 +2622,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 43 — `markdown`
+## Cell 45 — `markdown`
 
 > ---
 > ## Phase 4: Text Decoder Pruning — 24 → 14 layers (remove 10)
@@ -2715,7 +2630,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 44 — `code`
+## Cell 46 — `code`
 
 ```python
 # model_p4 = model_p3
@@ -2773,7 +2688,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 45 — `code`
+## Cell 47 — `code`
 
 ```python
 # model_p4, processor = load_model_from_drive('phase4_dec_14L')
@@ -2781,7 +2696,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 46 — `code`
+## Cell 48 — `code`
 
 ```python
 p4_bench = load_latest_checkpoint('phase4_benchmark')
@@ -2806,7 +2721,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 47 — `code`
+## Cell 49 — `code`
 
 ```python
 # heed
@@ -2814,7 +2729,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 48 — `markdown`
+## Cell 50 — `markdown`
 
 > ---
 > ## Phase 5: Full Fine-Tuning — Bengali-Focused Recovery
@@ -2834,7 +2749,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 49 — `code`
+## Cell 51 — `code`
 
 ```python
 # ── Cell 45: Load pruned student for full fine-tuning ──────────────────────────
@@ -2881,7 +2796,7 @@ gpu_mem()
 
 ---
 
-## Cell 50 — `code`
+## Cell 52 — `code`
 
 ```python
 # ── Cell 46: Load teacher on cuda:1 ───────────────────────────────────────────
@@ -2893,14 +2808,14 @@ TOP_K_TEACHER  = 256   # ← was 8, now 256 (matches Phase 7 battle-tested)
 
 print(f'Loading teacher model on {TEACHER_DEVICE}...')
 
-from transformers import SeamlessM4Tv2ForSpeechToSpeech
-teacher = SeamlessM4Tv2ForSpeechToSpeech.from_pretrained(
-    MODEL_NAME, torch_dtype=torch.float16, device_map=TEACHER_DEVICE)
+# from transformers import SeamlessM4Tv2ForSpeechToSpeech
+# teacher = SeamlessM4Tv2ForSpeechToSpeech.from_pretrained(
+#     MODEL_NAME, torch_dtype=torch.float16, device_map=TEACHER_DEVICE)
 
 # make sure to switch to float16 when training
-# from transformers import SeamlessM4Tv2ForSpeechToText
-# teacher = SeamlessM4Tv2ForSpeechToText.from_pretrained(
-#     MODEL_NAME, torch_dtype=torch.float32, device_map=TEACHER_DEVICE)
+from transformers import SeamlessM4Tv2ForSpeechToText
+teacher = SeamlessM4Tv2ForSpeechToText.from_pretrained(
+    MODEL_NAME, torch_dtype=torch.float32, device_map=TEACHER_DEVICE)
 
 
 teacher.eval()
@@ -2912,7 +2827,7 @@ gpu_mem()
 
 ---
 
-## Cell 51 — `code`
+## Cell 53 — `code`
 
 ```python
 # ── Cell 47: Unfreeze all except vocoder ──────────────────────────────────────
@@ -2952,7 +2867,7 @@ gpu_mem()
 
 ---
 
-## Cell 52 — `code`
+## Cell 54 — `code`
 
 ```python
 print(student)
@@ -2961,7 +2876,7 @@ print(student)
 
 ---
 
-## Cell 53 — `code`
+## Cell 55 — `code`
 
 ```python
 # ── Cell 48: Gradient checkpointing strategy for full fine-tuning on 2×T4 ─────
@@ -3034,9 +2949,9 @@ def disable_all_gradient_checkpointing(model):
             enabled.append('speech_encoder')
             
         # 2. Text Decoder: 14 layers. High memory footprint.
-        if hasattr(model, 'text_decoder'):
-            model.text_decoder.gradient_checkpointing = True
-            enabled.append('text_decoder')
+        # if hasattr(model, 'text_decoder'):
+        #     model.text_decoder.gradient_checkpointing = True
+        #     enabled.append('text_decoder')
 
         # 3. T2U Model: Left DISABLED for maximum speed. 
         # Uncomment the lines below ONLY if you still hit OOM.
@@ -3077,7 +2992,7 @@ gpu_mem()
 
 ---
 
-## Cell 54 — `code`
+## Cell 56 — `code`
 
 ```python
 # ── Cell 49A: Vocab remap tables (exact Phase 7 / Cell 41+43+48 pattern) ──────
@@ -3154,7 +3069,7 @@ print('✓ Vocab remap ready.')
 
 ---
 
-## Cell 55 — `code`
+## Cell 57 — `code`
 
 ```python
 # ── Cell 49B: Collation — exact Phase 7 / Cell 44 layout ──────────────────────
@@ -3257,7 +3172,7 @@ print(f'  lab layout: [__tgt__ | content | EOS]  length=T+2')
 
 ---
 
-## Cell 56 — `code`
+## Cell 58 — `code`
 
 ```python
 # ── REPLACE ENTIRE CELL 49C ───────────────────────────────────────
@@ -3323,7 +3238,7 @@ def student_logits_gpu(feat_dict, dec_s_cpu):
 
 ---
 
-## Cell 57 — `code`
+## Cell 59 — `code`
 
 ```python
 # ── Cell 50: Loss functions — all on cuda:0, no CPU ops ───────────────────────
@@ -3424,7 +3339,7 @@ print('  No CPU involved in any loss computation')
 
 ---
 
-## Cell 58 — `code`
+## Cell 60 — `code`
 
 ```python
 !pip install bitsandbytes
@@ -3432,78 +3347,78 @@ print('  No CPU involved in any loss computation')
 
 ---
 
-## Cell 59 — `code`
+## Cell 61 — `code`
 
 ```python
-# ── Cell 51: Training configuration + optimizer ────────────────────────────────
-from torch.optim import AdamW
-import bitsandbytes as bnb
-from torch.optim.lr_scheduler import OneCycleLR
+# # ── Cell 51: Training configuration + optimizer ────────────────────────────────
+# from torch.optim import AdamW
+# import bitsandbytes as bnb
+# from torch.optim.lr_scheduler import OneCycleLR
 
-BATCH_SIZE      = 4      
-GRAD_ACCUM      = 8      
-LR_PEAK         = 6e-5   # <-- INCREASED from 3e-5 to 6e-5 for faster recovery
-WEIGHT_DECAY    = 1e-2
-MAX_EPOCHS      = 6      
-EVAL_STEPS      = 100
-LOG_STEPS       = 5
-WARMUP_FRACTION = 0.05   
+# BATCH_SIZE      = 4      
+# GRAD_ACCUM      = 8      
+# LR_PEAK         = 6e-5   # <-- INCREASED from 3e-5 to 6e-5 for faster recovery
+# WEIGHT_DECAY    = 1e-2
+# MAX_EPOCHS      = 6      
+# EVAL_STEPS      = 100
+# LOG_STEPS       = 5
+# WARMUP_FRACTION = 0.05   
 
-N_TRAIN         = len(ft_samples)
-STEPS_PER_EPOCH = math.ceil(N_TRAIN / (BATCH_SIZE * GRAD_ACCUM))
-TOTAL_STEPS     = STEPS_PER_EPOCH * MAX_EPOCHS
+# N_TRAIN         = len(ft_samples)
+# STEPS_PER_EPOCH = math.ceil(N_TRAIN / (BATCH_SIZE * GRAD_ACCUM))
+# TOTAL_STEPS     = STEPS_PER_EPOCH * MAX_EPOCHS
 
-print(f'Effective batch size : {BATCH_SIZE * GRAD_ACCUM}')
-print(f'Training samples     : {N_TRAIN}')
-print(f'Steps per epoch      : {STEPS_PER_EPOCH}')
-print(f'Total steps          : {TOTAL_STEPS}')
+# print(f'Effective batch size : {BATCH_SIZE * GRAD_ACCUM}')
+# print(f'Training samples     : {N_TRAIN}')
+# print(f'Steps per epoch      : {STEPS_PER_EPOCH}')
+# print(f'Total steps          : {TOTAL_STEPS}')
 
-# Verify all trainable are fp32 before building optimizer
-for name, param in student.named_parameters():
-    if param.requires_grad and param.dtype != torch.float32:
-        param.data = param.data.to(torch.float32)
+# # Verify all trainable are fp32 before building optimizer
+# for name, param in student.named_parameters():
+#     if param.requires_grad and param.dtype != torch.float32:
+#         param.data = param.data.to(torch.float32)
 
-trainable_params_grouped = [
-    {
-        'params': [p for n, p in student.named_parameters()
-                   if p.requires_grad and any(x in n for x in ['lm_head', 'shared'])],
-        'lr': LR_PEAK * 0.3,
-        'name': 'output_layers',
-    },
-    {
-        'params': [p for n, p in student.named_parameters()
-                   if p.requires_grad and not any(x in n for x in ['lm_head', 'shared'])],
-        'lr': LR_PEAK,
-        'name': 'core_layers',
-    },
-]
+# trainable_params_grouped = [
+#     {
+#         'params': [p for n, p in student.named_parameters()
+#                    if p.requires_grad and any(x in n for x in ['lm_head', 'shared'])],
+#         'lr': LR_PEAK * 0.3,
+#         'name': 'output_layers',
+#     },
+#     {
+#         'params': [p for n, p in student.named_parameters()
+#                    if p.requires_grad and not any(x in n for x in ['lm_head', 'shared'])],
+#         'lr': LR_PEAK,
+#         'name': 'core_layers',
+#     },
+# ]
 
-# USE 8-BIT ADAMW
-optimizer = bnb.optim.AdamW8bit(
-    trainable_params_grouped,
-    weight_decay = WEIGHT_DECAY,
-    betas        = (0.9, 0.98),
-    eps          = 1e-6,
-)
+# # USE 8-BIT ADAMW
+# optimizer = bnb.optim.AdamW8bit(
+#     trainable_params_grouped,
+#     weight_decay = WEIGHT_DECAY,
+#     betas        = (0.9, 0.98),
+#     eps          = 1e-6,
+# )
 
-scheduler = OneCycleLR(
-    optimizer,
-    max_lr           = [g['lr'] for g in trainable_params_grouped],
-    total_steps      = TOTAL_STEPS,
-    pct_start        = WARMUP_FRACTION,
-    anneal_strategy  = 'cos',
-    div_factor       = 25.0,
-    final_div_factor = 1e4,
-)
-scaler = torch.cuda.amp.GradScaler()
+# scheduler = OneCycleLR(
+#     optimizer,
+#     max_lr           = [g['lr'] for g in trainable_params_grouped],
+#     total_steps      = TOTAL_STEPS,
+#     pct_start        = WARMUP_FRACTION,
+#     anneal_strategy  = 'cos',
+#     div_factor       = 25.0,
+#     final_div_factor = 1e4,
+# )
+# scaler = torch.cuda.amp.GradScaler()
 
-all_trainable_params = [p for p in student.parameters() if p.requires_grad]
-print(f'\n✓ Optimizer ready with LR_PEAK = {LR_PEAK}')
+# all_trainable_params = [p for p in student.parameters() if p.requires_grad]
+# print(f'\n✓ Optimizer ready with LR_PEAK = {LR_PEAK}')
 ```
 
 ---
 
-## Cell 60 — `code`
+## Cell 62 — `code`
 
 ```python
 # ── Cell 51B: Quick eval helper ────────────────────────────────────────────────
@@ -3551,7 +3466,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 61 — `code`
+## Cell 63 — `code`
 
 ```python
 # heed
@@ -3559,7 +3474,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 62 — `code`
+## Cell 64 — `code`
 
 ```python
 # print("Student: ")
@@ -3571,7 +3486,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 63 — `code`
+## Cell 65 — `code`
 
 ```python
 # s   = eval_samples[2]
@@ -3586,7 +3501,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 64 — `code`
+## Cell 66 — `code`
 
 ```python
 # # ── Cell 52: Training loop — Phase 7 battle-tested flow ───────────────────────
@@ -3796,7 +3711,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 65 — `code`
+## Cell 67 — `code`
 
 ```python
 # import matplotlib.pyplot as plt
@@ -3846,7 +3761,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 66 — `code`
+## Cell 68 — `code`
 
 ```python
 # # ── Cell 53: Load best checkpoint and save merged model ───────────────────────
@@ -3867,7 +3782,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 67 — `code`
+## Cell 69 — `code`
 
 ```python
 # ── Final benchmark ───────────────────────────────────────────────────────────
@@ -3917,7 +3832,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 68 — `code`
+## Cell 70 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -3964,65 +3879,65 @@ print(f'[Config] MDC API key loaded: {"YES" if MDC_API_KEY else "NO — check yo
 
 ---
 
-## Cell 69 — `code`
+## Cell 71 — `code`
 
 ```python
-# ═══════════════════════════════════════════════════════════════════════════════
-# ── Cell 70B: MDC Presigned URL Fetcher (unchanged from before — keep as-is)
-# ═══════════════════════════════════════════════════════════════════════════════
-import requests, json, time as _time
+# # ═══════════════════════════════════════════════════════════════════════════════
+# # ── Cell 70B: MDC Presigned URL Fetcher (unchanged from before — keep as-is)
+# # ═══════════════════════════════════════════════════════════════════════════════
+# import requests, json, time as _time
 
-_mdc_url_cache = {}
+# _mdc_url_cache = {}
 
-def mdc_get_presigned_url(dataset_id: str, force_refresh: bool = False) -> dict:
-    """
-    POST to MDC /datasets/:datasetId/download to get a presigned S3 URL.
-    Caches result for up to 11h (URLs expire in 12h per MDC API docs).
-    Counts against the 30 downloads/day rate limit per the MDC API docs.
-    """
-    cached = _mdc_url_cache.get(dataset_id)
-    if cached and not force_refresh:
-        if _time.time() < cached.get('_expires_ts', 0) - 1800:
-            return cached
+# def mdc_get_presigned_url(dataset_id: str, force_refresh: bool = False) -> dict:
+#     """
+#     POST to MDC /datasets/:datasetId/download to get a presigned S3 URL.
+#     Caches result for up to 11h (URLs expire in 12h per MDC API docs).
+#     Counts against the 30 downloads/day rate limit per the MDC API docs.
+#     """
+#     cached = _mdc_url_cache.get(dataset_id)
+#     if cached and not force_refresh:
+#         if _time.time() < cached.get('_expires_ts', 0) - 1800:
+#             return cached
 
-    headers = {
-        'Authorization': f'Bearer {MDC_API_KEY}',
-        'Content-Type':  'application/json',
-    }
-    resp = requests.post(
-        f'{MDC_BASE_URL}/datasets/{dataset_id}/download',
-        headers=headers, timeout=30,
-    )
-    if resp.status_code == 403:
-        raise RuntimeError(
-            f"\n[MDC] 403 for {dataset_id}.\n"
-            f"Accept terms at: https://datacollective.mozillafoundation.org/datasets/{dataset_id}"
-        )
-    if resp.status_code == 429:
-        raise RuntimeError("[MDC] Rate limit: 30 presigned URLs/day. Wait until midnight UTC.")
-    resp.raise_for_status()
+#     headers = {
+#         'Authorization': f'Bearer {MDC_API_KEY}',
+#         'Content-Type':  'application/json',
+#     }
+#     resp = requests.post(
+#         f'{MDC_BASE_URL}/datasets/{dataset_id}/download',
+#         headers=headers, timeout=30,
+#     )
+#     if resp.status_code == 403:
+#         raise RuntimeError(
+#             f"\n[MDC] 403 for {dataset_id}.\n"
+#             f"Accept terms at: https://datacollective.mozillafoundation.org/datasets/{dataset_id}"
+#         )
+#     if resp.status_code == 429:
+#         raise RuntimeError("[MDC] Rate limit: 30 presigned URLs/day. Wait until midnight UTC.")
+#     resp.raise_for_status()
 
-    info = resp.json()
-    # MDC API docs: expiresAt in ISO 8601, presigned URLs valid 12 hours
-    from datetime import datetime, timezone
-    try:
-        dt = datetime.fromisoformat(info['expiresAt'].replace('Z', '+00:00'))
-        info['_expires_ts'] = dt.timestamp()
-    except Exception:
-        info['_expires_ts'] = _time.time() + 11 * 3600
-    _mdc_url_cache[dataset_id] = info
+#     info = resp.json()
+#     # MDC API docs: expiresAt in ISO 8601, presigned URLs valid 12 hours
+#     from datetime import datetime, timezone
+#     try:
+#         dt = datetime.fromisoformat(info['expiresAt'].replace('Z', '+00:00'))
+#         info['_expires_ts'] = dt.timestamp()
+#     except Exception:
+#         info['_expires_ts'] = _time.time() + 11 * 3600
+#     _mdc_url_cache[dataset_id] = info
 
-    size_gb = int(info.get('sizeBytes', 0)) / 1e9
-    print(f"[MDC] Presigned URL for {dataset_id[:20]}... | {size_gb:.2f} GB | expires {info.get('expiresAt','?')}")
-    return info
+#     size_gb = int(info.get('sizeBytes', 0)) / 1e9
+#     print(f"[MDC] Presigned URL for {dataset_id[:20]}... | {size_gb:.2f} GB | expires {info.get('expiresAt','?')}")
+#     return info
 
 
-print('MDC URL fetcher ready.')
+# print('MDC URL fetcher ready.')
 ```
 
 ---
 
-## Cell 70 — `code`
+## Cell 72 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -4045,267 +3960,267 @@ print('MDC URL fetcher ready.')
 #   - 10 GB disk budget respected
 # ═══════════════════════════════════════════════════════════════════════════════
 
-import tarfile, io, csv, os, subprocess, pathlib, time as _time
-import numpy as np
-import soundfile as sf
-import requests, json
-import torch, torchaudio
-import pyarrow as pa
-import pyarrow.parquet as pq
+# import tarfile, io, csv, os, subprocess, pathlib, time as _time
+# import numpy as np
+# import soundfile as sf
+# import requests, json
+# import torch, torchaudio
+# import pyarrow as pa
+# import pyarrow.parquet as pq
 
-# ── Tunables ──────────────────────────────────────────────────────────────────
-DOWNLOAD_CHUNK_GB  = 9          # GB per Range download (stays under 10 GB budget)
-CHUNK_SAVE_EVERY   = 1500       # save Parquet after this many pseudo-labels
-PUSH_EVERY_CHUNKS  = 3          # push to Kaggle after this many saved Parquet chunks
-RAW_DIR            = f'{WORK_DIR}/cv25_raw'
-os.makedirs(RAW_DIR,    exist_ok=True)
-os.makedirs(PSEUDO_DIR, exist_ok=True)
+# # ── Tunables ──────────────────────────────────────────────────────────────────
+# DOWNLOAD_CHUNK_GB  = 9          # GB per Range download (stays under 10 GB budget)
+# CHUNK_SAVE_EVERY   = 1500       # save Parquet after this many pseudo-labels
+# PUSH_EVERY_CHUNKS  = 3          # push to Kaggle after this many saved Parquet chunks
+# RAW_DIR            = f'{WORK_DIR}/cv25_raw'
+# os.makedirs(RAW_DIR,    exist_ok=True)
+# os.makedirs(PSEUDO_DIR, exist_ok=True)
 
-# ── Parquet schema (MUST match FLEURS exactly) ────────────────────────────────
-# _load_wav expects: audio_cell = {'bytes': <wav_bytes>, 'path': <str>}
-# ChunkedStreamingDataset reads: pq.read_table(f, columns=['audio'])
-_AUDIO_STRUCT_TYPE = pa.struct([
-    pa.field('bytes', pa.large_binary()),
-    pa.field('path',  pa.string()),
-])
-_PARQUET_SCHEMA = pa.schema([
-    pa.field('id',            pa.string()),
-    pa.field('transcription', pa.string()),
-    pa.field('audio',         _AUDIO_STRUCT_TYPE),
-])
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Helpers
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def _is_validated_tsv(member_name: str) -> bool:
-    """Exact match — never catches invalidated.tsv or other.tsv."""
-    return member_name.split('/')[-1] == 'validated.tsv'
+# # ── Parquet schema (MUST match FLEURS exactly) ────────────────────────────────
+# # _load_wav expects: audio_cell = {'bytes': <wav_bytes>, 'path': <str>}
+# # ChunkedStreamingDataset reads: pq.read_table(f, columns=['audio'])
+# _AUDIO_STRUCT_TYPE = pa.struct([
+#     pa.field('bytes', pa.large_binary()),
+#     pa.field('path',  pa.string()),
+# ])
+# _PARQUET_SCHEMA = pa.schema([
+#     pa.field('id',            pa.string()),
+#     pa.field('transcription', pa.string()),
+#     pa.field('audio',         _AUDIO_STRUCT_TYPE),
+# ])
 
 
-def _audio_to_wav_bytes(audio: np.ndarray, sr: int = 16000) -> bytes:
-    """float32 numpy → WAV bytes (what soundfile.read / _load_wav expects)."""
-    buf = io.BytesIO()
-    sf.write(buf, audio.astype(np.float32), sr, format='WAV', subtype='PCM_16')
-    return buf.getvalue()
+# # ═══════════════════════════════════════════════════════════════════════════════
+# # Helpers
+# # ═══════════════════════════════════════════════════════════════════════════════
+
+# def _is_validated_tsv(member_name: str) -> bool:
+#     """Exact match — never catches invalidated.tsv or other.tsv."""
+#     return member_name.split('/')[-1] == 'validated.tsv'
 
 
-def _save_pseudo_parquet(records: list, lang_cv: str, tgt_m4t: str, chunk_idx: int) -> str:
-    """Save records as Parquet with the same schema as FLEURS parquets."""
-    path = f'{PSEUDO_DIR}/pseudo_{lang_cv}2{tgt_m4t}_chunk{chunk_idx:04d}.parquet'
-    ids   = pa.array([r['id']            for r in records], type=pa.string())
-    trans = pa.array([r['transcription'] for r in records], type=pa.string())
-    audio_col = pa.StructArray.from_arrays(
-        [
-            pa.array([r['wav_bytes']        for r in records], type=pa.large_binary()),
-            pa.array([r['id'] + '.wav'      for r in records], type=pa.string()),
-        ],
-        fields=[pa.field('bytes', pa.large_binary()), pa.field('path', pa.string())],
-    )
-    table = pa.Table.from_arrays([ids, trans, audio_col], schema=_PARQUET_SCHEMA)
-    pq.write_table(table, path, compression='snappy')
-    mb = os.path.getsize(path) / 1e6
-    print(f"  [Parquet] chunk{chunk_idx:04d} → {len(records)} samples, {mb:.1f} MB")
-    return path
+# def _audio_to_wav_bytes(audio: np.ndarray, sr: int = 16000) -> bytes:
+#     """float32 numpy → WAV bytes (what soundfile.read / _load_wav expects)."""
+#     buf = io.BytesIO()
+#     sf.write(buf, audio.astype(np.float32), sr, format='WAV', subtype='PCM_16')
+#     return buf.getvalue()
 
 
-def _push_kaggle_and_cleanup(message: str, lang_cv: str) -> bool:
-    """Push new Kaggle dataset version, then delete local Parquet files for this lang."""
-    if not ON_KAGGLE:
-        print('[Kaggle] Not on Kaggle — skip push.')
-        return False
-    try:
-        kag_json = _get_secret('KAGGLE_API_TOKEN')
-        kag_path = pathlib.Path.home() / '.kaggle/kaggle.json'
-        kag_path.parent.mkdir(parents=True, exist_ok=True)
-        kag_path.write_text(kag_json); kag_path.chmod(0o600)
-        username = json.loads(kag_json).get('username', 'rayedriasat')
-    except Exception as e:
-        print(f'[Kaggle] API key error: {e}'); return False
-
-    with open(f'{PSEUDO_DIR}/dataset-metadata.json', 'w') as f:
-        json.dump({'title': 'fleurs5', 'id': f'{username}/fleurs5',
-                   'licenses': [{'name': 'CC0-1.0'}]}, f)
-
-    r = subprocess.run(
-        ['kaggle', 'datasets', 'version', '-p', PSEUDO_DIR,
-         '-m', message, '--dir-mode', 'tar'],
-        capture_output=True, text=True, timeout=600)
-
-    if r.returncode == 0:
-        print(f'[Kaggle] ✓ Pushed: {message}')
-        freed = 0
-        for f in pathlib.Path(PSEUDO_DIR).glob(f'pseudo_{lang_cv}2*.parquet'):
-            freed += f.stat().st_size / 1e6; f.unlink()
-        print(f'[Kaggle] Freed {freed:.0f} MB local Parquet.')
-        return True
-    else:
-        print(f'[Kaggle] ❌ Push failed:\n{r.stderr[:400]}')
-        return False
+# def _save_pseudo_parquet(records: list, lang_cv: str, tgt_m4t: str, chunk_idx: int) -> str:
+#     """Save records as Parquet with the same schema as FLEURS parquets."""
+#     path = f'{PSEUDO_DIR}/pseudo_{lang_cv}2{tgt_m4t}_chunk{chunk_idx:04d}.parquet'
+#     ids   = pa.array([r['id']            for r in records], type=pa.string())
+#     trans = pa.array([r['transcription'] for r in records], type=pa.string())
+#     audio_col = pa.StructArray.from_arrays(
+#         [
+#             pa.array([r['wav_bytes']        for r in records], type=pa.large_binary()),
+#             pa.array([r['id'] + '.wav'      for r in records], type=pa.string()),
+#         ],
+#         fields=[pa.field('bytes', pa.large_binary()), pa.field('path', pa.string())],
+#     )
+#     table = pa.Table.from_arrays([ids, trans, audio_col], schema=_PARQUET_SCHEMA)
+#     pq.write_table(table, path, compression='snappy')
+#     mb = os.path.getsize(path) / 1e6
+#     print(f"  [Parquet] chunk{chunk_idx:04d} → {len(records)} samples, {mb:.1f} MB")
+#     return path
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Core: Download a Range of the tar.gz with wget, then parse it
-# ═══════════════════════════════════════════════════════════════════════════════
+# def _push_kaggle_and_cleanup(message: str, lang_cv: str) -> bool:
+#     """Push new Kaggle dataset version, then delete local Parquet files for this lang."""
+#     if not ON_KAGGLE:
+#         print('[Kaggle] Not on Kaggle — skip push.')
+#         return False
+#     try:
+#         kag_json = _get_secret('KAGGLE_API_TOKEN')
+#         kag_path = pathlib.Path.home() / '.kaggle/kaggle.json'
+#         kag_path.parent.mkdir(parents=True, exist_ok=True)
+#         kag_path.write_text(kag_json); kag_path.chmod(0o600)
+#         username = json.loads(kag_json).get('username', 'rayedriasat')
+#     except Exception as e:
+#         print(f'[Kaggle] API key error: {e}'); return False
 
-def _wget_range(url: str, dest: str, start: int, end: int, retries: int = 5) -> bool:
-    """
-    Download bytes[start:end] into dest using wget.
-    Completely silent wget (no progress bar) — we print our own
-    concise progress line every 10 seconds via a background thread.
-    Prevents the thousands of dot-lines that hang Jupyter notebooks.
-    """
-    expected = end - start + 1
+#     with open(f'{PSEUDO_DIR}/dataset-metadata.json', 'w') as f:
+#         json.dump({'title': 'fleurs5', 'id': f'{username}/fleurs5',
+#                    'licenses': [{'name': 'CC0-1.0'}]}, f)
 
-    for attempt in range(retries):
-        if os.path.exists(dest):
-            os.remove(dest)
+#     r = subprocess.run(
+#         ['kaggle', 'datasets', 'version', '-p', PSEUDO_DIR,
+#          '-m', message, '--dir-mode', 'tar'],
+#         capture_output=True, text=True, timeout=600)
 
-        cmd = [
-            'wget',
-            '--quiet',              # NO progress bar — this was the flood source
-            '--no-verbose',         # suppress all non-error output
-            f'--header=Range: bytes={start}-{end}',
-            '--tries=1',
-            '--timeout=300',
-            '--read-timeout=120',
-            '-O', dest, url,
-        ]
-
-        # ── Background progress printer ───────────────────────────────────────
-        # Reads the file size on disk every 10s and prints one clean line.
-        # Total output for a 9 GB download: ~90 lines. Notebook stays responsive.
-        _stop_progress = [False]
-        def _progress_printer():
-            t_start = _time.time()
-            while not _stop_progress[0]:
-                _time.sleep(10)
-                if _stop_progress[0]:
-                    break
-                try:
-                    current = os.path.getsize(dest) if os.path.exists(dest) else 0
-                    elapsed = (_time.time() - t_start) / 60
-                    speed   = current / max(_time.time() - t_start, 1) / 1e6  # MB/s
-                    pct     = current / expected * 100 if expected > 0 else 0
-                    print(f"  [wget] {current/1e9:.2f}/{expected/1e9:.2f} GB "
-                          f"({pct:.0f}%) | {speed:.0f} MB/s | {elapsed:.1f} min",
-                          flush=True)
-                except Exception:
-                    pass
-
-        import threading
-        t = threading.Thread(target=_progress_printer, daemon=True)
-        t.start()
-
-        proc = subprocess.run(cmd)   # blocks until wget finishes or fails
-
-        _stop_progress[0] = True     # signal printer to stop
-        t.join(timeout=1)
-
-        if proc.returncode == 0 and os.path.exists(dest):
-            actual = os.path.getsize(dest)
-            if actual >= expected * 0.99:
-                print(f"  [wget] ✓ Done: {actual/1e9:.2f} GB", flush=True)
-                return True
-            print(f"  [wget] Size mismatch: got {actual/1e9:.2f} GB, "
-                  f"expected {expected/1e9:.2f} GB. Retry {attempt+1}...")
-        else:
-            print(f"  [wget] Failed rc={proc.returncode}. Retry {attempt+1}...")
-
-        _time.sleep(10 * (attempt + 1))
-
-    return False
+#     if r.returncode == 0:
+#         print(f'[Kaggle] ✓ Pushed: {message}')
+#         freed = 0
+#         for f in pathlib.Path(PSEUDO_DIR).glob(f'pseudo_{lang_cv}2*.parquet'):
+#             freed += f.stat().st_size / 1e6; f.unlink()
+#         print(f'[Kaggle] Freed {freed:.0f} MB local Parquet.')
+#         return True
+#     else:
+#         print(f'[Kaggle] ❌ Push failed:\n{r.stderr[:400]}')
+#         return False
 
 
-def _extract_tsv_from_partial(partial_path: str) -> dict:
-    """
-    Extract validated.tsv from a partial tar.gz downloaded from the START of the
-    archive. CV archives put TSVs before clips/, so the TSV is always in the
-    first ~200 MB. Returns {bare_mp3_filename: sentence}.
-    """
-    tsv_map = {}
-    try:
-        with tarfile.open(partial_path, mode='r:gz') as tf:
-            for member in tf:
-                if member.isfile() and _is_validated_tsv(member.name):
-                    print(f"  [TSV] Found {member.name} ({member.size/1024:.0f} KB)")
-                    f = tf.extractfile(member)
-                    if f:
-                        content = f.read().decode('utf-8', errors='replace')
-                        reader  = csv.DictReader(io.StringIO(content), delimiter='\t')
-                        for row in reader:
-                            p = row.get('path', '').strip()
-                            s = row.get('sentence', '').strip()
-                            if p and s:
-                                tsv_map[p.split('/')[-1]] = s
-                    print(f"  [TSV] {len(tsv_map)} validated entries.")
-                    return tsv_map
-                elif member.isfile() and member.name.endswith('.mp3'):
-                    # Reached audio before finding TSV — archive is non-standard
-                    print(f"  [TSV] WARNING: hit MP3s before validated.tsv. Only got {len(tsv_map)} entries.")
-                    return tsv_map
-    except tarfile.ReadError as e:
-        # Expected: partial file ends mid-archive. TSV should already be extracted.
-        if tsv_map:
-            print(f"  [TSV] Partial read ended (expected). Got {len(tsv_map)} entries.")
-            return tsv_map
-        print(f"  [TSV] ERROR: {e}")
-    return tsv_map
+# # ═══════════════════════════════════════════════════════════════════════════════
+# # Core: Download a Range of the tar.gz with wget, then parse it
+# # ═══════════════════════════════════════════════════════════════════════════════
+
+# def _wget_range(url: str, dest: str, start: int, end: int, retries: int = 5) -> bool:
+#     """
+#     Download bytes[start:end] into dest using wget.
+#     Completely silent wget (no progress bar) — we print our own
+#     concise progress line every 10 seconds via a background thread.
+#     Prevents the thousands of dot-lines that hang Jupyter notebooks.
+#     """
+#     expected = end - start + 1
+
+#     for attempt in range(retries):
+#         if os.path.exists(dest):
+#             os.remove(dest)
+
+#         cmd = [
+#             'wget',
+#             '--quiet',              # NO progress bar — this was the flood source
+#             '--no-verbose',         # suppress all non-error output
+#             f'--header=Range: bytes={start}-{end}',
+#             '--tries=1',
+#             '--timeout=300',
+#             '--read-timeout=120',
+#             '-O', dest, url,
+#         ]
+
+#         # ── Background progress printer ───────────────────────────────────────
+#         # Reads the file size on disk every 10s and prints one clean line.
+#         # Total output for a 9 GB download: ~90 lines. Notebook stays responsive.
+#         _stop_progress = [False]
+#         def _progress_printer():
+#             t_start = _time.time()
+#             while not _stop_progress[0]:
+#                 _time.sleep(10)
+#                 if _stop_progress[0]:
+#                     break
+#                 try:
+#                     current = os.path.getsize(dest) if os.path.exists(dest) else 0
+#                     elapsed = (_time.time() - t_start) / 60
+#                     speed   = current / max(_time.time() - t_start, 1) / 1e6  # MB/s
+#                     pct     = current / expected * 100 if expected > 0 else 0
+#                     print(f"  [wget] {current/1e9:.2f}/{expected/1e9:.2f} GB "
+#                           f"({pct:.0f}%) | {speed:.0f} MB/s | {elapsed:.1f} min",
+#                           flush=True)
+#                 except Exception:
+#                     pass
+
+#         import threading
+#         t = threading.Thread(target=_progress_printer, daemon=True)
+#         t.start()
+
+#         proc = subprocess.run(cmd)   # blocks until wget finishes or fails
+
+#         _stop_progress[0] = True     # signal printer to stop
+#         t.join(timeout=1)
+
+#         if proc.returncode == 0 and os.path.exists(dest):
+#             actual = os.path.getsize(dest)
+#             if actual >= expected * 0.99:
+#                 print(f"  [wget] ✓ Done: {actual/1e9:.2f} GB", flush=True)
+#                 return True
+#             print(f"  [wget] Size mismatch: got {actual/1e9:.2f} GB, "
+#                   f"expected {expected/1e9:.2f} GB. Retry {attempt+1}...")
+#         else:
+#             print(f"  [wget] Failed rc={proc.returncode}. Retry {attempt+1}...")
+
+#         _time.sleep(10 * (attempt + 1))
+
+#     return False
 
 
-def _extract_mp3s_from_partial(partial_path: str, tsv_map: dict,
-                                skip_n: int, max_n: int):
-    """
-    Generator. Reads a partial tar.gz (covering a Range of the archive),
-    yields (audio_np, 16000, transcription) for validated MP3s.
+# def _extract_tsv_from_partial(partial_path: str) -> dict:
+#     """
+#     Extract validated.tsv from a partial tar.gz downloaded from the START of the
+#     archive. CV archives put TSVs before clips/, so the TSV is always in the
+#     first ~200 MB. Returns {bare_mp3_filename: sentence}.
+#     """
+#     tsv_map = {}
+#     try:
+#         with tarfile.open(partial_path, mode='r:gz') as tf:
+#             for member in tf:
+#                 if member.isfile() and _is_validated_tsv(member.name):
+#                     print(f"  [TSV] Found {member.name} ({member.size/1024:.0f} KB)")
+#                     f = tf.extractfile(member)
+#                     if f:
+#                         content = f.read().decode('utf-8', errors='replace')
+#                         reader  = csv.DictReader(io.StringIO(content), delimiter='\t')
+#                         for row in reader:
+#                             p = row.get('path', '').strip()
+#                             s = row.get('sentence', '').strip()
+#                             if p and s:
+#                                 tsv_map[p.split('/')[-1]] = s
+#                     print(f"  [TSV] {len(tsv_map)} validated entries.")
+#                     return tsv_map
+#                 elif member.isfile() and member.name.endswith('.mp3'):
+#                     # Reached audio before finding TSV — archive is non-standard
+#                     print(f"  [TSV] WARNING: hit MP3s before validated.tsv. Only got {len(tsv_map)} entries.")
+#                     return tsv_map
+#     except tarfile.ReadError as e:
+#         # Expected: partial file ends mid-archive. TSV should already be extracted.
+#         if tsv_map:
+#             print(f"  [TSV] Partial read ended (expected). Got {len(tsv_map)} entries.")
+#             return tsv_map
+#         print(f"  [TSV] ERROR: {e}")
+#     return tsv_map
 
-    partial_path : path to the downloaded partial .tar.gz
-    tsv_map      : {mp3_filename: transcription} from validated.tsv
-    skip_n       : how many validated clips to skip (resume support)
-    max_n        : stop after yielding this many clips
-    """
-    skipped = 0
-    yielded = 0
 
-    try:
-        with tarfile.open(partial_path, mode='r:gz') as tf:
-            for member in tf:
-                if yielded >= max_n:
-                    break
-                if not member.isfile() or not member.name.endswith('.mp3'):
-                    continue
-                bare = member.name.split('/')[-1]
-                if bare not in tsv_map:
-                    continue   # not validated
+# def _extract_mp3s_from_partial(partial_path: str, tsv_map: dict,
+#                                 skip_n: int, max_n: int):
+#     """
+#     Generator. Reads a partial tar.gz (covering a Range of the archive),
+#     yields (audio_np, 16000, transcription) for validated MP3s.
 
-                if skipped < skip_n:
-                    skipped += 1
-                    continue
+#     partial_path : path to the downloaded partial .tar.gz
+#     tsv_map      : {mp3_filename: transcription} from validated.tsv
+#     skip_n       : how many validated clips to skip (resume support)
+#     max_n        : stop after yielding this many clips
+#     """
+#     skipped = 0
+#     yielded = 0
 
-                try:
-                    mp3_bytes = tf.extractfile(member).read()
-                    audio, sr = sf.read(io.BytesIO(mp3_bytes), dtype='float32')
-                    if audio.ndim > 1:
-                        audio = audio.mean(axis=1)
-                    if sr != 16000:
-                        audio = torchaudio.functional.resample(
-                            torch.from_numpy(audio), sr, 16000).numpy()
-                        sr = 16000
-                    dur = len(audio) / sr
-                    if dur < 0.3 or dur > 20.0:
-                        continue
-                    yield audio.astype(np.float32), 16000, tsv_map[bare]
-                    yielded += 1
-                except Exception:
-                    continue
+#     try:
+#         with tarfile.open(partial_path, mode='r:gz') as tf:
+#             for member in tf:
+#                 if yielded >= max_n:
+#                     break
+#                 if not member.isfile() or not member.name.endswith('.mp3'):
+#                     continue
+#                 bare = member.name.split('/')[-1]
+#                 if bare not in tsv_map:
+#                     continue   # not validated
 
-    except tarfile.ReadError:
-        # Normal: partial file ends mid-block. We've already yielded what we can.
-        pass
+#                 if skipped < skip_n:
+#                     skipped += 1
+#                     continue
 
-    print(f"  [Extract] Yielded {yielded} clips from this Range chunk "
-          f"(skipped {skipped} already-done).")
+#                 try:
+#                     mp3_bytes = tf.extractfile(member).read()
+#                     audio, sr = sf.read(io.BytesIO(mp3_bytes), dtype='float32')
+#                     if audio.ndim > 1:
+#                         audio = audio.mean(axis=1)
+#                     if sr != 16000:
+#                         audio = torchaudio.functional.resample(
+#                             torch.from_numpy(audio), sr, 16000).numpy()
+#                         sr = 16000
+#                     dur = len(audio) / sr
+#                     if dur < 0.3 or dur > 20.0:
+#                         continue
+#                     yield audio.astype(np.float32), 16000, tsv_map[bare]
+#                     yielded += 1
+#                 except Exception:
+#                     continue
+
+#     except tarfile.ReadError:
+#         # Normal: partial file ends mid-block. We've already yielded what we can.
+#         pass
+
+#     print(f"  [Extract] Yielded {yielded} clips from this Range chunk "
+#           f"(skipped {skipped} already-done).")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -4491,17 +4406,17 @@ def _extract_mp3s_from_partial(partial_path: str, tsv_map: dict,
 #     print(f'\n✓ [{lang_cv}] Complete: {total_saved} pseudo-labels in {elapsed:.1f} min.')
 
 
-print('Fast + reliable pseudo-labeler ready.')
-print(f'Download chunk size: {DOWNLOAD_CHUNK_GB} GB per slice')
+# print('Fast + reliable pseudo-labeler ready.')
+# print(f'Download chunk size: {DOWNLOAD_CHUNK_GB} GB per slice')
 ```
 
 ---
 
-## Cell 71 — `code`
+## Cell 73 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
-# ── Cell 71: ALL-IN-ONE (GDrive Sync + FLAC + Kaggle Dataset Publisher)
+# ── Cell 71: ALL-IN-ONE (GDrive Sync + WAV/ZSTD + Kaggle Dataset Publisher)
 # ═══════════════════════════════════════════════════════════════════════════════
 import tarfile, io, csv, os, subprocess, pathlib, time as _time
 import numpy as np, soundfile as sf, requests, json
@@ -4512,7 +4427,7 @@ DOWNLOAD_CHUNK_GB  = 9
 RAW_DIR            = f'{WORK_DIR}/cv25_raw'
 PSEUDO_DIR         = f'{WORK_DIR}/pseudo_cv25'
 GDRIVE_RAW_CACHE   = f'{GDRIVE_ROOT}/cv25_raw'
-GDRIVE_PARQUET_DIR = f'{GDRIVE_ROOT}/pseudo_cv25_parquets'
+GDRIVE_PARQUET_DIR = f'{GDRIVE_ROOT}/pseudo_cv25'
 for _d in [RAW_DIR, PSEUDO_DIR]: os.makedirs(_d, exist_ok=True)
 
 # EXACT FLEURS SCHEMA MATCH
@@ -4521,26 +4436,53 @@ _PQ_SCHEMA  = pa.schema([pa.field('id', pa.string()), pa.field('transcription', 
 
 def _is_validated_tsv(name: str) -> bool: return name.split('/')[-1] == 'validated.tsv'
 
-# FLAC compression saves ~60% space
-def _to_flac_bytes(audio: np.ndarray, sr: int = 16000) -> bytes:
+def _to_wav_bytes(audio: np.ndarray, sr: int = 16000) -> bytes:
     buf = io.BytesIO()
-    sf.write(buf, audio.astype(np.float32), sr, format='FLAC')
+    sf.write(buf, audio.astype(np.float32), sr, format='WAV', subtype='PCM_16')
     return buf.getvalue()
 
 def _save_parquet(records: list, src_cv: str, tgt_m4t: str, chunk_idx: int) -> str:
     if not records: return ""
     path = f'{PSEUDO_DIR}/pseudo_{src_cv}2{tgt_m4t}_chunk{chunk_idx:04d}.parquet'
     audio_col = pa.StructArray.from_arrays(
-        [pa.array([r['flac_bytes'] for r in records], type=pa.binary()),
-         pa.array([r['id'] + '.flac' for r in records], type=pa.string())],
+        [pa.array([r['wav_bytes'] for r in records], type=pa.binary()),
+         pa.array([r['id'] + '.wav' for r in records], type=pa.string())],
         fields=[pa.field('bytes', pa.binary()), pa.field('path', pa.string())])
     table = pa.Table.from_arrays(
         [pa.array([r['id'] for r in records], type=pa.string()),
          pa.array([r['transcription'] for r in records], type=pa.string()),
          audio_col], schema=_PQ_SCHEMA)
-    pq.write_table(table, path, compression='snappy')
+    
+    pq.write_table(table, path, compression='zstd')
     print(f"  [Parquet] chunk{chunk_idx:04d} — {len(records)} samples, {os.path.getsize(path)/1e6:.1f} MB", flush=True)
     return path
+
+# ── MDC URL Fetcher ──────────────────────────────────────────────────────────
+_mdc_url_cache = {}
+def mdc_get_presigned_url(dataset_id: str, force_refresh: bool = False) -> dict:
+    global _mdc_url_cache
+    cached = _mdc_url_cache.get(dataset_id)
+    if cached and not force_refresh:
+        if _time.time() < cached.get('_expires_ts', 0) - 1800: return cached
+
+    MDC_API_KEY = _get_secret('MDC_API_KEY')
+    MDC_BASE_URL = 'https://mozilladatacollective.com/api'
+    headers = {'Authorization': f'Bearer {MDC_API_KEY}', 'Content-Type': 'application/json'}
+    resp = requests.post(f'{MDC_BASE_URL}/datasets/{dataset_id}/download', headers=headers, timeout=30)
+    
+    if resp.status_code == 403: raise RuntimeError(f"\n[MDC] 403 for {dataset_id}. Accept terms on MDC website.")
+    if resp.status_code == 429: raise RuntimeError("[MDC] Rate limit: 30 presigned URLs/day.")
+    resp.raise_for_status()
+
+    info = resp.json()
+    try:
+        from datetime import datetime
+        dt = datetime.fromisoformat(info['expiresAt'].replace('Z', '+00:00'))
+        info['_expires_ts'] = dt.timestamp()
+    except Exception:
+        info['_expires_ts'] = _time.time() + 11 * 3600
+    _mdc_url_cache[dataset_id] = info
+    return info
 
 # ── Kaggle & GDrive Syncing ──────────────────────────────────────────────────
 def _rclone_sync_backup():
@@ -4549,10 +4491,7 @@ def _rclone_sync_backup():
     subprocess.run(f'rclone sync "{PSEUDO_DIR}/" "{GDRIVE_PARQUET_DIR}/" --transfers=8', shell=True)
 
 def publish_kaggle_dataset(dataset_title='fleurs5', message='Added structured pseudo-labels'):
-    """Assembles the dataset efficiently without duplicating local files, then pushes to Kaggle."""
     if not ON_KAGGLE: return False
-    
-    # 1. Safely handle API credentials
     try:
         kag_json = _get_secret('KAGGLE_API_TOKEN')
         if not kag_json: kag_json = ""
@@ -4560,52 +4499,32 @@ def publish_kaggle_dataset(dataset_title='fleurs5', message='Added structured ps
         kp.parent.mkdir(parents=True, exist_ok=True)
         kp.write_text(kag_json)
         kp.chmod(0o600)
-    except Exception as e:
-        print(f'[Kaggle] file write error: {e}')
-        return False
+    except Exception: return False
 
     try: user = json.loads(kag_json).get('username', 'rayedriasat')
     except: user = 'rayedriasat'
 
-    # 2. Setup the lean Export Directory
     EXPORT_DIR = f"{WORK_DIR}/kaggle_dataset_export"
     os.makedirs(f"{EXPORT_DIR}/fleurs", exist_ok=True)
     os.makedirs(f"{EXPORT_DIR}/pseudo_cv25", exist_ok=True)
 
     print(f"\n[Kaggle] Assembling highly-efficient export folder at {EXPORT_DIR}...")
-    
-    # Direct sync from GDrive to Export folder (bypasses any local duplication)
-    print("  -> Syncing original FLEURS from GDrive...")
     subprocess.run(f'rclone sync "{GDRIVE_ROOT}/fleurs_parquet/" "{EXPORT_DIR}/fleurs/" --transfers=8', shell=True)
-    
-    print("  -> Syncing Pseudo-labels from GDrive...")
     subprocess.run(f'rclone sync "{GDRIVE_PARQUET_DIR}/" "{EXPORT_DIR}/pseudo_cv25/" --transfers=8', shell=True)
 
-    # 3. MOVE (not copy) any un-synced local parquets to the export folder
-    # Moving files on the same disk takes 0 seconds and uses 0 extra megabytes!
     import shutil
-    moved_mb = 0
-    for f in pathlib.Path(PSEUDO_DIR).glob("*.parquet"):
-        moved_mb += f.stat().st_size / 1e6
-        shutil.move(str(f), f"{EXPORT_DIR}/pseudo_cv25/{f.name}")
+    for f in pathlib.Path(PSEUDO_DIR).glob("*.parquet"): shutil.move(str(f), f"{EXPORT_DIR}/pseudo_cv25/{f.name}")
         
-    if moved_mb > 0:
-        print(f"  -> Moved {moved_mb:.1f} MB of local parquets to export folder (Zero-copy).")
-
-    # 4. Write Metadata
     meta_path = os.path.join(EXPORT_DIR, 'dataset-metadata.json')
     with open(meta_path, 'w') as f:
         json.dump({'title': dataset_title, 'id': f'{user}/{dataset_title}', 'licenses': [{'name': 'CC0-1.0'}]}, f, indent=2)
 
-    # 5. Push to Kaggle
     print(f'[Kaggle] Pushing structured dataset to {user}/{dataset_title}...')
     r = subprocess.run(['kaggle', 'datasets', 'version', '-p', EXPORT_DIR, '-m', message, '--dir-mode', 'tar'], text=True, capture_output=True)
-    
-    # 6. INSTANT CLEANUP to free all disk space
     shutil.rmtree(EXPORT_DIR, ignore_errors=True)
     
     if r.returncode == 0:
-        print(f'[Kaggle] ✓ Version updated successfully! Structure preserved and Disk freed.')
+        print(f'[Kaggle] ✓ Version updated successfully!')
         return True
         
     print(f'[Kaggle] Update failed. Trying to create new dataset...')
@@ -4616,21 +4535,6 @@ def publish_kaggle_dataset(dataset_title='fleurs5', message='Added structured ps
         
     print(f'[Kaggle] ❌ Push failed.\nError:\n{r.stderr[:400] if r.stderr else r2.stderr[:400]}')
     return False
-
-
-def _kaggle_push_and_clean(message: str, src_cv: str, tgt_m4t: str) -> bool:
-    """Backs up to GDrive, then DELETES local files immediately to save Kaggle disk space."""
-    # Sync generated files safely to Google Drive
-    _rclone_sync_backup()
-    
-    # Delete local files to aggressively save disk space during the generation loop!
-    freed = 0
-    for f in pathlib.Path(PSEUDO_DIR).glob(f'pseudo_{src_cv}2{tgt_m4t}*.parquet'):
-        freed += f.stat().st_size / 1e6
-        f.unlink()
-        
-    print(f'[Local] Backed up to GDrive and freed {freed:.1f} MB local cache. (Will push to Kaggle at the very end).')
-    return True
 
 def _rclone_check_exists(remote_dir, filename):
     if not ON_KAGGLE: return False
@@ -4650,7 +4554,6 @@ def _rclone_copy_to_remote(local_path, remote_dir):
     print(f"  [GDrive] Backing up {os.path.basename(local_path)} to Google Drive...", flush=True)
     subprocess.run(f'rclone copy "{local_path}" "{remote_dir}/" --transfers=8 --drive-chunk-size=64M', shell=True, capture_output=True, text=True)
 
-# ── Wget & Parsing ──────────────────────────────────────────────────────────
 def _wget_range(url: str, dest: str, start: int, end: int, retries: int = 3) -> bool:
     expected = end - start + 1
     for attempt in range(retries):
@@ -4685,28 +4588,22 @@ def _extract_tsv(partial_path: str) -> dict:
                 if member.isfile() and _is_validated_tsv(member.name):
                     print(f"  [TSV] Found {member.name} ({member.size/1e6:.1f} MB)", flush=True)
                     f = tf.extractfile(member)
-                    
-                    # ── MAIN FIX: Read in chunks to safely catch EOFError on truncated files ──
                     raw_bytes = bytearray()
                     try:
                         while True:
-                            chunk = f.read(10 * 1024 * 1024) # 10MB chunks
+                            chunk = f.read(10 * 1024 * 1024) 
                             if not chunk: break
                             raw_bytes.extend(chunk)
                     except (EOFError, tarfile.ReadError) as e:
-                        print(f"  [TSV] Partial read stopped (Expected on truncated files). Rescuing downloaded rows...", flush=True)
-                        
+                        print(f"  [TSV] Partial read stopped (Expected). Rescuing downloaded rows...", flush=True)
                     raw = raw_bytes.decode('utf-8', errors='ignore')
                     for row in csv.DictReader(io.StringIO(raw), delimiter='\t'):
                         if row.get('path') and row.get('sentence'): 
                             tsv_map[row['path'].strip().split('/')[-1]] = row['sentence'].strip()
-                            
                     print(f"  [TSV] Extracted {len(tsv_map)} validated entries.", flush=True)
                     return tsv_map
-    except (tarfile.ReadError, EOFError, Exception): 
-        pass
+    except (tarfile.ReadError, EOFError, Exception): pass
     return tsv_map
-
 
 def _extract_all_mp3s_to_ram(partial_path: str, tsv_map: dict, max_n: int) -> list:
     clips, t0 = [], _time.time()
@@ -4729,9 +4626,8 @@ def _extract_all_mp3s_to_ram(partial_path: str, tsv_map: dict, max_n: int) -> li
     except tarfile.ReadError: pass
     return clips
 
-# ── Inference ────────────────────────────────────────────────────────────────
-INFERENCE_BATCH_SIZE = 24
-LOG_EVERY_SECONDS    = 20
+INFERENCE_BATCH_SIZE = 16   
+LOG_EVERY_SECONDS    = 15   
 
 def _inference_on_ram_clips(clips: list, src_cv: str, tgt_m4t: str, already_saved: int, max_clips: int, t_dev, buffer_out: list) -> int:
     total_saved, saved_this_call, failed = already_saved, 0, 0
@@ -4748,14 +4644,18 @@ def _inference_on_ram_clips(clips: list, src_cv: str, tgt_m4t: str, already_save
             inputs = processor(audio=audios, sampling_rate=16000, return_tensors='pt', padding=True, pad_to_multiple_of=2)
             inputs_gpu = {k: v.to(t_dev) for k, v in inputs.items()}
             del inputs
-        except: failed += len(batch_clips); continue
+        except Exception as e: 
+            print(f"  [INF Error - Processor] {e}", flush=True)
+            failed += len(batch_clips); continue
 
         try:
-            with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.bfloat16):
+            with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.float16):
                 out = teacher.generate(**inputs_gpu, tgt_lang=tgt_m4t)
             del inputs_gpu; torch.cuda.empty_cache()
             
             seqs = out.sequences if hasattr(out, 'sequences') else out
+            if isinstance(seqs, tuple): seqs = seqs[0]
+                
             remapped = _remap_ids_for_decode(teacher, seqs.cpu())
             texts = processor.batch_decode(remapped, skip_special_tokens=True)
             
@@ -4765,10 +4665,11 @@ def _inference_on_ram_clips(clips: list, src_cv: str, tgt_m4t: str, already_save
                     buffer_out.append({
                         'id': f'p6_{src_cv}2{tgt_m4t}_{total_saved:06d}',
                         'transcription': txt,
-                        'flac_bytes': _to_flac_bytes(audio_np, 16000), 
+                        'wav_bytes': _to_wav_bytes(audio_np, 16000), 
                     })
                     total_saved += 1; saved_this_call += 1
                 else: failed += 1
+
         except torch.cuda.OutOfMemoryError:
             torch.cuda.empty_cache(); gc.collect()
             half = len(batch_clips) // 2
@@ -4780,19 +4681,28 @@ def _inference_on_ram_clips(clips: list, src_cv: str, tgt_m4t: str, already_save
                 try:
                     sub_inp = processor(audio=sub_audios, sampling_rate=16000, return_tensors='pt', padding=True)
                     sub_inp_gpu = {k: v.to(t_dev) for k, v in sub_inp.items()}
-                    with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.bfloat16):
+                    
+                    with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.float16):
                         sub_out = teacher.generate(**sub_inp_gpu, tgt_lang=tgt_m4t)
                     del sub_inp, sub_inp_gpu; torch.cuda.empty_cache()
+                    
                     sub_seqs = sub_out.sequences if hasattr(sub_out, 'sequences') else sub_out
+                    if isinstance(sub_seqs, tuple): sub_seqs = sub_seqs[0]
+                        
                     sub_remapped = _remap_ids_for_decode(teacher, sub_seqs.cpu())
                     sub_texts = processor.batch_decode(sub_remapped, skip_special_tokens=True)
                     for audio_np, ref, txt in zip(sub_audios, sub_refs, sub_texts):
                         txt = txt.strip()
                         if txt:
-                            buffer_out.append({'id': f'p6_{src_cv}2{tgt_m4t}_{total_saved:06d}', 'transcription': txt, 'flac_bytes': _to_flac_bytes(audio_np, 16000)})
+                            buffer_out.append({'id': f'p6_{src_cv}2{tgt_m4t}_{total_saved:06d}', 'transcription': txt, 'wav_bytes': _to_wav_bytes(audio_np, 16000)})
                             total_saved += 1; saved_this_call += 1
-                except: failed += len(sub)
-        except: failed += len(batch_clips); continue
+                except Exception as e2: 
+                    print(f"  [INF Error - Sub-batch] {e2}", flush=True)
+                    failed += len(sub)
+        
+        except Exception as e: 
+            print(f"  [INF Error - Generation] {e}", flush=True)
+            failed += len(batch_clips); continue
 
         if _time.time() - last_log_t >= LOG_EVERY_SECONDS:
             rate = saved_this_call / max((_time.time() - t0) / 60, 0.01)
@@ -4801,7 +4711,6 @@ def _inference_on_ram_clips(clips: list, src_cv: str, tgt_m4t: str, already_save
 
     return saved_this_call
 
-# ── Main Runner ──────────────────────────────────────────────────────────────
 def run_pseudo_labeler(src_cv: str, tgt_m4t: str, max_clips: int = 20000):
     dataset_id = MDC_DATASET_IDS[src_cv]
     state_file = pathlib.Path(PSEUDO_DIR) / f'.state_{src_cv}2{tgt_m4t}.json'
@@ -4835,10 +4744,7 @@ def run_pseudo_labeler(src_cv: str, tgt_m4t: str, max_clips: int = 20000):
         tsv_map = json.loads(tsv_cache.read_text())
     else:
         head_path = f'{RAW_DIR}/{src_cv}_head.tar.gz'
-        
-        # ── MAIN FIX: Increased initial download from 300MB to 1.5GB for massive TSVs (like English) ──
         _wget_range(fresh_url(), head_path, 0, min(1536 * 1024 * 1024, total_bytes) - 1)
-        
         tsv_map = _extract_tsv(head_path)
         os.remove(head_path)
         tsv_cache.write_text(json.dumps(tsv_map))
@@ -4884,31 +4790,117 @@ def run_pseudo_labeler(src_cv: str, tgt_m4t: str, max_clips: int = 20000):
     publish_kaggle_dataset(dataset_title='fleurs5', message=f'Added {total_saved} {src_cv}->{tgt_m4t} pseudo-labels')
     print(f'\n✓ [{src_cv}->{tgt_m4t}] {total_saved} pseudo-labels generated and pushed to Kaggle.')
 
-print('Cross-Lingual Pseudo-Labeler Ready with FLAC, GDrive Backup, and Kaggle Publishing.')
+print('Cross-Lingual Pseudo-Labeler Ready with ZSTD, Float16, and Tuple Extraction Fix.')
 ```
 
 ---
 
-## Cell 72 — `code`
+## Cell 74 — `code`
 
 ```python
-# # ── Cell 73: EXECUTE CROSS-LINGUAL Pseudo-Labeling ───────────────────────────
+# # ── TEST CELL: Prove Pipeline Integrity (WAV + ZSTD) ──
+# import os, glob, tarfile, io, json
+# import numpy as np, soundfile as sf, pyarrow.parquet as pq
+# import torch, torchaudio
 
-# # 1. Translate INTO Bengali (X Audio -> Bengali Text)
-# run_pseudo_labeler(src_cv='en', tgt_m4t='ben', max_clips=20000)
-# run_pseudo_labeler(src_cv='hi', tgt_m4t='ben', max_clips=20000)
-# run_pseudo_labeler(src_cv='ar', tgt_m4t='ben', max_clips=20000)
+# def test_data_pipeline():
+#     print("=== STARTING DATA INTEGRITY TEST ===")
+    
+#     gdrive_cache = f'{GDRIVE_ROOT}/cv25_raw'
+#     r = subprocess.run(f'rclone lsjson "{gdrive_cache}"', shell=True, capture_output=True, text=True)
+#     files = [f['Path'] for f in json.loads(r.stdout) if f['Path'].endswith('.tar.gz') and 'head' not in f['Path']]
+#     if not files:
+#         print("❌ No raw archives found in GDrive. Run the downloader first.")
+#         return
+        
+#     test_file = files[2]
+#     local_test_path = f'/kaggle/working/{test_file}'
+    
+#     if not os.path.exists(local_test_path):
+#         print(f"Pulling {test_file} for testing...")
+#         subprocess.run(f'rclone copy "{gdrive_cache}/{test_file}" "/kaggle/working/"', shell=True)
 
-# # 2. Translate FROM Bengali (Bengali Audio -> X Text)
-# # We set Bengali to have a larger budget since it is our primary focus.
-# run_pseudo_labeler(src_cv='bn', tgt_m4t='eng', max_clips=15000)
-# run_pseudo_labeler(src_cv='bn', tgt_m4t='hin', max_clips=10000)
-# run_pseudo_labeler(src_cv='bn', tgt_m4t='arb', max_clips=10000)
+#     print("Extracting 24 MP3s...")
+#     clips = []
+#     with tarfile.open(local_test_path, mode='r:gz') as tf:
+#         for member in tf:
+#             if member.isfile() and member.name.endswith('.mp3'):
+#                 try:
+#                     mp3_bytes = tf.extractfile(member).read()
+#                     audio, sr = sf.read(io.BytesIO(mp3_bytes), dtype='float32')
+#                     if audio.ndim > 1: audio = audio.mean(axis=1)
+#                     if sr != 16000: audio = torchaudio.functional.resample(torch.from_numpy(audio), sr, 16000).numpy()
+#                     clips.append((audio.astype(np.float32), "dummy_ref"))
+#                     if len(clips) >= 24: break
+#                 except: continue
+
+#     print("Running Inference and Packing Parquet...")
+#     buffer_out = []
+#     teacher.eval()
+#     t_dev = next(teacher.text_decoder.parameters()).device
+    
+#     _inference_on_ram_clips(clips, 'en', 'ben', 0, 24, t_dev, buffer_out)
+    
+#     if not buffer_out:
+#         print("❌ FAILED: Inference outputted 0 clips. Check the red error logs above.")
+#         return
+        
+#     test_pq_path = _save_parquet(buffer_out, 'en', 'ben', 9999)
+    
+#     print("\n=== VERIFICATION RESULTS ===")
+#     table = pq.read_table(test_pq_path, columns=['audio', 'transcription'])
+#     df_audio = table.column('audio')
+#     df_text = table.column('transcription')
+    
+#     corrupted = 0
+#     for i in range(len(df_audio)):
+#         cell = df_audio[i].as_py()
+#         wav_bytes = cell['bytes']
+        
+#         audio_array, sr = sf.read(io.BytesIO(wav_bytes))
+#         audio_array = np.array(audio_array, dtype=np.float32)
+#         signal_strength = np.sum(np.abs(audio_array))
+        
+#         print(f"Sample {i}: Length: {len(audio_array)} | Signal Strength: {signal_strength:.2f} | Text: {df_text[i].as_py()[:30]}...")
+
+#         play(audio_array, 16000, label=f'_s{i+1}in.wav')
+#         # save_audio(audio_array, 16000, f'{label}_{pair_key}_s{i+1}in.wav')
+#         # play(wav_out, 16000, label=f'{label}_{pair_key}_s{i+1}out.wav')
+#         # save_audio(wav_out, 16000, f'{label}_{pair_key}_s{i+1}out.wav')
+        
+#         if signal_strength == 0.0:
+#             corrupted += 1
+            
+#     if corrupted == 0:
+#         print("\n✅ SUCCESS: 0 Corrupted Files. The ZSTD/WAV pipeline is 100% mathematically safe.")
+#     else:
+#         print(f"\n❌ FAILED: {corrupted} files are silent.")
+
+# test_data_pipeline()
 ```
 
 ---
 
-## Cell 73 — `code`
+## Cell 75 — `code`
+
+```python
+# ── Cell 73: EXECUTE CROSS-LINGUAL Pseudo-Labeling ───────────────────────────
+
+# 1. Translate INTO Bengali (X Audio -> Bengali Text)
+run_pseudo_labeler(src_cv='en', tgt_m4t='ben', max_clips=30000)
+run_pseudo_labeler(src_cv='hi', tgt_m4t='ben', max_clips=25000)
+run_pseudo_labeler(src_cv='ar', tgt_m4t='ben', max_clips=25000)
+
+# 2. Translate FROM Bengali (Bengali Audio -> X Text)
+# We set Bengali to have a larger budget since it is our primary focus.
+run_pseudo_labeler(src_cv='bn', tgt_m4t='eng', max_clips=20000)
+run_pseudo_labeler(src_cv='bn', tgt_m4t='hin', max_clips=15000)
+run_pseudo_labeler(src_cv='bn', tgt_m4t='arb', max_clips=15000)
+```
+
+---
+
+## Cell 76 — `code`
 
 ```python
 # ── Cell 74: Load Combined Dataset (FLEURS + Kaggle Pseudo Dataset) ──────────
@@ -4990,7 +4982,7 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples ready for Massive KD Trainin
 
 ---
 
-## Cell 74 — `code`
+## Cell 77 — `code`
 
 ```python
 # !rclone copy /kaggle/working/ gdrive:seamTL_bengali/
@@ -4998,7 +4990,7 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples ready for Massive KD Trainin
 
 ---
 
-## Cell 75 — `code`
+## Cell 78 — `code`
 
 ```python
 # publish_kaggle_dataset(message='Restored FLEURS and added structured Pseudo-Labels')
@@ -5006,7 +4998,15 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples ready for Massive KD Trainin
 
 ---
 
-## Cell 76 — `code`
+## Cell 79 — `code`
+
+```python
+publish_kaggle_dataset(message='Fixed wav having all zeros, used zstd compression, previous error was bfloat16 silent crash on kaggle T4')
+```
+
+---
+
+## Cell 80 — `code`
 
 ```python
 text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
@@ -5015,7 +5015,7 @@ print(f"pre p6 eval → Text ChrF: {text_chrf:.2f} | ASR ChrF: {asr_chrf:.2f}")
 
 ---
 
-## Cell 77 — `code`
+## Cell 81 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -5027,7 +5027,7 @@ import torch
 class AcousticDilatedBridge(nn.Module):
     """
     Dilated Temporal Bottleneck (DTB) Adapter.
-    Expands the receptive field to recover acoustic context lost from pruning 14 layers.
+    Expands the receptive field to recover acoustic context lost from pruning layers.
     """
     def __init__(self, d_model=1024, bottleneck=256, kernel=11, dilation=2):
         super().__init__()
@@ -5044,6 +5044,7 @@ class AcousticDilatedBridge(nn.Module):
         
         # ── STRICT ZERO INIT: Guarantees mathematically safe insertion ──
         nn.init.zeros_(self.up.weight)
+        self.scale = nn.Parameter(torch.tensor(1e-4))
 
     def forward(self, x):
         h = self.norm(x)
@@ -5054,7 +5055,7 @@ class AcousticDilatedBridge(nn.Module):
         h = h.transpose(1, 2)
         
         h = F.silu(h)
-        return x + self.up(h)
+        return x + self.scale * self.up(h)
 
 
 class SemanticSwiGLUBridge(nn.Module):
@@ -5071,13 +5072,14 @@ class SemanticSwiGLUBridge(nn.Module):
         
         # ── STRICT ZERO INIT ──
         nn.init.zeros_(self.up.weight)
+        self.scale = nn.Parameter(torch.tensor(1e-4))
 
     def forward(self, x):
         h = self.norm(x)
         gate = F.silu(self.down_gate(h))
         val  = self.down_val(h)
         h = gate * val  # SwiGLU gating
-        return x + self.up(h)
+        return x + self.scale * self.up(h)
 
 
 def inject_bridges(student_model, enc_d_model=1024, dec_d_model=1024, bottleneck=256):
@@ -5136,51 +5138,35 @@ print('DTB and SSB modules defined. Call inject_bridges(student) to install.')
 
 ---
 
-## Cell 78 — `code`
+## Cell 82 — `code`
 
 ```python
-student = inject_bridges(student)
+# student = inject_bridges(student)
 ```
 
 ---
 
-## Cell 79 — `code`
+## Cell 83 — `code`
 
 ```python
-# ── Cell: Install Bridges + Warm Up ──────────────────────────────────────────
+# ── Cell 76: Install Bridges ──────────────────────────────────────────
 # Run ONCE after loading student weights from Phase 5.
 
-# Install bridges into the already-pruned student
-# student = inject_bridges(
-#     student,
-#     enc_d_model = 1024,   # SeamlessM4T encoder hidden size
-#     dec_d_model = 1024,   # SeamlessM4T decoder hidden size
-#     enc_kernel  = 7,      # 7-frame Conv1D ≈ 45ms acoustic context
-#     bottleneck  = 256,    # keeps bridge params small: ~0.8M per bridge
-# )
-
-# Phase 6A: bridge warm-up — only bridge params train for 300 steps
-# set_bridge_only_training(student)
-
-# bridge_params_list = [p for n,p in student.named_parameters() if p.requires_grad]
-# warmup_opt = torch.optim.AdamW(bridge_params_list, lr=3e-4, weight_decay=1e-2)
-
-# print('Bridge warm-up optimizer ready.')
-# print('Run 300 steps of the normal training loop with this optimizer,')
-# print('then call set_joint_training(student) and switch to the Phase 6 optimizer.')
+already_injected = any('bridge' in n for n, _ in student.named_parameters())
+if not already_injected:
+    student = inject_bridges(
+        student,
+        enc_d_model = 1024,   
+        dec_d_model = 1024,   
+        bottleneck  = 256,    
+    )
+else:
+    print("Bridges already injected!")
 ```
 
 ---
 
-## Cell 80 — `code`
-
-```python
-student
-```
-
----
-
-## Cell 81 — `code`
+## Cell 84 — `code`
 
 ```python
 # # ── Cell 76: Phase 6A — Bridge Warm-Up (300 steps, bridges only) ─────────────
@@ -5286,26 +5272,46 @@ student
 
 ---
 
-## Cell 82 — `code`
+## Cell 85 — `code`
 
 ```python
-# ── Cell 77: Phase 6B — Joint Training (Explicit Parallel Exec + Background Prefetch) ──
+# ── Cell 77: Phase 6 — Massive Pseudo-Label FT (KD Annealing + Bridges) ──
 import bitsandbytes as bnb
 from transformers import get_cosine_schedule_with_warmup
-import math, time, random
+import math, time, random, gc
 import concurrent.futures
 import queue
+import threading
+import torch
 
 BATCH_SIZE, GRAD_ACCUM = 4, 8
-LR_BACKBONE, LR_BRIDGE_MULT = 4e-5, 3.0      
-WEIGHT_DECAY, MAX_EPOCHS = 1e-2, 7
-EVAL_STEPS, LOG_STEPS, KD_ALPHA = 500, 10, 0.60
+LR_BACKBONE            = 4e-5
+LR_BRIDGE_MULT         = 3.0      
+WEIGHT_DECAY           = 1e-2
+MAX_EPOCHS             = 8         # 8 Epochs for KD Annealing
+EVAL_STEPS             = 500
+LOG_STEPS              = 20
 
-# We use 2000 for tight RAM budgeting
+# ── DYNAMIC KD SCHEDULE ──
+def get_kd_alpha(epoch_idx):
+    if epoch_idx < 4: return 0.90
+    elif epoch_idx == 4: return 0.80
+    elif epoch_idx == 5: return 0.30
+    else: return 0.15
+
 STEPS_PER_EPOCH = math.ceil(len(ft_samples) / (BATCH_SIZE * GRAD_ACCUM))
 TOTAL_STEPS     = STEPS_PER_EPOCH * MAX_EPOCHS
-WARMUP_STEPS    = min(500, int(TOTAL_STEPS * 0.05))
+WARMUP_STEPS    = min(1000, int(TOTAL_STEPS * 0.05))
 
+# 1. LOAD CLEAN PHASE 5 WEIGHTS 
+print("Loading pristine Phase 5 weights...")
+ckpt = load_latest_checkpoint('phase5_ft')
+if ckpt:
+    # Strict=False allows it to load the backbone while ignoring the newly added bridges
+    student.load_state_dict(ckpt['model_state'], strict=False)
+    print("✓ Loaded pristine Phase 5 weights.")
+
+# 2. SETUP OPTIMIZER
 bridge_params, other_params = set_joint_training(student, bridge_lr_mult=LR_BRIDGE_MULT)
 for p in bridge_params + other_params:
     if p.requires_grad and p.dtype != torch.float32: p.data = p.data.to(torch.float32)
@@ -5324,16 +5330,13 @@ optimizer = bnb.optim.AdamW8bit(param_groups, weight_decay=WEIGHT_DECAY, betas=(
 scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=WARMUP_STEPS, num_training_steps=TOTAL_STEPS)
 scaler    = torch.cuda.amp.GradScaler()
 
-all_trainable_p6b = [p for g in param_groups for p in g['params']]
-print(f"\n{'='*60}\nPhase 6B — Joint Training (Parallel CPU+GPU)\nTotal: {TOTAL_STEPS} Steps | Trainable: {sum(p.numel() for p in all_trainable_p6b)/1e6:.1f}M\n{'='*60}\n")
+all_trainable_p6 = [p for g in param_groups for p in g['params']]
+print(f"\n{'='*60}\nPhase 6 — Joint Training (Parallel CPU+GPU)\nTotal: {TOTAL_STEPS} Steps | Trainable: {sum(p.numel() for p in all_trainable_p6)/1e6:.1f}M\n{'='*60}\n")
 
 # ── BACKGROUND DATA PREFETCHER ──
 class BatchPrefetcher:
     def __init__(self, dataset, indices, batch_size, collate_fn, prefetch_size=4):
-        self.dataset = dataset
-        self.indices = indices
-        self.batch_size = batch_size
-        self.collate_fn = collate_fn
+        self.dataset, self.indices, self.batch_size, self.collate_fn = dataset, indices, batch_size, collate_fn
         self.queue = queue.Queue(maxsize=prefetch_size)
         self.stop_event = threading.Event()
         self.thread = threading.Thread(target=self._worker)
@@ -5345,10 +5348,8 @@ class BatchPrefetcher:
             if self.stop_event.is_set(): break
             chunk = self.indices[batch_start : batch_start + self.batch_size]
             try:
-                raw = [self.dataset[i] for i in chunk]
-                batch = self.collate_fn(raw)
-                self.queue.put(batch)
-            except Exception as e:
+                self.queue.put(self.collate_fn([self.dataset[i] for i in chunk]))
+            except Exception:
                 self.queue.put(None)
         self.queue.put("DONE")
 
@@ -5363,50 +5364,47 @@ class BatchPrefetcher:
             try: self.queue.get_nowait()
             except: pass
 
-# ── NO-CLOSURE TARGET FUNCTIONS ──
-def _exec_teacher(feat, dec_full):
-    return teacher_topk_direct(feat, dec_full)
+def _exec_teacher(feat, dec_full): return teacher_topk_direct(feat, dec_full)
+def _exec_student(feat, dec_s): return student_logits_gpu(feat, dec_s)
 
-def _exec_student(feat, dec_s):
-    return student_logits_gpu(feat, dec_s)
-
-def run_phase6b():
+def run_phase6():
     best_chrf, patience_left, opt_step = 0.0, 25, 0
-    train_history = {'step': [], 'ce': [], 'kd': [], 'lr_backbone': [], 'lr_bridge': [], 'eval_step': [], 'eval_text': [], 'eval_asr': []}
+    train_history = {'step': [], 'ce': [], 'kd': [], 'lr_bb': [], 'lr_br': [], 'eval_step': [], 'eval_text': [], 'eval_asr': []}
 
-    p6b_ckpt = load_latest_checkpoint('phase6b_ft')
-    if p6b_ckpt:
-        student.load_state_dict(p6b_ckpt['model_state'], strict=False)
-        optimizer.load_state_dict(p6b_ckpt['optimizer_state'])
-        scheduler.load_state_dict(p6b_ckpt['scheduler_state'])
-        opt_step, best_chrf = p6b_ckpt['opt_step'], p6b_ckpt['best_chrf']
-        if 'train_history' in p6b_ckpt: train_history = p6b_ckpt['train_history']
-        print(f"✓ Resumed Phase 6B at step {opt_step}")
+    p6_ckpt = load_latest_checkpoint('phase6_ft')
+    if p6_ckpt:
+        student.load_state_dict(p6_ckpt['model_state'], strict=False)
+        optimizer.load_state_dict(p6_ckpt['optimizer_state'])
+        scheduler.load_state_dict(p6_ckpt['scheduler_state'])
+        opt_step, best_chrf = p6_ckpt['opt_step'], p6_ckpt['best_chrf']
+        if 'train_history' in p6_ckpt: train_history = p6_ckpt['train_history']
+        print(f"✓ Resumed Phase 6 at step {opt_step}")
 
     start_epoch = opt_step // STEPS_PER_EPOCH
     batches_to_skip = (opt_step % STEPS_PER_EPOCH) * GRAD_ACCUM
     step_times = []
 
-    # ── POOL EXECUTOR: Reuses 2 threads endlessly, NO LEAKS! ──
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 
     for epoch in range(start_epoch, MAX_EPOCHS):
         ep_ce = ep_kd = ep_n = 0.0
         optimizer.zero_grad(set_to_none=True)
         accum = 0
+        
+        current_kd_alpha = get_kd_alpha(epoch)
 
-        random.seed(epoch + 100)
+        random.seed(epoch + 200)
         all_idx = chunk_friendly_shuffle(len(ft_samples), CHUNK_SIZE, BATCH_SIZE)
         random.seed(42)
         
         if epoch == start_epoch and batches_to_skip > 0:
             all_idx = all_idx[batches_to_skip * BATCH_SIZE:]
 
-        print(f"\n  Phase 6B — Epoch {epoch+1}/{MAX_EPOCHS}")
+        print(f"\n  Phase 6 — Epoch {epoch+1}/{MAX_EPOCHS} | KD_ALPHA = {current_kd_alpha:.2f}")
         t_epoch = time.time()
         prefetcher = BatchPrefetcher(ft_samples, all_idx, BATCH_SIZE, collate_s2t_batch)
 
-        for batch in prefetcher:
+        for batch_idx, batch in enumerate(prefetcher):
             if opt_step >= TOTAL_STEPS: 
                 prefetcher.stop()
                 break
@@ -5414,39 +5412,50 @@ def run_phase6b():
             if batch is None: continue
             t0  = time.time()
 
-            # Pass variables EXPLICITLY to avoid closure leaks
-            future_t = executor.submit(_exec_teacher, batch['feat'], batch['dec_full'])
-            future_s = executor.submit(_exec_student, batch['feat'], batch['dec_s'])
+            res_t, res_s = {}, {}
+            def _t_task():
+                try: res_t['v'], res_t['i'] = teacher_topk_direct(batch['feat'], batch['dec_full'])
+                except Exception as e: res_t['e'] = str(e)
+            def _s_task():
+                try: res_s['s'] = student_logits_gpu(batch['feat'], batch['dec_s'])
+                except Exception as e: res_s['e'] = str(e)
+
+            future_t = executor.submit(_t_task)
+            future_s = executor.submit(_s_task)
+            concurrent.futures.wait([future_t, future_s])
+
+            if 'e' in res_t or 'e' in res_s:
+                print(f"  [Skip] Parallel execution failed -> T:{res_t.get('e')} S:{res_s.get('e')}")
+                del batch, res_t, res_s; torch.cuda.empty_cache(); gc.collect(); free_cpu_ram()
+                continue
+
+            topk_vals, topk_idx, s_log = res_t['v'], res_t['i'], res_s['s']
+            L = batch['labels_s'].shape[1]
+            
+            topk_vals = topk_vals[:, :L, :].contiguous()
+            topk_idx  = topk_idx[:, :L, :].contiguous()
+            s_log     = s_log[:, :L, :].contiguous()
+            labels_dev = batch['labels_s'].to('cuda:1', non_blocking=True)
 
             try:
-                topk_vals, topk_idx = future_t.result()
-                s_log = future_s.result()
-                
-                L = batch['labels_s'].shape[1]
-                topk_vals = topk_vals[:, :L, :].contiguous()
-                topk_idx  = topk_idx[:, :L, :].contiguous()
-                s_log     = s_log[:, :L, :].contiguous()
-                labels_dev = batch['labels_s'].to('cuda:1', non_blocking=True)
-
-                loss, ce_v, kd_v = compute_recovery_loss_gpu(s_log, labels_dev, topk_vals, topk_idx, alpha=KD_ALPHA)
+                loss, ce_v, kd_v = compute_recovery_loss_gpu(s_log, labels_dev, topk_vals, topk_idx, alpha=current_kd_alpha)
                 scaler.scale(loss / GRAD_ACCUM).backward()
                 
             except torch.cuda.OutOfMemoryError:
                 print("  [OOM] Skipping batch")
-                del batch; torch.cuda.empty_cache(); gc.collect()
+                del batch, res_t, res_s, topk_vals, topk_idx, s_log, labels_dev; torch.cuda.empty_cache(); gc.collect(); free_cpu_ram()
                 continue
             except Exception as e:
                 print(f"  [Error] {e}")
-                del batch; torch.cuda.empty_cache(); gc.collect()
+                del batch, res_t, res_s, topk_vals, topk_idx, s_log, labels_dev; torch.cuda.empty_cache(); gc.collect(); free_cpu_ram()
                 continue
 
-            del batch, topk_vals, topk_idx, s_log, labels_dev, loss
-            
+            del batch, res_t, res_s, topk_vals, topk_idx, s_log, labels_dev, loss
             ep_ce += ce_v; ep_kd += kd_v; ep_n += 1; accum += 1
 
             if accum >= GRAD_ACCUM:
                 scaler.unscale_(optimizer)
-                torch.nn.utils.clip_grad_norm_(all_trainable_p6b, 1.0)
+                torch.nn.utils.clip_grad_norm_(all_trainable_p6, 1.0)
                 scaler.step(optimizer)
                 scaler.update()
                 scheduler.step()
@@ -5461,22 +5470,20 @@ def run_phase6b():
                     avg_ce, avg_kd = ep_ce / max(ep_n, 1), ep_kd / max(ep_n, 1)
                     eta = (TOTAL_STEPS - opt_step) * (sum(step_times[-20:]) / max(len(step_times[-20:]), 1)) / 60
 
-                    train_history['step'].extend([opt_step])
-                    train_history['ce'].extend([avg_ce])
-                    train_history['kd'].extend([avg_kd])
-                    train_history['lr_backbone'].extend([float(lr_bb)])
-                    train_history['lr_bridge'].extend([float(lr_br)])
+                    train_history['step'].append(opt_step)
+                    train_history['ce'].append(avg_ce)
+                    train_history['kd'].append(avg_kd)
+                    train_history['lr_bb'].append(float(lr_bb))
+                    train_history['lr_br'].append(float(lr_br))
 
-                    print(f"  P6B step {opt_step:>5}/{TOTAL_STEPS} | CE={avg_ce:.4f} KD={avg_kd:.4f} | lr_bb={lr_bb:.1e} lr_br={lr_br:.1e} | ETA={eta:.0f}min")
+                    print(f"  P6 step {opt_step:>5}/{TOTAL_STEPS} | CE={avg_ce:.4f} KD={avg_kd:.4f} | KD_A={current_kd_alpha:.2f} | lr={lr_bb:.1e} | ETA={eta:.0f}min")
                     ep_ce = ep_kd = ep_n = 0.0
                     free_cpu_ram()
 
                 if opt_step % EVAL_STEPS == 0:
-                    # ── MAIN FIX: DO NOT STOP PREFETCHER ──
-                    # Just let it sleep safely in the background while eval happens!
-                    
+                    prefetcher.stop() 
                     text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
-                    print(f"\n  ★ P6B step {opt_step} eval → Text={text_chrf:.2f} | ASR={asr_chrf:.2f}")
+                    print(f"\n  ★ P6 step {opt_step} eval → Text={text_chrf:.2f} | ASR={asr_chrf:.2f}")
 
                     train_history['eval_step'].append(opt_step)
                     train_history['eval_text'].append(float(text_chrf))
@@ -5486,119 +5493,170 @@ def run_phase6b():
                         best_chrf, patience_left = asr_chrf, 25
                         save_checkpoint(dict(
                             model_state=student.state_dict(), opt_step=opt_step, best_chrf=best_chrf, train_history=train_history
-                        ), 'phase6b_best', opt_step, keep=1)
+                        ), 'phase6_best', opt_step, keep=1)
                         print(f"  ✓ NEW BEST: {best_chrf:.2f} ChrF")
                     else:
                         save_checkpoint(dict(
                             model_state=student.state_dict(), optimizer_state=optimizer.state_dict(),
                             scheduler_state=scheduler.state_dict(), opt_step=opt_step, best_chrf=best_chrf,
                             train_history=train_history
-                        ), 'phase6b_ft', opt_step, keep=1)
+                        ), 'phase6_ft', opt_step, keep=1)
                         
                         patience_left -= 1
                         print(f"  patience={patience_left}/25")
                         if patience_left <= 0:
                             print("\n  Early stop triggered.")
                             executor.shutdown(wait=False)
-                            prefetcher.stop()
                             return opt_step, best_chrf, train_history
                             
+                    current_idx_start = (batch_idx + 1) * BATCH_SIZE
+                    prefetcher = BatchPrefetcher(ft_samples, all_idx[current_idx_start:], BATCH_SIZE, collate_s2t_batch)
+
         prefetcher.stop()
         print(f"  Epoch {epoch+1} done | {(time.time()-t_epoch)/60:.1f} min")
 
     executor.shutdown(wait=False)
     return opt_step, best_chrf, train_history
 
-final_step, final_chrf, p6b_history = run_phase6b()
-print(f"\n✓ Phase 6B complete. Best ASR ChrF: {final_chrf:.2f} at step {final_step}")
+final_step, final_chrf, p6_history = run_phase6()
+print(f"\n✓ Phase 6 complete. Best ASR ChrF: {final_chrf:.2f} at step {final_step}")
 ```
 
 ---
 
-## Cell 83 — `code`
+## Cell 86 — `code`
 
 ```python
-# ── Cell 78: Ablation Evaluation (required for EMNLP paper) ──────────────────
-#
-# Runs _eval_quick_p5 on all 4 ablation conditions and prints a comparison table.
-# Run this AFTER Phase 6B finishes.
-# ─────────────────────────────────────────────────────────────────────────────
+# ── Cell 78: Plot Training History ───────────────────────────────────────────
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-import pandas as pd
+def plot_learning_curves(history):
+    if not history or not history.get('step'):
+        print("No history data to plot.")
+        return
 
-print("Running ablation evaluation...")
-results = {}
+    sns.set_style('whitegrid')
+    fig, axes = plt.subplots(3, 1, figsize=(10, 12), sharex=True)
+    
+    # 1. Losses
+    axes[0].plot(history['step'], history['ce'], label='CE Loss (Hard Labels)', color='#E84855', linewidth=2, alpha=0.8)
+    axes[0].plot(history['step'], history['kd'], label='KD Loss (Teacher Distillation)', color='#2E86AB', linewidth=2, alpha=0.8)
+    axes[0].set_ylabel('Loss')
+    axes[0].set_title('Phase 6 Training Losses', fontweight='bold')
+    axes[0].legend()
 
-# ── Condition 4: Your full method (current student after P6B) ─────────────────
-student.eval()
-text_chrf, asr_chrf = _eval_quick_p5(n_samples=50)
-results['Pruned + Bridges + KD (Ours)'] = {'Text ChrF': text_chrf, 'ASR ChrF': asr_chrf}
-print(f"[4] Pruned+Bridges+KD: Text={text_chrf:.2f} ASR={asr_chrf:.2f}")
+    # 2. Learning Rate
+    axes[1].plot(history['step'], history['lr'], label='Learning Rate', color='#F4A261', linewidth=2)
+    axes[1].set_ylabel('Learning Rate')
+    axes[1].set_title('Cosine Annealing Schedule with Warmup', fontweight='bold')
+    axes[1].set_yscale('log')
+    axes[1].legend()
 
-# ── Condition 3: Load Phase 6B best but remove bridges (test bridges matter) ──
-# Load best P6B weights but evaluate WITHOUT bridge forward pass
-# (zero out LayerScale so bridges are silent)
-for n, p in student.named_parameters():
-    if 'scale_conv' in n or 'scale_ffn' in n or ('bridge' in n and 'scale' in n):
-        p.data.fill_(0.0)   # LayerScale=0 → bridge output is zero → bridge is silent
-student.eval()
-text_chrf_nb, asr_chrf_nb = _eval_quick_p5(n_samples=50)
-results['Pruned + KD only (no bridge)'] = {'Text ChrF': text_chrf_nb, 'ASR ChrF': asr_chrf_nb}
-print(f"[3] Pruned+KD (no bridge): Text={text_chrf_nb:.2f} ASR={asr_chrf_nb:.2f}")
+    # 3. Evaluation Metrics
+    if history.get('eval_step'):
+        axes[2].plot(history['eval_step'], history['eval_text'], marker='o', label='Text ChrF', color='#8ECAE6', linewidth=2)
+        axes[2].plot(history['eval_step'], history['eval_asr'], marker='s', label='ASR ChrF', color='#219EBC', linewidth=2)
+    axes[2].set_xlabel('Training Steps')
+    axes[2].set_ylabel('ChrF Score')
+    axes[2].set_title('Evaluation Metrics (Bengali Target)', fontweight='bold')
+    axes[2].legend()
 
-# Restore bridges
-ckpt = load_latest_checkpoint('phase6b_best')
-if ckpt:
-    student.load_state_dict(ckpt['model_state'], strict=False)
+    plt.tight_layout()
+    save_figure(fig, 'phase6_learning_curve.png')
+    plt.show()
 
-# ── Condition 1: Phase 5 weights (pruned, no bridge, no pseudo-KD) ────────────
-p5_ckpt = load_latest_checkpoint('phase5_ft')
-if p5_ckpt:
-    # Temporarily load P5 weights into a copy for eval
-    # (don't overwrite student — we need it for condition 4 restore)
-    student.load_state_dict(p5_ckpt['model_state'], strict=False)
-    student.eval()
-    text_p5, asr_p5 = _eval_quick_p5(n_samples=50)
-    results['Pruned only (Phase 5 baseline)'] = {'Text ChrF': text_p5, 'ASR ChrF': asr_p5}
-    print(f"[1] Pruned only (P5): Text={text_p5:.2f} ASR={asr_p5:.2f}")
-    # Restore best model
-    if ckpt: student.load_state_dict(ckpt['model_state'], strict=False)
-
-# ── Condition 5: Teacher upper bound ──────────────────────────────────────────
-teacher.eval()
-# Run eval using teacher directly
-teacher_text, teacher_asr = _eval_quick_p5(n_samples=50)   # uses teacher internally already
-# Note: _eval_quick_p5 evaluates STUDENT. To get teacher score we need a teacher-only eval.
-# Approximate: log the teacher score from your existing best teacher eval run.
-# If you have it from an earlier cell, paste it here:
-TEACHER_CHRF_FROM_EARLIER = None   # e.g. set to 26.4 if you logged it
-if TEACHER_CHRF_FROM_EARLIER:
-    results['Teacher (unpruned upper bound)'] = {
-        'Text ChrF': '—', 'ASR ChrF': TEACHER_CHRF_FROM_EARLIER}
-
-# ── Print table ───────────────────────────────────────────────────────────────
-print(f"\n{'='*65}")
-print(f"{'Condition':<40} {'Text ChrF':>10} {'ASR ChrF':>10}")
-print(f"{'='*65}")
-order = [
-    'Pruned only (Phase 5 baseline)',
-    'Pruned + KD only (no bridge)',
-    'Pruned + Bridges + KD (Ours)',
-    'Teacher (unpruned upper bound)',
-]
-for k in order:
-    if k in results:
-        r = results[k]
-        txt = f"{r['Text ChrF']:.2f}" if isinstance(r['Text ChrF'], float) else r['Text ChrF']
-        asr = f"{r['ASR ChrF']:.2f}" if isinstance(r['ASR ChrF'], float) else r['ASR ChrF']
-        print(f"  {k:<40} {txt:>10} {asr:>10}")
-print(f"{'='*65}")
-print("\nSave this table — it's Table 1 in your EMNLP paper.")
+# Extract history directly from memory or load it if the kernel restarted
+if 'p6_history' in locals():
+    plot_learning_curves(p6_history)
+else:
+    ckpt = load_latest_checkpoint('phase6_massive_ft') or load_latest_checkpoint('phase6_massive_best')
+    if ckpt and 'train_history' in ckpt:
+        plot_learning_curves(ckpt['train_history'])
 ```
 
 ---
 
-## Cell 84 — `markdown`
+## Cell 87 — `code`
+
+```python
+# ── Cell 79: Load Best Checkpoint and Save Final Model ───────────────────────
+
+print('Loading best Phase 6 checkpoint for final export...')
+best_ckpt = load_latest_checkpoint('phase6_massive_best')
+
+if best_ckpt:
+    student.load_state_dict(best_ckpt['model_state'], strict=False)
+    print(f'  Best step : {best_ckpt.get("opt_step", "?")}')
+    print(f'  Best ChrF : {best_ckpt.get("best_chrf", 0.0):.2f}')
+    del best_ckpt
+    free_cpu_ram()
+else:
+    print('  ⚠ No best checkpoint found, exporting current weights.')
+
+student.eval()
+save_model_to_drive(student, processor, 'phase6_massive_ft_merged')
+print('✓ Saved final model to Google Drive as `phase6_massive_ft_merged`')
+```
+
+---
+
+## Cell 88 — `code`
+
+```python
+# ── Cell 80: Final Comprehensive Benchmark ───────────────────────────────────
+
+p6_bench = load_latest_checkpoint('phase6_benchmark')
+if p6_bench and p6_bench.get('summary', {}).get('avg_bleu', 0) > 0:
+    results  = p6_bench['results']
+    summary  = p6_bench['summary']
+    detailed = p6_bench.get('detailed_summary')
+    print('Loaded Phase 6 benchmark from checkpoint.')
+    if not detailed:
+        detailed = compute_detailed_summary(results, 'P6_MassiveData', summary['params_M'])
+else:
+    results, summary = run_benchmark(student, list(eval_samples), 'P6_MassiveData', save_n=4)
+    detailed = compute_detailed_summary(results, 'P6_MassiveData', summary['params_M'])
+    save_checkpoint(dict(results=results, summary=summary, detailed_summary=detailed),
+                    'phase6_benchmark', 0)
+
+store_summary(summary)
+store_detailed_summary(detailed)
+print_detailed_summary_table('P6_MassiveData')
+
+# The Ultimate Test: Did we beat the Teacher?
+p0_detail = ALL_DETAILED_SUMMARIES.get('P0_V1_Baseline')
+p6_detail = ALL_DETAILED_SUMMARIES.get('P6_MassiveData')
+
+if p0_detail and p6_detail:
+    print('\n' + '='*50)
+    print('  FINAL SHOWDOWN: TEACHER vs STUDENT (Bengali pairs)')
+    print('='*50)
+    for pk in sorted(p6_detail['pair_stats']):
+        if 'ben' not in pk: continue
+        t_b = p0_detail['pair_stats'].get(pk, {}).get('avg_bleu', 0)
+        t_c = p0_detail['pair_stats'].get(pk, {}).get('avg_chrf', 0)
+        s_b = p6_detail['pair_stats'][pk]['avg_bleu']
+        s_c = p6_detail['pair_stats'][pk]['avg_chrf']
+        delta_b = s_b - t_b; delta_c = s_c - t_c
+        
+        # Add visual celebration if the student beats the teacher!
+        star_b = ' 🏆' if delta_b > 0 else ' '
+        star_c = ' 🏆' if delta_c > 0 else ' '
+        
+        print(f'  {pk:<18}  BLEU: Teacher={t_b:.2f}  Student={s_b:.2f}  Δ={delta_b:+.2f}{star_b}')
+        print(f'                      ChrF: Teacher={t_c:.2f}  Student={s_c:.2f}  Δ={delta_c:+.2f}{star_c}\n')
+    print('='*50)
+
+plot_phase_comparison()
+plot_detailed_phase_comparison()
+
+print("\n🎉 PIPELINE COMPLETE! 🎉")
+```
+
+---
+
+## Cell 89 — `markdown`
 
 > ## Summary
 > 
