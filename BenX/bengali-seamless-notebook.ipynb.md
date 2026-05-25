@@ -1,6 +1,6 @@
 # Notebook: `./bengali-seamless-notebook.ipynb`
 
-> Kernel: **Python 3** | Total cells: **89**
+> Kernel: **Python 3** | Total cells: **95**
 
 ---
 
@@ -19,7 +19,7 @@
 
 ---
 
-## Cell 3 — `code`
+## Cell 3 — `code` (execution #1)
 
 ```python
 import os, sys, subprocess, pathlib, re, glob, json, gc, copy, time, math, shutil, random
@@ -49,9 +49,17 @@ print(f'Platform : {PLATFORM}')
 print(f'Work dir : {WORK_DIR}')
 ```
 
+### Output
+
+**[stdout]**
+```
+Platform : kaggle
+Work dir : /kaggle/working
+```
+
 ---
 
-## Cell 4 — `code`
+## Cell 4 — `code` (execution #2)
 
 ```python
 if ON_COLAB:
@@ -95,9 +103,24 @@ except Exception as e:
 
 ```
 
+### Output
+
+**[stdout]**
+```
+rclone v1.74.2
+Drive root:
+           0 2026-04-17 11:03:10        -1 Colab Notebooks
+           0 2025-11-10 11:33:43        -1 ScholarMate
+           0 2026-04-05 12:59:09        -1 cse465
+           0 2026-04-12 12:42:04        -1 cse465v5
+           0 2026-05-14 11:16:57        -1 seamTL
+           0 2026-05-17 16:27:30  
+HuggingFace login: OK
+```
+
 ---
 
-## Cell 5 — `code`
+## Cell 5 — `code` (execution #3)
 
 ```python
 subprocess.run([
@@ -111,9 +134,22 @@ print('All packages installed.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 10.9 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.1/84.1 kB 6.8 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.8/100.8 kB 7.8 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 45.9 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 kB 9.9 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 788.2/788.2 kB 40.5 MB/s eta 0:00:00
+All packages installed.
+```
+
 ---
 
-## Cell 6 — `code`
+## Cell 6 — `code` (execution #4)
 
 ```python
 import torch
@@ -131,7 +167,7 @@ torch.cuda.manual_seed_all(seed)
 
 ---
 
-## Cell 7 — `code`
+## Cell 7 — `code` (execution #5)
 
 ```python
 import torch, numpy as np, random
@@ -192,9 +228,19 @@ print('Core utilities ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+PyTorch 2.10.0+cu128 | CUDA True | GPUs 2
+  GPU0: Tesla T4  15.6 GB
+  GPU1: Tesla T4  15.6 GB
+Core utilities ready.
+```
+
 ---
 
-## Cell 8 — `code`
+## Cell 8 — `code` (execution #6)
 
 ```python
 import queue, threading
@@ -300,9 +346,16 @@ print('Checkpoint helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Checkpoint helpers ready.
+```
+
 ---
 
-## Cell 9 — `code`
+## Cell 9 — `code` (execution #7)
 
 ```python
 import torch.nn as nn, torch.nn.functional as F
@@ -479,9 +532,16 @@ print('Model I/O helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Model I/O helpers ready.
+```
+
 ---
 
-## Cell 10 — `code`
+## Cell 10 — `code` (execution #8)
 
 ```python
 from collections import defaultdict
@@ -711,6 +771,15 @@ print('Summary + plotting helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] No checkpoint for 'all_summaries'
+[ckpt] No checkpoint for 'all_detailed_summaries'
+Summary + plotting helpers ready.
+```
+
 ---
 
 ## Cell 11 — `markdown`
@@ -719,7 +788,7 @@ print('Summary + plotting helpers ready.')
 
 ---
 
-## Cell 12 — `code`
+## Cell 12 — `code` (execution #9)
 
 ```python
 # ── Bengali-centric language pairs: Ben↔X and X↔Ben ─────────────────────────
@@ -762,6 +831,16 @@ print(f'Train samples    : {N_TRAIN_PER_PAIR} per pair = {N_TRAIN_PER_PAIR*len(E
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Target languages : ['ben', 'eng', 'hin', 'arb']
+Lang pairs (6): [('ben', 'eng'), ('eng', 'ben'), ('ben', 'hin'), ('hin', 'ben'), ('ben', 'arb'), ('arb', 'ben')]
+Eval samples     : 33 per pair  = 198 total
+Train samples    : 4000 per pair = 24000 total
+```
+
 ---
 
 ## Cell 13 — `markdown`
@@ -770,7 +849,7 @@ print(f'Train samples    : {N_TRAIN_PER_PAIR} per pair = {N_TRAIN_PER_PAIR*len(E
 
 ---
 
-## Cell 14 — `code`
+## Cell 14 — `code` (execution #10)
 
 ```python
 import gc as _gc
@@ -887,9 +966,18 @@ print('  - Whisper-medium : English')
 print('  - MMS-1b-all     : Bengali, Hindi, Arabic')
 ```
 
+### Output
+
+**[stdout]**
+```
+ASR stack ready with dynamic VRAM offloading:
+  - Whisper-medium : English
+  - MMS-1b-all     : Bengali, Hindi, Arabic
+```
+
 ---
 
-## Cell 15 — `code`
+## Cell 15 — `code` (execution #11)
 
 ```python
 from sacrebleu.metrics import BLEU, CHRF
@@ -949,6 +1037,13 @@ def free_cpu_ram():
 print('Inference helpers ready (with elegant empty-string catch).')
 ```
 
+### Output
+
+**[stdout]**
+```
+Inference helpers ready (with elegant empty-string catch).
+```
+
 ---
 
 ## Cell 16 — `markdown`
@@ -957,7 +1052,7 @@ print('Inference helpers ready (with elegant empty-string catch).')
 
 ---
 
-## Cell 17 — `code`
+## Cell 17 — `code` (execution #12)
 
 ```python
 import pyarrow.parquet as pq
@@ -1058,9 +1153,16 @@ print('✓ Streaming dataset classes ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ Streaming dataset classes ready.
+```
+
 ---
 
-## Cell 18 — `code`
+## Cell 18 — `code` (execution #13)
 
 ```python
 print('Loading evaluation samples (streaming mode)...')
@@ -1082,9 +1184,33 @@ print(f'  Reference: {test_s["ref"][:60]}...')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Loading evaluation samples (streaming mode)...
+  Indexed 33 samples from ben→eng
+  Indexed 33 samples from eng→ben
+  Indexed 33 samples from ben→hin
+  Indexed 33 samples from hin→ben
+  Indexed 33 samples from ben→arb
+  Indexed 33 samples from arb→ben
+
+✓ Multilingual dataset ready: 198 total samples
+  RAM usage: ~0.2 MB (metadata only)
+
+✓ Loaded 198 multilingual eval samples
+  Language pairs: [('ben', 'eng'), ('eng', 'ben'), ('ben', 'hin'), ('hin', 'ben'), ('ben', 'arb'), ('arb', 'ben')]
+
+✓ Test sample loaded:
+  ID: ben2eng_1660
+  Audio shape: (216960,)
+  Reference: romanticism had a large element of cultural determinism draw...
+```
+
 ---
 
-## Cell 19 — `code`
+## Cell 19 — `code` (execution #14)
 
 ```python
 # # Cell 18 — Training samples (streaming metadata only, audio loaded per-batch)
@@ -1107,7 +1233,7 @@ print(f'  Reference: {test_s["ref"][:60]}...')
 
 ---
 
-## Cell 20 — `code`
+## Cell 20 — `code` (execution #15)
 
 ```python
 # ── Cell 18-A: ChunkedStreamingDataset (No Silent Failures) ────────────────────
@@ -1196,9 +1322,16 @@ class ChunkedStreamingDataset:
 print('✓ ChunkedStreamingDataset ready (with strict error logging).')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ ChunkedStreamingDataset ready (with strict error logging).
+```
+
 ---
 
-## Cell 21 — `code`
+## Cell 21 — `code` (execution #16)
 
 ```python
 # ── Cell 18-B: ChunkedMultilingualDataset ────────────────────────────────────
@@ -1258,9 +1391,16 @@ class ChunkedMultilingualDataset:
 print('✓ ChunkedMultilingualDataset ready.')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ ChunkedMultilingualDataset ready.
+```
+
 ---
 
-## Cell 22 — `code`
+## Cell 22 — `code` (execution #17)
 
 ```python
 # # ── Cell 18-C: Rebuild ft_samples with chunk caching ─────────────────────────
@@ -1283,7 +1423,7 @@ print('✓ ChunkedMultilingualDataset ready.')
 
 ---
 
-## Cell 23 — `code`
+## Cell 23 — `code` (execution #18)
 
 ```python
 # heed dataset
@@ -1291,7 +1431,7 @@ print('✓ ChunkedMultilingualDataset ready.')
 
 ---
 
-## Cell 24 — `code`
+## Cell 24 — `code` (execution #19)
 
 ```python
 from transformers import SeamlessM4Tv2ForSpeechToSpeech, SeamlessM4TProcessor
@@ -1339,6 +1479,43 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Syncing from rclone remote...
+[ckpt] 11 file(s) available
+  all_detailed_summaries_step000000.pt                        0.0 MB
+  all_summaries_step000000.pt                                 0.0 MB
+  phase0_benchmark_step000000.pt                              0.1 MB
+  phase1_benchmark_step000000.pt                              0.1 MB
+  phase1_vocab_step000000.pt                                  0.6 MB
+  phase2_enc_pruning_step000000.pt                            0.0 MB
+  phase3_t2u_dec_pruning_step000000.pt                        0.0 MB
+  phase3_t2u_enc_pruning_step000000.pt                        0.0 MB
+  phase4_benchmark_step000000.pt                              0.1 MB
+  phase4_dec_pruning_step000000.pt                            0.0 MB
+  phase5_benchmark_step000000.pt                              0.1 MB
+=================================================================
+  Platform : kaggle   Time : 2026-05-25 06:13
+  Checkpoint files: 11
+    all_detailed_summaries_step000000.pt                    0.0 MB
+    all_summaries_step000000.pt                             0.0 MB
+    phase0_benchmark_step000000.pt                          0.1 MB
+    phase1_benchmark_step000000.pt                          0.1 MB
+    phase1_vocab_step000000.pt                              0.6 MB
+    phase2_enc_pruning_step000000.pt                        0.0 MB
+    phase3_t2u_dec_pruning_step000000.pt                    0.0 MB
+    phase3_t2u_enc_pruning_step000000.pt                    0.0 MB
+    phase4_benchmark_step000000.pt                          0.1 MB
+    phase4_dec_pruning_step000000.pt                        0.0 MB
+    phase5_benchmark_step000000.pt                          0.1 MB
+  GPU: Tesla T4  VRAM: 15.6 GB
+=================================================================
+
+✓ ALL SETUP CELLS COMPLETE — proceed to phases.
+```
+
 ---
 
 ## Cell 25 — `markdown`
@@ -1349,7 +1526,7 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ---
 
-## Cell 26 — `code`
+## Cell 26 — `code` (execution #20)
 
 ```python
 def run_benchmark(mdl, samples, label='model', save_n=2, max_samples=None):
@@ -1433,6 +1610,13 @@ print('Benchmark functions ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Benchmark functions ready.
+```
+
 ---
 
 ## Cell 27 — `markdown`
@@ -1452,7 +1636,7 @@ print('Benchmark functions ready.')
 
 ---
 
-## Cell 28 — `code`
+## Cell 28 — `code` (execution #21)
 
 ```python
 import torch
@@ -1465,9 +1649,16 @@ transformers.models.seamless_m4t_v2.modeling_seamless_m4t_v2.SeamlessM4Tv2ForSpe
 print("✓ SeamlessM4Tv2 class device property successfully patched to cuda:1")
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ SeamlessM4Tv2 class device property successfully patched to cuda:1
+```
+
 ---
 
-## Cell 29 — `code`
+## Cell 29 — `code` (execution #22)
 
 ```python
 # ── Quick evaluation helpers ──────────────────────────────────────────────────
@@ -1617,9 +1808,18 @@ print('chunk_friendly_shuffle ready.')
 print('quick_eval_chrf ready.')
 ```
 
+### Output
+
+**[stdout]**
+```
+Quick eval helpers ready.
+chunk_friendly_shuffle ready.
+quick_eval_chrf ready.
+```
+
 ---
 
-## Cell 30 — `code`
+## Cell 30 — `code` (execution #23)
 
 ```python
 # ── Encoder pruning helpers ───────────────────────────────────────────────────
@@ -1749,9 +1949,16 @@ print('Encoder pruning helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Encoder pruning helpers ready.
+```
+
 ---
 
-## Cell 31 — `code`
+## Cell 31 — `code` (execution #24)
 
 ```python
 # ── Text Decoder pruning helpers ──────────────────────────────────────────────
@@ -1890,9 +2097,16 @@ print('Decoder pruning helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Decoder pruning helpers ready.
+```
+
 ---
 
-## Cell 32 — `code`
+## Cell 32 — `code` (execution #25)
 
 ```python
 # ── T2U pruning helpers (ASR-BLEU primary, ASR-ChrF fallback) ────────────────
@@ -1978,6 +2192,13 @@ print('T2U pruning helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+T2U pruning helpers ready.
+```
+
 ---
 
 ## Cell 33 — `markdown`
@@ -1988,7 +2209,7 @@ print('T2U pruning helpers ready.')
 
 ---
 
-## Cell 34 — `code`
+## Cell 34 — `code` (execution #26)
 
 ```python
 # # Load teacher/base model
@@ -2000,7 +2221,7 @@ print('T2U pruning helpers ready.')
 
 ---
 
-## Cell 35 — `code`
+## Cell 35 — `code` (execution #27)
 
 ```python
 p0_bench = load_latest_checkpoint('phase0_benchmark')
@@ -2025,6 +2246,125 @@ plot_detailed_phase_comparison()
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Loaded phase0_benchmark_step000000.pt
+Loaded Phase 0 benchmark from checkpoint.
+[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
+[summary] Stored P0_V1_Baseline (1 total)
+[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
+[detailed] Stored P0_V1_Baseline
+
+================================================================================
+  P0_V1_Baseline - 1805.5M params
+================================================================================
+Overall: BLEU=9.12  ChrF=40.33±11.80  RTF=0.2094
+
+Per-Pair (6 pairs):
+  Pair                  N     BLEU     ChrF      RTF
+  arb→ben              33     4.66    34.13   0.2625
+  ben→arb              33     5.69    31.39   0.1915
+  ben→eng              33    16.85    52.04   0.1577
+  ben→hin              33     8.86    37.45   0.1703
+  eng→ben              33    11.58    48.11   0.2508
+  hin→ben              33     7.08    38.87   0.2233
+
+By Source Language:
+     ARB: BLEU=  4.66  ChrF= 34.13  (n=33)
+     BEN: BLEU= 10.47  ChrF= 40.29  (n=99)
+     ENG: BLEU= 11.58  ChrF= 48.11  (n=33)
+     HIN: BLEU=  7.08  ChrF= 38.87  (n=33)
+
+By Target Language:
+     ARB: BLEU=  5.69  ChrF= 31.39  (n=33)
+     BEN: BLEU=  7.77  ChrF= 40.37  (n=99)
+     ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
+     HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
+================================================================================
+[fig] Saved phase_comparison.png
+```
+
+```
+<Figure size 1920x1200 with 4 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
+[rclone] 2026/05/25 06:13:33 -     1.581 KiB / 1.581 KiB, 100%, 1.580 KiB/s, ETA 0s
+```
+
+```
+<Figure size 1800x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
+```
+
+```
+<Figure size 2520x1080 with 2 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+```
+
+```
+<Figure size 1800x1260 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
+```
+
+```
+<Figure size 1800x900 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
+
+✅ All 6 figures saved.
+   📄 detailed_comparison_01_overall_quality.png
+   📄 detailed_comparison_02_bleu_by_pair.png
+   📄 detailed_comparison_03_chrf_by_pair.png
+   📄 detailed_comparison_04_bengali_focus.png
+   📄 detailed_comparison_05_size_vs_quality.png
+   📄 detailed_comparison_06_rtf.png
+```
+
 ---
 
 ## Cell 36 — `markdown`
@@ -2035,7 +2375,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 37 — `code`
+## Cell 37 — `code` (execution #28)
 
 ```python
 # # ══════════════════════════════════════════════════════════════════════════════
@@ -2417,7 +2757,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 38 — `code`
+## Cell 38 — `code` (execution #29)
 
 ```python
 
@@ -2463,6 +2803,135 @@ plot_phase_comparison()
 plot_detailed_phase_comparison()
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Loaded phase1_benchmark_step000000.pt
+Loaded Phase 1 benchmark from checkpoint.
+[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
+[summary] Stored P1_Vocab4L (2 total)
+[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
+[detailed] Stored P1_Vocab4L
+
+================================================================================
+  P1_Vocab4L - 1686.3M params
+================================================================================
+Overall: BLEU=9.12  ChrF=40.33±11.80  RTF=0.1609
+
+Per-Pair (6 pairs):
+  Pair                  N     BLEU     ChrF      RTF
+  arb→ben              33     4.66    34.13   0.1938
+  ben→arb              33     5.69    31.39   0.1445
+  ben→eng              33    16.85    52.04   0.1271
+  ben→hin              33     8.86    37.45   0.1393
+  eng→ben              33    11.58    48.11   0.1897
+  hin→ben              33     7.08    38.87   0.1710
+
+By Source Language:
+     ARB: BLEU=  4.66  ChrF= 34.13  (n=33)
+     BEN: BLEU= 10.47  ChrF= 40.29  (n=99)
+     ENG: BLEU= 11.58  ChrF= 48.11  (n=33)
+     HIN: BLEU=  7.08  ChrF= 38.87  (n=33)
+
+By Target Language:
+     ARB: BLEU=  5.69  ChrF= 31.39  (n=33)
+     BEN: BLEU=  7.77  ChrF= 40.37  (n=99)
+     ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
+     HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
+================================================================================
+
+  ── Quality Gate ──
+  Bengali ChrF : P0=40.37  →  P1=40.37  Δ=+0.00
+  ✓ Within ±1.5 — vocab trim is lossless.
+[rclone] 
+[rclone] 2026/05/25 06:13:36 ERROR : all_detailed_summaries_step000000.pt: corrupted on transfer: md5 hashes differ src(Local file system at /kaggle/working/checkpoints) "f14da38f69e4ca84be7c5f5df6f64eec" vs dst(Google drive root 'seamTL_bengali/checkpoints') "48da2d86af26b9f1cd88a5fbd6038889"
+[rclone] 2026/05/25 06:13:36 -     2.446 KiB / 2.446 KiB, 100%, 2.445 KiB/s, ETA 0s
+[rclone] 2026/05/25 06:13:36 ERROR : Attempt 1/3 failed with 1 errors and: corrupted on transfer: md5 hashes differ src(Local file system at /kaggle/working/checkpoints) "f14da38f69e4ca84be7c5f5df6f64eec" vs dst(Google drive root 'seamTL_bengali/checkpoints') "48da2d86af26b9f1cd88a5fbd6038889"
+[rclone] 2026/05/25 06:13:36 -     2.446 KiB / 2.446 KiB, 100%, 2.445 KiB/s, ETA 0s
+[rclone] 2026/05/25 06:13:39 ERROR : Attempt 2/3 succeeded
+[rclone] 2026/05/25 06:13:39 -     5.830 KiB / 5.830 KiB, 100%, 1.942 KiB/s, ETA 0s2026/05/25 06:13:39 -     5.830 KiB / 5.830 KiB, 100%, 1.942 KiB/s, ETA 0s
+[fig] Saved phase_comparison.png
+```
+
+```
+<Figure size 1920x1200 with 4 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
+```
+
+```
+<Figure size 1800x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
+```
+
+```
+<Figure size 2520x1080 with 2 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+```
+
+```
+<Figure size 1800x1260 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
+```
+
+```
+<Figure size 1800x900 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
+
+✅ All 6 figures saved.
+   📄 detailed_comparison_01_overall_quality.png
+   📄 detailed_comparison_02_bleu_by_pair.png
+   📄 detailed_comparison_03_chrf_by_pair.png
+   📄 detailed_comparison_04_bengali_focus.png
+   📄 detailed_comparison_05_size_vs_quality.png
+   📄 detailed_comparison_06_rtf.png
+```
+
 ---
 
 ## Cell 39 — `markdown`
@@ -2473,7 +2942,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 40 — `code`
+## Cell 40 — `code` (execution #30)
 
 ```python
 # # Load Phase 1 model to prune
@@ -2521,7 +2990,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 41 — `code`
+## Cell 41 — `code` (execution #31)
 
 ```python
 # p2_bench = load_latest_checkpoint('phase2_benchmark')
@@ -2555,7 +3024,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 43 — `code`
+## Cell 43 — `code` (execution #32)
 
 ```python
 # model_p3 = model_p2   # continue from enc-pruned model
@@ -2597,7 +3066,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 44 — `code`
+## Cell 44 — `code` (execution #33)
 
 ```python
 # p3_bench = load_latest_checkpoint('phase3_benchmark')
@@ -2630,7 +3099,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 46 — `code`
+## Cell 46 — `code` (execution #34)
 
 ```python
 # model_p4 = model_p3
@@ -2688,7 +3157,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 47 — `code`
+## Cell 47 — `code` (execution #35)
 
 ```python
 # model_p4, processor = load_model_from_drive('phase4_dec_14L')
@@ -2696,7 +3165,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 48 — `code`
+## Cell 48 — `code` (execution #36)
 
 ```python
 p4_bench = load_latest_checkpoint('phase4_benchmark')
@@ -2719,9 +3188,134 @@ plot_detailed_phase_comparison()
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Loaded phase4_benchmark_step000000.pt
+[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
+[summary] Stored P4_Dec14L (3 total)
+[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
+[detailed] Stored P4_Dec14L
+
+================================================================================
+  P4_Dec14L - 1056.0M params
+================================================================================
+Overall: BLEU=0.58  ChrF=8.33±6.25  RTF=0.2754
+
+Per-Pair (6 pairs):
+  Pair                  N     BLEU     ChrF      RTF
+  arb→ben              33     0.23     5.21   0.3273
+  ben→arb              33     0.22     5.89   0.2860
+  ben→eng              33     1.70    15.74   0.1019
+  ben→hin              33     0.36     6.06   0.3497
+  eng→ben              32     0.73     7.96   0.2600
+  hin→ben              33     0.25     9.09   0.3269
+
+By Source Language:
+     ARB: BLEU=  0.23  ChrF=  5.21  (n=33)
+     BEN: BLEU=  0.76  ChrF=  9.23  (n=99)
+     ENG: BLEU=  0.73  ChrF=  7.96  (n=32)
+     HIN: BLEU=  0.25  ChrF=  9.09  (n=33)
+
+By Target Language:
+     ARB: BLEU=  0.22  ChrF=  5.89  (n=33)
+     BEN: BLEU=  0.40  ChrF=  7.42  (n=98)
+     ENG: BLEU=  1.70  ChrF= 15.74  (n=33)
+     HIN: BLEU=  0.36  ChrF=  6.06  (n=33)
+================================================================================
+[rclone] 
+[rclone] 2026/05/25 06:13:42 ERROR : all_summaries_step000000.pt: corrupted on transfer: md5 hashes differ src(Local file system at /kaggle/working/checkpoints) "12290bd0cd6ba3ab9397369d40e0044a" vs dst(Google drive root 'seamTL_bengali/checkpoints') "4fd85a07469d42a4832ae18b7909684f"
+[rclone] 2026/05/25 06:13:42 -     1.769 KiB / 1.769 KiB, 100%, 1.768 KiB/s, ETA 0s
+[rclone] 2026/05/25 06:13:43 ERROR : Attempt 1/3 failed with 1 errors and: corrupted on transfer: md5 hashes differ src(Local file system at /kaggle/working/checkpoints) "12290bd0cd6ba3ab9397369d40e0044a" vs dst(Google drive root 'seamTL_bengali/checkpoints') "4fd85a07469d42a4832ae18b7909684f"
+[rclone] 2026/05/25 06:13:43 -     1.769 KiB / 1.769 KiB, 100%, 905 B/s, ETA 0s
+[rclone] 2026/05/25 06:13:45 ERROR : Attempt 2/3 succeeded
+[rclone] 2026/05/25 06:13:45 -     3.725 KiB / 3.725 KiB, 100%, 953 B/s, ETA 0s2026/05/25 06:13:45 -     3.725 KiB / 3.725 KiB, 100%, 953 B/s, ETA 0s
+[fig] Saved phase_comparison.png
+```
+
+```
+<Figure size 1920x1200 with 4 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L']
+```
+
+```
+<Figure size 1800x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
+```
+
+```
+<Figure size 2520x1080 with 2 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+[rclone] 2026/05/25 06:13:49 -     4.321 KiB / 4.321 KiB, 100%, 4.320 KiB/s, ETA 0s
+```
+
+```
+<Figure size 1800x1260 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
+```
+
+```
+<Figure size 1800x900 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
+
+✅ All 6 figures saved.
+   📄 detailed_comparison_01_overall_quality.png
+   📄 detailed_comparison_02_bleu_by_pair.png
+   📄 detailed_comparison_03_chrf_by_pair.png
+   📄 detailed_comparison_04_bengali_focus.png
+   📄 detailed_comparison_05_size_vs_quality.png
+   📄 detailed_comparison_06_rtf.png
+```
+
 ---
 
-## Cell 49 — `code`
+## Cell 49 — `code` (execution #37)
 
 ```python
 # heed
@@ -2792,6 +3386,16 @@ S_VOCAB = student.shared.num_embeddings
 print(f'✓ Vocab size     : {S_VOCAB}')
 print_model_breakdown(student, 'Student (Pruned, Pre-FT)')
 gpu_mem()
+```
+
+### Output
+
+**[stdout]**
+```
+Loading phase5_ft_merged for fine-tuning with Custom Device Split...
+[model] Not in local cache — pulling from remote...
+[rclone] 2026/05/25 06:13:50 -           0 B / 0 B, -, 0 B/s, ETA -
+[rclone] 2026/05/25 06:13:52 -           0 B / 0 B, -, 0 B/s, ETA -
 ```
 
 ---
@@ -4416,7 +5020,7 @@ print(f'[Config] MDC API key loaded: {"YES" if MDC_API_KEY else "NO — check yo
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
-# ── Cell 71: ALL-IN-ONE (GDrive Sync + WAV/ZSTD + Kaggle Dataset Publisher)
+# ── Cell 71: ALL-IN-ONE (GDrive Sync + WAV/ZSTD + 100% Safe Disk Management)
 # ═══════════════════════════════════════════════════════════════════════════════
 import tarfile, io, csv, os, subprocess, pathlib, time as _time
 import numpy as np, soundfile as sf, requests, json
@@ -4457,7 +5061,69 @@ def _save_parquet(records: list, src_cv: str, tgt_m4t: str, chunk_idx: int) -> s
     print(f"  [Parquet] chunk{chunk_idx:04d} — {len(records)} samples, {os.path.getsize(path)/1e6:.1f} MB", flush=True)
     return path
 
-# ── MDC URL Fetcher ──────────────────────────────────────────────────────────
+# ── Safe GDrive Syncing & Local Cleanup ──────────────────────────────────────
+def _rclone_sync_backup():
+    if not ON_KAGGLE: return
+    print(f"  [GDrive] Backing up local parquets to GDrive...", flush=True)
+    # We use 'copy' so we don't accidentally delete files already in GDrive
+    r = subprocess.run(f'rclone copy "{PSEUDO_DIR}/" "{GDRIVE_PARQUET_DIR}/" --transfers=8', shell=True)
+    if r.returncode == 0:
+        # LOUD & AGGRESSIVE CLEANUP: Only delete locally if GDrive backup succeeded!
+        freed = 0
+        for f in pathlib.Path(PSEUDO_DIR).glob("*.parquet"):
+            freed += f.stat().st_size / 1e6
+            f.unlink()
+        if freed > 0:
+            print(f"  [Local] ✓ Safely deleted {freed:.1f} MB of backed-up parquets to prevent OOM.", flush=True)
+    else:
+        print("  [GDrive] ⚠ Warning: Backup failed. Keeping local files to prevent data loss.")
+
+def publish_kaggle_dataset(dataset_title='fleurs5', message='Added structured pseudo-labels'):
+    if not ON_KAGGLE: return False
+    try:
+        kag_json = _get_secret('KAGGLE_API_TOKEN')
+        if not kag_json: kag_json = ""
+        kp = pathlib.Path.home() / '.kaggle/kaggle.json'
+        kp.parent.mkdir(parents=True, exist_ok=True)
+        kp.write_text(kag_json)
+        kp.chmod(0o600)
+    except Exception: return False
+
+    try: user = json.loads(kag_json).get('username', 'rayedriasat')
+    except: user = 'rayedriasat'
+
+    EXPORT_DIR = f"{WORK_DIR}/kaggle_dataset_export"
+    os.makedirs(f"{EXPORT_DIR}/fleurs", exist_ok=True)
+    os.makedirs(f"{EXPORT_DIR}/pseudo_cv25", exist_ok=True)
+
+    print(f"\n[Kaggle] Assembling highly-efficient export folder at {EXPORT_DIR}...")
+    subprocess.run(f'rclone sync "{GDRIVE_ROOT}/fleurs_parquet/" "{EXPORT_DIR}/fleurs/" --transfers=8', shell=True)
+    subprocess.run(f'rclone sync "{GDRIVE_PARQUET_DIR}/" "{EXPORT_DIR}/pseudo_cv25/" --transfers=8', shell=True)
+
+    meta_path = os.path.join(EXPORT_DIR, 'dataset-metadata.json')
+    with open(meta_path, 'w') as f:
+        json.dump({'title': dataset_title, 'id': f'{user}/{dataset_title}', 'licenses': [{'name': 'CC0-1.0'}]}, f, indent=2)
+
+    print(f'[Kaggle] Pushing structured dataset to {user}/{dataset_title}...')
+    r = subprocess.run(['kaggle', 'datasets', 'version', '-p', EXPORT_DIR, '-m', message, '--dir-mode', 'tar'], text=True, capture_output=True)
+    
+    import shutil
+    shutil.rmtree(EXPORT_DIR, ignore_errors=True)
+    
+    if r.returncode == 0:
+        print(f'[Kaggle] ✓ Version updated successfully!')
+        return True
+        
+    print(f'[Kaggle] Update failed. Trying to create new dataset...')
+    r2 = subprocess.run(['kaggle', 'datasets', 'create', '-p', EXPORT_DIR, '--dir-mode', 'tar'], text=True, capture_output=True)
+    if r2.returncode == 0:
+        print(f'[Kaggle] ✓ Dataset created: {user}/{dataset_title}')
+        return True
+        
+    print(f'[Kaggle] ❌ Push failed.\nError:\n{r.stderr[:400] if r.stderr else r2.stderr[:400]}')
+    return False
+
+# ── MDC URL Fetcher & Core Parsing ───────────────────────────────────────────
 _mdc_url_cache = {}
 def mdc_get_presigned_url(dataset_id: str, force_refresh: bool = False) -> dict:
     global _mdc_url_cache
@@ -4483,58 +5149,6 @@ def mdc_get_presigned_url(dataset_id: str, force_refresh: bool = False) -> dict:
         info['_expires_ts'] = _time.time() + 11 * 3600
     _mdc_url_cache[dataset_id] = info
     return info
-
-# ── Kaggle & GDrive Syncing ──────────────────────────────────────────────────
-def _rclone_sync_backup():
-    if not ON_KAGGLE: return
-    print(f"  [GDrive] Syncing local parquets to GDrive backup...", flush=True)
-    subprocess.run(f'rclone sync "{PSEUDO_DIR}/" "{GDRIVE_PARQUET_DIR}/" --transfers=8', shell=True)
-
-def publish_kaggle_dataset(dataset_title='fleurs5', message='Added structured pseudo-labels'):
-    if not ON_KAGGLE: return False
-    try:
-        kag_json = _get_secret('KAGGLE_API_TOKEN')
-        if not kag_json: kag_json = ""
-        kp = pathlib.Path.home() / '.kaggle/kaggle.json'
-        kp.parent.mkdir(parents=True, exist_ok=True)
-        kp.write_text(kag_json)
-        kp.chmod(0o600)
-    except Exception: return False
-
-    try: user = json.loads(kag_json).get('username', 'rayedriasat')
-    except: user = 'rayedriasat'
-
-    EXPORT_DIR = f"{WORK_DIR}/kaggle_dataset_export"
-    os.makedirs(f"{EXPORT_DIR}/fleurs", exist_ok=True)
-    os.makedirs(f"{EXPORT_DIR}/pseudo_cv25", exist_ok=True)
-
-    print(f"\n[Kaggle] Assembling highly-efficient export folder at {EXPORT_DIR}...")
-    subprocess.run(f'rclone sync "{GDRIVE_ROOT}/fleurs_parquet/" "{EXPORT_DIR}/fleurs/" --transfers=8', shell=True)
-    subprocess.run(f'rclone sync "{GDRIVE_PARQUET_DIR}/" "{EXPORT_DIR}/pseudo_cv25/" --transfers=8', shell=True)
-
-    import shutil
-    for f in pathlib.Path(PSEUDO_DIR).glob("*.parquet"): shutil.move(str(f), f"{EXPORT_DIR}/pseudo_cv25/{f.name}")
-        
-    meta_path = os.path.join(EXPORT_DIR, 'dataset-metadata.json')
-    with open(meta_path, 'w') as f:
-        json.dump({'title': dataset_title, 'id': f'{user}/{dataset_title}', 'licenses': [{'name': 'CC0-1.0'}]}, f, indent=2)
-
-    print(f'[Kaggle] Pushing structured dataset to {user}/{dataset_title}...')
-    r = subprocess.run(['kaggle', 'datasets', 'version', '-p', EXPORT_DIR, '-m', message, '--dir-mode', 'tar'], text=True, capture_output=True)
-    shutil.rmtree(EXPORT_DIR, ignore_errors=True)
-    
-    if r.returncode == 0:
-        print(f'[Kaggle] ✓ Version updated successfully!')
-        return True
-        
-    print(f'[Kaggle] Update failed. Trying to create new dataset...')
-    r2 = subprocess.run(['kaggle', 'datasets', 'create', '-p', EXPORT_DIR, '--dir-mode', 'tar'], text=True, capture_output=True)
-    if r2.returncode == 0:
-        print(f'[Kaggle] ✓ Dataset created: {user}/{dataset_title}')
-        return True
-        
-    print(f'[Kaggle] ❌ Push failed.\nError:\n{r.stderr[:400] if r.stderr else r2.stderr[:400]}')
-    return False
 
 def _rclone_check_exists(remote_dir, filename):
     if not ON_KAGGLE: return False
@@ -4626,8 +5240,8 @@ def _extract_all_mp3s_to_ram(partial_path: str, tsv_map: dict, max_n: int) -> li
     except tarfile.ReadError: pass
     return clips
 
-INFERENCE_BATCH_SIZE = 16   
-LOG_EVERY_SECONDS    = 15   
+INFERENCE_BATCH_SIZE = 24   
+LOG_EVERY_SECONDS    = 30   
 
 def _inference_on_ram_clips(clips: list, src_cv: str, tgt_m4t: str, already_saved: int, max_clips: int, t_dev, buffer_out: list) -> int:
     total_saved, saved_this_call, failed = already_saved, 0, 0
@@ -4655,7 +5269,7 @@ def _inference_on_ram_clips(clips: list, src_cv: str, tgt_m4t: str, already_save
             
             seqs = out.sequences if hasattr(out, 'sequences') else out
             if isinstance(seqs, tuple): seqs = seqs[0]
-                
+            
             remapped = _remap_ids_for_decode(teacher, seqs.cpu())
             texts = processor.batch_decode(remapped, skip_special_tokens=True)
             
@@ -4714,10 +5328,35 @@ def _inference_on_ram_clips(clips: list, src_cv: str, tgt_m4t: str, already_save
 def run_pseudo_labeler(src_cv: str, tgt_m4t: str, max_clips: int = 20000):
     dataset_id = MDC_DATASET_IDS[src_cv]
     state_file = pathlib.Path(PSEUDO_DIR) / f'.state_{src_cv}2{tgt_m4t}.json'
+
+    # ── FIX 1: PULL FROM GDRIVE BEFORE CHECKING STATE ──
+    if ON_KAGGLE:
+        print(f"[GDrive] Syncing previously generated files from GDrive to local cache...", flush=True)
+        # Using copy means we pull the old parquets and state files down to Kaggle safely
+        subprocess.run(f'rclone copy "{GDRIVE_PARQUET_DIR}/" "{PSEUDO_DIR}/" --transfers=8', shell=True)
+
     state = json.loads(state_file.read_text()) if state_file.exists() else {}
     already_done   = state.get('clips_done', 0)
     next_chunk_idx = state.get('next_chunk_idx', 0)
     byte_offset    = state.get('byte_offset', 0)
+
+    # ── FIX 2: BULLETPROOF STATE RECOVERY ──
+    # Count the actual rows in the Parquet files. If the state file was deleted or out of sync,
+    # this perfectly restores your progress mathematically.
+    actual_clips = 0
+    max_idx = -1
+    for f in pathlib.Path(PSEUDO_DIR).glob(f'pseudo_{src_cv}2{tgt_m4t}_chunk*.parquet'):
+        try:
+            actual_clips += pq.read_metadata(f).num_rows
+            idx = int(f.stem.split('chunk')[-1])
+            max_idx = max(max_idx, idx)
+        except Exception: 
+            pass
+            
+    if actual_clips > already_done:
+        print(f"  [State Recovery] Recovered true progress from Parquets: {actual_clips} clips.")
+        already_done = actual_clips
+        next_chunk_idx = max_idx + 1 if max_idx >= 0 else 0
 
     print(f'\n{"="*65}\n[PL] {src_cv} Audio → {tgt_m4t} Text | target={max_clips} | done={already_done} | resume={byte_offset/1e9:.2f} GB\n{"="*65}', flush=True)
 
@@ -4734,10 +5373,6 @@ def run_pseudo_labeler(src_cv: str, tgt_m4t: str, max_clips: int = 20000):
             i = mdc_get_presigned_url(dataset_id, force_refresh=True)
             url, expires_ts = i['downloadUrl'], i.get('_expires_ts', _time.time() + 11*3600)
         return url
-
-    if ON_KAGGLE:
-        print("[GDrive] Ensuring all previously generated parquets are present locally before continuing...")
-        subprocess.run(f'rclone copy "{GDRIVE_PARQUET_DIR}/" "{PSEUDO_DIR}/" --transfers=8', shell=True)
 
     tsv_cache = pathlib.Path(PSEUDO_DIR) / f'.tsv_{src_cv}.json'
     if tsv_cache.exists():
@@ -4781,16 +5416,19 @@ def run_pseudo_labeler(src_cv: str, tgt_m4t: str, max_clips: int = 20000):
         cur_offset = slice_end + 1
         
         if ram_buffer:
-            _save_parquet(ram_buffer, src_cv, tgt_m4t, next_chunk_idx)
-            next_chunk_idx += 1
+            CHUNK_SAVE_EVERY = 5000
+            for i in range(0, len(ram_buffer), CHUNK_SAVE_EVERY):
+                chunk = ram_buffer[i : i + CHUNK_SAVE_EVERY]
+                _save_parquet(chunk, src_cv, tgt_m4t, next_chunk_idx)
+                next_chunk_idx += 1
+                
             state_file.write_text(json.dumps({'clips_done': total_saved, 'next_chunk_idx': next_chunk_idx, 'byte_offset': cur_offset}))
             _rclone_sync_backup()
 
     _rclone_sync_backup()
-    publish_kaggle_dataset(dataset_title='fleurs5', message=f'Added {total_saved} {src_cv}->{tgt_m4t} pseudo-labels')
-    print(f'\n✓ [{src_cv}->{tgt_m4t}] {total_saved} pseudo-labels generated and pushed to Kaggle.')
+    print(f'\n✓ [{src_cv}->{tgt_m4t}] {total_saved} pseudo-labels generated and synced safely to GDrive.')
 
-print('Cross-Lingual Pseudo-Labeler Ready with ZSTD, Float16, and Tuple Extraction Fix.')
+print('Cross-Lingual Pseudo-Labeler Ready with 100% Safe Disk Management.')
 ```
 
 ---
@@ -4903,81 +5541,7 @@ run_pseudo_labeler(src_cv='bn', tgt_m4t='arb', max_clips=15000)
 ## Cell 76 — `code`
 
 ```python
-# ── Cell 74: Load Combined Dataset (FLEURS + Kaggle Pseudo Dataset) ──────────
-import pandas as pd, pathlib, os
-
-# If you attach the Kaggle dataset to your notebook, it lives here:
-KAGGLE_DATASET_ROOT = '/kaggle/input/datasets/rayedriasat/fleurs5'
-
-# Auto-detect routing based on the new structured hierarchy
-if os.path.exists(f"{KAGGLE_DATASET_ROOT}/fleurs"):
-    print(f"✓ Structured Kaggle Dataset detected at {KAGGLE_DATASET_ROOT}!")
-    ACTIVE_FLEURS_PATH = f"{KAGGLE_DATASET_ROOT}/fleurs"
-    ACTIVE_PSEUDO_PATH = f"{KAGGLE_DATASET_ROOT}/pseudo_cv25"
-else:
-    print(f"⚠ Kaggle Dataset not mounted properly. Falling back to local working directories.")
-    ACTIVE_FLEURS_PATH = LOCAL_PARQUET_CACHE  # Defined in Cell 16
-    ACTIVE_PSEUDO_PATH = PSEUDO_DIR           # Defined in Cell 71
-
-def _build_pseudo_metadata(path: str) -> list:
-    meta = []
-    print(f'Loading pseudo-label metadata from {path}...')
-    parquet_files = list(pathlib.Path(path).glob('pseudo_*.parquet'))
-    
-    if not parquet_files:
-        print(f"  [Warning] No parquets found in {path}!")
-        return meta
-        
-    for f in sorted(parquet_files):
-        stem = f.stem                           
-        try: lang_pair = stem.split('_')[1]     
-        except IndexError: continue
-        if '2' not in lang_pair: continue
-        
-        src_cv, tgt_m4t = lang_pair.split('2', 1)
-        src_m4t = CV_TO_M4T.get(src_cv, src_cv)
-        
-        try: df = pd.read_parquet(str(f), columns=['id','transcription'])
-        except Exception as e: print(f'  [skip] {f.name}: {e}'); continue
-        
-        for i, row in enumerate(df.itertuples(index=False)):
-            meta.append({
-                'id': row.id, 
-                'src_lang': src_m4t, 
-                'tgt_lang': tgt_m4t,
-                'ref': row.transcription, 
-                '_src_file': str(f), 
-                '_src_idx': i
-            })
-    print(f'  [Pseudo] Successfully loaded {len(meta)} entries from {path}')
-    return meta
-
-def load_all_metadata_combined(max_fleurs: int = 4000) -> list:
-    all_meta = []
-    print(f'Loading original FLEURS metadata from {ACTIVE_FLEURS_PATH}...')
-    for src, tgt in EVAL_LANG_PAIRS:
-        ds = ParquetStreamingDataset(ACTIVE_FLEURS_PATH, src, tgt, 'train', max_fleurs)
-        all_meta.extend(ds.samples)
-    print(f'  FLEURS: {len(all_meta)} samples')
-    
-    pseudo = _build_pseudo_metadata(ACTIVE_PSEUDO_PATH)
-    all_meta.extend(pseudo)
-    
-    from collections import Counter
-    counts = Counter(f"{s['src_lang']}→{s['tgt_lang']}" for s in all_meta)
-    print(f'\n✓ Combined: {len(all_meta)} total training samples')
-    for pair, n in sorted(counts.items()):
-        print(f'  {pair}: {n}{"  ★ Bengali" if "ben" in pair else ""}')
-    return all_meta
-
-# Build combined metadata
-combined_metadata = load_all_metadata_combined(max_fleurs=4000)
-
-# Pass straight to ChunkedStreamingDataset 
-ft_samples = ChunkedStreamingDataset(combined_metadata, chunk_size=CHUNK_SIZE, prefetch=True)
-N_TRAIN = len(ft_samples)
-
-print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples ready for Massive KD Training.')
+# !rclone copy gdrive:seamTL_bengali/pseudo_cv25 /kaggle/working/pseudo_cv25
 ```
 
 ---
@@ -4985,7 +5549,81 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples ready for Massive KD Trainin
 ## Cell 77 — `code`
 
 ```python
-# !rclone copy /kaggle/working/ gdrive:seamTL_bengali/
+# # ── Cell 74: Load Combined Dataset (FLEURS + Kaggle Pseudo Dataset) ──────────
+# import pandas as pd, pathlib, os
+
+# # If you attach the Kaggle dataset to your notebook, it lives here:
+# KAGGLE_DATASET_ROOT = '/kaggle/input/datasets/rayedriasat/fleurs5'
+
+# # Auto-detect routing based on the new structured hierarchy
+# if os.path.exists(f"{KAGGLE_DATASET_ROOT}/fleurs"):
+#     print(f"✓ Structured Kaggle Dataset detected at {KAGGLE_DATASET_ROOT}!")
+#     ACTIVE_FLEURS_PATH = f"{KAGGLE_DATASET_ROOT}/fleurs"
+#     ACTIVE_PSEUDO_PATH = f"{KAGGLE_DATASET_ROOT}/pseudo_cv25"
+# else:
+#     print(f"⚠ Kaggle Dataset not mounted properly. Falling back to local working directories.")
+#     ACTIVE_FLEURS_PATH = LOCAL_PARQUET_CACHE  # Defined in Cell 16
+#     ACTIVE_PSEUDO_PATH = PSEUDO_DIR           # Defined in Cell 71
+
+# def _build_pseudo_metadata(path: str) -> list:
+#     meta = []
+#     print(f'Loading pseudo-label metadata from {path}...')
+#     parquet_files = list(pathlib.Path(path).glob('pseudo_*.parquet'))
+    
+#     if not parquet_files:
+#         print(f"  [Warning] No parquets found in {path}!")
+#         return meta
+        
+#     for f in sorted(parquet_files):
+#         stem = f.stem                           
+#         try: lang_pair = stem.split('_')[1]     
+#         except IndexError: continue
+#         if '2' not in lang_pair: continue
+        
+#         src_cv, tgt_m4t = lang_pair.split('2', 1)
+#         src_m4t = CV_TO_M4T.get(src_cv, src_cv)
+        
+#         try: df = pd.read_parquet(str(f), columns=['id','transcription'])
+#         except Exception as e: print(f'  [skip] {f.name}: {e}'); continue
+        
+#         for i, row in enumerate(df.itertuples(index=False)):
+#             meta.append({
+#                 'id': row.id, 
+#                 'src_lang': src_m4t, 
+#                 'tgt_lang': tgt_m4t,
+#                 'ref': row.transcription, 
+#                 '_src_file': str(f), 
+#                 '_src_idx': i
+#             })
+#     print(f'  [Pseudo] Successfully loaded {len(meta)} entries from {path}')
+#     return meta
+
+# def load_all_metadata_combined(max_fleurs: int = 4000) -> list:
+#     all_meta = []
+#     print(f'Loading original FLEURS metadata from {ACTIVE_FLEURS_PATH}...')
+#     for src, tgt in EVAL_LANG_PAIRS:
+#         ds = ParquetStreamingDataset(ACTIVE_FLEURS_PATH, src, tgt, 'train', max_fleurs)
+#         all_meta.extend(ds.samples)
+#     print(f'  FLEURS: {len(all_meta)} samples')
+    
+#     pseudo = _build_pseudo_metadata(ACTIVE_PSEUDO_PATH)
+#     all_meta.extend(pseudo)
+    
+#     from collections import Counter
+#     counts = Counter(f"{s['src_lang']}→{s['tgt_lang']}" for s in all_meta)
+#     print(f'\n✓ Combined: {len(all_meta)} total training samples')
+#     for pair, n in sorted(counts.items()):
+#         print(f'  {pair}: {n}{"  ★ Bengali" if "ben" in pair else ""}')
+#     return all_meta
+
+# # Build combined metadata
+# combined_metadata = load_all_metadata_combined(max_fleurs=4000)
+
+# # Pass straight to ChunkedStreamingDataset 
+# ft_samples = ChunkedStreamingDataset(combined_metadata, chunk_size=CHUNK_SIZE, prefetch=True)
+# N_TRAIN = len(ft_samples)
+
+# print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples ready for Massive KD Training.')
 ```
 
 ---
@@ -4993,7 +5631,9 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples ready for Massive KD Trainin
 ## Cell 78 — `code`
 
 ```python
-# publish_kaggle_dataset(message='Restored FLEURS and added structured Pseudo-Labels')
+# from transformers import SeamlessM4Tv2ForSpeechToSpeech
+# teacher = SeamlessM4Tv2ForSpeechToSpeech.from_pretrained(
+#     MODEL_NAME, torch_dtype=torch.float16, device_map=TEACHER_DEVICE)
 ```
 
 ---
@@ -5001,12 +5641,71 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples ready for Massive KD Trainin
 ## Cell 79 — `code`
 
 ```python
-publish_kaggle_dataset(message='Fixed wav having all zeros, used zstd compression, previous error was bfloat16 silent crash on kaggle T4')
+# for i in range(40000, 40003):
+#     print(f"{ft_samples[i]}")
 ```
 
 ---
 
 ## Cell 80 — `code`
+
+```python
+# mdl = teacher
+# for i in range(40000, 40003):
+#     s = ft_samples[i]
+#     print(f"{s['wav'][325:345]}")
+    
+#     dur = len(s['wav']) / 16000
+#     t0  = time.time()
+#     _, wav_out = run_s2st(mdl, s['wav'], tgt_lang=s['tgt_lang'])
+#     rtf  = (time.time() - t0) / max(dur, 0.01)
+#     pred = asr_transcribe(wav_out, s['tgt_lang'])
+#     bleu = compute_bleu(pred, s['ref'])
+#     chrf = compute_chrf(pred, s['ref'])
+#     print(f'  [{i}] BLEU={bleu:5.1f} ChrF={chrf:5.1f} RTF={rtf:.3f}')
+#     print(f'              pred: {pred[:80]}')
+
+#     play(s['wav'], 16000, label=f'_s{i+1}in.wav')
+```
+
+---
+
+## Cell 81 — `code`
+
+```python
+# !rclone copy /kaggle/working/ gdrive:seamTL_bengali/
+```
+
+---
+
+## Cell 82 — `code`
+
+```python
+# publish_kaggle_dataset(message='Restored FLEURS and added structured Pseudo-Labels')
+```
+
+---
+
+## Cell 83 — `code`
+
+```python
+subprocess.run(
+    'rm -rf /kaggle/working/*',
+    shell=True
+)
+```
+
+---
+
+## Cell 84 — `code`
+
+```python
+publish_kaggle_dataset(message='Fixed wav having all zeros, used zstd compression, previous error was bfloat16 silent crash on kaggle T4')
+```
+
+---
+
+## Cell 85 — `code`
 
 ```python
 text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
@@ -5015,7 +5714,15 @@ print(f"pre p6 eval → Text ChrF: {text_chrf:.2f} | ASR ChrF: {asr_chrf:.2f}")
 
 ---
 
-## Cell 81 — `code`
+## Cell 86 — `code`
+
+```python
+heed
+```
+
+---
+
+## Cell 87 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -5138,7 +5845,7 @@ print('DTB and SSB modules defined. Call inject_bridges(student) to install.')
 
 ---
 
-## Cell 82 — `code`
+## Cell 88 — `code`
 
 ```python
 # student = inject_bridges(student)
@@ -5146,7 +5853,7 @@ print('DTB and SSB modules defined. Call inject_bridges(student) to install.')
 
 ---
 
-## Cell 83 — `code`
+## Cell 89 — `code`
 
 ```python
 # ── Cell 76: Install Bridges ──────────────────────────────────────────
@@ -5166,7 +5873,7 @@ else:
 
 ---
 
-## Cell 84 — `code`
+## Cell 90 — `code`
 
 ```python
 # # ── Cell 76: Phase 6A — Bridge Warm-Up (300 steps, bridges only) ─────────────
@@ -5272,7 +5979,7 @@ else:
 
 ---
 
-## Cell 85 — `code`
+## Cell 91 — `code`
 
 ```python
 # ── Cell 77: Phase 6 — Massive Pseudo-Label FT (KD Annealing + Bridges) ──
@@ -5524,7 +6231,7 @@ print(f"\n✓ Phase 6 complete. Best ASR ChrF: {final_chrf:.2f} at step {final_s
 
 ---
 
-## Cell 86 — `code`
+## Cell 92 — `code`
 
 ```python
 # ── Cell 78: Plot Training History ───────────────────────────────────────────
@@ -5577,7 +6284,7 @@ else:
 
 ---
 
-## Cell 87 — `code`
+## Cell 93 — `code`
 
 ```python
 # ── Cell 79: Load Best Checkpoint and Save Final Model ───────────────────────
@@ -5601,7 +6308,7 @@ print('✓ Saved final model to Google Drive as `phase6_massive_ft_merged`')
 
 ---
 
-## Cell 88 — `code`
+## Cell 94 — `code`
 
 ```python
 # ── Cell 80: Final Comprehensive Benchmark ───────────────────────────────────
@@ -5656,7 +6363,7 @@ print("\n🎉 PIPELINE COMPLETE! 🎉")
 
 ---
 
-## Cell 89 — `markdown`
+## Cell 95 — `markdown`
 
 > ## Summary
 > 
