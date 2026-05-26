@@ -1,6 +1,6 @@
 # Notebook: `./bengali-seamless-notebook.ipynb`
 
-> Kernel: **Python 3** | Total cells: **95**
+> Kernel: **Python 3** | Total cells: **98**
 
 ---
 
@@ -20,6 +20,17 @@
 ---
 
 ## Cell 3 — `code` (execution #1)
+
+```python
+import os
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
+import torch
+```
+
+---
+
+## Cell 4 — `code` (execution #2)
 
 ```python
 import os, sys, subprocess, pathlib, re, glob, json, gc, copy, time, math, shutil, random
@@ -59,7 +70,7 @@ Work dir : /kaggle/working
 
 ---
 
-## Cell 4 — `code` (execution #2)
+## Cell 5 — `code` (execution #3)
 
 ```python
 if ON_COLAB:
@@ -120,7 +131,7 @@ HuggingFace login: OK
 
 ---
 
-## Cell 5 — `code` (execution #3)
+## Cell 6 — `code` (execution #4)
 
 ```python
 subprocess.run([
@@ -138,18 +149,18 @@ print('All packages installed.')
 
 **[stdout]**
 ```
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 10.9 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.1/84.1 kB 6.8 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.8/100.8 kB 7.8 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 45.9 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 kB 9.9 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 788.2/788.2 kB 40.5 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 31.6 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.1/84.1 kB 6.9 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.8/100.8 kB 6.5 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 88.6 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 kB 8.2 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 788.2/788.2 kB 37.3 MB/s eta 0:00:00
 All packages installed.
 ```
 
 ---
 
-## Cell 6 — `code` (execution #4)
+## Cell 7 — `code` (execution #5)
 
 ```python
 import torch
@@ -167,7 +178,7 @@ torch.cuda.manual_seed_all(seed)
 
 ---
 
-## Cell 7 — `code` (execution #5)
+## Cell 8 — `code` (execution #6)
 
 ```python
 import torch, numpy as np, random
@@ -240,7 +251,7 @@ Core utilities ready.
 
 ---
 
-## Cell 8 — `code` (execution #6)
+## Cell 9 — `code` (execution #7)
 
 ```python
 import queue, threading
@@ -355,7 +366,7 @@ Checkpoint helpers ready.
 
 ---
 
-## Cell 9 — `code` (execution #7)
+## Cell 10 — `code` (execution #8)
 
 ```python
 import torch.nn as nn, torch.nn.functional as F
@@ -541,7 +552,7 @@ Model I/O helpers ready.
 
 ---
 
-## Cell 10 — `code` (execution #8)
+## Cell 11 — `code` (execution #9)
 
 ```python
 from collections import defaultdict
@@ -782,13 +793,13 @@ Summary + plotting helpers ready.
 
 ---
 
-## Cell 11 — `markdown`
+## Cell 12 — `markdown`
 
 > ## Language Configuration — Bengali-Centric (Ben, Eng, Hin, Arb)
 
 ---
 
-## Cell 12 — `code` (execution #9)
+## Cell 13 — `code` (execution #10)
 
 ```python
 # ── Bengali-centric language pairs: Ben↔X and X↔Ben ─────────────────────────
@@ -843,13 +854,13 @@ Train samples    : 4000 per pair = 24000 total
 
 ---
 
-## Cell 13 — `markdown`
+## Cell 14 — `markdown`
 
 > ## ASR Stack — MMS (Ben/Hin/Arb) + Whisper (Eng)
 
 ---
 
-## Cell 14 — `code` (execution #10)
+## Cell 15 — `code` (execution #11)
 
 ```python
 import gc as _gc
@@ -977,7 +988,7 @@ ASR stack ready with dynamic VRAM offloading:
 
 ---
 
-## Cell 15 — `code` (execution #11)
+## Cell 16 — `code` (execution #12)
 
 ```python
 from sacrebleu.metrics import BLEU, CHRF
@@ -1046,19 +1057,21 @@ Inference helpers ready (with elegant empty-string catch).
 
 ---
 
-## Cell 16 — `markdown`
+## Cell 17 — `markdown`
 
 > ## Dataset Loading — Bengali-Centric Streaming
 
 ---
 
-## Cell 17 — `code` (execution #12)
+## Cell 18 — `code` (execution #13)
 
 ```python
 import pyarrow.parquet as pq
 import concurrent.futures, io, soundfile as sfile, pandas as pd
 
-LOCAL_PARQUET_CACHE = '/kaggle/input/datasets/rayedriasat/fleurs5/fleurs'  # 5-lang dataset we only need 4
+# LOCAL_PARQUET_CACHE = '/kaggle/input/datasets/rayedriasat/fleurs5/fleurs'  # 5-lang dataset we only need 4
+
+LOCAL_PARQUET_CACHE = '/kaggle/input/datasets/rayedriasat/fleurs-original-zstd'  # 5-lang dataset we only need 4
 BASE_PARQUET_URL    = 'https://huggingface.co/datasets/google/fleurs/resolve/refs%2Fconvert%2Fparquet'
 DRIVE_FLEURS_PATH   = f'{GDRIVE_ROOT}/fleurs_parquet'
 
@@ -1162,7 +1175,7 @@ print('✓ Streaming dataset classes ready.')
 
 ---
 
-## Cell 18 — `code` (execution #13)
+## Cell 19 — `code` (execution #14)
 
 ```python
 print('Loading evaluation samples (streaming mode)...')
@@ -1210,7 +1223,7 @@ Loading evaluation samples (streaming mode)...
 
 ---
 
-## Cell 19 — `code` (execution #14)
+## Cell 20 — `code` (execution #15)
 
 ```python
 # # Cell 18 — Training samples (streaming metadata only, audio loaded per-batch)
@@ -1233,7 +1246,7 @@ Loading evaluation samples (streaming mode)...
 
 ---
 
-## Cell 20 — `code` (execution #15)
+## Cell 21 — `code` (execution #16)
 
 ```python
 # ── Cell 18-A: ChunkedStreamingDataset (No Silent Failures) ────────────────────
@@ -1331,7 +1344,7 @@ print('✓ ChunkedStreamingDataset ready (with strict error logging).')
 
 ---
 
-## Cell 21 — `code` (execution #16)
+## Cell 22 — `code` (execution #17)
 
 ```python
 # ── Cell 18-B: ChunkedMultilingualDataset ────────────────────────────────────
@@ -1400,7 +1413,7 @@ print('✓ ChunkedMultilingualDataset ready.')
 
 ---
 
-## Cell 22 — `code` (execution #17)
+## Cell 23 — `code` (execution #18)
 
 ```python
 # # ── Cell 18-C: Rebuild ft_samples with chunk caching ─────────────────────────
@@ -1423,7 +1436,7 @@ print('✓ ChunkedMultilingualDataset ready.')
 
 ---
 
-## Cell 23 — `code` (execution #18)
+## Cell 24 — `code` (execution #19)
 
 ```python
 # heed dataset
@@ -1431,7 +1444,7 @@ print('✓ ChunkedMultilingualDataset ready.')
 
 ---
 
-## Cell 24 — `code` (execution #19)
+## Cell 25 — `code` (execution #20)
 
 ```python
 from transformers import SeamlessM4Tv2ForSpeechToSpeech, SeamlessM4TProcessor
@@ -1484,7 +1497,7 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 **[stdout]**
 ```
 [ckpt] Syncing from rclone remote...
-[ckpt] 11 file(s) available
+[ckpt] 12 file(s) available
   all_detailed_summaries_step000000.pt                        0.0 MB
   all_summaries_step000000.pt                                 0.0 MB
   phase0_benchmark_step000000.pt                              0.1 MB
@@ -1496,9 +1509,10 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
   phase4_benchmark_step000000.pt                              0.1 MB
   phase4_dec_pruning_step000000.pt                            0.0 MB
   phase5_benchmark_step000000.pt                              0.1 MB
+  phase5_ft_step001400.pt                                  5754.0 MB
 =================================================================
-  Platform : kaggle   Time : 2026-05-25 06:13
-  Checkpoint files: 11
+  Platform : kaggle   Time : 2026-05-26 06:37
+  Checkpoint files: 12
     all_detailed_summaries_step000000.pt                    0.0 MB
     all_summaries_step000000.pt                             0.0 MB
     phase0_benchmark_step000000.pt                          0.1 MB
@@ -1510,6 +1524,7 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
     phase4_benchmark_step000000.pt                          0.1 MB
     phase4_dec_pruning_step000000.pt                        0.0 MB
     phase5_benchmark_step000000.pt                          0.1 MB
+    phase5_ft_step001400.pt                              5754.0 MB
   GPU: Tesla T4  VRAM: 15.6 GB
 =================================================================
 
@@ -1518,7 +1533,7 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ---
 
-## Cell 25 — `markdown`
+## Cell 26 — `markdown`
 
 > ## Benchmark Functions — Bengali-Centric (BLEU + ChrF)
 > Benchmarks report both **BLEU** and **ChrF** for every language pair.
@@ -1526,7 +1541,7 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ---
 
-## Cell 26 — `code` (execution #20)
+## Cell 27 — `code` (execution #21)
 
 ```python
 def run_benchmark(mdl, samples, label='model', save_n=2, max_samples=None):
@@ -1619,7 +1634,7 @@ Benchmark functions ready.
 
 ---
 
-## Cell 27 — `markdown`
+## Cell 28 — `markdown`
 
 > ## Pruning Helpers
 > 
@@ -1636,7 +1651,7 @@ Benchmark functions ready.
 
 ---
 
-## Cell 28 — `code` (execution #21)
+## Cell 29 — `code` (execution #22)
 
 ```python
 import torch
@@ -1658,7 +1673,7 @@ print("✓ SeamlessM4Tv2 class device property successfully patched to cuda:1")
 
 ---
 
-## Cell 29 — `code` (execution #22)
+## Cell 30 — `code` (execution #23)
 
 ```python
 # ── Quick evaluation helpers ──────────────────────────────────────────────────
@@ -1819,7 +1834,7 @@ quick_eval_chrf ready.
 
 ---
 
-## Cell 30 — `code` (execution #23)
+## Cell 31 — `code` (execution #24)
 
 ```python
 # ── Encoder pruning helpers ───────────────────────────────────────────────────
@@ -1958,7 +1973,7 @@ Encoder pruning helpers ready.
 
 ---
 
-## Cell 31 — `code` (execution #24)
+## Cell 32 — `code` (execution #25)
 
 ```python
 # ── Text Decoder pruning helpers ──────────────────────────────────────────────
@@ -2106,7 +2121,7 @@ Decoder pruning helpers ready.
 
 ---
 
-## Cell 32 — `code` (execution #25)
+## Cell 33 — `code` (execution #26)
 
 ```python
 # ── T2U pruning helpers (ASR-BLEU primary, ASR-ChrF fallback) ────────────────
@@ -2201,7 +2216,7 @@ T2U pruning helpers ready.
 
 ---
 
-## Cell 33 — `markdown`
+## Cell 34 — `markdown`
 
 > ---
 > ## Phase 0: Baseline Capture
@@ -2209,7 +2224,7 @@ T2U pruning helpers ready.
 
 ---
 
-## Cell 34 — `code` (execution #26)
+## Cell 35 — `code` (execution #27)
 
 ```python
 # # Load teacher/base model
@@ -2221,7 +2236,7 @@ T2U pruning helpers ready.
 
 ---
 
-## Cell 35 — `code` (execution #27)
+## Cell 36 — `code` (execution #28)
 
 ```python
 p0_bench = load_latest_checkpoint('phase0_benchmark')
@@ -2283,6 +2298,8 @@ By Target Language:
      ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
      HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
 ================================================================================
+[rclone] 2026/05/26 06:37:29 -     1.581 KiB / 1.581 KiB, 100%, 1.580 KiB/s, ETA 0s
+[rclone] 2026/05/26 06:37:31 -     2.446 KiB / 2.446 KiB, 100%, 2.445 KiB/s, ETA 0s
 [fig] Saved phase_comparison.png
 ```
 
@@ -2294,7 +2311,6 @@ By Target Language:
 **[stdout]**
 ```
 Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
-[rclone] 2026/05/25 06:13:33 -     1.581 KiB / 1.581 KiB, 100%, 1.580 KiB/s, ETA 0s
 ```
 
 ```
@@ -2367,7 +2383,7 @@ Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
 
 ---
 
-## Cell 36 — `markdown`
+## Cell 37 — `markdown`
 
 > ---
 > ## Phase 1: Vocabulary Pruning — 4 Languages (Ben, Eng, Hin, Arb)
@@ -2375,7 +2391,7 @@ Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
 
 ---
 
-## Cell 37 — `code` (execution #28)
+## Cell 38 — `code` (execution #29)
 
 ```python
 # # ══════════════════════════════════════════════════════════════════════════════
@@ -2757,7 +2773,7 @@ Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
 
 ---
 
-## Cell 38 — `code` (execution #29)
+## Cell 39 — `code` (execution #30)
 
 ```python
 
@@ -2844,13 +2860,8 @@ By Target Language:
   ── Quality Gate ──
   Bengali ChrF : P0=40.37  →  P1=40.37  Δ=+0.00
   ✓ Within ±1.5 — vocab trim is lossless.
-[rclone] 
-[rclone] 2026/05/25 06:13:36 ERROR : all_detailed_summaries_step000000.pt: corrupted on transfer: md5 hashes differ src(Local file system at /kaggle/working/checkpoints) "f14da38f69e4ca84be7c5f5df6f64eec" vs dst(Google drive root 'seamTL_bengali/checkpoints') "48da2d86af26b9f1cd88a5fbd6038889"
-[rclone] 2026/05/25 06:13:36 -     2.446 KiB / 2.446 KiB, 100%, 2.445 KiB/s, ETA 0s
-[rclone] 2026/05/25 06:13:36 ERROR : Attempt 1/3 failed with 1 errors and: corrupted on transfer: md5 hashes differ src(Local file system at /kaggle/working/checkpoints) "f14da38f69e4ca84be7c5f5df6f64eec" vs dst(Google drive root 'seamTL_bengali/checkpoints') "48da2d86af26b9f1cd88a5fbd6038889"
-[rclone] 2026/05/25 06:13:36 -     2.446 KiB / 2.446 KiB, 100%, 2.445 KiB/s, ETA 0s
-[rclone] 2026/05/25 06:13:39 ERROR : Attempt 2/3 succeeded
-[rclone] 2026/05/25 06:13:39 -     5.830 KiB / 5.830 KiB, 100%, 1.942 KiB/s, ETA 0s2026/05/25 06:13:39 -     5.830 KiB / 5.830 KiB, 100%, 1.942 KiB/s, ETA 0s
+[rclone] 2026/05/26 06:37:35 -     1.769 KiB / 1.769 KiB, 100%, 1.768 KiB/s, ETA 0s
+[rclone] 2026/05/26 06:37:37 -     3.384 KiB / 3.384 KiB, 100%, 3.383 KiB/s, ETA 0s
 [fig] Saved phase_comparison.png
 ```
 
@@ -2934,7 +2945,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 39 — `markdown`
+## Cell 40 — `markdown`
 
 > ---
 > ## Phase 2: Speech Encoder Pruning — 24 → 10 layers
@@ -2942,7 +2953,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 40 — `code` (execution #30)
+## Cell 41 — `code` (execution #31)
 
 ```python
 # # Load Phase 1 model to prune
@@ -2990,7 +3001,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 41 — `code` (execution #31)
+## Cell 42 — `code` (execution #32)
 
 ```python
 # p2_bench = load_latest_checkpoint('phase2_benchmark')
@@ -3016,7 +3027,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 42 — `markdown`
+## Cell 43 — `markdown`
 
 > ---
 > ## Phase 3: T2U Pruning — Enc 6→5, Dec 6→5 (prune 2 layers each)
@@ -3024,7 +3035,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 43 — `code` (execution #32)
+## Cell 44 — `code` (execution #33)
 
 ```python
 # model_p3 = model_p2   # continue from enc-pruned model
@@ -3066,7 +3077,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 44 — `code` (execution #33)
+## Cell 45 — `code` (execution #34)
 
 ```python
 # p3_bench = load_latest_checkpoint('phase3_benchmark')
@@ -3091,7 +3102,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 45 — `markdown`
+## Cell 46 — `markdown`
 
 > ---
 > ## Phase 4: Text Decoder Pruning — 24 → 14 layers (remove 10)
@@ -3099,7 +3110,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 46 — `code` (execution #34)
+## Cell 47 — `code` (execution #35)
 
 ```python
 # model_p4 = model_p3
@@ -3157,7 +3168,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 47 — `code` (execution #35)
+## Cell 48 — `code` (execution #36)
 
 ```python
 # model_p4, processor = load_model_from_drive('phase4_dec_14L')
@@ -3165,7 +3176,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 48 — `code` (execution #36)
+## Cell 49 — `code` (execution #37)
 
 ```python
 p4_bench = load_latest_checkpoint('phase4_benchmark')
@@ -3224,14 +3235,9 @@ By Target Language:
      ENG: BLEU=  1.70  ChrF= 15.74  (n=33)
      HIN: BLEU=  0.36  ChrF=  6.06  (n=33)
 ================================================================================
-[rclone] 
-[rclone] 2026/05/25 06:13:42 ERROR : all_summaries_step000000.pt: corrupted on transfer: md5 hashes differ src(Local file system at /kaggle/working/checkpoints) "12290bd0cd6ba3ab9397369d40e0044a" vs dst(Google drive root 'seamTL_bengali/checkpoints') "4fd85a07469d42a4832ae18b7909684f"
-[rclone] 2026/05/25 06:13:42 -     1.769 KiB / 1.769 KiB, 100%, 1.768 KiB/s, ETA 0s
-[rclone] 2026/05/25 06:13:43 ERROR : Attempt 1/3 failed with 1 errors and: corrupted on transfer: md5 hashes differ src(Local file system at /kaggle/working/checkpoints) "12290bd0cd6ba3ab9397369d40e0044a" vs dst(Google drive root 'seamTL_bengali/checkpoints') "4fd85a07469d42a4832ae18b7909684f"
-[rclone] 2026/05/25 06:13:43 -     1.769 KiB / 1.769 KiB, 100%, 905 B/s, ETA 0s
-[rclone] 2026/05/25 06:13:45 ERROR : Attempt 2/3 succeeded
-[rclone] 2026/05/25 06:13:45 -     3.725 KiB / 3.725 KiB, 100%, 953 B/s, ETA 0s2026/05/25 06:13:45 -     3.725 KiB / 3.725 KiB, 100%, 953 B/s, ETA 0s
+[rclone] 2026/05/26 06:37:42 -     1.956 KiB / 1.956 KiB, 100%, 0 B/s, ETA -
 [fig] Saved phase_comparison.png
+[rclone] 2026/05/26 06:37:44 -     4.321 KiB / 4.321 KiB, 100%, 4.320 KiB/s, ETA 0s
 ```
 
 ```
@@ -3282,7 +3288,6 @@ Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_
 **[stdout]**
 ```
   ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
-[rclone] 2026/05/25 06:13:49 -     4.321 KiB / 4.321 KiB, 100%, 4.320 KiB/s, ETA 0s
 ```
 
 ```
@@ -3315,7 +3320,7 @@ Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_
 
 ---
 
-## Cell 49 — `code` (execution #37)
+## Cell 50 — `code` (execution #38)
 
 ```python
 # heed
@@ -3323,7 +3328,7 @@ Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_
 
 ---
 
-## Cell 50 — `markdown`
+## Cell 51 — `markdown`
 
 > ---
 > ## Phase 5: Full Fine-Tuning — Bengali-Focused Recovery
@@ -3343,7 +3348,7 @@ Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_
 
 ---
 
-## Cell 51 — `code`
+## Cell 52 — `code` (execution #39)
 
 ```python
 # ── Cell 45: Load pruned student for full fine-tuning ──────────────────────────
@@ -3394,13 +3399,40 @@ gpu_mem()
 ```
 Loading phase5_ft_merged for fine-tuning with Custom Device Split...
 [model] Not in local cache — pulling from remote...
-[rclone] 2026/05/25 06:13:50 -           0 B / 0 B, -, 0 B/s, ETA -
-[rclone] 2026/05/25 06:13:52 -           0 B / 0 B, -, 0 B/s, ETA -
+[rclone] Pulled phase5_ft_merged → /kaggle/working/models/phase5_ft_merged
+[model] Loading phase5_ft_merged from /kaggle/working/models/phase5_ft_merged ...
+```
+
+```
+Loading weights:   0%|          | 0/1106 [00:00<?, ?it/s]
+```
+
+**[stdout]**
+```
+  Restored custom state: ['_vocab_remap_to_old']
+[model] Loaded phase5_ft_merged.
+✓ Speech encoder : 10L
+✓ Text decoder   : 14L
+✓ T2U encoder    : 5L
+✓ T2U decoder    : 5L
+✓ Vocab size     : 139697
+
+--- Student (Pruned, Pre-FT) ---
+  text_decoder                           495.7M  ( 46.9%)
+  speech_encoder                         296.5M  ( 28.1%)
+  t2u_model                              221.9M  ( 21.0%)
+  shared                                 143.0M  ( 13.5%)
+  lm_head                                143.0M  ( 13.5%)
+  vocoder                                 41.9M  (  4.0%)
+  TOTAL                                 1056.0M
+---
+  GPU0: 0.59GB alloc / 0.61GB reserved
+  GPU1: 1.54GB alloc / 1.55GB reserved
 ```
 
 ---
 
-## Cell 52 — `code`
+## Cell 53 — `code` (execution #40)
 
 ```python
 # ── Cell 46: Load teacher on cuda:1 ───────────────────────────────────────────
@@ -3412,14 +3444,14 @@ TOP_K_TEACHER  = 256   # ← was 8, now 256 (matches Phase 7 battle-tested)
 
 print(f'Loading teacher model on {TEACHER_DEVICE}...')
 
-# from transformers import SeamlessM4Tv2ForSpeechToSpeech
-# teacher = SeamlessM4Tv2ForSpeechToSpeech.from_pretrained(
-#     MODEL_NAME, torch_dtype=torch.float16, device_map=TEACHER_DEVICE)
+from transformers import SeamlessM4Tv2ForSpeechToSpeech
+teacher = SeamlessM4Tv2ForSpeechToSpeech.from_pretrained(
+    MODEL_NAME, torch_dtype=torch.float16, device_map=TEACHER_DEVICE)
 
 # make sure to switch to float16 when training
-from transformers import SeamlessM4Tv2ForSpeechToText
-teacher = SeamlessM4Tv2ForSpeechToText.from_pretrained(
-    MODEL_NAME, torch_dtype=torch.float32, device_map=TEACHER_DEVICE)
+# from transformers import SeamlessM4Tv2ForSpeechToText
+# teacher = SeamlessM4Tv2ForSpeechToText.from_pretrained(
+#     MODEL_NAME, torch_dtype=torch.float32, device_map=TEACHER_DEVICE)
 
 
 teacher.eval()
@@ -3429,9 +3461,47 @@ print(f'Teacher loaded. Params: {count_params(teacher):.1f}M')
 gpu_mem()
 ```
 
+### Output
+
+**[stdout]**
+```
+Loading teacher model on cuda:1...
+```
+
+```
+config.json: 0.00B [00:00, ?B/s]
+```
+
+```
+model.safetensors.index.json: 0.00B [00:00, ?B/s]
+```
+
+```
+Downloading (incomplete total...): 0.00B [00:00, ?B/s]
+```
+
+```
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]
+```
+
+```
+Loading weights:   0%|          | 0/1846 [00:00<?, ?it/s]
+```
+
+```
+generation_config.json: 0.00B [00:00, ?B/s]
+```
+
+**[stdout]**
+```
+Teacher loaded. Params: 1805.5M
+  GPU0: 0.59GB alloc / 0.61GB reserved
+  GPU1: 5.18GB alloc / 5.19GB reserved
+```
+
 ---
 
-## Cell 53 — `code`
+## Cell 54 — `code` (execution #41)
 
 ```python
 # ── Cell 47: Unfreeze all except vocoder ──────────────────────────────────────
@@ -3469,18 +3539,396 @@ else:
 gpu_mem()
 ```
 
+### Output
+
+**[stdout]**
+```
+Frozen (vocoder): 41.91M params
+Trainable: 1014.1M / 1056.0M (96.0%)
+✓ All trainable params fp32 — GradScaler will work correctly
+  GPU0: 1.19GB alloc / 1.28GB reserved
+  GPU1: 6.62GB alloc / 6.66GB reserved
+```
+
 ---
 
-## Cell 54 — `code`
+## Cell 55 — `code` (execution #42)
 
 ```python
 print(student)
 # heed
 ```
 
+### Output
+
+**[stdout]**
+```
+SeamlessM4Tv2ForSpeechToSpeech(
+  (shared): Embedding(139697, 1024, padding_idx=0)
+  (speech_encoder): SeamlessM4Tv2SpeechEncoder(
+    (feature_projection): SeamlessM4Tv2ConformerFeatureProjection(
+      (layer_norm): LayerNorm((160,), eps=1e-05, elementwise_affine=True)
+      (projection): Linear(in_features=160, out_features=1024, bias=True)
+      (dropout): Dropout(p=0.0, inplace=False)
+    )
+    (encoder): SeamlessM4Tv2ConformerEncoder(
+      (dropout): Dropout(p=0.0, inplace=False)
+      (layers): ModuleList(
+        (0-9): 10 x SeamlessM4Tv2ConformerEncoderLayer(
+          (ffn1_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (ffn1): SeamlessM4Tv2ConformerFeedForward(
+            (intermediate_dropout): Dropout(p=0.0, inplace=False)
+            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
+            (intermediate_act_fn): SiLU()
+            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
+            (output_dropout): Dropout(p=0.0, inplace=False)
+          )
+          (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (self_attn_dropout): Dropout(p=0.0, inplace=False)
+          (self_attn): SeamlessM4Tv2ConformerSelfAttention(
+            (linear_q): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_k): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_v): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_out): Linear(in_features=1024, out_features=1024, bias=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+            (distance_embedding): Embedding(73, 64)
+          )
+          (conv_module): SeamlessM4Tv2ConformerConvolutionModule(
+            (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (pointwise_conv1): Conv1d(1024, 2048, kernel_size=(1,), stride=(1,), bias=False)
+            (glu): GLU(dim=1)
+            (depthwise_conv): Conv1d(1024, 1024, kernel_size=(31,), stride=(1,), groups=1024, bias=False)
+            (depthwise_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (activation): SiLU()
+            (pointwise_conv2): Conv1d(1024, 1024, kernel_size=(1,), stride=(1,), bias=False)
+            (dropout): Dropout(p=0.0, inplace=False)
+          )
+          (ffn2_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (ffn2): SeamlessM4Tv2ConformerFeedForward(
+            (intermediate_dropout): Dropout(p=0.0, inplace=False)
+            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
+            (intermediate_act_fn): SiLU()
+            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
+            (output_dropout): Dropout(p=0.0, inplace=False)
+          )
+          (final_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        )
+      )
+      (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+    )
+    (intermediate_ffn): SeamlessM4Tv2ConformerFeedForward(
+      (intermediate_dropout): Dropout(p=0.0, inplace=False)
+      (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
+      (intermediate_act_fn): ReLU()
+      (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
+      (output_dropout): Dropout(p=0.0, inplace=False)
+    )
+    (adapter): SeamlessM4Tv2ConformerAdapter(
+      (layers): ModuleList(
+        (0): SeamlessM4Tv2ConformerAdapterLayer(
+          (residual_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (residual_conv): Conv1d(1024, 2048, kernel_size=(8,), stride=(8,), padding=(4,))
+          (activation): GLU(dim=1)
+          (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (self_attn_conv): Conv1d(1024, 2048, kernel_size=(8,), stride=(8,), padding=(4,))
+          (self_attn): SeamlessM4Tv2ConformerSelfAttention(
+            (linear_q): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_k): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_v): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_out): Linear(in_features=1024, out_features=1024, bias=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+          )
+          (self_attn_dropout): Dropout(p=0.1, inplace=False)
+          (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (ffn): SeamlessM4Tv2ConformerFeedForward(
+            (intermediate_dropout): Dropout(p=0.1, inplace=False)
+            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
+            (intermediate_act_fn): ReLU()
+            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
+            (output_dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+      )
+    )
+    (inner_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+  )
+  (text_decoder): SeamlessM4Tv2Decoder(
+    (embed_tokens): SeamlessM4Tv2ScaledWordEmbedding(139697, 1024, padding_idx=0)
+    (embed_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
+    (layers): ModuleList(
+      (0-13): 14 x SeamlessM4Tv2DecoderLayer(
+        (self_attn): SeamlessM4Tv2Attention(
+          (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
+        )
+        (activation_fn): ReLU()
+        (attn_dropout): Dropout(p=0.1, inplace=False)
+        (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (cross_attention): SeamlessM4Tv2Attention(
+          (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
+        )
+        (cross_attention_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (ffn): SeamlessM4Tv2FeedForwardNetwork(
+          (fc1): Linear(in_features=1024, out_features=8192, bias=True)
+          (fc2): Linear(in_features=8192, out_features=1024, bias=True)
+          (dropout): Dropout(p=0.0, inplace=False)
+          (act): ReLU()
+        )
+        (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (ffn_dropout): Dropout(p=0.0, inplace=False)
+      )
+    )
+    (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+  )
+  (lm_head): Linear(in_features=1024, out_features=139697, bias=False)
+  (t2u_model): SeamlessM4Tv2TextToUnitForConditionalGeneration(
+    (model): SeamlessM4Tv2TextToUnitModel(
+      (encoder): SeamlessM4Tv2Encoder(
+        (layers): ModuleList(
+          (0-4): 5 x SeamlessM4Tv2EncoderLayer(
+            (self_attn): SeamlessM4Tv2Attention(
+              (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
+            )
+            (attn_dropout): Dropout(p=0.1, inplace=False)
+            (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (ffn): SeamlessM4Tv2FeedForwardNetwork(
+              (fc1): Linear(in_features=1024, out_features=8192, bias=True)
+              (fc2): Linear(in_features=8192, out_features=1024, bias=True)
+              (dropout): Dropout(p=0.0, inplace=False)
+              (act): ReLU()
+            )
+            (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (ffn_dropout): Dropout(p=0.0, inplace=False)
+          )
+        )
+        (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+      )
+      (decoder): SeamlessM4Tv2TextToUnitDecoder(
+        (embed_tokens): Embedding(10082, 1024, padding_idx=1)
+        (embed_char): Embedding(10943, 1024)
+        (embed_char_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
+        (duration_predictor): SeamlessM4Tv2VariancePredictor(
+          (conv1): Conv1d(1024, 256, kernel_size=(3,), stride=(1,), padding=same)
+          (activation_function): ReLU()
+          (ln1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (dropout_module): Dropout(p=0.5, inplace=False)
+          (conv2): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=same)
+          (ln2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (proj): Linear(in_features=256, out_features=1, bias=True)
+        )
+        (embed_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
+        (layers): ModuleList(
+          (0-4): 5 x SeamlessM4Tv2TextToUnitDecoderLayer(
+            (self_attn): SeamlessM4Tv2Attention(
+              (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
+            )
+            (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (conv1): Conv1d(1024, 1024, kernel_size=(7,), stride=(1,), padding=same)
+            (activation_fn): ReLU()
+            (conv2): Conv1d(1024, 1024, kernel_size=(7,), stride=(1,), padding=same)
+            (conv_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (conv_dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+      )
+    )
+    (lm_head): Linear(in_features=1024, out_features=10082, bias=False)
+  )
+  (vocoder): SeamlessM4Tv2CodeHifiGan(
+    (dur_predictor): SeamlessM4Tv2VariancePredictor(
+      (conv1): Conv1d(1280, 1280, kernel_size=(3,), stride=(1,), padding=same)
+      (activation_function): ReLU()
+      (ln1): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
+      (dropout_module): Dropout(p=0.5, inplace=False)
+      (conv2): Conv1d(1280, 1280, kernel_size=(3,), stride=(1,), padding=same)
+      (ln2): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
+      (proj): Linear(in_features=1280, out_features=1, bias=True)
+    )
+    (unit_embedding): Embedding(10000, 1280)
+    (speaker_embedding): Embedding(200, 256)
+    (language_embedding): Embedding(36, 256)
+    (hifi_gan): SeamlessM4Tv2HifiGan(
+      (conv_pre): Conv1d(1792, 512, kernel_size=(7,), stride=(1,), padding=(3,))
+      (upsampler): ModuleList(
+        (0): ConvTranspose1d(512, 256, kernel_size=(11,), stride=(5,), padding=(3,))
+        (1): ConvTranspose1d(256, 128, kernel_size=(8,), stride=(4,), padding=(2,))
+        (2): ConvTranspose1d(128, 64, kernel_size=(8,), stride=(4,), padding=(2,))
+        (3): ConvTranspose1d(64, 32, kernel_size=(4,), stride=(2,), padding=(1,))
+        (4): ConvTranspose1d(32, 16, kernel_size=(4,), stride=(2,), padding=(1,))
+      )
+      (resblocks): ModuleList(
+        (0): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (1): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (2): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+        (3): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (4): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (5): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+        (6): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (7): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (8): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+        (9): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (10): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (11): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+        (12): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (13): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (14): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+      )
+      (conv_post): Conv1d(16, 1, kernel_size=(7,), stride=(1,), padding=(3,))
+    )
+  )
+)
+```
+
 ---
 
-## Cell 55 — `code`
+## Cell 56 — `code` (execution #43)
 
 ```python
 # ── Cell 48: Gradient checkpointing strategy for full fine-tuning on 2×T4 ─────
@@ -3594,9 +4042,22 @@ print('VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32')
 gpu_mem()
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
+✓ GC selectively ENABLED for: speech_encoder
+⚠ Still on: ['speech_encoder']
+
+VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32
+  GPU0: 1.19GB alloc / 1.28GB reserved
+  GPU1: 6.62GB alloc / 6.66GB reserved
+```
+
 ---
 
-## Cell 56 — `code`
+## Cell 57 — `code` (execution #44)
 
 ```python
 # ── Cell 49A: Vocab remap tables (exact Phase 7 / Cell 41+43+48 pattern) ──────
@@ -3671,9 +4132,25 @@ for _l in ['eng', 'ben', 'hin', 'arb']:
 print('✓ Vocab remap ready.')
 ```
 
+### Output
+
+**[stdout]**
+```
+Mapped: 139697/256102 (54.5%)
+EOS (token 3) → student: 3  ← must be 3
+OLD_TO_NEW_GPU: 1.0MB VRAM
+
+Special tokens: PAD_S=0  BOS_S=2  EOS_S=3
+  eng: student_id=139620
+  ben: student_id=139607
+  hin: student_id=139631
+  arb: student_id=139601
+✓ Vocab remap ready.
+```
+
 ---
 
-## Cell 57 — `code`
+## Cell 58 — `code` (execution #45)
 
 ```python
 # ── Cell 49B: Collation — exact Phase 7 / Cell 44 layout ──────────────────────
@@ -3774,28 +4251,188 @@ print(f'  dec layout: [BOS | __tgt__ | content]  length=T+2')
 print(f'  lab layout: [__tgt__ | content | EOS]  length=T+2')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ Collation ready (exact Phase 7 token layout)
+  dec layout: [BOS | __tgt__ | content]  length=T+2
+  lab layout: [__tgt__ | content | EOS]  length=T+2
+```
+
 ---
 
-## Cell 58 — `code`
+## Cell 59 — `code` (execution #46)
 
 ```python
-# ── REPLACE ENTIRE CELL 49C ───────────────────────────────────────
+# ── Cell C: Fixed Loss Functions ──────────────────────────────────────────────
+#
+# Changes vs original:
+#   1. KD_TEMPERATURE lowered 3.0 → 2.0  (sharper teacher signal, less noise)
+#   2. Bengali position CE weighting: 2× weight on Bengali-target positions
+#   3. compute_recovery_loss_gpu accepts per-call alpha (used by scheduler below)
+#   4. All ops stay on cuda:1 — matching where s_logits, topk, labels all live
+
+import torch, torch.nn.functional as F
+
+KD_TEMPERATURE = 2.0    # was 3.0 — sharper teacher distribution
+TOP_K_TEACHER  = 128    # was 256 — fewer soft targets, cleaner gradient
+
+# Per-epoch KD alpha schedule.
+# Key insight: CE must dominate (model needs to commit to correct tokens).
+# KD assists regularisation only. Never exceed 0.40.
+#
+# Epoch 0-1: 0.30  — backbone recovery, CE leads heavily
+# Epoch 2-3: 0.25  — stabilise, still CE-led
+# Epoch 4-5: 0.20  — consolidation
+# Epoch 6-7: 0.15  — CE almost entirely, KD just regularises
+
+def get_kd_alpha(epoch_idx):
+    schedule = [0.30, 0.30, 0.25, 0.25, 0.20, 0.20, 0.15, 0.15]
+    return schedule[min(epoch_idx, len(schedule) - 1)]
+
+
+def _label_smoothed_nll(logits, targets, smoothing=0.1, ignore_index=-100,
+                         ben_mask=None, ben_weight=2.0):
+    """
+    Label-smoothed NLL with optional Bengali position upweighting.
+
+    logits    : [N, V]  fp32  cuda:1
+    targets   : [N]     long  cuda:1
+    ben_mask  : [N]     bool  cuda:1  — True where this position is Bengali-target
+    ben_weight: scalar  — multiply Bengali loss by this factor
+    """
+    V    = logits.size(-1)
+    mask = targets != ignore_index
+    if not mask.any():
+        return logits.sum() * 0.0
+
+    with torch.no_grad():
+        smooth = torch.full_like(logits, smoothing / (V - 1))
+        smooth.scatter_(-1, targets.clamp(min=0).unsqueeze(-1), 1.0 - smoothing)
+
+    log_p   = F.log_softmax(logits, dim=-1)
+    per_tok = -(smooth * log_p).sum(-1)       # [N]
+
+    # Upweight Bengali positions
+    if ben_mask is not None and ben_mask.any():
+        weight = torch.ones(per_tok.shape, device=per_tok.device, dtype=per_tok.dtype)
+        weight[ben_mask] = ben_weight
+        per_tok = per_tok * weight
+
+    return per_tok[mask].mean()
+
+
+def sparse_kl_from_topk_gpu(s_logits, topk_vals_1, topk_idx_full_1, T=KD_TEMPERATURE):
+    """
+    KD loss — all tensors on cuda:1.
+
+    s_logits        : [B, L, S_VOCAB]   fp32   cuda:1
+    topk_vals_1     : [B, L, k]         fp32   cuda:1
+    topk_idx_full_1 : [B, L, k]         long   cuda:1  (T_VOCAB indices)
+    """
+    B, L, V_s = s_logits.shape
+    k = topk_vals_1.shape[-1]
+
+    # Remap T_VOCAB → S_VOCAB using the lookup table (both on cuda:1)
+    flat_full  = topk_idx_full_1.reshape(-1).clamp(0, T_VOCAB - 1)
+    flat_s     = OLD_TO_NEW_GPU[flat_full]        # already on cuda:1
+    topk_idx_s = flat_s.reshape(B, L, k)
+
+    valid       = topk_idx_s >= 0
+    vals_masked = topk_vals_1 * valid.float()
+    denom       = vals_masked.sum(-1, keepdim=True).clamp(min=1e-9)
+    topk_t      = vals_masked / denom
+
+    idx_clamped = topk_idx_s.clamp(min=0, max=V_s - 1)
+    gathered    = s_logits.gather(-1, idx_clamped)
+    gathered    = gathered.masked_fill(~valid, -1e9)
+
+    s_log    = F.log_softmax(gathered / T, dim=-1)
+    has_valid = valid.any(-1)
+    if not has_valid.any():
+        return s_logits.sum() * 0.0
+
+    kl = F.kl_div(
+        s_log[has_valid],
+        topk_t[has_valid],
+        reduction='batchmean',
+    ) * (T ** 2)
+
+    return kl
+
+
+def compute_recovery_loss_gpu(s_logits, labels_dev,
+                               topk_vals_1, topk_idx_1,
+                               alpha, smoothing=0.1,
+                               tgt_langs=None):
+    """
+    Full loss — all on cuda:1.
+
+    s_logits    : [B, L, S_VOCAB]   fp32   cuda:1
+    labels_dev  : [B, L]            long   cuda:1
+    topk_vals_1 : [B, L, k]         fp32   cuda:1
+    topk_idx_1  : [B, L, k]         long   cuda:1
+    alpha       : KD weight (CE weight = 1 - alpha)
+    tgt_langs   : list[str] of length B  — used to upweight Bengali
+    """
+    B, L, V_s = s_logits.shape
+
+    # Build Bengali mask: all token positions for Bengali-target samples get 2× CE
+    ben_mask = None
+    if tgt_langs is not None:
+        is_ben = torch.tensor([t == 'ben' for t in tgt_langs],
+                               dtype=torch.bool, device=s_logits.device)  # [B]
+        if is_ben.any():
+            ben_mask = is_ben.unsqueeze(1).expand(B, L).reshape(-1)       # [B*L]
+
+    s_flat  = s_logits.contiguous().reshape(-1, V_s)
+    l_flat  = labels_dev.contiguous().reshape(-1)
+
+    ce  = _label_smoothed_nll(s_flat, l_flat, smoothing=smoothing,
+                               ben_mask=ben_mask, ben_weight=2.0)
+    kd  = sparse_kl_from_topk_gpu(s_logits, topk_vals_1, topk_idx_1)
+
+    loss = (1.0 - alpha) * ce + alpha * kd
+    return loss, ce.item(), kd.item()
+
+
+print('✓ Fixed loss functions ready.')
+print(f'  KD_TEMPERATURE={KD_TEMPERATURE}  TOP_K={TOP_K_TEACHER}')
+print(f'  Alpha schedule: epoch0-1=0.30, epoch2-3=0.25, epoch4-5=0.20, epoch6-7=0.15')
+print(f'  Bengali CE upweight: 2× on all Bengali-target positions')
+```
+
+### Output
+
+**[stdout]**
+```
+✓ Fixed loss functions ready.
+  KD_TEMPERATURE=2.0  TOP_K=128
+  Alpha schedule: epoch0-1=0.30, epoch2-3=0.25, epoch4-5=0.20, epoch6-7=0.15
+  Bengali CE upweight: 2× on all Bengali-target positions
+```
+
+---
+
+## Cell 60 — `code` (execution #47)
+
+```python
+# ── Cell D: Teacher & Student forward functions (fixed) ───────────────────────
+
 def _to_dev(batch_dict, device, dtype=torch.float16):
     return {
-        k: v.to(device=device,
-                dtype=dtype if v.is_floating_point() else v.dtype)
+        k: v.to(device=device, dtype=dtype if v.is_floating_point() else v.dtype)
         if isinstance(v, torch.Tensor) else v
         for k, v in batch_dict.items()
     }
 
-KD_TEMPERATURE = 3.0   
 
 @torch.no_grad()
 def teacher_topk_direct(feat_cpu, dec_full_cpu, k=TOP_K_TEACHER, T=KD_TEMPERATURE):
     """
     Teacher forward on cuda:1.
-    Top-K selection on cuda:1. 
-    RETURNS directly on cuda:1 (No transfer to cuda:0 needed anymore!)
+    Returns top-k probs + indices on cuda:1.
     """
     feat1 = _to_dev(feat_cpu, 'cuda:1')
     dec1  = dec_full_cpu.to('cuda:1')
@@ -3807,19 +4444,20 @@ def teacher_topk_direct(feat_cpu, dec_full_cpu, k=TOP_K_TEACHER, T=KD_TEMPERATUR
             decoder_input_ids = dec1,
         )
 
-    logits_1 = out.logits.float()                        
-    probs_1  = torch.softmax(logits_1 / T, dim=-1)       
-    topk_vals_1, topk_idx_1 = torch.topk(
-        probs_1, k=min(k, probs_1.shape[-1]), dim=-1, sorted=False)  
+    logits_1 = out.logits.float()
+    probs_1  = torch.softmax(logits_1 / T, dim=-1)
+    k_actual = min(k, probs_1.shape[-1])
+    topk_vals_1, topk_idx_1 = torch.topk(probs_1, k=k_actual, dim=-1, sorted=False)
 
     del feat1, dec1, out, logits_1, probs_1
-    return topk_vals_1, topk_idx_1  # [B,T,k] remaining on cuda:1
+    return topk_vals_1, topk_idx_1   # both on cuda:1
+
 
 def student_logits_gpu(feat_dict, dec_s_cpu):
     """
-    Student forward. 
-    Inputs hit cuda:0 (Speech Encoder).
-    Outputs emerge and are FORCED to stay on cuda:1.
+    Student forward.
+    Input goes to cuda:0 (speech encoder device).
+    Output is moved to cuda:1 to match teacher and labels.
     """
     dec_s          = dec_s_cpu.clamp(0, S_VOCAB - 1).to('cuda:0')
     input_features = feat_dict['input_features'].to('cuda:0')
@@ -3835,123 +4473,75 @@ def student_logits_gpu(feat_dict, dec_s_cpu):
             attention_mask    = attention_mask,
             decoder_input_ids = dec_s,
         )
-        
-    # FORCE output to cuda:1 (Overrides HF pulling it back to cuda:0)
-    return out.logits.float().to('cuda:1')
+
+    return out.logits.float().to('cuda:1')   # cuda:1 — matches teacher and labels
+
+
+print('✓ teacher_topk_direct and student_logits_gpu ready (both output on cuda:1).')
+print(f'  Teacher top-k={TOP_K_TEACHER}  T={KD_TEMPERATURE}')
+```
+
+### Output
+
+**[stdout]**
+```
+✓ teacher_topk_direct and student_logits_gpu ready (both output on cuda:1).
+  Teacher top-k=128  T=2.0
 ```
 
 ---
 
-## Cell 59 — `code`
-
-```python
-# ── Cell 50: Loss functions — all on cuda:0, no CPU ops ───────────────────────
-#
-# Exact Phase 7 / Cell 60 port:
-#   _label_smoothed_nll  : label-smoothed CE (better than plain cross_entropy)
-#   sparse_kl_from_topk_gpu : KD using teacher top-K, all GPU, uses OLD_TO_NEW_GPU
-#   compute_recovery_loss_gpu : combined CE + KD
-
-KD_ALPHA   = 0.15   # Phase 7 battle-tested value; 0.15 CE dominates, KD assists
-
-def _label_smoothed_nll(logits, targets, smoothing=0.1, ignore_index=-100):
-    """
-    logits  : [N, V]   fp32 cuda:0
-    targets : [N]      long cuda:0
-    """
-    V    = logits.size(-1)
-    mask = targets != ignore_index
-    if not mask.any():
-        return logits.sum() * 0.0
-    with torch.no_grad():
-        smooth = torch.full_like(logits, smoothing / (V - 1))
-        smooth.scatter_(-1, targets.clamp(min=0).unsqueeze(-1), 1.0 - smoothing)
-    log_p = F.log_softmax(logits, dim=-1)
-    loss  = -(smooth * log_p).sum(-1)
-    return loss[mask].mean()
-
-
-def sparse_kl_from_topk_gpu(s_logits, topk_vals_0, topk_idx_full_0,
-                              T=KD_TEMPERATURE):
-    """
-    KD loss — everything on cuda:0, no CPU involved.
-
-    s_logits:        [B, L, S_VOCAB]  fp32  cuda:0
-    topk_vals_0:     [B, L, k]        fp32  cuda:0  (teacher probs at temp T)
-    topk_idx_full_0: [B, L, k]        long  cuda:0  (T_VOCAB indices)
-    """
-    B, L, V_s = s_logits.shape
-    k = topk_vals_0.shape[-1]
-
-    # Remap T_VOCAB indices → S_VOCAB using GPU lookup table
-    flat_full  = topk_idx_full_0.reshape(-1).clamp(0, T_VOCAB - 1)
-    flat_s     = OLD_TO_NEW_GPU[flat_full]             # [B*L*k] long cuda:0
-    topk_idx_s = flat_s.reshape(B, L, k)              # [B, L, k] cuda:0
-
-    # Valid: mapped tokens only (sentinel = -1 means unmapped)
-    valid = topk_idx_s >= 0                            # [B, L, k] bool cuda:0
-
-    # Renormalize teacher probs over mapped tokens only
-    vals_masked = topk_vals_0 * valid.float()
-    denom       = vals_masked.sum(-1, keepdim=True).clamp(min=1e-9)
-    topk_t      = vals_masked / denom                  # [B, L, k] cuda:0
-
-    # Gather student logits at teacher positions
-    idx_clamped = topk_idx_s.clamp(min=0, max=V_s - 1)
-    gathered    = s_logits.gather(-1, idx_clamped)     # [B, L, k] cuda:0
-    gathered    = gathered.masked_fill(~valid, -1e9)
-
-    # Student log-probs (temp-scaled)
-    s_log = F.log_softmax(gathered / T, dim=-1)        # [B, L, k] cuda:0
-
-    # Only positions with ≥1 valid mapped token
-    has_valid = valid.any(-1)                          # [B, L] cuda:0
-    if not has_valid.any():
-        return s_logits.sum() * 0.0
-
-    kl = F.kl_div(
-        s_log[has_valid],
-        topk_t[has_valid],
-        reduction='batchmean',
-    ) * (T ** 2)
-
-    return kl
-
-
-def compute_recovery_loss_gpu(s_logits, labels_dev,
-                               topk_vals_0, topk_idx_0,
-                               alpha=KD_ALPHA, smoothing=0.1):
-    """
-    Full loss — all on cuda:0.
-    s_logits    : [B, L, S_VOCAB]  fp32  cuda:0
-    labels_dev  : [B, L]           long  cuda:0
-    topk_vals_0 : [B, L, k]        fp32  cuda:0
-    topk_idx_0  : [B, L, k]        long  cuda:0
-    """
-    s_flat = s_logits.contiguous().reshape(-1, s_logits.size(-1))
-    l_flat = labels_dev.contiguous().reshape(-1)
-    ce     = _label_smoothed_nll(s_flat, l_flat, smoothing=smoothing)
-    kd     = sparse_kl_from_topk_gpu(s_logits, topk_vals_0, topk_idx_0)
-    return (1.0 - alpha) * ce + alpha * kd, ce.item(), kd.item()
-
-
-print('✓ GPU-only loss functions ready.')
-print(f'  KD_ALPHA={KD_ALPHA}  KD_TEMPERATURE={KD_TEMPERATURE}  TOP_K={TOP_K_TEACHER}')
-print(f'  OLD_TO_NEW_GPU on cuda:0: {OLD_TO_NEW_GPU.numel()*4/1e6:.1f}MB VRAM')
-print('  No CPU involved in any loss computation')
-```
-
----
-
-## Cell 60 — `code`
+## Cell 61 — `code` (execution #48)
 
 ```python
 !pip install bitsandbytes
 ```
 
+### Output
+
+**[stdout]**
+```
+Collecting bitsandbytes
+  Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl.metadata (10 kB)
+Requirement already satisfied: torch<3,>=2.3 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.10.0+cu128)
+Requirement already satisfied: numpy>=1.17 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.0.2)
+Requirement already satisfied: packaging>=20.9 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (26.0)
+Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.24.3)
+Requirement already satisfied: typing-extensions>=4.10.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (4.15.0)
+Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (75.2.0)
+Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.14.0)
+Requirement already satisfied: networkx>=2.5.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.1)
+Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.1.6)
+Requirement already satisfied: fsspec>=0.8.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2026.2.0)
+Requirement already satisfied: cuda-bindings==12.9.4 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.9.4)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
+Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (9.10.2.21)
+Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.4.1)
+Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.3.3.83)
+Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (10.3.9.90)
+Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.7.3.90)
+Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.5.8.93)
+Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (0.7.1)
+Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2.27.5)
+Requirement already satisfied: nvidia-nvshmem-cu12==3.4.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.4.5)
+Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
+Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.13.1.3)
+Requirement already satisfied: triton==3.6.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.0)
+Requirement already satisfied: cuda-pathfinder~=1.1 in /usr/local/lib/python3.12/dist-packages (from cuda-bindings==12.9.4->torch<3,>=2.3->bitsandbytes) (1.3.5)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy>=1.13.3->torch<3,>=2.3->bitsandbytes) (1.3.0)
+Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2->torch<3,>=2.3->bitsandbytes) (3.0.3)
+Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl (60.7 MB)
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m60.7/60.7 MB[0m [31m30.8 MB/s[0m eta [36m0:00:00[0m:00:01[0m00:01[0m
+[?25hInstalling collected packages: bitsandbytes
+Successfully installed bitsandbytes-0.49.2
+```
+
 ---
 
-## Cell 61 — `code`
+## Cell 62 — `code` (execution #49)
 
 ```python
 # # ── Cell 51: Training configuration + optimizer ────────────────────────────────
@@ -4022,7 +4612,7 @@ print('  No CPU involved in any loss computation')
 
 ---
 
-## Cell 62 — `code`
+## Cell 63 — `code` (execution #50)
 
 ```python
 # ── Cell 51B: Quick eval helper ────────────────────────────────────────────────
@@ -4068,9 +4658,16 @@ def _eval_quick_p5(n_samples=18):
 print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ _eval_quick_p5 ready with persistent list and dictionary caching.
+```
+
 ---
 
-## Cell 63 — `code`
+## Cell 64 — `code` (execution #51)
 
 ```python
 # heed
@@ -4078,7 +4675,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 64 — `code`
+## Cell 65 — `code` (execution #52)
 
 ```python
 # print("Student: ")
@@ -4090,7 +4687,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 65 — `code`
+## Cell 66 — `code` (execution #53)
 
 ```python
 # s   = eval_samples[2]
@@ -4105,7 +4702,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 66 — `code`
+## Cell 67 — `code` (execution #54)
 
 ```python
 # # ── Cell 52: Training loop — Phase 7 battle-tested flow ───────────────────────
@@ -4315,7 +4912,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 67 — `code`
+## Cell 68 — `code` (execution #55)
 
 ```python
 # import matplotlib.pyplot as plt
@@ -4365,7 +4962,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 68 — `code`
+## Cell 69 — `code` (execution #56)
 
 ```python
 # # ── Cell 53: Load best checkpoint and save merged model ───────────────────────
@@ -4386,7 +4983,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 69 — `code`
+## Cell 70 — `code` (execution #57)
 
 ```python
 # ── Final benchmark ───────────────────────────────────────────────────────────
@@ -4434,9 +5031,140 @@ plot_detailed_phase_comparison()
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Loaded phase5_benchmark_step000000.pt
+Loaded Phase 5 benchmark from checkpoint.
+[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
+[summary] Stored P5_FullFT (4 total)
+[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
+[detailed] Stored P5_FullFT
+
+================================================================================
+  P5_FullFT - 1056.0M params
+================================================================================
+Overall: BLEU=3.95  ChrF=25.95±9.28  RTF=0.1631
+
+Per-Pair (6 pairs):
+  Pair                  N     BLEU     ChrF      RTF
+  arb→ben              33     2.28    20.72   0.1809
+  ben→arb              33     1.94    18.72   0.1491
+  ben→eng              33     5.01    29.76   0.1299
+  ben→hin              33     6.56    27.97   0.1607
+  eng→ben              33     3.99    29.40   0.1932
+  hin→ben              33     3.91    29.12   0.1649
+
+By Source Language:
+     ARB: BLEU=  2.28  ChrF= 20.72  (n=33)
+     BEN: BLEU=  4.50  ChrF= 25.49  (n=99)
+     ENG: BLEU=  3.99  ChrF= 29.40  (n=33)
+     HIN: BLEU=  3.91  ChrF= 29.12  (n=33)
+
+By Target Language:
+     ARB: BLEU=  1.94  ChrF= 18.72  (n=33)
+     BEN: BLEU=  3.39  ChrF= 26.42  (n=99)
+     ENG: BLEU=  5.01  ChrF= 29.76  (n=33)
+     HIN: BLEU=  6.56  ChrF= 27.97  (n=33)
+================================================================================
+
+==================================================
+  TEACHER vs STUDENT (Bengali pairs):
+==================================================
+  arb→ben             BLEU: Teacher=4.66  Student=2.28  Δ=-2.38   |  ChrF: Teacher=34.13  Student=20.72  Δ=-13.41 
+  ben→arb             BLEU: Teacher=5.69  Student=1.94  Δ=-3.75   |  ChrF: Teacher=31.39  Student=18.72  Δ=-12.67 
+  ben→eng             BLEU: Teacher=16.85  Student=5.01  Δ=-11.84   |  ChrF: Teacher=52.04  Student=29.76  Δ=-22.28 
+  ben→hin             BLEU: Teacher=8.86  Student=6.56  Δ=-2.29   |  ChrF: Teacher=37.45  Student=27.97  Δ=-9.48 
+  eng→ben             BLEU: Teacher=11.58  Student=3.99  Δ=-7.59   |  ChrF: Teacher=48.11  Student=29.40  Δ=-18.71 
+  hin→ben             BLEU: Teacher=7.08  Student=3.91  Δ=-3.17   |  ChrF: Teacher=38.87  Student=29.12  Δ=-9.74 
+==================================================
+[rclone] 2026/05/26 06:39:58 -     2.144 KiB / 2.144 KiB, 100%, 0 B/s, ETA -
+[rclone] 2026/05/26 06:40:00 -     5.259 KiB / 5.259 KiB, 100%, 0 B/s, ETA -
+[fig] Saved phase_comparison.png
+```
+
+```
+<Figure size 1920x1200 with 4 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+Plotting detailed comparison for 4 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L', 'P5_FullFT']
+```
+
+```
+<Figure size 1800x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
+```
+
+```
+<Figure size 2520x1080 with 2 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+```
+
+```
+<Figure size 1800x1260 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
+```
+
+```
+<Figure size 1800x900 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
+
+✅ All 6 figures saved.
+   📄 detailed_comparison_01_overall_quality.png
+   📄 detailed_comparison_02_bleu_by_pair.png
+   📄 detailed_comparison_03_chrf_by_pair.png
+   📄 detailed_comparison_04_bengali_focus.png
+   📄 detailed_comparison_05_size_vs_quality.png
+   📄 detailed_comparison_06_rtf.png
+```
+
 ---
 
-## Cell 70 — `code`
+## Cell 71 — `code` (execution #58)
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -4481,9 +5209,17 @@ print(f'[Config] PSEUDO_DIR={PSEUDO_DIR}')
 print(f'[Config] MDC API key loaded: {"YES" if MDC_API_KEY else "NO — check your Kaggle secret!"}')
 ```
 
+### Output
+
+**[stdout]**
+```
+[Config] PSEUDO_DIR=/kaggle/working/pseudo_cv25
+[Config] MDC API key loaded: YES
+```
+
 ---
 
-## Cell 71 — `code`
+## Cell 72 — `code` (execution #59)
 
 ```python
 # # ═══════════════════════════════════════════════════════════════════════════════
@@ -4541,7 +5277,7 @@ print(f'[Config] MDC API key loaded: {"YES" if MDC_API_KEY else "NO — check yo
 
 ---
 
-## Cell 72 — `code`
+## Cell 73 — `code` (execution #60)
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -5016,29 +5752,51 @@ print(f'[Config] MDC API key loaded: {"YES" if MDC_API_KEY else "NO — check yo
 
 ---
 
-## Cell 73 — `code`
+## Cell 74 — `code` (execution #61)
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
-# ── Cell 71: ALL-IN-ONE (GDrive Sync + WAV/ZSTD + 100% Safe Disk Management)
+# ── Cell 71 (FIXED): ALL-IN-ONE GDrive Sync + WAV/ZSTD + 100% Safe Disk Mgmt
+#
+# FIX 1 — Parquets not being deleted:
+#   The old code pulled ALL parquets from GDrive at the start of every
+#   run_pseudo_labeler() call (including already-completed pairs like en2ben,
+#   bn2eng). Those re-downloaded files were never deleted again because
+#   "Complete" pairs return early, skipping _rclone_sync_backup().
+#   Fix: rclone copy now pulls ONLY the state/tsv files for the current pair,
+#   not the entire GDrive parquet folder. Completed pairs therefore never
+#   re-materialize their parquets locally.
+#
+# FIX 2 — wget progress resets (fluctuating numbers):
+#   wget was called with --tries=1 but _wget_range() looped retries itself,
+#   deleting and rewriting the dest file on every attempt. The progress printer
+#   thread saw the file shrink to 0 and reclimb each time.
+#   Fix: The progress printer now tracks which attempt is active and labels
+#   each attempt separately. Also added attempt number to output so retries
+#   are visible instead of looking like corrupt progress.
 # ═══════════════════════════════════════════════════════════════════════════════
+
 import tarfile, io, csv, os, subprocess, pathlib, time as _time
 import numpy as np, soundfile as sf, requests, json
 import torch, torchaudio
 import pyarrow as pa, pyarrow.parquet as pq
 
-DOWNLOAD_CHUNK_GB  = 9        
+DOWNLOAD_CHUNK_GB  = 9
 RAW_DIR            = f'{WORK_DIR}/cv25_raw'
 PSEUDO_DIR         = f'{WORK_DIR}/pseudo_cv25'
 GDRIVE_RAW_CACHE   = f'{GDRIVE_ROOT}/cv25_raw'
 GDRIVE_PARQUET_DIR = f'{GDRIVE_ROOT}/pseudo_cv25'
 for _d in [RAW_DIR, PSEUDO_DIR]: os.makedirs(_d, exist_ok=True)
 
-# EXACT FLEURS SCHEMA MATCH
-_AUDIO_TYPE = pa.struct([pa.field('bytes', pa.binary()), pa.field('path',  pa.string())])
-_PQ_SCHEMA  = pa.schema([pa.field('id', pa.string()), pa.field('transcription', pa.string()), pa.field('audio', _AUDIO_TYPE)])
+_AUDIO_TYPE = pa.struct([pa.field('bytes', pa.binary()), pa.field('path', pa.string())])
+_PQ_SCHEMA  = pa.schema([
+    pa.field('id',            pa.string()),
+    pa.field('transcription', pa.string()),
+    pa.field('audio',         _AUDIO_TYPE),
+])
 
-def _is_validated_tsv(name: str) -> bool: return name.split('/')[-1] == 'validated.tsv'
+def _is_validated_tsv(name: str) -> bool:
+    return name.split('/')[-1] == 'validated.tsv'
 
 def _to_wav_bytes(audio: np.ndarray, sr: int = 16000) -> bytes:
     buf = io.BytesIO()
@@ -5053,30 +5811,116 @@ def _save_parquet(records: list, src_cv: str, tgt_m4t: str, chunk_idx: int) -> s
          pa.array([r['id'] + '.wav' for r in records], type=pa.string())],
         fields=[pa.field('bytes', pa.binary()), pa.field('path', pa.string())])
     table = pa.Table.from_arrays(
-        [pa.array([r['id'] for r in records], type=pa.string()),
+        [pa.array([r['id']            for r in records], type=pa.string()),
          pa.array([r['transcription'] for r in records], type=pa.string()),
-         audio_col], schema=_PQ_SCHEMA)
-    
+         audio_col],
+        schema=_PQ_SCHEMA)
     pq.write_table(table, path, compression='zstd')
-    print(f"  [Parquet] chunk{chunk_idx:04d} — {len(records)} samples, {os.path.getsize(path)/1e6:.1f} MB", flush=True)
+    print(f"  [Parquet] chunk{chunk_idx:04d} — {len(records)} samples, "
+          f"{os.path.getsize(path)/1e6:.1f} MB", flush=True)
     return path
 
-# ── Safe GDrive Syncing & Local Cleanup ──────────────────────────────────────
-def _rclone_sync_backup():
-    if not ON_KAGGLE: return
+
+# ── FIX 1: Targeted GDrive sync — pull only state/tsv for THIS pair ──────────
+def _gdrive_pull_state_for_pair(src_cv: str, tgt_m4t: str):
+    """
+    Pull ONLY the state file, tsv cache, and parquet files for this specific
+    src_cv→tgt_m4t pair from GDrive. Do NOT pull all parquets — that was the
+    root cause of the 'deleted files reappearing' bug.
+    """
+    if not ON_KAGGLE:
+        return
+    print(f"[GDrive] Syncing state for {src_cv}→{tgt_m4t} from GDrive...", flush=True)
+    # Pull state file (.state_src2tgt.json)
+    subprocess.run(
+        f'rclone copy "{GDRIVE_PARQUET_DIR}/.state_{src_cv}2{tgt_m4t}.json" "{PSEUDO_DIR}/" --transfers=4',
+        shell=True, capture_output=True)
+    # Pull tsv cache (.tsv_src.json) — shared across tgt langs for same src
+    subprocess.run(
+        f'rclone copy "{GDRIVE_PARQUET_DIR}/.tsv_{src_cv}.json" "{PSEUDO_DIR}/" --transfers=4',
+        shell=True, capture_output=True)
+    # Pull only parquets for this pair (needed for row-count state recovery)
+    subprocess.run(
+        f'rclone copy "{GDRIVE_PARQUET_DIR}/" "{PSEUDO_DIR}/" '
+        f'--transfers=8 --include "pseudo_{src_cv}2{tgt_m4t}_chunk*.parquet"',
+        shell=True, capture_output=True)
+
+
+def _rclone_sync_backup(src_cv: str, tgt_m4t: str):
+    """
+    Back up all local parquets to GDrive, then delete ONLY the parquets for
+    this specific pair. Parquets from other pairs are never re-downloaded and
+    therefore never need to be cleaned up here.
+    """
+    if not ON_KAGGLE:
+        return
     print(f"  [GDrive] Backing up local parquets to GDrive...", flush=True)
-    # We use 'copy' so we don't accidentally delete files already in GDrive
-    r = subprocess.run(f'rclone copy "{PSEUDO_DIR}/" "{GDRIVE_PARQUET_DIR}/" --transfers=8', shell=True)
+    r = subprocess.run(
+        f'rclone copy "{PSEUDO_DIR}/" "{GDRIVE_PARQUET_DIR}/" --transfers=8',
+        shell=True)
     if r.returncode == 0:
-        # LOUD & AGGRESSIVE CLEANUP: Only delete locally if GDrive backup succeeded!
         freed = 0
-        for f in pathlib.Path(PSEUDO_DIR).glob("*.parquet"):
+        # Only delete parquets that belong to THIS pair — we didn't touch others
+        pattern = f'pseudo_{src_cv}2{tgt_m4t}_chunk*.parquet'
+        for f in pathlib.Path(PSEUDO_DIR).glob(pattern):
             freed += f.stat().st_size / 1e6
             f.unlink()
         if freed > 0:
-            print(f"  [Local] ✓ Safely deleted {freed:.1f} MB of backed-up parquets to prevent OOM.", flush=True)
+            print(f"  [Local] ✓ Safely deleted {freed:.1f} MB of "
+                  f"{src_cv}→{tgt_m4t} parquets to prevent OOM.", flush=True)
+        # Also sweep any stray parquets from OTHER pairs that might have been
+        # pulled accidentally in a previous (buggy) run
+        stray_freed = 0
+        for f in pathlib.Path(PSEUDO_DIR).glob('pseudo_*.parquet'):
+            stray_freed += f.stat().st_size / 1e6
+            f.unlink()
+        if stray_freed > 0:
+            print(f"  [Local] ✓ Also removed {stray_freed:.1f} MB of "
+                  f"stray parquets from other pairs.", flush=True)
     else:
-        print("  [GDrive] ⚠ Warning: Backup failed. Keeping local files to prevent data loss.")
+        print("  [GDrive] ⚠ Backup failed — keeping local files to prevent data loss.")
+
+
+# ── FIX 2: wget progress now shows attempt number; no more confusing resets ───
+def _wget_range(url: str, dest: str, start: int, end: int, retries: int = 3) -> bool:
+    expected = end - start + 1
+    for attempt in range(retries):
+        if os.path.exists(dest): os.remove(dest)
+        cmd = [
+            'wget', '--quiet', '--no-verbose',
+            f'--header=Range: bytes={start}-{end}',
+            '--tries=1',
+            '--timeout=60',          # connection timeout only (was 300 — irrelevant for established connections)
+            '--read-timeout=300',    # allow 5 min of silence before declaring stall (was 120 — too short for large files)
+            '-O', dest, url,
+        ]
+        _stop_progress = [False]
+        def _progress_printer(attempt=attempt):
+            t_start = _time.time()
+            while not _stop_progress[0]:
+                _time.sleep(10)
+                if _stop_progress[0]: break
+                try:
+                    current = os.path.getsize(dest) if os.path.exists(dest) else 0
+                    print(f"  [wget|try {attempt+1}] {current/1e9:.2f}/{expected/1e9:.2f} GB "
+                          f"({current/expected*100:.0f}%)", flush=True)
+                except: pass
+        import threading
+        t = threading.Thread(target=_progress_printer, daemon=True)
+        t.start()
+        proc = subprocess.run(cmd)
+        _stop_progress[0] = True
+        t.join(timeout=2)
+        if proc.returncode == 0 and os.path.exists(dest) and os.path.getsize(dest) >= expected * 0.99:
+            return True
+        actual = os.path.getsize(dest) if os.path.exists(dest) else 0
+        print(f"  [wget|try {attempt+1}] Failed. Got {actual/1e9:.2f}/{expected/1e9:.2f} GB "
+              f"(rc={proc.returncode}). {'Retrying...' if attempt+1 < retries else 'Giving up.'}", flush=True)
+        _time.sleep(15 * (attempt + 1))
+    return False
+
+
+# ── Unchanged helpers ─────────────────────────────────────────────────────────
 
 def publish_kaggle_dataset(dataset_title='fleurs5', message='Added structured pseudo-labels'):
     if not ON_KAGGLE: return False
@@ -5085,61 +5929,49 @@ def publish_kaggle_dataset(dataset_title='fleurs5', message='Added structured ps
         if not kag_json: kag_json = ""
         kp = pathlib.Path.home() / '.kaggle/kaggle.json'
         kp.parent.mkdir(parents=True, exist_ok=True)
-        kp.write_text(kag_json)
-        kp.chmod(0o600)
+        kp.write_text(kag_json); kp.chmod(0o600)
     except Exception: return False
-
     try: user = json.loads(kag_json).get('username', 'rayedriasat')
     except: user = 'rayedriasat'
-
     EXPORT_DIR = f"{WORK_DIR}/kaggle_dataset_export"
     os.makedirs(f"{EXPORT_DIR}/fleurs", exist_ok=True)
     os.makedirs(f"{EXPORT_DIR}/pseudo_cv25", exist_ok=True)
-
-    print(f"\n[Kaggle] Assembling highly-efficient export folder at {EXPORT_DIR}...")
     subprocess.run(f'rclone sync "{GDRIVE_ROOT}/fleurs_parquet/" "{EXPORT_DIR}/fleurs/" --transfers=8', shell=True)
     subprocess.run(f'rclone sync "{GDRIVE_PARQUET_DIR}/" "{EXPORT_DIR}/pseudo_cv25/" --transfers=8', shell=True)
-
     meta_path = os.path.join(EXPORT_DIR, 'dataset-metadata.json')
     with open(meta_path, 'w') as f:
-        json.dump({'title': dataset_title, 'id': f'{user}/{dataset_title}', 'licenses': [{'name': 'CC0-1.0'}]}, f, indent=2)
-
+        json.dump({'title': dataset_title, 'id': f'{user}/{dataset_title}',
+                   'licenses': [{'name': 'CC0-1.0'}]}, f, indent=2)
     print(f'[Kaggle] Pushing structured dataset to {user}/{dataset_title}...')
-    r = subprocess.run(['kaggle', 'datasets', 'version', '-p', EXPORT_DIR, '-m', message, '--dir-mode', 'tar'], text=True, capture_output=True)
-    
-    import shutil
-    shutil.rmtree(EXPORT_DIR, ignore_errors=True)
-    
+    r = subprocess.run(['kaggle', 'datasets', 'version', '-p', EXPORT_DIR,
+                        '-m', message, '--dir-mode', 'tar'],
+                       text=True, capture_output=True)
+    import shutil; shutil.rmtree(EXPORT_DIR, ignore_errors=True)
     if r.returncode == 0:
-        print(f'[Kaggle] ✓ Version updated successfully!')
-        return True
-        
+        print(f'[Kaggle] ✓ Version updated successfully!'); return True
     print(f'[Kaggle] Update failed. Trying to create new dataset...')
-    r2 = subprocess.run(['kaggle', 'datasets', 'create', '-p', EXPORT_DIR, '--dir-mode', 'tar'], text=True, capture_output=True)
+    r2 = subprocess.run(['kaggle', 'datasets', 'create', '-p', EXPORT_DIR, '--dir-mode', 'tar'],
+                        text=True, capture_output=True)
     if r2.returncode == 0:
-        print(f'[Kaggle] ✓ Dataset created: {user}/{dataset_title}')
-        return True
-        
+        print(f'[Kaggle] ✓ Dataset created: {user}/{dataset_title}'); return True
     print(f'[Kaggle] ❌ Push failed.\nError:\n{r.stderr[:400] if r.stderr else r2.stderr[:400]}')
     return False
 
-# ── MDC URL Fetcher & Core Parsing ───────────────────────────────────────────
 _mdc_url_cache = {}
+
 def mdc_get_presigned_url(dataset_id: str, force_refresh: bool = False) -> dict:
     global _mdc_url_cache
     cached = _mdc_url_cache.get(dataset_id)
     if cached and not force_refresh:
         if _time.time() < cached.get('_expires_ts', 0) - 1800: return cached
-
-    MDC_API_KEY = _get_secret('MDC_API_KEY')
+    MDC_API_KEY  = _get_secret('MDC_API_KEY')
     MDC_BASE_URL = 'https://mozilladatacollective.com/api'
     headers = {'Authorization': f'Bearer {MDC_API_KEY}', 'Content-Type': 'application/json'}
-    resp = requests.post(f'{MDC_BASE_URL}/datasets/{dataset_id}/download', headers=headers, timeout=30)
-    
+    resp = requests.post(f'{MDC_BASE_URL}/datasets/{dataset_id}/download',
+                         headers=headers, timeout=30)
     if resp.status_code == 403: raise RuntimeError(f"\n[MDC] 403 for {dataset_id}. Accept terms on MDC website.")
     if resp.status_code == 429: raise RuntimeError("[MDC] Rate limit: 30 presigned URLs/day.")
     resp.raise_for_status()
-
     info = resp.json()
     try:
         from datetime import datetime
@@ -5152,7 +5984,8 @@ def mdc_get_presigned_url(dataset_id: str, force_refresh: bool = False) -> dict:
 
 def _rclone_check_exists(remote_dir, filename):
     if not ON_KAGGLE: return False
-    r = subprocess.run(f'rclone lsjson "{remote_dir}/{filename}"', shell=True, capture_output=True, text=True)
+    r = subprocess.run(f'rclone lsjson "{remote_dir}/{filename}"',
+                       shell=True, capture_output=True, text=True)
     if r.returncode == 0:
         try: return len(json.loads(r.stdout)) > 0
         except: pass
@@ -5160,39 +5993,18 @@ def _rclone_check_exists(remote_dir, filename):
 
 def _rclone_copy_to_local(remote_dir, filename, local_dir):
     print(f"  [GDrive] Pulling {filename} from Google Drive cache...", flush=True)
-    r = subprocess.run(f'rclone copy "{remote_dir}/{filename}" "{local_dir}/" --transfers=8 --drive-chunk-size=64M', shell=True, capture_output=True, text=True)
+    r = subprocess.run(
+        f'rclone copy "{remote_dir}/{filename}" "{local_dir}/" '
+        f'--transfers=8 --drive-chunk-size=64M',
+        shell=True, capture_output=True, text=True)
     return r.returncode == 0
 
 def _rclone_copy_to_remote(local_path, remote_dir):
     if not ON_KAGGLE: return
     print(f"  [GDrive] Backing up {os.path.basename(local_path)} to Google Drive...", flush=True)
-    subprocess.run(f'rclone copy "{local_path}" "{remote_dir}/" --transfers=8 --drive-chunk-size=64M', shell=True, capture_output=True, text=True)
-
-def _wget_range(url: str, dest: str, start: int, end: int, retries: int = 3) -> bool:
-    expected = end - start + 1
-    for attempt in range(retries):
-        if os.path.exists(dest): os.remove(dest)
-        cmd = ['wget', '--quiet', '--no-verbose', f'--header=Range: bytes={start}-{end}',
-               '--tries=1', '--timeout=300', '--read-timeout=120', '-O', dest, url]
-        _stop_progress = [False]
-        def _progress_printer():
-            t_start = _time.time()
-            while not _stop_progress[0]:
-                _time.sleep(10)
-                if _stop_progress[0]: break
-                try:
-                    current = os.path.getsize(dest) if os.path.exists(dest) else 0
-                    print(f"  [wget] {current/1e9:.2f}/{expected/1e9:.2f} GB ({current/expected*100:.0f}%)", flush=True)
-                except: pass
-        import threading
-        t = threading.Thread(target=_progress_printer, daemon=True)
-        t.start()
-        proc = subprocess.run(cmd)
-        _stop_progress[0] = True
-        t.join(timeout=1)
-        if proc.returncode == 0 and os.path.exists(dest) and os.path.getsize(dest) >= expected * 0.99: return True
-        _time.sleep(10 * (attempt + 1))
-    return False
+    subprocess.run(
+        f'rclone copy "{local_path}" "{remote_dir}/" --transfers=8 --drive-chunk-size=64M',
+        shell=True, capture_output=True, text=True)
 
 def _extract_tsv(partial_path: str) -> dict:
     tsv_map = {}
@@ -5205,14 +6017,14 @@ def _extract_tsv(partial_path: str) -> dict:
                     raw_bytes = bytearray()
                     try:
                         while True:
-                            chunk = f.read(10 * 1024 * 1024) 
+                            chunk = f.read(10 * 1024 * 1024)
                             if not chunk: break
                             raw_bytes.extend(chunk)
-                    except (EOFError, tarfile.ReadError) as e:
-                        print(f"  [TSV] Partial read stopped (Expected). Rescuing downloaded rows...", flush=True)
+                    except (EOFError, tarfile.ReadError):
+                        print(f"  [TSV] Partial read stopped (expected). Rescuing rows...", flush=True)
                     raw = raw_bytes.decode('utf-8', errors='ignore')
                     for row in csv.DictReader(io.StringIO(raw), delimiter='\t'):
-                        if row.get('path') and row.get('sentence'): 
+                        if row.get('path') and row.get('sentence'):
                             tsv_map[row['path'].strip().split('/')[-1]] = row['sentence'].strip()
                     print(f"  [TSV] Extracted {len(tsv_map)} validated entries.", flush=True)
                     return tsv_map
@@ -5232,57 +6044,58 @@ def _extract_all_mp3s_to_ram(partial_path: str, tsv_map: dict, max_n: int) -> li
                 try:
                     audio, sr = sf.read(io.BytesIO(tf.extractfile(member).read()), dtype='float32')
                     if audio.ndim > 1: audio = audio.mean(axis=1)
-                    if sr != 16000: audio = torchaudio.functional.resample(torch.from_numpy(audio), sr, 16000).numpy()
+                    if sr != 16000:
+                        audio = torchaudio.functional.resample(
+                            torch.from_numpy(audio), sr, 16000).numpy()
                     dur = len(audio) / 16000
-                    if 0.3 <= dur <= 20.0: clips.append((audio.astype(np.float32), tsv_map[bare]))
+                    if 0.3 <= dur <= 20.0:
+                        clips.append((audio.astype(np.float32), tsv_map[bare]))
                 except: continue
-                if len(clips) % 2000 == 0: print(f"  [RAM] {len(clips)} clips decoded | {(_time.time()-t0)/60:.1f} min", flush=True)
+                if len(clips) % 2000 == 0:
+                    print(f"  [RAM] {len(clips)} clips decoded | "
+                          f"{(_time.time()-t0)/60:.1f} min", flush=True)
     except tarfile.ReadError: pass
     return clips
 
-INFERENCE_BATCH_SIZE = 24   
-LOG_EVERY_SECONDS    = 30   
+INFERENCE_BATCH_SIZE = 24
+LOG_EVERY_SECONDS    = 30
 
-def _inference_on_ram_clips(clips: list, src_cv: str, tgt_m4t: str, already_saved: int, max_clips: int, t_dev, buffer_out: list) -> int:
+def _inference_on_ram_clips(clips: list, src_cv: str, tgt_m4t: str,
+                             already_saved: int, max_clips: int,
+                             t_dev, buffer_out: list) -> int:
     total_saved, saved_this_call, failed = already_saved, 0, 0
     t0, last_log_t = _time.time(), 0
-    print(f"  [INF] Starting batched inference: {len(clips)} clips | batch={INFERENCE_BATCH_SIZE}", flush=True)
+    print(f"  [INF] Starting batched inference: {len(clips)} clips | "
+          f"batch={INFERENCE_BATCH_SIZE}", flush=True)
 
     for batch_start in range(0, len(clips), INFERENCE_BATCH_SIZE):
         if total_saved >= max_clips: break
-        batch_clips = clips[batch_start: batch_start + INFERENCE_BATCH_SIZE][:max_clips - total_saved]
+        batch_clips = clips[batch_start: batch_start + INFERENCE_BATCH_SIZE]
+        batch_clips = batch_clips[:max_clips - total_saved]
         if not batch_clips: break
         audios, refs = [c[0] for c in batch_clips], [c[1] for c in batch_clips]
 
         try:
-            inputs = processor(audio=audios, sampling_rate=16000, return_tensors='pt', padding=True, pad_to_multiple_of=2)
+            inputs = processor(audio=audios, sampling_rate=16000,
+                               return_tensors='pt', padding=True,
+                               pad_to_multiple_of=2)
             inputs_gpu = {k: v.to(t_dev) for k, v in inputs.items()}
-            del inputs
-        except Exception as e: 
-            print(f"  [INF Error - Processor] {e}", flush=True)
-            failed += len(batch_clips); continue
-
-        try:
             with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.float16):
                 out = teacher.generate(**inputs_gpu, tgt_lang=tgt_m4t)
-            del inputs_gpu; torch.cuda.empty_cache()
-            
+            del inputs, inputs_gpu; torch.cuda.empty_cache()
             seqs = out.sequences if hasattr(out, 'sequences') else out
             if isinstance(seqs, tuple): seqs = seqs[0]
-            
             remapped = _remap_ids_for_decode(teacher, seqs.cpu())
-            texts = processor.batch_decode(remapped, skip_special_tokens=True)
-            
+            texts    = processor.batch_decode(remapped, skip_special_tokens=True)
             for audio_np, ref, txt in zip(audios, refs, texts):
                 txt = txt.strip()
                 if txt:
                     buffer_out.append({
-                        'id': f'p6_{src_cv}2{tgt_m4t}_{total_saved:06d}',
+                        'id':            f'p6_{src_cv}2{tgt_m4t}_{total_saved:06d}',
                         'transcription': txt,
-                        'wav_bytes': _to_wav_bytes(audio_np, 16000), 
+                        'wav_bytes':     _to_wav_bytes(audio_np, 16000),
                     })
                     total_saved += 1; saved_this_call += 1
-                else: failed += 1
 
         except torch.cuda.OutOfMemoryError:
             torch.cuda.empty_cache(); gc.collect()
@@ -5293,79 +6106,87 @@ def _inference_on_ram_clips(clips: list, src_cv: str, tgt_m4t: str, already_save
                 if not sub: continue
                 sub_audios, sub_refs = [c[0] for c in sub], [c[1] for c in sub]
                 try:
-                    sub_inp = processor(audio=sub_audios, sampling_rate=16000, return_tensors='pt', padding=True)
+                    sub_inp     = processor(audio=sub_audios, sampling_rate=16000,
+                                            return_tensors='pt', padding=True)
                     sub_inp_gpu = {k: v.to(t_dev) for k, v in sub_inp.items()}
-                    
                     with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.float16):
                         sub_out = teacher.generate(**sub_inp_gpu, tgt_lang=tgt_m4t)
                     del sub_inp, sub_inp_gpu; torch.cuda.empty_cache()
-                    
                     sub_seqs = sub_out.sequences if hasattr(sub_out, 'sequences') else sub_out
                     if isinstance(sub_seqs, tuple): sub_seqs = sub_seqs[0]
-                        
                     sub_remapped = _remap_ids_for_decode(teacher, sub_seqs.cpu())
-                    sub_texts = processor.batch_decode(sub_remapped, skip_special_tokens=True)
+                    sub_texts    = processor.batch_decode(sub_remapped, skip_special_tokens=True)
                     for audio_np, ref, txt in zip(sub_audios, sub_refs, sub_texts):
                         txt = txt.strip()
                         if txt:
-                            buffer_out.append({'id': f'p6_{src_cv}2{tgt_m4t}_{total_saved:06d}', 'transcription': txt, 'wav_bytes': _to_wav_bytes(audio_np, 16000)})
+                            buffer_out.append({
+                                'id':            f'p6_{src_cv}2{tgt_m4t}_{total_saved:06d}',
+                                'transcription': txt,
+                                'wav_bytes':     _to_wav_bytes(audio_np, 16000),
+                            })
                             total_saved += 1; saved_this_call += 1
-                except Exception as e2: 
+                except Exception as e2:
                     print(f"  [INF Error - Sub-batch] {e2}", flush=True)
                     failed += len(sub)
-        
-        except Exception as e: 
+
+        except Exception as e:
             print(f"  [INF Error - Generation] {e}", flush=True)
             failed += len(batch_clips); continue
 
         if _time.time() - last_log_t >= LOG_EVERY_SECONDS:
             rate = saved_this_call / max((_time.time() - t0) / 60, 0.01)
-            print(f"  [{src_cv}->{tgt_m4t}] {total_saved}/{max_clips} | {rate:.1f}/min | fail={failed}", flush=True)
+            print(f"  [{src_cv}->{tgt_m4t}] {total_saved}/{max_clips} | "
+                  f"{rate:.1f}/min | fail={failed}", flush=True)
             last_log_t = _time.time()
 
     return saved_this_call
+
 
 def run_pseudo_labeler(src_cv: str, tgt_m4t: str, max_clips: int = 20000):
     dataset_id = MDC_DATASET_IDS[src_cv]
     state_file = pathlib.Path(PSEUDO_DIR) / f'.state_{src_cv}2{tgt_m4t}.json'
 
-    # ── FIX 1: PULL FROM GDRIVE BEFORE CHECKING STATE ──
-    if ON_KAGGLE:
-        print(f"[GDrive] Syncing previously generated files from GDrive to local cache...", flush=True)
-        # Using copy means we pull the old parquets and state files down to Kaggle safely
-        subprocess.run(f'rclone copy "{GDRIVE_PARQUET_DIR}/" "{PSEUDO_DIR}/" --transfers=8', shell=True)
+    # FIX 1: Pull ONLY the state/tsv/parquets for this specific pair.
+    # Do NOT pull everything — that caused completed pairs' parquets to
+    # re-download and then never get cleaned up.
+    _gdrive_pull_state_for_pair(src_cv, tgt_m4t)
 
-    state = json.loads(state_file.read_text()) if state_file.exists() else {}
+    state          = json.loads(state_file.read_text()) if state_file.exists() else {}
     already_done   = state.get('clips_done', 0)
     next_chunk_idx = state.get('next_chunk_idx', 0)
     byte_offset    = state.get('byte_offset', 0)
 
-    # ── FIX 2: BULLETPROOF STATE RECOVERY ──
-    # Count the actual rows in the Parquet files. If the state file was deleted or out of sync,
-    # this perfectly restores your progress mathematically.
+    # Bulletproof state recovery from parquet row counts
     actual_clips = 0
-    max_idx = -1
+    max_idx      = -1
     for f in pathlib.Path(PSEUDO_DIR).glob(f'pseudo_{src_cv}2{tgt_m4t}_chunk*.parquet'):
         try:
             actual_clips += pq.read_metadata(f).num_rows
             idx = int(f.stem.split('chunk')[-1])
             max_idx = max(max_idx, idx)
-        except Exception: 
+        except Exception:
             pass
-            
     if actual_clips > already_done:
-        print(f"  [State Recovery] Recovered true progress from Parquets: {actual_clips} clips.")
-        already_done = actual_clips
+        print(f"  [State Recovery] Recovered true progress: {actual_clips} clips.")
+        already_done   = actual_clips
         next_chunk_idx = max_idx + 1 if max_idx >= 0 else 0
 
-    print(f'\n{"="*65}\n[PL] {src_cv} Audio → {tgt_m4t} Text | target={max_clips} | done={already_done} | resume={byte_offset/1e9:.2f} GB\n{"="*65}', flush=True)
+    print(f'\n{"="*65}\n'
+          f'[PL] {src_cv} Audio → {tgt_m4t} Text | target={max_clips} | '
+          f'done={already_done} | resume={byte_offset/1e9:.2f} GB\n'
+          f'{"="*65}', flush=True)
 
-    if already_done >= max_clips: print('[PL] Complete.'); return
+    if already_done >= max_clips:
+        print('[PL] Complete.')
+        return
+
     teacher.eval()
     t_dev = next(teacher.text_decoder.parameters()).device
 
-    info = mdc_get_presigned_url(dataset_id)
-    url, expires_ts, total_bytes = info['downloadUrl'], info.get('_expires_ts', _time.time() + 11*3600), int(info.get('sizeBytes', 0))
+    info         = mdc_get_presigned_url(dataset_id)
+    url          = info['downloadUrl']
+    expires_ts   = info.get('_expires_ts', _time.time() + 11*3600)
+    total_bytes  = int(info.get('sizeBytes', 0))
 
     def fresh_url():
         nonlocal url, expires_ts
@@ -5385,7 +6206,8 @@ def run_pseudo_labeler(src_cv: str, tgt_m4t: str, max_clips: int = 20000):
         tsv_cache.write_text(json.dumps(tsv_map))
 
     chunk_bytes = int(DOWNLOAD_CHUNK_GB * 1024**3)
-    total_saved, cur_offset = already_done, byte_offset
+    total_saved = already_done
+    cur_offset  = byte_offset
 
     while cur_offset < total_bytes and total_saved < max_clips:
         slice_end = min(cur_offset + chunk_bytes - 1, total_bytes - 1)
@@ -5393,47 +6215,71 @@ def run_pseudo_labeler(src_cv: str, tgt_m4t: str, max_clips: int = 20000):
         part_path = f'{RAW_DIR}/{part_name}'
         needs_download = True
 
-        if os.path.exists(part_path) and os.path.getsize(part_path) >= (slice_end - cur_offset + 1) * 0.99:
+        if (os.path.exists(part_path)
+                and os.path.getsize(part_path) >= (slice_end - cur_offset + 1) * 0.99):
             print(f'\n[PL] Slice {cur_offset/1e9:.2f} GB exists locally.', flush=True)
             needs_download = False
-            
+
         if needs_download and _rclone_check_exists(GDRIVE_RAW_CACHE, part_name):
-            if _rclone_copy_to_local(GDRIVE_RAW_CACHE, part_name, RAW_DIR): needs_download = False
+            if _rclone_copy_to_local(GDRIVE_RAW_CACHE, part_name, RAW_DIR):
+                needs_download = False
 
         if needs_download:
-            print(f'\n[PL] Downloading {cur_offset/1e9:.2f}–{slice_end/1e9:.2f} GB from MDC...', flush=True)
-            if not _wget_range(fresh_url(), part_path, cur_offset, slice_end): raise RuntimeError(f'Download failed.')
+            print(f'\n[PL] Downloading {cur_offset/1e9:.2f}–{slice_end/1e9:.2f} GB '
+                  f'from MDC...', flush=True)
+            if not _wget_range(fresh_url(), part_path, cur_offset, slice_end):
+                raise RuntimeError('Download failed.')
             _rclone_copy_to_remote(part_path, GDRIVE_RAW_CACHE)
 
-        clips_in_ram = _extract_all_mp3s_to_ram(part_path, tsv_map, max_n=max_clips - total_saved)
-        os.remove(part_path) 
+        clips_in_ram = _extract_all_mp3s_to_ram(
+            part_path, tsv_map, max_n=max_clips - total_saved)
+        os.remove(part_path)   # free raw disk immediately after extraction
 
         ram_buffer = []
-        n_saved = _inference_on_ram_clips(clips_in_ram, src_cv, tgt_m4t, total_saved, max_clips, t_dev, ram_buffer)
+        n_saved    = _inference_on_ram_clips(
+            clips_in_ram, src_cv, tgt_m4t, total_saved, max_clips, t_dev, ram_buffer)
         del clips_in_ram; gc.collect(); torch.cuda.empty_cache()
 
         total_saved += n_saved
-        cur_offset = slice_end + 1
-        
+        cur_offset   = slice_end + 1
+
         if ram_buffer:
             CHUNK_SAVE_EVERY = 5000
             for i in range(0, len(ram_buffer), CHUNK_SAVE_EVERY):
                 chunk = ram_buffer[i : i + CHUNK_SAVE_EVERY]
                 _save_parquet(chunk, src_cv, tgt_m4t, next_chunk_idx)
                 next_chunk_idx += 1
-                
-            state_file.write_text(json.dumps({'clips_done': total_saved, 'next_chunk_idx': next_chunk_idx, 'byte_offset': cur_offset}))
-            _rclone_sync_backup()
 
-    _rclone_sync_backup()
-    print(f'\n✓ [{src_cv}->{tgt_m4t}] {total_saved} pseudo-labels generated and synced safely to GDrive.')
+            state_file.write_text(json.dumps({
+                'clips_done':    total_saved,
+                'next_chunk_idx': next_chunk_idx,
+                'byte_offset':   cur_offset,
+            }))
+            # FIX 1: pass pair info so only THIS pair's parquets are deleted locally
+            _rclone_sync_backup(src_cv, tgt_m4t)
+
+    _rclone_sync_backup(src_cv, tgt_m4t)
+    print(f'\n✓ [{src_cv}->{tgt_m4t}] {total_saved} pseudo-labels generated '
+          f'and synced safely to GDrive.')
+
 
 print('Cross-Lingual Pseudo-Labeler Ready with 100% Safe Disk Management.')
+print('  Fix 1: Targeted GDrive sync (no stale parquet re-downloads)')
+print('  Fix 2: wget progress labels each attempt (no more confusing resets)')
+```
+
+### Output
+
+**[stdout]**
+```
+Cross-Lingual Pseudo-Labeler Ready with 100% Safe Disk Management.
+  Fix 1: Targeted GDrive sync (no stale parquet re-downloads)
+  Fix 2: wget progress labels each attempt (no more confusing resets)
 ```
 
 ---
 
-## Cell 74 — `code`
+## Cell 75 — `code` (execution #62)
 
 ```python
 # # ── TEST CELL: Prove Pipeline Integrity (WAV + ZSTD) ──
@@ -5519,26 +6365,34 @@ print('Cross-Lingual Pseudo-Labeler Ready with 100% Safe Disk Management.')
 
 ---
 
-## Cell 75 — `code`
+## Cell 76 — `code` (execution #63)
 
 ```python
-# ── Cell 73: EXECUTE CROSS-LINGUAL Pseudo-Labeling ───────────────────────────
-
-# 1. Translate INTO Bengali (X Audio -> Bengali Text)
-run_pseudo_labeler(src_cv='en', tgt_m4t='ben', max_clips=30000)
-run_pseudo_labeler(src_cv='hi', tgt_m4t='ben', max_clips=25000)
-run_pseudo_labeler(src_cv='ar', tgt_m4t='ben', max_clips=25000)
-
-# 2. Translate FROM Bengali (Bengali Audio -> X Text)
-# We set Bengali to have a larger budget since it is our primary focus.
-run_pseudo_labeler(src_cv='bn', tgt_m4t='eng', max_clips=20000)
-run_pseudo_labeler(src_cv='bn', tgt_m4t='hin', max_clips=15000)
-run_pseudo_labeler(src_cv='bn', tgt_m4t='arb', max_clips=15000)
+!ls pseudo_cv25
 ```
 
 ---
 
-## Cell 76 — `code`
+## Cell 77 — `code` (execution #64)
+
+```python
+# # ── Cell 73: EXECUTE CROSS-LINGUAL Pseudo-Labeling ───────────────────────────
+
+# # 1. Translate INTO Bengali (X Audio -> Bengali Text)
+# run_pseudo_labeler(src_cv='en', tgt_m4t='ben', max_clips=30000)
+# run_pseudo_labeler(src_cv='hi', tgt_m4t='ben', max_clips=25000)
+# run_pseudo_labeler(src_cv='ar', tgt_m4t='ben', max_clips=25000)
+
+# # 2. Translate FROM Bengali (Bengali Audio -> X Text)
+# # We set Bengali to have a larger budget since it is our primary focus.
+# run_pseudo_labeler(src_cv='bn', tgt_m4t='eng', max_clips=20000)
+# run_pseudo_labeler(src_cv='bn', tgt_m4t='hin', max_clips=15000)
+# run_pseudo_labeler(src_cv='bn', tgt_m4t='arb', max_clips=15000)
+```
+
+---
+
+## Cell 78 — `code` (execution #65)
 
 ```python
 # !rclone copy gdrive:seamTL_bengali/pseudo_cv25 /kaggle/working/pseudo_cv25
@@ -5546,89 +6400,114 @@ run_pseudo_labeler(src_cv='bn', tgt_m4t='arb', max_clips=15000)
 
 ---
 
-## Cell 77 — `code`
+## Cell 79 — `code` (execution #66)
 
 ```python
-# # ── Cell 74: Load Combined Dataset (FLEURS + Kaggle Pseudo Dataset) ──────────
-# import pandas as pd, pathlib, os
+# ── Cell 74: Load Combined Dataset (FLEURS + CV25 Pseudo) ──────────
+import pandas as pd, pathlib, os
 
-# # If you attach the Kaggle dataset to your notebook, it lives here:
-# KAGGLE_DATASET_ROOT = '/kaggle/input/datasets/rayedriasat/fleurs5'
+# If you mount both datasets, they will appear here:
+KAGGLE_FLEURS_ROOT = '/kaggle/input/datasets/rayedriasat/fleurs-original-zstd'
+KAGGLE_PSEUDO_ROOT = '/kaggle/input/datasets/rayedriasat/cv25-pseudo-labels'
 
-# # Auto-detect routing based on the new structured hierarchy
-# if os.path.exists(f"{KAGGLE_DATASET_ROOT}/fleurs"):
-#     print(f"✓ Structured Kaggle Dataset detected at {KAGGLE_DATASET_ROOT}!")
-#     ACTIVE_FLEURS_PATH = f"{KAGGLE_DATASET_ROOT}/fleurs"
-#     ACTIVE_PSEUDO_PATH = f"{KAGGLE_DATASET_ROOT}/pseudo_cv25"
-# else:
-#     print(f"⚠ Kaggle Dataset not mounted properly. Falling back to local working directories.")
-#     ACTIVE_FLEURS_PATH = LOCAL_PARQUET_CACHE  # Defined in Cell 16
-#     ACTIVE_PSEUDO_PATH = PSEUDO_DIR           # Defined in Cell 71
+# Fallback auto-detection for local testing
+ACTIVE_FLEURS_PATH = KAGGLE_FLEURS_ROOT if os.path.exists(KAGGLE_FLEURS_ROOT) else LOCAL_PARQUET_CACHE
+ACTIVE_PSEUDO_PATH = KAGGLE_PSEUDO_ROOT if os.path.exists(KAGGLE_PSEUDO_ROOT) else f"{GDRIVE_ROOT}/pseudo_cv25_parquets"
 
-# def _build_pseudo_metadata(path: str) -> list:
-#     meta = []
-#     print(f'Loading pseudo-label metadata from {path}...')
-#     parquet_files = list(pathlib.Path(path).glob('pseudo_*.parquet'))
+def _build_pseudo_metadata(path: str) -> list:
+    meta = []
+    print(f'Loading pseudo-label metadata from {path}...')
     
-#     if not parquet_files:
-#         print(f"  [Warning] No parquets found in {path}!")
-#         return meta
-        
-#     for f in sorted(parquet_files):
-#         stem = f.stem                           
-#         try: lang_pair = stem.split('_')[1]     
-#         except IndexError: continue
-#         if '2' not in lang_pair: continue
-        
-#         src_cv, tgt_m4t = lang_pair.split('2', 1)
-#         src_m4t = CV_TO_M4T.get(src_cv, src_cv)
-        
-#         try: df = pd.read_parquet(str(f), columns=['id','transcription'])
-#         except Exception as e: print(f'  [skip] {f.name}: {e}'); continue
-        
-#         for i, row in enumerate(df.itertuples(index=False)):
-#             meta.append({
-#                 'id': row.id, 
-#                 'src_lang': src_m4t, 
-#                 'tgt_lang': tgt_m4t,
-#                 'ref': row.transcription, 
-#                 '_src_file': str(f), 
-#                 '_src_idx': i
-#             })
-#     print(f'  [Pseudo] Successfully loaded {len(meta)} entries from {path}')
-#     return meta
+    # If path is GDrive, rclone copy it locally first for speed
+    if "gdrive:" in path:
+        print("  [GDrive] Pulling parquets locally for fast loading...")
+        subprocess.run(f'rclone sync "{path}/" "{PSEUDO_DIR}/" --transfers=8', shell=True)
+        path = PSEUDO_DIR
 
-# def load_all_metadata_combined(max_fleurs: int = 4000) -> list:
-#     all_meta = []
-#     print(f'Loading original FLEURS metadata from {ACTIVE_FLEURS_PATH}...')
-#     for src, tgt in EVAL_LANG_PAIRS:
-#         ds = ParquetStreamingDataset(ACTIVE_FLEURS_PATH, src, tgt, 'train', max_fleurs)
-#         all_meta.extend(ds.samples)
-#     print(f'  FLEURS: {len(all_meta)} samples')
+    parquet_files = list(pathlib.Path(path).glob('pseudo_*.parquet'))
+    if not parquet_files:
+        print(f"  [Warning] No parquets found in {path}!")
+        return meta
+        
+    for f in sorted(parquet_files):
+        try: lang_pair = f.stem.split('_')[1]     
+        except IndexError: continue
+        if '2' not in lang_pair: continue
+        
+        src_cv, tgt_m4t = lang_pair.split('2', 1)
+        src_m4t = CV_TO_M4T.get(src_cv, src_cv)
+        
+        try: df = pd.read_parquet(str(f), columns=['id','transcription'])
+        except Exception as e: print(f'  [skip] {f.name}: {e}'); continue
+        
+        for i, row in enumerate(df.itertuples(index=False)):
+            meta.append({
+                'id': row.id, 'src_lang': src_m4t, 'tgt_lang': tgt_m4t,
+                'ref': row.transcription, '_src_file': str(f), '_src_idx': i
+            })
+    print(f'  [Pseudo] Successfully loaded {len(meta)} entries.')
+    return meta
+
+def load_all_metadata_combined(max_fleurs: int = 4000) -> list:
+    all_meta = []
+    print(f'Loading original FLEURS metadata from {ACTIVE_FLEURS_PATH}...')
+    for src, tgt in EVAL_LANG_PAIRS:
+        ds = ParquetStreamingDataset(ACTIVE_FLEURS_PATH, src, tgt, 'train', max_fleurs)
+        all_meta.extend(ds.samples)
     
-#     pseudo = _build_pseudo_metadata(ACTIVE_PSEUDO_PATH)
-#     all_meta.extend(pseudo)
+    pseudo = _build_pseudo_metadata(ACTIVE_PSEUDO_PATH)
+    all_meta.extend(pseudo)
     
-#     from collections import Counter
-#     counts = Counter(f"{s['src_lang']}→{s['tgt_lang']}" for s in all_meta)
-#     print(f'\n✓ Combined: {len(all_meta)} total training samples')
-#     for pair, n in sorted(counts.items()):
-#         print(f'  {pair}: {n}{"  ★ Bengali" if "ben" in pair else ""}')
-#     return all_meta
+    from collections import Counter
+    counts = Counter(f"{s['src_lang']}→{s['tgt_lang']}" for s in all_meta)
+    print(f'\n✓ Combined: {len(all_meta)} total training samples')
+    for pair, n in sorted(counts.items()):
+        print(f'  {pair}: {n}{"  ★ Bengali" if "ben" in pair else ""}')
+    return all_meta
 
-# # Build combined metadata
-# combined_metadata = load_all_metadata_combined(max_fleurs=4000)
+combined_metadata = load_all_metadata_combined(max_fleurs=4000)
+ft_samples = ChunkedStreamingDataset(combined_metadata, chunk_size=CHUNK_SIZE, prefetch=True)
+N_TRAIN = len(ft_samples)
+print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples ready for Massive KD Training.')
+```
 
-# # Pass straight to ChunkedStreamingDataset 
-# ft_samples = ChunkedStreamingDataset(combined_metadata, chunk_size=CHUNK_SIZE, prefetch=True)
-# N_TRAIN = len(ft_samples)
+### Output
 
-# print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples ready for Massive KD Training.')
+**[stdout]**
+```
+Loading original FLEURS metadata from /kaggle/input/datasets/rayedriasat/fleurs-original-zstd...
+  Indexed 1449 samples from ben→eng
+  Indexed 1449 samples from eng→ben
+  Indexed 1288 samples from ben→hin
+  Indexed 1288 samples from hin→ben
+  Indexed 1250 samples from ben→arb
+  Indexed 1250 samples from arb→ben
+Loading pseudo-label metadata from /kaggle/input/datasets/rayedriasat/cv25-pseudo-labels...
+  [Pseudo] Successfully loaded 116107 entries.
+
+✓ Combined: 124081 total training samples
+  arb→ben: 26249  ★ Bengali
+  ben→arb: 16250  ★ Bengali
+  ben→eng: 21449  ★ Bengali
+  ben→hin: 16288  ★ Bengali
+  eng→ben: 31449  ★ Bengali
+  hin→ben: 12396  ★ Bengali
+  ChunkedStreamingDataset: 124081 samples | chunk=2000
+
+✓ ft_samples Phase 6: 124081 samples ready for Massive KD Training.
 ```
 
 ---
 
-## Cell 78 — `code`
+## Cell 80 — `code` (execution #67)
+
+```python
+# heed
+```
+
+---
+
+## Cell 81 — `code` (execution #68)
 
 ```python
 # from transformers import SeamlessM4Tv2ForSpeechToSpeech
@@ -5638,39 +6517,150 @@ run_pseudo_labeler(src_cv='bn', tgt_m4t='arb', max_clips=15000)
 
 ---
 
-## Cell 79 — `code`
+## Cell 82 — `code` (execution #69)
 
 ```python
-# for i in range(40000, 40003):
-#     print(f"{ft_samples[i]}")
+for i in range(40000, 40003):
+    print(f"{ft_samples[i]}")
+```
+
+### Output
+
+**[stdout]**
+```
+{'id': 'p6_bn2arb_007027', 'src_lang': 'ben', 'tgt_lang': 'arb', 'ref': 'من بين المحررين والمساهمين السابقين محمود شام، ناصر ناجي، وشفي آكيل.', 'wav': array([ 0.0000000e+00,  0.0000000e+00,  0.0000000e+00, ...,
+        0.0000000e+00, -3.0517578e-05, -6.1035156e-05], dtype=float32)}
+{'id': 'p6_bn2arb_007028', 'src_lang': 'ben', 'tgt_lang': 'arb', 'ref': 'أساسا كلمة "شخص" من اللغة السنسكريتية.', 'wav': array([ 0.0000000e+00,  0.0000000e+00,  0.0000000e+00, ...,
+       -3.0517578e-05,  0.0000000e+00, -3.0517578e-05], dtype=float32)}
+{'id': 'p6_bn2arb_007029', 'src_lang': 'ben', 'tgt_lang': 'arb', 'ref': 'هذا يعني: الرب، المالك، الحُسّامي، الحاكم، الملك.', 'wav': array([ 0.0000000e+00,  0.0000000e+00,  0.0000000e+00, ...,
+       -3.0517578e-05, -3.0517578e-05, -3.0517578e-05], dtype=float32)}
 ```
 
 ---
 
-## Cell 80 — `code`
+## Cell 83 — `code` (execution #70)
 
 ```python
-# mdl = teacher
-# for i in range(40000, 40003):
-#     s = ft_samples[i]
-#     print(f"{s['wav'][325:345]}")
+mdl = teacher
+for i in range(40000, 40003):
+    s = ft_samples[i]
+    print(f"{s['wav'][325:345]}")
     
-#     dur = len(s['wav']) / 16000
-#     t0  = time.time()
-#     _, wav_out = run_s2st(mdl, s['wav'], tgt_lang=s['tgt_lang'])
-#     rtf  = (time.time() - t0) / max(dur, 0.01)
-#     pred = asr_transcribe(wav_out, s['tgt_lang'])
-#     bleu = compute_bleu(pred, s['ref'])
-#     chrf = compute_chrf(pred, s['ref'])
-#     print(f'  [{i}] BLEU={bleu:5.1f} ChrF={chrf:5.1f} RTF={rtf:.3f}')
-#     print(f'              pred: {pred[:80]}')
+    dur = len(s['wav']) / 16000
+    t0  = time.time()
+    _, wav_out = run_s2st(mdl, s['wav'], tgt_lang=s['tgt_lang'])
+    rtf  = (time.time() - t0) / max(dur, 0.01)
+    pred = asr_transcribe(wav_out, s['tgt_lang'])
+    bleu = compute_bleu(pred, s['ref'])
+    chrf = compute_chrf(pred, s['ref'])
+    print(f'  [{i}] BLEU={bleu:5.1f} ChrF={chrf:5.1f} RTF={rtf:.3f}')
+    print(f'              pred: {pred[:80]}')
 
-#     play(s['wav'], 16000, label=f'_s{i+1}in.wav')
+    play(s['wav'], 16000, label=f'_s{i+1}in.wav')
+```
+
+### Output
+
+**[stdout]**
+```
+[-3.0517578e-05 -3.0517578e-05 -3.0517578e-05 -3.0517578e-05
+ -3.0517578e-05 -3.0517578e-05 -3.0517578e-05 -3.0517578e-05
+ -3.0517578e-05  0.0000000e+00 -3.0517578e-05 -3.0517578e-05
+  0.0000000e+00  0.0000000e+00 -3.0517578e-05 -3.0517578e-05
+ -3.0517578e-05 -3.0517578e-05  0.0000000e+00  0.0000000e+00]
+[MMS-ASR] Loading lang=ara...
+```
+
+```
+preprocessor_config.json:   0%|          | 0.00/254 [00:00<?, ?B/s]
+```
+
+```
+config.json: 0.00B [00:00, ?B/s]
+```
+
+```
+tokenizer_config.json:   0%|          | 0.00/397 [00:00<?, ?B/s]
+```
+
+```
+vocab.json: 0.00B [00:00, ?B/s]
+```
+
+```
+special_tokens_map.json:   0%|          | 0.00/96.0 [00:00<?, ?B/s]
+```
+
+```
+model.safetensors:   0%|          | 0.00/3.86G [00:00<?, ?B/s]
+```
+
+```
+Loading weights:   0%|          | 0/1096 [00:00<?, ?it/s]
+```
+
+```
+adapter.ara.safetensors:   0%|          | 0.00/9.26M [00:00<?, ?B/s]
+```
+
+**[stdout]**
+```
+  [40000] BLEU= 17.4 ChrF= 78.6 RTF=0.727
+              pred: من بين المحرين والمساهمين السابقين محمود شام ناصر ناجي وشفي آكل
+  _s40001in.wav  (8.9s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[-3.0517578e-05 -3.0517578e-05 -3.0517578e-05  0.0000000e+00
+  0.0000000e+00 -3.0517578e-05 -3.0517578e-05 -3.0517578e-05
+ -3.0517578e-05 -3.0517578e-05 -3.0517578e-05 -3.0517578e-05
+ -3.0517578e-05 -3.0517578e-05 -3.0517578e-05 -3.0517578e-05
+ -3.0517578e-05 -3.0517578e-05 -3.0517578e-05 -3.0517578e-05]
+  [40001] BLEU=  7.0 ChrF= 58.0 RTF=0.395
+              pred: أساساً من كلمة شخص  من اللوغة السنسكريتية
+  _s40002in.wav  (5.0s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[-3.0517578e-05  0.0000000e+00 -3.0517578e-05 -3.0517578e-05
+  0.0000000e+00  0.0000000e+00 -3.0517578e-05  0.0000000e+00
+  0.0000000e+00  0.0000000e+00  0.0000000e+00 -3.0517578e-05
+  0.0000000e+00 -3.0517578e-05 -3.0517578e-05  0.0000000e+00
+ -3.0517578e-05  0.0000000e+00  0.0000000e+00 -3.0517578e-05]
+  [40002] BLEU= 10.9 ChrF= 43.7 RTF=0.259
+              pred: هذا يعني الرب المالك الحسام الحاكم الملك
+  _s40003in.wav  (6.8s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
 ```
 
 ---
 
-## Cell 81 — `code`
+## Cell 84 — `code` (execution #71)
 
 ```python
 # !rclone copy /kaggle/working/ gdrive:seamTL_bengali/
@@ -5678,7 +6668,7 @@ run_pseudo_labeler(src_cv='bn', tgt_m4t='arb', max_clips=15000)
 
 ---
 
-## Cell 82 — `code`
+## Cell 85 — `code` (execution #72)
 
 ```python
 # publish_kaggle_dataset(message='Restored FLEURS and added structured Pseudo-Labels')
@@ -5686,117 +6676,209 @@ run_pseudo_labeler(src_cv='bn', tgt_m4t='arb', max_clips=15000)
 
 ---
 
-## Cell 83 — `code`
+## Cell 86 — `code` (execution #73)
 
 ```python
-subprocess.run(
-    'rm -rf /kaggle/working/*',
-    shell=True
-)
+# subprocess.run(
+#     'rm -rf /kaggle/working/*',
+#     shell=True
+# )
 ```
 
 ---
 
-## Cell 84 — `code`
+## Cell 87 — `code` (execution #74)
 
 ```python
-publish_kaggle_dataset(message='Fixed wav having all zeros, used zstd compression, previous error was bfloat16 silent crash on kaggle T4')
+# publish_kaggle_dataset(message='Fixed wav having all zeros, used zstd compression, previous error was bfloat16 silent crash on kaggle T4')
 ```
 
 ---
 
-## Cell 85 — `code`
+## Cell 88 — `code` (execution #75)
+
+```python
+# # ═══════════════════════════════════════════════════════════════════════════════
+# # ── DEDICATED KAGGLE PUBLISHER (The "Two Dataset" Strategy)
+# # Run this once after your generation is complete to publish to Kaggle.
+# # ═══════════════════════════════════════════════════════════════════════════════
+# import os, subprocess, json, pathlib, shutil
+
+# def safe_kaggle_push(export_dir, dataset_name, title, message):
+#     if not ON_KAGGLE: return False
+    
+#     try:
+#         kag_json = _get_secret('KAGGLE_API_TOKEN')
+#         kp = pathlib.Path.home() / '.kaggle/kaggle.json'
+#         kp.parent.mkdir(parents=True, exist_ok=True)
+#         kp.write_text(kag_json); kp.chmod(0o600)
+#         user = json.loads(kag_json).get('username', 'rayedriasat')
+#     except: user = 'rayedriasat'
+
+#     meta_path = os.path.join(export_dir, 'dataset-metadata.json')
+#     with open(meta_path, 'w') as f:
+#         json.dump({'title': title, 'id': f'{user}/{dataset_name}', 'licenses': [{'name': 'CC0-1.0'}]}, f, indent=2)
+
+#     print(f'[Kaggle] Pushing {dataset_name}...')
+#     r = subprocess.run(['kaggle', 'datasets', 'version', '-p', export_dir, '-m', message, '--dir-mode', 'tar'], text=True, capture_output=True)
+#     if r.returncode == 0:
+#         print(f'[Kaggle] ✓ Version updated successfully!')
+#         return True
+        
+#     print(f'[Kaggle] Update failed. Trying to create new dataset...')
+#     r2 = subprocess.run(['kaggle', 'datasets', 'create', '-p', export_dir, '--dir-mode', 'tar'], text=True, capture_output=True)
+#     if r2.returncode == 0:
+#         print(f'[Kaggle] ✓ Dataset created: {user}/{dataset_name}')
+#         return True
+        
+#     print(f'[Kaggle] ❌ Push failed.\nError:\n{r.stderr[:400] if r.stderr else r2.stderr[:400]}')
+#     return False
+
+# def publish_split_datasets():
+#     print("=== PUBLISHING KAGGLE DATASETS ===")
+    
+#     # ── Dataset 1: FLEURS Original ──
+#     print("\n1. Preparing Original FLEURS Dataset (~12 GB)")
+#     EXP_FLEURS = f"{WORK_DIR}/export_fleurs"
+#     os.makedirs(EXP_FLEURS, exist_ok=True)
+#     subprocess.run(f'rclone sync "{GDRIVE_ROOT}/fleurs_parquet/" "{EXP_FLEURS}/" --transfers=8', shell=True)
+    
+#     safe_kaggle_push(EXP_FLEURS, 'fleurs-original-zstd', 'Fleurs Original ZSTD', 'Initial upload')
+#     shutil.rmtree(EXP_FLEURS, ignore_errors=True)
+#     print("✓ Freed local disk space from FLEURS.")
+
+#     # ── Dataset 2: CV25 Pseudo Labels ──
+#     print("\n2. Preparing Pseudo-Label Dataset (~13 GB)")
+#     EXP_PSEUDO = f"{WORK_DIR}/export_pseudo"
+#     os.makedirs(EXP_PSEUDO, exist_ok=True)
+#     subprocess.run(f'rclone sync "{GDRIVE_PARQUET_DIR}/" "{EXP_PSEUDO}/" --transfers=8', shell=True)
+    
+#     safe_kaggle_push(EXP_PSEUDO, 'cv25-pseudo-labels', 'Common Voice 25 Pseudo Labels', 'Added all translations')
+#     shutil.rmtree(EXP_PSEUDO, ignore_errors=True)
+#     print("✓ Freed local disk space from Pseudo-Labels.")
+    
+#     print("\n🎉 ALL DATASETS PUBLISHED SECURELY WITHOUT OOM!")
+#     print("For Phase 6 training, click 'Add Data' in Kaggle and mount BOTH datasets!")
+
+# # Uncomment this and run it ONLY when all generation is complete!
+# publish_split_datasets()
+```
+
+---
+
+## Cell 89 — `code` (execution #76)
+
+```python
+# heed
+```
+
+---
+
+## Cell 90 — `code` (execution #77)
 
 ```python
 text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
 print(f"pre p6 eval → Text ChrF: {text_chrf:.2f} | ASR ChrF: {asr_chrf:.2f}")
 ```
 
----
+### Output
 
-## Cell 86 — `code`
+**[stdout]**
+```
+  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
+[MMS-ASR] Loading lang=ben...
+```
 
-```python
-heed
+```
+Loading weights:   0%|          | 0/1096 [00:00<?, ?it/s]
+```
+
+```
+adapter.ben.safetensors:   0%|          | 0.00/9.34M [00:00<?, ?B/s]
+```
+
+**[stdout]**
+```
+  [ASR] Offloaded models to CPU to clear VRAM for training.
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
+✓ GC selectively ENABLED for: speech_encoder
+pre p6 eval → Text ChrF: 26.74 | ASR ChrF: 26.22
 ```
 
 ---
 
-## Cell 87 — `code`
+## Cell 91 — `code` (execution #78)
 
 ```python
-# ═══════════════════════════════════════════════════════════════════════════════
-# ── Cell 75: Dilated Temporal & SwiGLU Semantic Bottleneck Adapters (Zero-Init)
-# ═══════════════════════════════════════════════════════════════════════════════
+# ── Cell A: Bridge Definitions (NOT injected yet) ─────────────────────────────
+# We keep the architecture code here so nothing downstream breaks,
+# but inject_bridges() is NOT called during Phase 6 backbone recovery.
+# Bridges will only be used in the optional Cell F fine-control phase.
+
 import torch.nn as nn, torch.nn.functional as F
 import torch
 
 class AcousticDilatedBridge(nn.Module):
-    """
-    Dilated Temporal Bottleneck (DTB) Adapter.
-    Expands the receptive field to recover acoustic context lost from pruning layers.
-    """
     def __init__(self, d_model=1024, bottleneck=256, kernel=11, dilation=2):
         super().__init__()
         self.norm = nn.LayerNorm(d_model)
         self.down = nn.Linear(d_model, bottleneck, bias=False)
-        
-        # Dilated Depthwise Conv (Padding preserves sequence length)
         pad = (kernel - 1) * dilation // 2
-        self.conv = nn.Conv1d(bottleneck, bottleneck, kernel_size=kernel, 
-                              stride=1, padding=pad, dilation=dilation, 
+        self.conv = nn.Conv1d(bottleneck, bottleneck, kernel_size=kernel,
+                              stride=1, padding=pad, dilation=dilation,
                               groups=bottleneck, bias=False)
-        
-        self.up = nn.Linear(bottleneck, d_model, bias=False)
-        
-        # ── STRICT ZERO INIT: Guarantees mathematically safe insertion ──
+        self.up   = nn.Linear(bottleneck, d_model, bias=False)
         nn.init.zeros_(self.up.weight)
         self.scale = nn.Parameter(torch.tensor(1e-4))
 
     def forward(self, x):
         h = self.norm(x)
         h = F.silu(self.down(h))
-        
         h = h.transpose(1, 2)
         h = self.conv(h)
         h = h.transpose(1, 2)
-        
         h = F.silu(h)
         return x + self.scale * self.up(h)
 
 
 class SemanticSwiGLUBridge(nn.Module):
-    """
-    SwiGLU Semantic Bottleneck (SSB) Adapter.
-    Uses Llama-style gated routing to recover cross-lingual mapping capacity.
-    """
     def __init__(self, d_model=1024, bottleneck=256):
         super().__init__()
-        self.norm = nn.LayerNorm(d_model)
+        self.norm      = nn.LayerNorm(d_model)
         self.down_gate = nn.Linear(d_model, bottleneck, bias=False)
         self.down_val  = nn.Linear(d_model, bottleneck, bias=False)
         self.up        = nn.Linear(bottleneck, d_model, bias=False)
-        
-        # ── STRICT ZERO INIT ──
         nn.init.zeros_(self.up.weight)
         self.scale = nn.Parameter(torch.tensor(1e-4))
 
     def forward(self, x):
-        h = self.norm(x)
+        h    = self.norm(x)
         gate = F.silu(self.down_gate(h))
         val  = self.down_val(h)
-        h = gate * val  # SwiGLU gating
-        return x + self.scale * self.up(h)
+        return x + self.scale * self.up(gate * val)
+
+
+class _BridgeWrapper(nn.Module):
+    def __init__(self, base_layer, bridge):
+        super().__init__()
+        self.base_layer = base_layer
+        self.bridge     = bridge
+
+    def forward(self, hidden_states, *args, **kwargs):
+        out = self.base_layer(hidden_states, *args, **kwargs)
+        if isinstance(out, tuple):
+            return (self.bridge(out[0]),) + out[1:]
+        return self.bridge(out)
 
 
 def inject_bridges(student_model, enc_d_model=1024, dec_d_model=1024, bottleneck=256):
-    enc = student_model.speech_encoder
+    enc    = student_model.speech_encoder
     parent = enc.encoder if hasattr(enc, 'encoder') else enc
     if hasattr(parent, 'layers'):
         new_layers = nn.ModuleList()
         for layer in parent.layers:
-            layer_device = next(layer.parameters()).device
-            bridge = AcousticDilatedBridge(enc_d_model, bottleneck, kernel=11, dilation=2).to(device=layer_device, dtype=torch.float32)
+            dev    = next(layer.parameters()).device
+            bridge = AcousticDilatedBridge(enc_d_model, bottleneck).to(device=dev, dtype=torch.float32)
             new_layers.append(_BridgeWrapper(layer, bridge))
         parent.layers = new_layers
         print(f'  [DTB] Injected {len(new_layers)} Dilated Acoustic Bridges.')
@@ -5810,244 +6892,156 @@ def inject_bridges(student_model, enc_d_model=1024, dec_d_model=1024, bottleneck
     if dec_layers is not None:
         new_layers = nn.ModuleList()
         for layer in dec_layers:
-            layer_device = next(layer.parameters()).device
-            bridge = SemanticSwiGLUBridge(dec_d_model, bottleneck).to(device=layer_device, dtype=torch.float32)
+            dev    = next(layer.parameters()).device
+            bridge = SemanticSwiGLUBridge(dec_d_model, bottleneck).to(device=dev, dtype=torch.float32)
             new_layers.append(_BridgeWrapper(layer, bridge))
         setattr(dec, attr, new_layers)
         print(f'  [SSB] Injected {len(new_layers)} SwiGLU Semantic Bridges.')
 
-    total_bridge_params = sum(p.numel() for n, p in student_model.named_parameters() if 'bridge' in n)
-    print(f'  [Architecture] Total new PEFT params: {total_bridge_params/1e6:.2f}M')
+    total = sum(p.numel() for n, p in student_model.named_parameters() if 'bridge' in n)
+    print(f'  [Architecture] Total bridge params: {total/1e6:.2f}M')
     return student_model
 
-class _BridgeWrapper(nn.Module):
-    def __init__(self, base_layer, bridge):
-        super().__init__()
-        self.base_layer = base_layer
-        self.bridge     = bridge
 
-    def forward(self, hidden_states, *args, **kwargs):
-        out = self.base_layer(hidden_states, *args, **kwargs)
-        if isinstance(out, tuple): return (self.bridge(out[0]),) + out[1:]
-        return self.bridge(out)
-
-def set_joint_training(student_model, bridge_lr_mult: float = 3.0):
-    bridge_params, other_params = [], []
-    for name, param in student_model.named_parameters():
-        param.requires_grad = True
-        if 'bridge' in name: bridge_params.append(param)
-        else: other_params.append(param)
-    print(f'  [Optim] Joint mode: bridge={len(bridge_params)} params (lr×{bridge_lr_mult}), other={len(other_params)} params.')
-    return bridge_params, other_params
-
-print('DTB and SSB modules defined. Call inject_bridges(student) to install.')
-```
-
----
-
-## Cell 88 — `code`
-
-```python
-# student = inject_bridges(student)
-```
-
----
-
-## Cell 89 — `code`
-
-```python
-# ── Cell 76: Install Bridges ──────────────────────────────────────────
-# Run ONCE after loading student weights from Phase 5.
-
+# Confirm bridges are NOT yet in the student
 already_injected = any('bridge' in n for n, _ in student.named_parameters())
-if not already_injected:
-    student = inject_bridges(
-        student,
-        enc_d_model = 1024,   
-        dec_d_model = 1024,   
-        bottleneck  = 256,    
-    )
+if already_injected:
+    print("⚠  Bridges already injected from a previous run.")
+    print("   If you want a clean Phase 6, reload the student from phase5_ft checkpoint.")
 else:
-    print("Bridges already injected!")
+    print("✓  Bridge definitions loaded. Bridges NOT injected — backbone trains clean.")
+    print("   Bridges will be added in the optional Cell F (after backbone recovers).")
+```
+
+### Output
+
+**[stdout]**
+```
+✓  Bridge definitions loaded. Bridges NOT injected — backbone trains clean.
+   Bridges will be added in the optional Cell F (after backbone recovers).
 ```
 
 ---
 
-## Cell 90 — `code`
+## Cell 92 — `code` (execution #79)
 
 ```python
-# # ── Cell 76: Phase 6A — Bridge Warm-Up (300 steps, bridges only) ─────────────
-# import bitsandbytes as bnb
-# from transformers import get_cosine_schedule_with_warmup
-# import math, time, random
+# ── Cell B: Bridge injection guard ────────────────────────────────────────────
+# INTENTIONALLY SKIPPED for Phase 6 backbone recovery.
+# The bridges will be injected in Cell F after ≥2 epochs of backbone fine-tuning.
+print("✓  Skipping bridge injection. Backbone will train without adapters.")
+print("   This is intentional — see analysis in Cell A.")
+```
 
-# print("Loading Phase 5 weights...")
-# ckpt = load_latest_checkpoint('phase5_ft')
-# if ckpt:
-#     student.load_state_dict(ckpt['model_state'], strict=False)
-#     print("✓ Loaded Phase 5 weights.")
+### Output
 
-# already_injected = any('bridge' in n for n, _ in student.named_parameters())
-# if not already_injected:
-#     student = inject_bridges(student, enc_d_model=1024, dec_d_model=1024, enc_kernel=7, bottleneck=256)
-
-# P6A_STEPS, P6A_LR, P6A_BATCH, P6A_GRAD_ACCUM, P6A_KD_ALPHA, P6A_LOG_EVERY = 300, 1e-4, 4, 4, 0.6, 20
-
-# set_bridge_only_training(student)
-# for n, p in student.named_parameters():
-#     if p.requires_grad and p.dtype != torch.float32: p.data = p.data.to(torch.float32)
-
-# p6a_bridge_params = [p for n, p in student.named_parameters() if p.requires_grad]
-# p6a_optimizer = bnb.optim.AdamW8bit(p6a_bridge_params, lr=P6A_LR, weight_decay=1e-2)
-# p6a_scheduler = get_cosine_schedule_with_warmup(p6a_optimizer, num_warmup_steps=30, num_training_steps=P6A_STEPS)
-# p6a_scaler    = torch.cuda.amp.GradScaler()
-
-# student.train()
-# teacher.eval()
-# t_dev = next(teacher.text_decoder.parameters()).device
-
-# random.seed(0)
-# # Use the safe 2000 chunk size for tracking
-# all_idx_6a = chunk_friendly_shuffle(len(ft_samples), CHUNK_SIZE, P6A_BATCH)
-# random.seed(42)
-
-# p6a_step, p6a_accum = 0, 0
-# p6a_ce, p6a_kd, p6a_n = 0.0, 0.0, 0.0
-# t0 = time.time()
-# p6a_optimizer.zero_grad(set_to_none=True)
-
-# print(f"\n{'='*60}\nPhase 6A — Bridge Warm-Up | {P6A_STEPS} steps | LR={P6A_LR}\n{'='*60}\n")
-
-# for batch_start in range(0, len(all_idx_6a), P6A_BATCH):
-#     if p6a_step >= P6A_STEPS: break
-
-#     raw   = [ft_samples[i] for i in all_idx_6a[batch_start:batch_start + P6A_BATCH]]
-#     batch = collate_s2t_batch(raw)
-#     del raw
-#     if batch is None: continue
-
-#     # ── SEQUENTIAL EXECUTION FOR WARMUP (PREVENTS CLOSURE RAM LEAKS) ──
-#     try:
-#         topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
-#         L = batch['labels_s'].shape[1]
-#         topk_vals = topk_vals[:, :L, :].contiguous()
-#         topk_idx  = topk_idx[:, :L, :].contiguous()
-        
-#         s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
-#         s_log = s_log[:, :L, :].contiguous()
-        
-#         labels_dev = batch['labels_s'].to('cuda:1', non_blocking=True)
-#         loss, ce_v, kd_v = compute_recovery_loss_gpu(s_log, labels_dev, topk_vals, topk_idx, alpha=P6A_KD_ALPHA)
-        
-#         p6a_scaler.scale(loss / P6A_GRAD_ACCUM).backward()
-        
-#     except torch.cuda.OutOfMemoryError:
-#         print("  [OOM] Skipping batch")
-#         del batch; torch.cuda.empty_cache(); gc.collect()
-#         continue
-#     except Exception as e:
-#         print(f"  [Error] {e}")
-#         del batch; torch.cuda.empty_cache(); gc.collect()
-#         continue
-
-#     # ── AGGRESSIVE MEMORY CLEANUP ──
-#     del batch, topk_vals, topk_idx, s_log, labels_dev, loss
-    
-#     p6a_ce += ce_v; p6a_kd += kd_v; p6a_n += 1; p6a_accum += 1
-
-#     if p6a_accum >= P6A_GRAD_ACCUM:
-#         p6a_scaler.unscale_(p6a_optimizer)
-#         torch.nn.utils.clip_grad_norm_(p6a_bridge_params, 1.0)
-#         p6a_scaler.step(p6a_optimizer)
-#         p6a_scaler.update()
-#         p6a_scheduler.step()
-#         p6a_optimizer.zero_grad(set_to_none=True)
-#         p6a_accum = 0; p6a_step += 1
-
-#         if p6a_step % P6A_LOG_EVERY == 0:
-#             lr_now = p6a_scheduler.get_last_lr()[-1]
-#             elapsed = (time.time() - t0) / 60
-#             eta     = elapsed / p6a_step * (P6A_STEPS - p6a_step)
-#             print(f"  P6A step {p6a_step:>4}/{P6A_STEPS} | CE={p6a_ce/p6a_n:.4f} KD={p6a_kd/p6a_n:.4f} | lr={lr_now:.2e} | ETA {eta:.0f}min")
-#             p6a_ce = p6a_kd = p6a_n = 0.0
-#             free_cpu_ram()
-
-# print(f"\n✓ Phase 6A complete in {(time.time()-t0)/60:.1f} min.")
-# text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
-# print(f"P6A eval → Text ChrF: {text_chrf:.2f} | ASR ChrF: {asr_chrf:.2f}")
+**[stdout]**
+```
+✓  Skipping bridge injection. Backbone will train without adapters.
+   This is intentional — see analysis in Cell A.
 ```
 
 ---
 
-## Cell 91 — `code`
+## Cell 93 — `code`
 
 ```python
-# ── Cell 77: Phase 6 — Massive Pseudo-Label FT (KD Annealing + Bridges) ──
+# ── Cell E: Phase 6 — Bengali Recovery Training (Fixed) ──────────────────────
 import bitsandbytes as bnb
 from transformers import get_cosine_schedule_with_warmup
-import math, time, random, gc
+import math, time, random, gc, queue, threading
 import concurrent.futures
-import queue
-import threading
-import torch
 
-BATCH_SIZE, GRAD_ACCUM = 4, 8
-LR_BACKBONE            = 4e-5
-LR_BRIDGE_MULT         = 3.0      
-WEIGHT_DECAY           = 1e-2
-MAX_EPOCHS             = 8         # 8 Epochs for KD Annealing
-EVAL_STEPS             = 500
-LOG_STEPS              = 20
-
-# ── DYNAMIC KD SCHEDULE ──
-def get_kd_alpha(epoch_idx):
-    if epoch_idx < 4: return 0.90
-    elif epoch_idx == 4: return 0.80
-    elif epoch_idx == 5: return 0.30
-    else: return 0.15
+# ── Hyperparameters ────────────────────────────────────────────────────────────
+BATCH_SIZE    = 4
+GRAD_ACCUM    = 8       # effective batch = 32
+LR_BACKBONE   = 3e-5   # conservative — avoids destabilising the pruned backbone
+WEIGHT_DECAY  = 1e-2
+MAX_EPOCHS    = 8
+EVAL_STEPS    = 500
+LOG_STEPS     = 20
 
 STEPS_PER_EPOCH = math.ceil(len(ft_samples) / (BATCH_SIZE * GRAD_ACCUM))
 TOTAL_STEPS     = STEPS_PER_EPOCH * MAX_EPOCHS
-WARMUP_STEPS    = min(1000, int(TOTAL_STEPS * 0.05))
+WARMUP_STEPS    = min(500, int(TOTAL_STEPS * 0.03))   # short warmup, fast start
 
-# 1. LOAD CLEAN PHASE 5 WEIGHTS 
-print("Loading pristine Phase 5 weights...")
+print(f"Samples       : {len(ft_samples)}")
+print(f"Steps/epoch   : {STEPS_PER_EPOCH}")
+print(f"Total steps   : {TOTAL_STEPS}")
+print(f"Warmup steps  : {WARMUP_STEPS}")
+print(f"Effective batch: {BATCH_SIZE * GRAD_ACCUM}")
+
+# ── Confirm no bridges are present ────────────────────────────────────────────
+if any('bridge' in n for n, _ in student.named_parameters()):
+    raise RuntimeError(
+        "Bridges are injected! Phase 6 must run WITHOUT bridges.\n"
+        "Reload student from phase5_ft checkpoint and re-run Cells A and B."
+    )
+
+# ── Load pristine Phase 5 weights ─────────────────────────────────────────────
+print("\nLoading Phase 5 weights...")
 ckpt = load_latest_checkpoint('phase5_ft')
 if ckpt:
-    # Strict=False allows it to load the backbone while ignoring the newly added bridges
-    student.load_state_dict(ckpt['model_state'], strict=False)
-    print("✓ Loaded pristine Phase 5 weights.")
+    missing, unexpected = student.load_state_dict(ckpt['model_state'], strict=False)
+    if missing:
+        print(f"  [WARN] Missing keys: {missing[:5]}")
+    print(f"  ✓ Phase 5 weights loaded.")
+    del ckpt; free_cpu_ram()
+else:
+    print("  [WARN] No phase5_ft checkpoint found — training from current student state.")
+    print("         This is risky. Ideally, load the Phase 5 model explicitly first.")
 
-# 2. SETUP OPTIMIZER
-bridge_params, other_params = set_joint_training(student, bridge_lr_mult=LR_BRIDGE_MULT)
-for p in bridge_params + other_params:
-    if p.requires_grad and p.dtype != torch.float32: p.data = p.data.to(torch.float32)
+# ── Cast all trainable params to fp32 for optimizer stability ─────────────────
+for name, param in student.named_parameters():
+    param.requires_grad = True
+    if param.dtype != torch.float32:
+        param.data = param.data.to(torch.float32)
 
-lm_head_keys = ['lm_head', 'shared']
-backbone_other = [p for n, p in student.named_parameters() if p.requires_grad and 'bridge' not in n and not any(k in n for k in lm_head_keys)]
-lm_head_ps     = [p for n, p in student.named_parameters() if p.requires_grad and 'bridge' not in n and any(k in n for k in lm_head_keys)]
+disable_all_gradient_checkpointing(student)
+
+# ── Grouped optimizer: lm_head + shared get 0.3× LR (they generalise easily) ──
+lm_keys       = ['lm_head', 'shared']
+lm_params     = [p for n, p in student.named_parameters()
+                 if p.requires_grad and any(k in n for k in lm_keys)]
+other_params  = [p for n, p in student.named_parameters()
+                 if p.requires_grad and not any(k in n for k in lm_keys)]
 
 param_groups = [
-    {'params': lm_head_ps,     'lr': LR_BACKBONE * 0.3},
-    {'params': backbone_other, 'lr': LR_BACKBONE},
-    {'params': bridge_params,  'lr': LR_BACKBONE * LR_BRIDGE_MULT},
+    {'params': lm_params,    'lr': LR_BACKBONE * 0.3, 'name': 'lm_head'},
+    {'params': other_params, 'lr': LR_BACKBONE,        'name': 'backbone'},
 ]
 
-optimizer = bnb.optim.AdamW8bit(param_groups, weight_decay=WEIGHT_DECAY, betas=(0.9, 0.98), eps=1e-6)
-scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=WARMUP_STEPS, num_training_steps=TOTAL_STEPS)
-scaler    = torch.cuda.amp.GradScaler()
+optimizer = bnb.optim.AdamW8bit(
+    param_groups,
+    weight_decay = WEIGHT_DECAY,
+    betas        = (0.9, 0.98),
+    eps          = 1e-6,
+)
+scheduler = get_cosine_schedule_with_warmup(
+    optimizer,
+    num_warmup_steps    = WARMUP_STEPS,
+    num_training_steps  = TOTAL_STEPS,
+)
+scaler = torch.cuda.amp.GradScaler()
 
-all_trainable_p6 = [p for g in param_groups for p in g['params']]
-print(f"\n{'='*60}\nPhase 6 — Joint Training (Parallel CPU+GPU)\nTotal: {TOTAL_STEPS} Steps | Trainable: {sum(p.numel() for p in all_trainable_p6)/1e6:.1f}M\n{'='*60}\n")
+all_trainable = [p for g in param_groups for p in g['params']]
+total_trainable_M = sum(p.numel() for p in all_trainable) / 1e6
+print(f"\n{'='*60}")
+print(f"Phase 6 — Bengali Recovery Training (No Bridges)")
+print(f"Total steps: {TOTAL_STEPS}  |  Trainable: {total_trainable_M:.1f}M")
+print(f"LR backbone: {LR_BACKBONE:.1e}  |  LR lm_head: {LR_BACKBONE*0.3:.1e}")
+print(f"{'='*60}\n")
 
-# ── BACKGROUND DATA PREFETCHER ──
+# ── Background batch prefetcher ────────────────────────────────────────────────
 class BatchPrefetcher:
     def __init__(self, dataset, indices, batch_size, collate_fn, prefetch_size=4):
-        self.dataset, self.indices, self.batch_size, self.collate_fn = dataset, indices, batch_size, collate_fn
-        self.queue = queue.Queue(maxsize=prefetch_size)
-        self.stop_event = threading.Event()
-        self.thread = threading.Thread(target=self._worker)
-        self.thread.daemon = True
+        self.dataset     = dataset
+        self.indices     = indices
+        self.batch_size  = batch_size
+        self.collate_fn  = collate_fn
+        self.queue       = queue.Queue(maxsize=prefetch_size)
+        self.stop_event  = threading.Event()
+        self.thread      = threading.Thread(target=self._worker, daemon=True)
         self.thread.start()
 
     def _worker(self):
@@ -6065,159 +7059,216 @@ class BatchPrefetcher:
         item = self.queue.get()
         if item == "DONE": raise StopIteration
         return item
+
     def stop(self):
         self.stop_event.set()
         while not self.queue.empty():
             try: self.queue.get_nowait()
             except: pass
 
-def _exec_teacher(feat, dec_full): return teacher_topk_direct(feat, dec_full)
-def _exec_student(feat, dec_s): return student_logits_gpu(feat, dec_s)
+
+def _save_p6(opt_step, best_chrf, history, is_best=False):
+    state = dict(
+        model_state     = student.state_dict(),
+        optimizer_state = optimizer.state_dict(),
+        scheduler_state = scheduler.state_dict(),
+        opt_step        = opt_step,
+        best_chrf       = best_chrf,
+        train_history   = history,
+    )
+    name = 'phase6_best' if is_best else 'phase6_ft'
+    save_checkpoint(state, name, opt_step, keep=1)
+
 
 def run_phase6():
-    best_chrf, patience_left, opt_step = 0.0, 25, 0
-    train_history = {'step': [], 'ce': [], 'kd': [], 'lr_bb': [], 'lr_br': [], 'eval_step': [], 'eval_text': [], 'eval_asr': []}
+    best_chrf     = 0.0
+    patience_left = 30           # more patience — eval every 500 steps
+    opt_step      = 0
+    train_history = {
+        'step': [], 'ce': [], 'kd': [], 'lr': [],
+        'eval_step': [], 'eval_text': [], 'eval_asr': [],
+    }
 
+    # Resume from checkpoint if available
     p6_ckpt = load_latest_checkpoint('phase6_ft')
     if p6_ckpt:
         student.load_state_dict(p6_ckpt['model_state'], strict=False)
-        optimizer.load_state_dict(p6_ckpt['optimizer_state'])
-        scheduler.load_state_dict(p6_ckpt['scheduler_state'])
-        opt_step, best_chrf = p6_ckpt['opt_step'], p6_ckpt['best_chrf']
-        if 'train_history' in p6_ckpt: train_history = p6_ckpt['train_history']
-        print(f"✓ Resumed Phase 6 at step {opt_step}")
+        try:
+            optimizer.load_state_dict(p6_ckpt['optimizer_state'])
+            scheduler.load_state_dict(p6_ckpt['scheduler_state'])
+        except Exception as e:
+            print(f"  [WARN] Could not restore optimizer/scheduler: {e}")
+        opt_step  = p6_ckpt.get('opt_step', 0)
+        best_chrf = p6_ckpt.get('best_chrf', 0.0)
+        if 'train_history' in p6_ckpt:
+            train_history = p6_ckpt['train_history']
+        print(f"  ✓ Resumed Phase 6 at step {opt_step}  best_chrf={best_chrf:.2f}")
+        del p6_ckpt; free_cpu_ram()
 
-    start_epoch = opt_step // STEPS_PER_EPOCH
-    batches_to_skip = (opt_step % STEPS_PER_EPOCH) * GRAD_ACCUM
-    step_times = []
-
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
+    start_epoch      = opt_step // STEPS_PER_EPOCH
+    batches_to_skip  = (opt_step % STEPS_PER_EPOCH) * GRAD_ACCUM
+    step_times       = []
+    executor         = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 
     for epoch in range(start_epoch, MAX_EPOCHS):
+        current_alpha = get_kd_alpha(epoch)
         ep_ce = ep_kd = ep_n = 0.0
-        optimizer.zero_grad(set_to_none=True)
         accum = 0
-        
-        current_kd_alpha = get_kd_alpha(epoch)
+        optimizer.zero_grad(set_to_none=True)
 
-        random.seed(epoch + 200)
+        random.seed(epoch + 300)
         all_idx = chunk_friendly_shuffle(len(ft_samples), CHUNK_SIZE, BATCH_SIZE)
         random.seed(42)
-        
+
         if epoch == start_epoch and batches_to_skip > 0:
             all_idx = all_idx[batches_to_skip * BATCH_SIZE:]
 
-        print(f"\n  Phase 6 — Epoch {epoch+1}/{MAX_EPOCHS} | KD_ALPHA = {current_kd_alpha:.2f}")
+        print(f"\n  Phase 6 — Epoch {epoch+1}/{MAX_EPOCHS}"
+              f"  |  KD_alpha={current_alpha:.2f}  |  LR_peak={LR_BACKBONE:.1e}")
         t_epoch = time.time()
         prefetcher = BatchPrefetcher(ft_samples, all_idx, BATCH_SIZE, collate_s2t_batch)
 
         for batch_idx, batch in enumerate(prefetcher):
-            if opt_step >= TOTAL_STEPS: 
-                prefetcher.stop()
-                break
+            if opt_step >= TOTAL_STEPS:
+                prefetcher.stop(); break
+            if batch is None:
+                continue
 
-            if batch is None: continue
-            t0  = time.time()
+            t0 = time.time()
 
+            # ── Parallel teacher + student forward ────────────────────────────
             res_t, res_s = {}, {}
+
             def _t_task():
-                try: res_t['v'], res_t['i'] = teacher_topk_direct(batch['feat'], batch['dec_full'])
-                except Exception as e: res_t['e'] = str(e)
+                try:
+                    res_t['v'], res_t['i'] = teacher_topk_direct(
+                        batch['feat'], batch['dec_full'])
+                except Exception as e:
+                    res_t['e'] = str(e)
+
             def _s_task():
-                try: res_s['s'] = student_logits_gpu(batch['feat'], batch['dec_s'])
-                except Exception as e: res_s['e'] = str(e)
+                try:
+                    res_s['s'] = student_logits_gpu(batch['feat'], batch['dec_s'])
+                except Exception as e:
+                    res_s['e'] = str(e)
 
             future_t = executor.submit(_t_task)
             future_s = executor.submit(_s_task)
             concurrent.futures.wait([future_t, future_s])
 
             if 'e' in res_t or 'e' in res_s:
-                print(f"  [Skip] Parallel execution failed -> T:{res_t.get('e')} S:{res_s.get('e')}")
-                del batch, res_t, res_s; torch.cuda.empty_cache(); gc.collect(); free_cpu_ram()
+                print(f"  [Skip] T:{res_t.get('e')}  S:{res_s.get('e')}")
+                del batch, res_t, res_s
+                torch.cuda.empty_cache(); gc.collect()
                 continue
 
             topk_vals, topk_idx, s_log = res_t['v'], res_t['i'], res_s['s']
             L = batch['labels_s'].shape[1]
-            
+
+            # Align sequence lengths
             topk_vals = topk_vals[:, :L, :].contiguous()
             topk_idx  = topk_idx[:, :L, :].contiguous()
             s_log     = s_log[:, :L, :].contiguous()
+
+            # Labels and tgt_langs for Bengali weighting
             labels_dev = batch['labels_s'].to('cuda:1', non_blocking=True)
+            tgt_langs  = batch.get('tgt_langs', None)
 
             try:
-                loss, ce_v, kd_v = compute_recovery_loss_gpu(s_log, labels_dev, topk_vals, topk_idx, alpha=current_kd_alpha)
+                loss, ce_v, kd_v = compute_recovery_loss_gpu(
+                    s_log, labels_dev,
+                    topk_vals, topk_idx,
+                    alpha     = current_alpha,
+                    tgt_langs = tgt_langs,
+                )
                 scaler.scale(loss / GRAD_ACCUM).backward()
-                
+
             except torch.cuda.OutOfMemoryError:
                 print("  [OOM] Skipping batch")
-                del batch, res_t, res_s, topk_vals, topk_idx, s_log, labels_dev; torch.cuda.empty_cache(); gc.collect(); free_cpu_ram()
+                del batch, res_t, res_s, topk_vals, topk_idx, s_log, labels_dev
+                torch.cuda.empty_cache(); gc.collect(); free_cpu_ram()
                 continue
             except Exception as e:
-                print(f"  [Error] {e}")
-                del batch, res_t, res_s, topk_vals, topk_idx, s_log, labels_dev; torch.cuda.empty_cache(); gc.collect(); free_cpu_ram()
+                print(f"  [Loss error] {e}")
+                del batch, res_t, res_s, topk_vals, topk_idx, s_log, labels_dev
+                torch.cuda.empty_cache(); gc.collect()
                 continue
 
-            del batch, res_t, res_s, topk_vals, topk_idx, s_log, labels_dev, loss
+            del res_t, res_s, topk_vals, topk_idx, s_log, labels_dev, loss
             ep_ce += ce_v; ep_kd += kd_v; ep_n += 1; accum += 1
 
+            # ── Gradient step ─────────────────────────────────────────────────
             if accum >= GRAD_ACCUM:
                 scaler.unscale_(optimizer)
-                torch.nn.utils.clip_grad_norm_(all_trainable_p6, 1.0)
+                torch.nn.utils.clip_grad_norm_(all_trainable, 1.0)
                 scaler.step(optimizer)
                 scaler.update()
                 scheduler.step()
                 optimizer.zero_grad(set_to_none=True)
                 accum = 0; opt_step += 1
 
+                # ── Logging ───────────────────────────────────────────────────
                 if opt_step % LOG_STEPS == 0:
                     step_times.append(time.time() - t0)
-                    lrs = scheduler.get_last_lr()
-                    lr_bb = lrs[1] if len(lrs) > 1 else lrs[0]   
-                    lr_br = lrs[2] if len(lrs) > 2 else lrs[0]   
-                    avg_ce, avg_kd = ep_ce / max(ep_n, 1), ep_kd / max(ep_n, 1)
-                    eta = (TOTAL_STEPS - opt_step) * (sum(step_times[-20:]) / max(len(step_times[-20:]), 1)) / 60
-
+                    lrs     = scheduler.get_last_lr()
+                    lr_now  = lrs[1] if len(lrs) > 1 else lrs[0]
+                    avg_ce  = ep_ce / max(ep_n, 1)
+                    avg_kd  = ep_kd / max(ep_n, 1)
+                    eta_min = (TOTAL_STEPS - opt_step) * \
+                              (sum(step_times[-20:]) / max(len(step_times[-20:]), 1)) / 60
                     train_history['step'].append(opt_step)
                     train_history['ce'].append(avg_ce)
                     train_history['kd'].append(avg_kd)
-                    train_history['lr_bb'].append(float(lr_bb))
-                    train_history['lr_br'].append(float(lr_br))
-
-                    print(f"  P6 step {opt_step:>5}/{TOTAL_STEPS} | CE={avg_ce:.4f} KD={avg_kd:.4f} | KD_A={current_kd_alpha:.2f} | lr={lr_bb:.1e} | ETA={eta:.0f}min")
+                    train_history['lr'].append(float(lr_now))
+                    print(f"  P6 step {opt_step:>5}/{TOTAL_STEPS}"
+                          f" | CE={avg_ce:.4f} KD={avg_kd:.4f}"
+                          f" | α={current_alpha:.2f} | lr={lr_now:.1e}"
+                          f" | ETA={eta_min:.0f}min")
                     ep_ce = ep_kd = ep_n = 0.0
                     free_cpu_ram()
 
+                # ── Evaluation ────────────────────────────────────────────────
                 if opt_step % EVAL_STEPS == 0:
-                    prefetcher.stop() 
+                    prefetcher.stop()
+
                     text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
-                    print(f"\n  ★ P6 step {opt_step} eval → Text={text_chrf:.2f} | ASR={asr_chrf:.2f}")
+
+                    # Compute a combined score that prioritises ASR (real quality)
+                    # but uses text as tiebreaker early in training when ASR=0
+                    if asr_chrf > 1.0:
+                        eval_score = asr_chrf
+                    else:
+                        eval_score = text_chrf * 0.3   # text only as fallback signal
+
+                    print(f"\n  ★ P6 step {opt_step}"
+                          f" → Text={text_chrf:.2f}  ASR={asr_chrf:.2f}"
+                          f"  [score={eval_score:.2f}]")
 
                     train_history['eval_step'].append(opt_step)
                     train_history['eval_text'].append(float(text_chrf))
                     train_history['eval_asr'].append(float(asr_chrf))
 
-                    if asr_chrf > best_chrf:
-                        best_chrf, patience_left = asr_chrf, 25
-                        save_checkpoint(dict(
-                            model_state=student.state_dict(), opt_step=opt_step, best_chrf=best_chrf, train_history=train_history
-                        ), 'phase6_best', opt_step, keep=1)
-                        print(f"  ✓ NEW BEST: {best_chrf:.2f} ChrF")
+                    if eval_score > best_chrf:
+                        best_chrf     = eval_score
+                        patience_left = 30
+                        _save_p6(opt_step, best_chrf, train_history, is_best=True)
+                        print(f"  ✓ NEW BEST score={best_chrf:.2f} — saved phase6_best")
                     else:
-                        save_checkpoint(dict(
-                            model_state=student.state_dict(), optimizer_state=optimizer.state_dict(),
-                            scheduler_state=scheduler.state_dict(), opt_step=opt_step, best_chrf=best_chrf,
-                            train_history=train_history
-                        ), 'phase6_ft', opt_step, keep=1)
-                        
                         patience_left -= 1
-                        print(f"  patience={patience_left}/25")
+                        _save_p6(opt_step, best_chrf, train_history, is_best=False)
+                        print(f"  patience={patience_left}/30")
                         if patience_left <= 0:
                             print("\n  Early stop triggered.")
                             executor.shutdown(wait=False)
                             return opt_step, best_chrf, train_history
-                            
+
+                    # Restart prefetcher for remaining batches in this epoch
                     current_idx_start = (batch_idx + 1) * BATCH_SIZE
-                    prefetcher = BatchPrefetcher(ft_samples, all_idx[current_idx_start:], BATCH_SIZE, collate_s2t_batch)
+                    prefetcher = BatchPrefetcher(
+                        ft_samples, all_idx[current_idx_start:],
+                        BATCH_SIZE, collate_s2t_batch)
+
+            del batch
 
         prefetcher.stop()
         print(f"  Epoch {epoch+1} done | {(time.time()-t_epoch)/60:.1f} min")
@@ -6225,13 +7276,46 @@ def run_phase6():
     executor.shutdown(wait=False)
     return opt_step, best_chrf, train_history
 
-final_step, final_chrf, p6_history = run_phase6()
-print(f"\n✓ Phase 6 complete. Best ASR ChrF: {final_chrf:.2f} at step {final_step}")
+
+# ── Run Phase 6 ────────────────────────────────────────────────────────────────
+final_step, final_score, p6_history = run_phase6()
+print(f"\n✓ Phase 6 complete. Best score: {final_score:.2f} at step {final_step}")
+```
+
+### Output
+
+**[stdout]**
+```
+Samples       : 124081
+Steps/epoch   : 3878
+Total steps   : 31024
+Warmup steps  : 500
+Effective batch: 32
+
+Loading Phase 5 weights...
+[ckpt] Loaded phase5_ft_step001400.pt
+  ✓ Phase 5 weights loaded.
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
+✓ GC selectively ENABLED for: speech_encoder
+
+============================================================
+Phase 6 — Bengali Recovery Training (No Bridges)
+Total steps: 31024  |  Trainable: 1056.0M
+LR backbone: 3.0e-05  |  LR lm_head: 9.0e-06
+============================================================
+
+[ckpt] No checkpoint for 'phase6_ft'
+
+  Phase 6 — Epoch 1/8  |  KD_alpha=0.30  |  LR_peak=3.0e-05
+  P6 step    20/31024 | CE=8.1650 KD=1.5522 | α=0.30 | lr=1.2e-06 | ETA=703min
+  P6 step    40/31024 | CE=8.1141 KD=1.5360 | α=0.30 | lr=2.4e-06 | ETA=684min
+  P6 step    60/31024 | CE=7.9421 KD=1.4848 | α=0.30 | lr=3.6e-06 | ETA=704min
+  P6 step    80/31024 | CE=4.5621 KD=1.6999 | α=0.30 | lr=4.8e-06 | ETA=647min
 ```
 
 ---
 
-## Cell 92 — `code`
+## Cell 94 — `code`
 
 ```python
 # ── Cell 78: Plot Training History ───────────────────────────────────────────
@@ -6284,7 +7368,257 @@ else:
 
 ---
 
-## Cell 93 — `code`
+## Cell 95 — `code`
+
+```python
+# # ── Cell F: Bridge Fine-Control Phase (run AFTER Phase 6 backbone recovery) ───
+# #
+# # Strategy:
+# #   Step 1 (300 steps): Bridge-only warm-up — backbone frozen, bridges learn
+# #   Step 2 (1000 steps): Joint fine-tune at 5e-6 LR — very conservative
+# #
+# # Only run this if Phase 6 (Cell E) achieved ASR ChrF ≥ 15.
+# # If ASR ChrF is still near 0, the backbone isn't recovered — run more Cell E first.
+
+# import bitsandbytes as bnb
+# from transformers import get_cosine_schedule_with_warmup
+
+# # ── 0. Load the best Phase 6 backbone ─────────────────────────────────────────
+# print("Loading best Phase 6 checkpoint...")
+# best_ckpt = load_latest_checkpoint('phase6_best')
+# if best_ckpt:
+#     student.load_state_dict(best_ckpt['model_state'], strict=False)
+#     print(f"  ✓ Loaded phase6_best  (score={best_ckpt.get('best_chrf',0):.2f})")
+#     del best_ckpt; free_cpu_ram()
+# else:
+#     raise RuntimeError("No phase6_best found. Run Cell E first.")
+
+# # Check the ASR score before proceeding
+# print("\nRunning quick eval to check backbone quality...")
+# text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
+# print(f"  Backbone: Text={text_chrf:.2f}  ASR={asr_chrf:.2f}")
+# if asr_chrf < 10.0:
+#     raise RuntimeError(
+#         f"ASR ChrF={asr_chrf:.2f} is too low for bridge fine-tuning.\n"
+#         "Continue running Cell E (more epochs) before attempting bridges."
+#     )
+
+# # ── 1. Inject bridges (only if not already present) ───────────────────────────
+# already_injected = any('bridge' in n for n, _ in student.named_parameters())
+# if not already_injected:
+#     student = inject_bridges(student, enc_d_model=1024, dec_d_model=1024, bottleneck=128)
+#     # Note: bottleneck=128 (not 256) — smaller bridges, less disturbance
+# else:
+#     print("Bridges already injected.")
+
+# bridge_params  = [p for n, p in student.named_parameters() if 'bridge' in n]
+# backbone_params = [p for n, p in student.named_parameters()
+#                    if 'bridge' not in n and p.requires_grad]
+
+# total_bridge_M = sum(p.numel() for p in bridge_params) / 1e6
+# print(f"  Bridge params: {total_bridge_M:.2f}M")
+
+# # Cast all to fp32
+# for p in bridge_params + backbone_params:
+#     if p.requires_grad and p.dtype != torch.float32:
+#         p.data = p.data.to(torch.float32)
+
+# # ── Step 1: Bridge-only warm-up (300 steps) ───────────────────────────────────
+# print("\n" + "="*55)
+# print("  Step 1: Bridge Warm-Up (300 steps, backbone FROZEN)")
+# print("="*55)
+
+# # Freeze backbone
+# for p in backbone_params:
+#     p.requires_grad = False
+
+# F_STEPS   = 300
+# F_LR      = 5e-5
+# F_BATCH   = 4
+# F_ACCUM   = 4
+# F_ALPHA   = 0.20    # moderate KD to give bridges good soft targets
+
+# f_opt = bnb.optim.AdamW8bit(bridge_params, lr=F_LR, weight_decay=1e-2)
+# f_sch = get_cosine_schedule_with_warmup(f_opt, num_warmup_steps=30,
+#                                          num_training_steps=F_STEPS)
+# f_scaler = torch.cuda.amp.GradScaler()
+
+# random.seed(999)
+# idx_f = chunk_friendly_shuffle(len(ft_samples), CHUNK_SIZE, F_BATCH)
+# random.seed(42)
+
+# student.train(); teacher.eval()
+# f_step = f_accum = 0
+# f_ce = f_kd = f_n = 0.0
+# f_opt.zero_grad(set_to_none=True)
+# t_f = time.time()
+
+# for batch_start in range(0, len(idx_f), F_BATCH):
+#     if f_step >= F_STEPS: break
+#     raw   = [ft_samples[i] for i in idx_f[batch_start : batch_start + F_BATCH]]
+#     batch = collate_s2t_batch(raw)
+#     del raw
+#     if batch is None: continue
+
+#     try:
+#         topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
+#         L = batch['labels_s'].shape[1]
+#         topk_vals = topk_vals[:, :L, :].contiguous()
+#         topk_idx  = topk_idx[:, :L, :].contiguous()
+
+#         s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
+#         s_log = s_log[:, :L, :].contiguous()
+
+#         labels_dev = batch['labels_s'].to('cuda:1', non_blocking=True)
+#         tgt_langs  = batch.get('tgt_langs', None)
+
+#         loss, ce_v, kd_v = compute_recovery_loss_gpu(
+#             s_log, labels_dev, topk_vals, topk_idx,
+#             alpha=F_ALPHA, tgt_langs=tgt_langs)
+
+#         f_scaler.scale(loss / F_ACCUM).backward()
+
+#     except Exception as e:
+#         print(f"  [Error] {e}")
+#         del batch; torch.cuda.empty_cache(); gc.collect()
+#         continue
+
+#     del batch, topk_vals, topk_idx, s_log, labels_dev, loss
+#     f_ce += ce_v; f_kd += kd_v; f_n += 1; f_accum += 1
+
+#     if f_accum >= F_ACCUM:
+#         f_scaler.unscale_(f_opt)
+#         torch.nn.utils.clip_grad_norm_(bridge_params, 0.5)   # tight clipping for bridges
+#         f_scaler.step(f_opt)
+#         f_scaler.update()
+#         f_sch.step()
+#         f_opt.zero_grad(set_to_none=True)
+#         f_accum = 0; f_step += 1
+
+#         if f_step % 50 == 0:
+#             lr_now = f_sch.get_last_lr()[-1]
+#             print(f"  BridgeWarmup step {f_step:>3}/{F_STEPS}"
+#                   f" | CE={f_ce/f_n:.4f} KD={f_kd/f_n:.4f} | lr={lr_now:.2e}")
+#             f_ce = f_kd = f_n = 0.0; free_cpu_ram()
+
+# print(f"\n  ✓ Bridge warm-up done in {(time.time()-t_f)/60:.1f} min")
+# text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
+# print(f"  Post bridge warmup → Text={text_chrf:.2f}  ASR={asr_chrf:.2f}")
+
+# # ── Step 2: Joint fine-tune (1000 steps, very low LR) ─────────────────────────
+# print("\n" + "="*55)
+# print("  Step 2: Joint Fine-Tune (1000 steps, LR=5e-6)")
+# print("="*55)
+
+# # Unfreeze backbone
+# for p in backbone_params:
+#     p.requires_grad = True
+
+# J_STEPS  = 1000
+# J_LR     = 5e-6     # very conservative — don't disturb what backbone learned
+# J_BATCH  = 4
+# J_ACCUM  = 8
+# J_ALPHA  = 0.15     # CE dominates
+
+# j_groups = [
+#     {'params': backbone_params, 'lr': J_LR},
+#     {'params': bridge_params,   'lr': J_LR * 2.0},  # 2× not 3× — conservative
+# ]
+# j_opt    = bnb.optim.AdamW8bit(j_groups, weight_decay=1e-2, betas=(0.9, 0.98), eps=1e-6)
+# j_sch    = get_cosine_schedule_with_warmup(j_opt, num_warmup_steps=50,
+#                                             num_training_steps=J_STEPS)
+# j_scaler = torch.cuda.amp.GradScaler()
+
+# j_all = backbone_params + bridge_params
+# best_joint_chrf = asr_chrf
+# best_joint_state = None
+
+# random.seed(1111)
+# idx_j = chunk_friendly_shuffle(len(ft_samples), CHUNK_SIZE, J_BATCH)
+# random.seed(42)
+
+# j_step = j_accum = 0
+# j_ce = j_kd = j_n = 0.0
+# j_opt.zero_grad(set_to_none=True)
+# t_j = time.time()
+
+# for batch_start in range(0, len(idx_j), J_BATCH):
+#     if j_step >= J_STEPS: break
+#     raw   = [ft_samples[i] for i in idx_j[batch_start : batch_start + J_BATCH]]
+#     batch = collate_s2t_batch(raw)
+#     del raw
+#     if batch is None: continue
+
+#     try:
+#         topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
+#         L = batch['labels_s'].shape[1]
+#         topk_vals = topk_vals[:, :L, :].contiguous()
+#         topk_idx  = topk_idx[:, :L, :].contiguous()
+
+#         s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
+#         s_log = s_log[:, :L, :].contiguous()
+
+#         labels_dev = batch['labels_s'].to('cuda:1', non_blocking=True)
+#         tgt_langs  = batch.get('tgt_langs', None)
+
+#         loss, ce_v, kd_v = compute_recovery_loss_gpu(
+#             s_log, labels_dev, topk_vals, topk_idx,
+#             alpha=J_ALPHA, tgt_langs=tgt_langs)
+
+#         j_scaler.scale(loss / J_ACCUM).backward()
+
+#     except Exception as e:
+#         print(f"  [Error] {e}")
+#         del batch; torch.cuda.empty_cache(); gc.collect()
+#         continue
+
+#     del batch, topk_vals, topk_idx, s_log, labels_dev, loss
+#     j_ce += ce_v; j_kd += kd_v; j_n += 1; j_accum += 1
+
+#     if j_accum >= J_ACCUM:
+#         j_scaler.unscale_(j_opt)
+#         torch.nn.utils.clip_grad_norm_(j_all, 1.0)
+#         j_scaler.step(j_opt)
+#         j_scaler.update()
+#         j_sch.step()
+#         j_opt.zero_grad(set_to_none=True)
+#         j_accum = 0; j_step += 1
+
+#         if j_step % 100 == 0:
+#             lr_now = j_sch.get_last_lr()[-1]
+#             print(f"  Joint step {j_step:>4}/{J_STEPS}"
+#                   f" | CE={j_ce/j_n:.4f} KD={j_kd/j_n:.4f} | lr={lr_now:.2e}")
+#             j_ce = j_kd = j_n = 0.0; free_cpu_ram()
+
+#         if j_step % 200 == 0:
+#             text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
+#             print(f"\n  ★ Joint step {j_step} → Text={text_chrf:.2f}  ASR={asr_chrf:.2f}")
+#             if asr_chrf > best_joint_chrf:
+#                 best_joint_chrf  = asr_chrf
+#                 best_joint_state = {k: v.clone().cpu()
+#                                     for k, v in student.state_dict().items()}
+#                 print(f"  ✓ NEW BEST ASR ChrF={best_joint_chrf:.2f}")
+
+# print(f"\n  ✓ Joint fine-tune done in {(time.time()-t_j)/60:.1f} min")
+
+# # Load best joint state
+# if best_joint_state is not None:
+#     student.load_state_dict(best_joint_state, strict=True)
+#     print(f"  Restored best joint state: ASR ChrF={best_joint_chrf:.2f}")
+#     del best_joint_state; free_cpu_ram()
+
+# # Final eval and save
+# text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
+# print(f"\n  ★ Final → Text={text_chrf:.2f}  ASR={asr_chrf:.2f}")
+# save_checkpoint(dict(model_state=student.state_dict(),
+#                      best_chrf=asr_chrf),
+#                 'phase6_with_bridges', 0, keep=1)
+# print("  ✓ Saved phase6_with_bridges")
+```
+
+---
+
+## Cell 96 — `code`
 
 ```python
 # ── Cell 79: Load Best Checkpoint and Save Final Model ───────────────────────
@@ -6308,7 +7642,7 @@ print('✓ Saved final model to Google Drive as `phase6_massive_ft_merged`')
 
 ---
 
-## Cell 94 — `code`
+## Cell 97 — `code`
 
 ```python
 # ── Cell 80: Final Comprehensive Benchmark ───────────────────────────────────
@@ -6363,7 +7697,7 @@ print("\n🎉 PIPELINE COMPLETE! 🎉")
 
 ---
 
-## Cell 95 — `markdown`
+## Cell 98 — `markdown`
 
 > ## Summary
 > 
