@@ -1,6 +1,6 @@
 # Notebook: `./bengali-seamless-notebook.ipynb`
 
-> Kernel: **Python 3** | Total cells: **98**
+> Kernel: **Python 3** | Total cells: **103**
 
 ---
 
@@ -19,7 +19,7 @@
 
 ---
 
-## Cell 3 — `code` (execution #1)
+## Cell 3 — `code`
 
 ```python
 import os
@@ -30,7 +30,7 @@ import torch
 
 ---
 
-## Cell 4 — `code` (execution #2)
+## Cell 4 — `code`
 
 ```python
 import os, sys, subprocess, pathlib, re, glob, json, gc, copy, time, math, shutil, random
@@ -60,17 +60,9 @@ print(f'Platform : {PLATFORM}')
 print(f'Work dir : {WORK_DIR}')
 ```
 
-### Output
-
-**[stdout]**
-```
-Platform : kaggle
-Work dir : /kaggle/working
-```
-
 ---
 
-## Cell 5 — `code` (execution #3)
+## Cell 5 — `code`
 
 ```python
 if ON_COLAB:
@@ -114,24 +106,9 @@ except Exception as e:
 
 ```
 
-### Output
-
-**[stdout]**
-```
-rclone v1.74.2
-Drive root:
-           0 2026-04-17 11:03:10        -1 Colab Notebooks
-           0 2025-11-10 11:33:43        -1 ScholarMate
-           0 2026-04-05 12:59:09        -1 cse465
-           0 2026-04-12 12:42:04        -1 cse465v5
-           0 2026-05-14 11:16:57        -1 seamTL
-           0 2026-05-17 16:27:30  
-HuggingFace login: OK
-```
-
 ---
 
-## Cell 6 — `code` (execution #4)
+## Cell 6 — `code`
 
 ```python
 subprocess.run([
@@ -145,22 +122,9 @@ print('All packages installed.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 31.6 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.1/84.1 kB 6.9 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.8/100.8 kB 6.5 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 88.6 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 kB 8.2 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 788.2/788.2 kB 37.3 MB/s eta 0:00:00
-All packages installed.
-```
-
 ---
 
-## Cell 7 — `code` (execution #5)
+## Cell 7 — `code`
 
 ```python
 import torch
@@ -178,7 +142,7 @@ torch.cuda.manual_seed_all(seed)
 
 ---
 
-## Cell 8 — `code` (execution #6)
+## Cell 8 — `code`
 
 ```python
 import torch, numpy as np, random
@@ -239,19 +203,9 @@ print('Core utilities ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-PyTorch 2.10.0+cu128 | CUDA True | GPUs 2
-  GPU0: Tesla T4  15.6 GB
-  GPU1: Tesla T4  15.6 GB
-Core utilities ready.
-```
-
 ---
 
-## Cell 9 — `code` (execution #7)
+## Cell 9 — `code`
 
 ```python
 import queue, threading
@@ -318,16 +272,42 @@ def wait_for_uploads():
     if ON_KAGGLE: _upload_q.join()
 
 def save_checkpoint(state, name, step=0, keep=1):
+    os.makedirs(CKPT_DIR, exist_ok=True)
+
+    # Existing checkpoints
+    old = sorted(glob.glob(f'{CKPT_DIR}/{name}_step*.pt'))
+
+    # We are about to create ONE new checkpoint.
+    # So before saving:
+    # keep-1 old checkpoints maximum.
+    max_old_to_keep = max(keep - 1, 0)
+
+    to_delete = old[:-max_old_to_keep] if max_old_to_keep > 0 else old
+
+    # Delete BEFORE saving
+    for f in to_delete:
+        with _upload_lock:
+            in_flight = f in _upload_pending
+
+        if (not in_flight) and os.path.exists(f):
+            try:
+                os.remove(f)
+                print(f'[ckpt] Deleted old checkpoint: {os.path.basename(f)}')
+            except Exception as e:
+                print(f'[ckpt] Failed to delete {f}: {e}')
+
+    # Save new checkpoint
     fname = f'{name}_step{step:06d}.pt'
     path  = f'{CKPT_DIR}/{fname}'
+
     torch.save(state, path)
+
     mb = os.path.getsize(path) / 1e6
     print(f'[ckpt] Saved {fname} ({mb:.1f} MB)')
-    if ON_KAGGLE: _rclone_push_async(path, 'checkpoints')
-    old = sorted(glob.glob(f'{CKPT_DIR}/{name}_step*.pt'))
-    for f in old[:-keep]:
-        with _upload_lock: in_flight = f in _upload_pending
-        if (not in_flight) and os.path.exists(f): os.remove(f)
+
+    # Upload async
+    if ON_KAGGLE:
+        _rclone_push_async(path, 'checkpoints')
 
 def load_latest_checkpoint(name):
     files = sorted(glob.glob(f'{CKPT_DIR}/{name}_step*.pt'))
@@ -357,16 +337,9 @@ print('Checkpoint helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Checkpoint helpers ready.
-```
-
 ---
 
-## Cell 10 — `code` (execution #8)
+## Cell 10 — `code`
 
 ```python
 import torch.nn as nn, torch.nn.functional as F
@@ -543,16 +516,9 @@ print('Model I/O helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Model I/O helpers ready.
-```
-
 ---
 
-## Cell 11 — `code` (execution #9)
+## Cell 11 — `code`
 
 ```python
 from collections import defaultdict
@@ -782,15 +748,6 @@ print('Summary + plotting helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] No checkpoint for 'all_summaries'
-[ckpt] No checkpoint for 'all_detailed_summaries'
-Summary + plotting helpers ready.
-```
-
 ---
 
 ## Cell 12 — `markdown`
@@ -799,7 +756,7 @@ Summary + plotting helpers ready.
 
 ---
 
-## Cell 13 — `code` (execution #10)
+## Cell 13 — `code`
 
 ```python
 # ── Bengali-centric language pairs: Ben↔X and X↔Ben ─────────────────────────
@@ -842,16 +799,6 @@ print(f'Train samples    : {N_TRAIN_PER_PAIR} per pair = {N_TRAIN_PER_PAIR*len(E
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Target languages : ['ben', 'eng', 'hin', 'arb']
-Lang pairs (6): [('ben', 'eng'), ('eng', 'ben'), ('ben', 'hin'), ('hin', 'ben'), ('ben', 'arb'), ('arb', 'ben')]
-Eval samples     : 33 per pair  = 198 total
-Train samples    : 4000 per pair = 24000 total
-```
-
 ---
 
 ## Cell 14 — `markdown`
@@ -860,7 +807,7 @@ Train samples    : 4000 per pair = 24000 total
 
 ---
 
-## Cell 15 — `code` (execution #11)
+## Cell 15 — `code`
 
 ```python
 import gc as _gc
@@ -977,18 +924,9 @@ print('  - Whisper-medium : English')
 print('  - MMS-1b-all     : Bengali, Hindi, Arabic')
 ```
 
-### Output
-
-**[stdout]**
-```
-ASR stack ready with dynamic VRAM offloading:
-  - Whisper-medium : English
-  - MMS-1b-all     : Bengali, Hindi, Arabic
-```
-
 ---
 
-## Cell 16 — `code` (execution #12)
+## Cell 16 — `code`
 
 ```python
 from sacrebleu.metrics import BLEU, CHRF
@@ -1048,13 +986,6 @@ def free_cpu_ram():
 print('Inference helpers ready (with elegant empty-string catch).')
 ```
 
-### Output
-
-**[stdout]**
-```
-Inference helpers ready (with elegant empty-string catch).
-```
-
 ---
 
 ## Cell 17 — `markdown`
@@ -1063,7 +994,7 @@ Inference helpers ready (with elegant empty-string catch).
 
 ---
 
-## Cell 18 — `code` (execution #13)
+## Cell 18 — `code`
 
 ```python
 import pyarrow.parquet as pq
@@ -1166,16 +1097,9 @@ print('✓ Streaming dataset classes ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ Streaming dataset classes ready.
-```
-
 ---
 
-## Cell 19 — `code` (execution #14)
+## Cell 19 — `code`
 
 ```python
 print('Loading evaluation samples (streaming mode)...')
@@ -1197,33 +1121,9 @@ print(f'  Reference: {test_s["ref"][:60]}...')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Loading evaluation samples (streaming mode)...
-  Indexed 33 samples from ben→eng
-  Indexed 33 samples from eng→ben
-  Indexed 33 samples from ben→hin
-  Indexed 33 samples from hin→ben
-  Indexed 33 samples from ben→arb
-  Indexed 33 samples from arb→ben
-
-✓ Multilingual dataset ready: 198 total samples
-  RAM usage: ~0.2 MB (metadata only)
-
-✓ Loaded 198 multilingual eval samples
-  Language pairs: [('ben', 'eng'), ('eng', 'ben'), ('ben', 'hin'), ('hin', 'ben'), ('ben', 'arb'), ('arb', 'ben')]
-
-✓ Test sample loaded:
-  ID: ben2eng_1660
-  Audio shape: (216960,)
-  Reference: romanticism had a large element of cultural determinism draw...
-```
-
 ---
 
-## Cell 20 — `code` (execution #15)
+## Cell 20 — `code`
 
 ```python
 # # Cell 18 — Training samples (streaming metadata only, audio loaded per-batch)
@@ -1246,7 +1146,7 @@ Loading evaluation samples (streaming mode)...
 
 ---
 
-## Cell 21 — `code` (execution #16)
+## Cell 21 — `code`
 
 ```python
 # ── Cell 18-A: ChunkedStreamingDataset (No Silent Failures) ────────────────────
@@ -1335,16 +1235,9 @@ class ChunkedStreamingDataset:
 print('✓ ChunkedStreamingDataset ready (with strict error logging).')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ ChunkedStreamingDataset ready (with strict error logging).
-```
-
 ---
 
-## Cell 22 — `code` (execution #17)
+## Cell 22 — `code`
 
 ```python
 # ── Cell 18-B: ChunkedMultilingualDataset ────────────────────────────────────
@@ -1404,16 +1297,9 @@ class ChunkedMultilingualDataset:
 print('✓ ChunkedMultilingualDataset ready.')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ ChunkedMultilingualDataset ready.
-```
-
 ---
 
-## Cell 23 — `code` (execution #18)
+## Cell 23 — `code`
 
 ```python
 # # ── Cell 18-C: Rebuild ft_samples with chunk caching ─────────────────────────
@@ -1436,7 +1322,7 @@ print('✓ ChunkedMultilingualDataset ready.')
 
 ---
 
-## Cell 24 — `code` (execution #19)
+## Cell 24 — `code`
 
 ```python
 # heed dataset
@@ -1444,7 +1330,7 @@ print('✓ ChunkedMultilingualDataset ready.')
 
 ---
 
-## Cell 25 — `code` (execution #20)
+## Cell 25 — `code`
 
 ```python
 from transformers import SeamlessM4Tv2ForSpeechToSpeech, SeamlessM4TProcessor
@@ -1492,45 +1378,6 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Syncing from rclone remote...
-[ckpt] 12 file(s) available
-  all_detailed_summaries_step000000.pt                        0.0 MB
-  all_summaries_step000000.pt                                 0.0 MB
-  phase0_benchmark_step000000.pt                              0.1 MB
-  phase1_benchmark_step000000.pt                              0.1 MB
-  phase1_vocab_step000000.pt                                  0.6 MB
-  phase2_enc_pruning_step000000.pt                            0.0 MB
-  phase3_t2u_dec_pruning_step000000.pt                        0.0 MB
-  phase3_t2u_enc_pruning_step000000.pt                        0.0 MB
-  phase4_benchmark_step000000.pt                              0.1 MB
-  phase4_dec_pruning_step000000.pt                            0.0 MB
-  phase5_benchmark_step000000.pt                              0.1 MB
-  phase5_ft_step001400.pt                                  5754.0 MB
-=================================================================
-  Platform : kaggle   Time : 2026-05-26 06:37
-  Checkpoint files: 12
-    all_detailed_summaries_step000000.pt                    0.0 MB
-    all_summaries_step000000.pt                             0.0 MB
-    phase0_benchmark_step000000.pt                          0.1 MB
-    phase1_benchmark_step000000.pt                          0.1 MB
-    phase1_vocab_step000000.pt                              0.6 MB
-    phase2_enc_pruning_step000000.pt                        0.0 MB
-    phase3_t2u_dec_pruning_step000000.pt                    0.0 MB
-    phase3_t2u_enc_pruning_step000000.pt                    0.0 MB
-    phase4_benchmark_step000000.pt                          0.1 MB
-    phase4_dec_pruning_step000000.pt                        0.0 MB
-    phase5_benchmark_step000000.pt                          0.1 MB
-    phase5_ft_step001400.pt                              5754.0 MB
-  GPU: Tesla T4  VRAM: 15.6 GB
-=================================================================
-
-✓ ALL SETUP CELLS COMPLETE — proceed to phases.
-```
-
 ---
 
 ## Cell 26 — `markdown`
@@ -1541,7 +1388,7 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ---
 
-## Cell 27 — `code` (execution #21)
+## Cell 27 — `code`
 
 ```python
 def run_benchmark(mdl, samples, label='model', save_n=2, max_samples=None):
@@ -1625,13 +1472,6 @@ print('Benchmark functions ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Benchmark functions ready.
-```
-
 ---
 
 ## Cell 28 — `markdown`
@@ -1651,7 +1491,7 @@ Benchmark functions ready.
 
 ---
 
-## Cell 29 — `code` (execution #22)
+## Cell 29 — `code`
 
 ```python
 import torch
@@ -1664,16 +1504,9 @@ transformers.models.seamless_m4t_v2.modeling_seamless_m4t_v2.SeamlessM4Tv2ForSpe
 print("✓ SeamlessM4Tv2 class device property successfully patched to cuda:1")
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ SeamlessM4Tv2 class device property successfully patched to cuda:1
-```
-
 ---
 
-## Cell 30 — `code` (execution #23)
+## Cell 30 — `code`
 
 ```python
 # ── Quick evaluation helpers ──────────────────────────────────────────────────
@@ -1823,18 +1656,9 @@ print('chunk_friendly_shuffle ready.')
 print('quick_eval_chrf ready.')
 ```
 
-### Output
-
-**[stdout]**
-```
-Quick eval helpers ready.
-chunk_friendly_shuffle ready.
-quick_eval_chrf ready.
-```
-
 ---
 
-## Cell 31 — `code` (execution #24)
+## Cell 31 — `code`
 
 ```python
 # ── Encoder pruning helpers ───────────────────────────────────────────────────
@@ -1964,16 +1788,9 @@ print('Encoder pruning helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Encoder pruning helpers ready.
-```
-
 ---
 
-## Cell 32 — `code` (execution #25)
+## Cell 32 — `code`
 
 ```python
 # ── Text Decoder pruning helpers ──────────────────────────────────────────────
@@ -2112,16 +1929,9 @@ print('Decoder pruning helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-Decoder pruning helpers ready.
-```
-
 ---
 
-## Cell 33 — `code` (execution #26)
+## Cell 33 — `code`
 
 ```python
 # ── T2U pruning helpers (ASR-BLEU primary, ASR-ChrF fallback) ────────────────
@@ -2207,13 +2017,6 @@ print('T2U pruning helpers ready.')
 
 ```
 
-### Output
-
-**[stdout]**
-```
-T2U pruning helpers ready.
-```
-
 ---
 
 ## Cell 34 — `markdown`
@@ -2224,7 +2027,7 @@ T2U pruning helpers ready.
 
 ---
 
-## Cell 35 — `code` (execution #27)
+## Cell 35 — `code`
 
 ```python
 # # Load teacher/base model
@@ -2236,7 +2039,7 @@ T2U pruning helpers ready.
 
 ---
 
-## Cell 36 — `code` (execution #28)
+## Cell 36 — `code`
 
 ```python
 p0_bench = load_latest_checkpoint('phase0_benchmark')
@@ -2261,126 +2064,6 @@ plot_detailed_phase_comparison()
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Loaded phase0_benchmark_step000000.pt
-Loaded Phase 0 benchmark from checkpoint.
-[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
-[summary] Stored P0_V1_Baseline (1 total)
-[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
-[detailed] Stored P0_V1_Baseline
-
-================================================================================
-  P0_V1_Baseline - 1805.5M params
-================================================================================
-Overall: BLEU=9.12  ChrF=40.33±11.80  RTF=0.2094
-
-Per-Pair (6 pairs):
-  Pair                  N     BLEU     ChrF      RTF
-  arb→ben              33     4.66    34.13   0.2625
-  ben→arb              33     5.69    31.39   0.1915
-  ben→eng              33    16.85    52.04   0.1577
-  ben→hin              33     8.86    37.45   0.1703
-  eng→ben              33    11.58    48.11   0.2508
-  hin→ben              33     7.08    38.87   0.2233
-
-By Source Language:
-     ARB: BLEU=  4.66  ChrF= 34.13  (n=33)
-     BEN: BLEU= 10.47  ChrF= 40.29  (n=99)
-     ENG: BLEU= 11.58  ChrF= 48.11  (n=33)
-     HIN: BLEU=  7.08  ChrF= 38.87  (n=33)
-
-By Target Language:
-     ARB: BLEU=  5.69  ChrF= 31.39  (n=33)
-     BEN: BLEU=  7.77  ChrF= 40.37  (n=99)
-     ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
-     HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
-================================================================================
-[rclone] 2026/05/26 06:37:29 -     1.581 KiB / 1.581 KiB, 100%, 1.580 KiB/s, ETA 0s
-[rclone] 2026/05/26 06:37:31 -     2.446 KiB / 2.446 KiB, 100%, 2.445 KiB/s, ETA 0s
-[fig] Saved phase_comparison.png
-```
-
-```
-<Figure size 1920x1200 with 4 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
-```
-
-```
-<Figure size 1800x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
-```
-
-```
-<Figure size 2520x1080 with 2 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
-```
-
-```
-<Figure size 1800x1260 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
-```
-
-```
-<Figure size 1800x900 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
-
-✅ All 6 figures saved.
-   📄 detailed_comparison_01_overall_quality.png
-   📄 detailed_comparison_02_bleu_by_pair.png
-   📄 detailed_comparison_03_chrf_by_pair.png
-   📄 detailed_comparison_04_bengali_focus.png
-   📄 detailed_comparison_05_size_vs_quality.png
-   📄 detailed_comparison_06_rtf.png
-```
-
 ---
 
 ## Cell 37 — `markdown`
@@ -2391,7 +2074,7 @@ Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
 
 ---
 
-## Cell 38 — `code` (execution #29)
+## Cell 38 — `code`
 
 ```python
 # # ══════════════════════════════════════════════════════════════════════════════
@@ -2773,7 +2456,7 @@ Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
 
 ---
 
-## Cell 39 — `code` (execution #30)
+## Cell 39 — `code`
 
 ```python
 
@@ -2819,130 +2502,6 @@ plot_phase_comparison()
 plot_detailed_phase_comparison()
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Loaded phase1_benchmark_step000000.pt
-Loaded Phase 1 benchmark from checkpoint.
-[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
-[summary] Stored P1_Vocab4L (2 total)
-[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
-[detailed] Stored P1_Vocab4L
-
-================================================================================
-  P1_Vocab4L - 1686.3M params
-================================================================================
-Overall: BLEU=9.12  ChrF=40.33±11.80  RTF=0.1609
-
-Per-Pair (6 pairs):
-  Pair                  N     BLEU     ChrF      RTF
-  arb→ben              33     4.66    34.13   0.1938
-  ben→arb              33     5.69    31.39   0.1445
-  ben→eng              33    16.85    52.04   0.1271
-  ben→hin              33     8.86    37.45   0.1393
-  eng→ben              33    11.58    48.11   0.1897
-  hin→ben              33     7.08    38.87   0.1710
-
-By Source Language:
-     ARB: BLEU=  4.66  ChrF= 34.13  (n=33)
-     BEN: BLEU= 10.47  ChrF= 40.29  (n=99)
-     ENG: BLEU= 11.58  ChrF= 48.11  (n=33)
-     HIN: BLEU=  7.08  ChrF= 38.87  (n=33)
-
-By Target Language:
-     ARB: BLEU=  5.69  ChrF= 31.39  (n=33)
-     BEN: BLEU=  7.77  ChrF= 40.37  (n=99)
-     ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
-     HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
-================================================================================
-
-  ── Quality Gate ──
-  Bengali ChrF : P0=40.37  →  P1=40.37  Δ=+0.00
-  ✓ Within ±1.5 — vocab trim is lossless.
-[rclone] 2026/05/26 06:37:35 -     1.769 KiB / 1.769 KiB, 100%, 1.768 KiB/s, ETA 0s
-[rclone] 2026/05/26 06:37:37 -     3.384 KiB / 3.384 KiB, 100%, 3.383 KiB/s, ETA 0s
-[fig] Saved phase_comparison.png
-```
-
-```
-<Figure size 1920x1200 with 4 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
-```
-
-```
-<Figure size 1800x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
-```
-
-```
-<Figure size 2520x1080 with 2 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
-```
-
-```
-<Figure size 1800x1260 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
-```
-
-```
-<Figure size 1800x900 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
-
-✅ All 6 figures saved.
-   📄 detailed_comparison_01_overall_quality.png
-   📄 detailed_comparison_02_bleu_by_pair.png
-   📄 detailed_comparison_03_chrf_by_pair.png
-   📄 detailed_comparison_04_bengali_focus.png
-   📄 detailed_comparison_05_size_vs_quality.png
-   📄 detailed_comparison_06_rtf.png
-```
-
 ---
 
 ## Cell 40 — `markdown`
@@ -2953,7 +2512,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 41 — `code` (execution #31)
+## Cell 41 — `code`
 
 ```python
 # # Load Phase 1 model to prune
@@ -3001,7 +2560,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 42 — `code` (execution #32)
+## Cell 42 — `code`
 
 ```python
 # p2_bench = load_latest_checkpoint('phase2_benchmark')
@@ -3035,7 +2594,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 44 — `code` (execution #33)
+## Cell 44 — `code`
 
 ```python
 # model_p3 = model_p2   # continue from enc-pruned model
@@ -3077,7 +2636,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 45 — `code` (execution #34)
+## Cell 45 — `code`
 
 ```python
 # p3_bench = load_latest_checkpoint('phase3_benchmark')
@@ -3110,7 +2669,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 47 — `code` (execution #35)
+## Cell 47 — `code`
 
 ```python
 # model_p4 = model_p3
@@ -3168,7 +2727,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 48 — `code` (execution #36)
+## Cell 48 — `code`
 
 ```python
 # model_p4, processor = load_model_from_drive('phase4_dec_14L')
@@ -3176,7 +2735,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 
 ---
 
-## Cell 49 — `code` (execution #37)
+## Cell 49 — `code`
 
 ```python
 p4_bench = load_latest_checkpoint('phase4_benchmark')
@@ -3199,128 +2758,9 @@ plot_detailed_phase_comparison()
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Loaded phase4_benchmark_step000000.pt
-[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
-[summary] Stored P4_Dec14L (3 total)
-[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
-[detailed] Stored P4_Dec14L
-
-================================================================================
-  P4_Dec14L - 1056.0M params
-================================================================================
-Overall: BLEU=0.58  ChrF=8.33±6.25  RTF=0.2754
-
-Per-Pair (6 pairs):
-  Pair                  N     BLEU     ChrF      RTF
-  arb→ben              33     0.23     5.21   0.3273
-  ben→arb              33     0.22     5.89   0.2860
-  ben→eng              33     1.70    15.74   0.1019
-  ben→hin              33     0.36     6.06   0.3497
-  eng→ben              32     0.73     7.96   0.2600
-  hin→ben              33     0.25     9.09   0.3269
-
-By Source Language:
-     ARB: BLEU=  0.23  ChrF=  5.21  (n=33)
-     BEN: BLEU=  0.76  ChrF=  9.23  (n=99)
-     ENG: BLEU=  0.73  ChrF=  7.96  (n=32)
-     HIN: BLEU=  0.25  ChrF=  9.09  (n=33)
-
-By Target Language:
-     ARB: BLEU=  0.22  ChrF=  5.89  (n=33)
-     BEN: BLEU=  0.40  ChrF=  7.42  (n=98)
-     ENG: BLEU=  1.70  ChrF= 15.74  (n=33)
-     HIN: BLEU=  0.36  ChrF=  6.06  (n=33)
-================================================================================
-[rclone] 2026/05/26 06:37:42 -     1.956 KiB / 1.956 KiB, 100%, 0 B/s, ETA -
-[fig] Saved phase_comparison.png
-[rclone] 2026/05/26 06:37:44 -     4.321 KiB / 4.321 KiB, 100%, 4.320 KiB/s, ETA 0s
-```
-
-```
-<Figure size 1920x1200 with 4 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L']
-```
-
-```
-<Figure size 1800x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
-```
-
-```
-<Figure size 2520x1080 with 2 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
-```
-
-```
-<Figure size 1800x1260 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
-```
-
-```
-<Figure size 1800x900 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
-
-✅ All 6 figures saved.
-   📄 detailed_comparison_01_overall_quality.png
-   📄 detailed_comparison_02_bleu_by_pair.png
-   📄 detailed_comparison_03_chrf_by_pair.png
-   📄 detailed_comparison_04_bengali_focus.png
-   📄 detailed_comparison_05_size_vs_quality.png
-   📄 detailed_comparison_06_rtf.png
-```
-
 ---
 
-## Cell 50 — `code` (execution #38)
+## Cell 50 — `code`
 
 ```python
 # heed
@@ -3348,7 +2788,7 @@ Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_
 
 ---
 
-## Cell 52 — `code` (execution #39)
+## Cell 52 — `code`
 
 ```python
 # ── Cell 45: Load pruned student for full fine-tuning ──────────────────────────
@@ -3393,46 +2833,9 @@ print_model_breakdown(student, 'Student (Pruned, Pre-FT)')
 gpu_mem()
 ```
 
-### Output
-
-**[stdout]**
-```
-Loading phase5_ft_merged for fine-tuning with Custom Device Split...
-[model] Not in local cache — pulling from remote...
-[rclone] Pulled phase5_ft_merged → /kaggle/working/models/phase5_ft_merged
-[model] Loading phase5_ft_merged from /kaggle/working/models/phase5_ft_merged ...
-```
-
-```
-Loading weights:   0%|          | 0/1106 [00:00<?, ?it/s]
-```
-
-**[stdout]**
-```
-  Restored custom state: ['_vocab_remap_to_old']
-[model] Loaded phase5_ft_merged.
-✓ Speech encoder : 10L
-✓ Text decoder   : 14L
-✓ T2U encoder    : 5L
-✓ T2U decoder    : 5L
-✓ Vocab size     : 139697
-
---- Student (Pruned, Pre-FT) ---
-  text_decoder                           495.7M  ( 46.9%)
-  speech_encoder                         296.5M  ( 28.1%)
-  t2u_model                              221.9M  ( 21.0%)
-  shared                                 143.0M  ( 13.5%)
-  lm_head                                143.0M  ( 13.5%)
-  vocoder                                 41.9M  (  4.0%)
-  TOTAL                                 1056.0M
----
-  GPU0: 0.59GB alloc / 0.61GB reserved
-  GPU1: 1.54GB alloc / 1.55GB reserved
-```
-
 ---
 
-## Cell 53 — `code` (execution #40)
+## Cell 53 — `code`
 
 ```python
 # ── Cell 46: Load teacher on cuda:1 ───────────────────────────────────────────
@@ -3461,47 +2864,9 @@ print(f'Teacher loaded. Params: {count_params(teacher):.1f}M')
 gpu_mem()
 ```
 
-### Output
-
-**[stdout]**
-```
-Loading teacher model on cuda:1...
-```
-
-```
-config.json: 0.00B [00:00, ?B/s]
-```
-
-```
-model.safetensors.index.json: 0.00B [00:00, ?B/s]
-```
-
-```
-Downloading (incomplete total...): 0.00B [00:00, ?B/s]
-```
-
-```
-Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]
-```
-
-```
-Loading weights:   0%|          | 0/1846 [00:00<?, ?it/s]
-```
-
-```
-generation_config.json: 0.00B [00:00, ?B/s]
-```
-
-**[stdout]**
-```
-Teacher loaded. Params: 1805.5M
-  GPU0: 0.59GB alloc / 0.61GB reserved
-  GPU1: 5.18GB alloc / 5.19GB reserved
-```
-
 ---
 
-## Cell 54 — `code` (execution #41)
+## Cell 54 — `code`
 
 ```python
 # ── Cell 47: Unfreeze all except vocoder ──────────────────────────────────────
@@ -3539,396 +2904,18 @@ else:
 gpu_mem()
 ```
 
-### Output
-
-**[stdout]**
-```
-Frozen (vocoder): 41.91M params
-Trainable: 1014.1M / 1056.0M (96.0%)
-✓ All trainable params fp32 — GradScaler will work correctly
-  GPU0: 1.19GB alloc / 1.28GB reserved
-  GPU1: 6.62GB alloc / 6.66GB reserved
-```
-
 ---
 
-## Cell 55 — `code` (execution #42)
+## Cell 55 — `code`
 
 ```python
 print(student)
 # heed
 ```
 
-### Output
-
-**[stdout]**
-```
-SeamlessM4Tv2ForSpeechToSpeech(
-  (shared): Embedding(139697, 1024, padding_idx=0)
-  (speech_encoder): SeamlessM4Tv2SpeechEncoder(
-    (feature_projection): SeamlessM4Tv2ConformerFeatureProjection(
-      (layer_norm): LayerNorm((160,), eps=1e-05, elementwise_affine=True)
-      (projection): Linear(in_features=160, out_features=1024, bias=True)
-      (dropout): Dropout(p=0.0, inplace=False)
-    )
-    (encoder): SeamlessM4Tv2ConformerEncoder(
-      (dropout): Dropout(p=0.0, inplace=False)
-      (layers): ModuleList(
-        (0-9): 10 x SeamlessM4Tv2ConformerEncoderLayer(
-          (ffn1_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (ffn1): SeamlessM4Tv2ConformerFeedForward(
-            (intermediate_dropout): Dropout(p=0.0, inplace=False)
-            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
-            (intermediate_act_fn): SiLU()
-            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
-            (output_dropout): Dropout(p=0.0, inplace=False)
-          )
-          (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (self_attn_dropout): Dropout(p=0.0, inplace=False)
-          (self_attn): SeamlessM4Tv2ConformerSelfAttention(
-            (linear_q): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_k): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_v): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_out): Linear(in_features=1024, out_features=1024, bias=True)
-            (dropout): Dropout(p=0.0, inplace=False)
-            (distance_embedding): Embedding(73, 64)
-          )
-          (conv_module): SeamlessM4Tv2ConformerConvolutionModule(
-            (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (pointwise_conv1): Conv1d(1024, 2048, kernel_size=(1,), stride=(1,), bias=False)
-            (glu): GLU(dim=1)
-            (depthwise_conv): Conv1d(1024, 1024, kernel_size=(31,), stride=(1,), groups=1024, bias=False)
-            (depthwise_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (activation): SiLU()
-            (pointwise_conv2): Conv1d(1024, 1024, kernel_size=(1,), stride=(1,), bias=False)
-            (dropout): Dropout(p=0.0, inplace=False)
-          )
-          (ffn2_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (ffn2): SeamlessM4Tv2ConformerFeedForward(
-            (intermediate_dropout): Dropout(p=0.0, inplace=False)
-            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
-            (intermediate_act_fn): SiLU()
-            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
-            (output_dropout): Dropout(p=0.0, inplace=False)
-          )
-          (final_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-        )
-      )
-      (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-    )
-    (intermediate_ffn): SeamlessM4Tv2ConformerFeedForward(
-      (intermediate_dropout): Dropout(p=0.0, inplace=False)
-      (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
-      (intermediate_act_fn): ReLU()
-      (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
-      (output_dropout): Dropout(p=0.0, inplace=False)
-    )
-    (adapter): SeamlessM4Tv2ConformerAdapter(
-      (layers): ModuleList(
-        (0): SeamlessM4Tv2ConformerAdapterLayer(
-          (residual_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (residual_conv): Conv1d(1024, 2048, kernel_size=(8,), stride=(8,), padding=(4,))
-          (activation): GLU(dim=1)
-          (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (self_attn_conv): Conv1d(1024, 2048, kernel_size=(8,), stride=(8,), padding=(4,))
-          (self_attn): SeamlessM4Tv2ConformerSelfAttention(
-            (linear_q): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_k): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_v): Linear(in_features=1024, out_features=1024, bias=True)
-            (linear_out): Linear(in_features=1024, out_features=1024, bias=True)
-            (dropout): Dropout(p=0.0, inplace=False)
-          )
-          (self_attn_dropout): Dropout(p=0.1, inplace=False)
-          (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-          (ffn): SeamlessM4Tv2ConformerFeedForward(
-            (intermediate_dropout): Dropout(p=0.1, inplace=False)
-            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
-            (intermediate_act_fn): ReLU()
-            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
-            (output_dropout): Dropout(p=0.1, inplace=False)
-          )
-        )
-      )
-    )
-    (inner_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-  )
-  (text_decoder): SeamlessM4Tv2Decoder(
-    (embed_tokens): SeamlessM4Tv2ScaledWordEmbedding(139697, 1024, padding_idx=0)
-    (embed_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
-    (layers): ModuleList(
-      (0-13): 14 x SeamlessM4Tv2DecoderLayer(
-        (self_attn): SeamlessM4Tv2Attention(
-          (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
-        )
-        (activation_fn): ReLU()
-        (attn_dropout): Dropout(p=0.1, inplace=False)
-        (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-        (cross_attention): SeamlessM4Tv2Attention(
-          (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
-          (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
-        )
-        (cross_attention_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-        (ffn): SeamlessM4Tv2FeedForwardNetwork(
-          (fc1): Linear(in_features=1024, out_features=8192, bias=True)
-          (fc2): Linear(in_features=8192, out_features=1024, bias=True)
-          (dropout): Dropout(p=0.0, inplace=False)
-          (act): ReLU()
-        )
-        (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-        (ffn_dropout): Dropout(p=0.0, inplace=False)
-      )
-    )
-    (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-  )
-  (lm_head): Linear(in_features=1024, out_features=139697, bias=False)
-  (t2u_model): SeamlessM4Tv2TextToUnitForConditionalGeneration(
-    (model): SeamlessM4Tv2TextToUnitModel(
-      (encoder): SeamlessM4Tv2Encoder(
-        (layers): ModuleList(
-          (0-4): 5 x SeamlessM4Tv2EncoderLayer(
-            (self_attn): SeamlessM4Tv2Attention(
-              (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
-            )
-            (attn_dropout): Dropout(p=0.1, inplace=False)
-            (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (ffn): SeamlessM4Tv2FeedForwardNetwork(
-              (fc1): Linear(in_features=1024, out_features=8192, bias=True)
-              (fc2): Linear(in_features=8192, out_features=1024, bias=True)
-              (dropout): Dropout(p=0.0, inplace=False)
-              (act): ReLU()
-            )
-            (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (ffn_dropout): Dropout(p=0.0, inplace=False)
-          )
-        )
-        (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-      )
-      (decoder): SeamlessM4Tv2TextToUnitDecoder(
-        (embed_tokens): Embedding(10082, 1024, padding_idx=1)
-        (embed_char): Embedding(10943, 1024)
-        (embed_char_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
-        (duration_predictor): SeamlessM4Tv2VariancePredictor(
-          (conv1): Conv1d(1024, 256, kernel_size=(3,), stride=(1,), padding=same)
-          (activation_function): ReLU()
-          (ln1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
-          (dropout_module): Dropout(p=0.5, inplace=False)
-          (conv2): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=same)
-          (ln2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
-          (proj): Linear(in_features=256, out_features=1, bias=True)
-        )
-        (embed_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
-        (layers): ModuleList(
-          (0-4): 5 x SeamlessM4Tv2TextToUnitDecoderLayer(
-            (self_attn): SeamlessM4Tv2Attention(
-              (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
-              (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
-            )
-            (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (conv1): Conv1d(1024, 1024, kernel_size=(7,), stride=(1,), padding=same)
-            (activation_fn): ReLU()
-            (conv2): Conv1d(1024, 1024, kernel_size=(7,), stride=(1,), padding=same)
-            (conv_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-            (conv_dropout): Dropout(p=0.1, inplace=False)
-          )
-        )
-        (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
-      )
-    )
-    (lm_head): Linear(in_features=1024, out_features=10082, bias=False)
-  )
-  (vocoder): SeamlessM4Tv2CodeHifiGan(
-    (dur_predictor): SeamlessM4Tv2VariancePredictor(
-      (conv1): Conv1d(1280, 1280, kernel_size=(3,), stride=(1,), padding=same)
-      (activation_function): ReLU()
-      (ln1): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
-      (dropout_module): Dropout(p=0.5, inplace=False)
-      (conv2): Conv1d(1280, 1280, kernel_size=(3,), stride=(1,), padding=same)
-      (ln2): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
-      (proj): Linear(in_features=1280, out_features=1, bias=True)
-    )
-    (unit_embedding): Embedding(10000, 1280)
-    (speaker_embedding): Embedding(200, 256)
-    (language_embedding): Embedding(36, 256)
-    (hifi_gan): SeamlessM4Tv2HifiGan(
-      (conv_pre): Conv1d(1792, 512, kernel_size=(7,), stride=(1,), padding=(3,))
-      (upsampler): ModuleList(
-        (0): ConvTranspose1d(512, 256, kernel_size=(11,), stride=(5,), padding=(3,))
-        (1): ConvTranspose1d(256, 128, kernel_size=(8,), stride=(4,), padding=(2,))
-        (2): ConvTranspose1d(128, 64, kernel_size=(8,), stride=(4,), padding=(2,))
-        (3): ConvTranspose1d(64, 32, kernel_size=(4,), stride=(2,), padding=(1,))
-        (4): ConvTranspose1d(32, 16, kernel_size=(4,), stride=(2,), padding=(1,))
-      )
-      (resblocks): ModuleList(
-        (0): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (1): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (2): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-        (3): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (4): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (5): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-        (6): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (7): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (8): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-        (9): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (10): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (11): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-        (12): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
-            (1): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
-            (2): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
-          )
-        )
-        (13): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(3,))
-            (1): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
-            (2): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(3,))
-          )
-        )
-        (14): HifiGanResidualBlock(
-          (convs1): ModuleList(
-            (0): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(5,))
-            (1): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
-            (2): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
-          )
-          (convs2): ModuleList(
-            (0-2): 3 x Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(5,))
-          )
-        )
-      )
-      (conv_post): Conv1d(16, 1, kernel_size=(7,), stride=(1,), padding=(3,))
-    )
-  )
-)
-```
-
 ---
 
-## Cell 56 — `code` (execution #43)
+## Cell 56 — `code`
 
 ```python
 # ── Cell 48: Gradient checkpointing strategy for full fine-tuning on 2×T4 ─────
@@ -4042,22 +3029,9 @@ print('VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32')
 gpu_mem()
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
-✓ GC selectively ENABLED for: speech_encoder
-⚠ Still on: ['speech_encoder']
-
-VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32
-  GPU0: 1.19GB alloc / 1.28GB reserved
-  GPU1: 6.62GB alloc / 6.66GB reserved
-```
-
 ---
 
-## Cell 57 — `code` (execution #44)
+## Cell 57 — `code`
 
 ```python
 # ── Cell 49A: Vocab remap tables (exact Phase 7 / Cell 41+43+48 pattern) ──────
@@ -4132,25 +3106,9 @@ for _l in ['eng', 'ben', 'hin', 'arb']:
 print('✓ Vocab remap ready.')
 ```
 
-### Output
-
-**[stdout]**
-```
-Mapped: 139697/256102 (54.5%)
-EOS (token 3) → student: 3  ← must be 3
-OLD_TO_NEW_GPU: 1.0MB VRAM
-
-Special tokens: PAD_S=0  BOS_S=2  EOS_S=3
-  eng: student_id=139620
-  ben: student_id=139607
-  hin: student_id=139631
-  arb: student_id=139601
-✓ Vocab remap ready.
-```
-
 ---
 
-## Cell 58 — `code` (execution #45)
+## Cell 58 — `code`
 
 ```python
 # ── Cell 49B: Collation — exact Phase 7 / Cell 44 layout ──────────────────────
@@ -4251,18 +3209,9 @@ print(f'  dec layout: [BOS | __tgt__ | content]  length=T+2')
 print(f'  lab layout: [__tgt__ | content | EOS]  length=T+2')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ Collation ready (exact Phase 7 token layout)
-  dec layout: [BOS | __tgt__ | content]  length=T+2
-  lab layout: [__tgt__ | content | EOS]  length=T+2
-```
-
 ---
 
-## Cell 59 — `code` (execution #46)
+## Cell 59 — `code`
 
 ```python
 # ── Cell C: Fixed Loss Functions ──────────────────────────────────────────────
@@ -4403,19 +3352,9 @@ print(f'  Alpha schedule: epoch0-1=0.30, epoch2-3=0.25, epoch4-5=0.20, epoch6-7=
 print(f'  Bengali CE upweight: 2× on all Bengali-target positions')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ Fixed loss functions ready.
-  KD_TEMPERATURE=2.0  TOP_K=128
-  Alpha schedule: epoch0-1=0.30, epoch2-3=0.25, epoch4-5=0.20, epoch6-7=0.15
-  Bengali CE upweight: 2× on all Bengali-target positions
-```
-
 ---
 
-## Cell 60 — `code` (execution #47)
+## Cell 60 — `code`
 
 ```python
 # ── Cell D: Teacher & Student forward functions (fixed) ───────────────────────
@@ -4481,67 +3420,17 @@ print('✓ teacher_topk_direct and student_logits_gpu ready (both output on cuda
 print(f'  Teacher top-k={TOP_K_TEACHER}  T={KD_TEMPERATURE}')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ teacher_topk_direct and student_logits_gpu ready (both output on cuda:1).
-  Teacher top-k=128  T=2.0
-```
-
 ---
 
-## Cell 61 — `code` (execution #48)
+## Cell 61 — `code`
 
 ```python
 !pip install bitsandbytes
 ```
 
-### Output
-
-**[stdout]**
-```
-Collecting bitsandbytes
-  Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl.metadata (10 kB)
-Requirement already satisfied: torch<3,>=2.3 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.10.0+cu128)
-Requirement already satisfied: numpy>=1.17 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.0.2)
-Requirement already satisfied: packaging>=20.9 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (26.0)
-Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.24.3)
-Requirement already satisfied: typing-extensions>=4.10.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (4.15.0)
-Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (75.2.0)
-Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.14.0)
-Requirement already satisfied: networkx>=2.5.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.1)
-Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.1.6)
-Requirement already satisfied: fsspec>=0.8.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2026.2.0)
-Requirement already satisfied: cuda-bindings==12.9.4 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.9.4)
-Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
-Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
-Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
-Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (9.10.2.21)
-Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.4.1)
-Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.3.3.83)
-Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (10.3.9.90)
-Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.7.3.90)
-Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.5.8.93)
-Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (0.7.1)
-Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2.27.5)
-Requirement already satisfied: nvidia-nvshmem-cu12==3.4.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.4.5)
-Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
-Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
-Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.13.1.3)
-Requirement already satisfied: triton==3.6.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.0)
-Requirement already satisfied: cuda-pathfinder~=1.1 in /usr/local/lib/python3.12/dist-packages (from cuda-bindings==12.9.4->torch<3,>=2.3->bitsandbytes) (1.3.5)
-Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy>=1.13.3->torch<3,>=2.3->bitsandbytes) (1.3.0)
-Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2->torch<3,>=2.3->bitsandbytes) (3.0.3)
-Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl (60.7 MB)
-[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m60.7/60.7 MB[0m [31m30.8 MB/s[0m eta [36m0:00:00[0m:00:01[0m00:01[0m
-[?25hInstalling collected packages: bitsandbytes
-Successfully installed bitsandbytes-0.49.2
-```
-
 ---
 
-## Cell 62 — `code` (execution #49)
+## Cell 62 — `code`
 
 ```python
 # # ── Cell 51: Training configuration + optimizer ────────────────────────────────
@@ -4612,7 +3501,7 @@ Successfully installed bitsandbytes-0.49.2
 
 ---
 
-## Cell 63 — `code` (execution #50)
+## Cell 63 — `code`
 
 ```python
 # ── Cell 51B: Quick eval helper ────────────────────────────────────────────────
@@ -4658,16 +3547,9 @@ def _eval_quick_p5(n_samples=18):
 print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 ```
 
-### Output
-
-**[stdout]**
-```
-✓ _eval_quick_p5 ready with persistent list and dictionary caching.
-```
-
 ---
 
-## Cell 64 — `code` (execution #51)
+## Cell 64 — `code`
 
 ```python
 # heed
@@ -4675,7 +3557,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 65 — `code` (execution #52)
+## Cell 65 — `code`
 
 ```python
 # print("Student: ")
@@ -4687,7 +3569,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 66 — `code` (execution #53)
+## Cell 66 — `code`
 
 ```python
 # s   = eval_samples[2]
@@ -4702,7 +3584,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 67 — `code` (execution #54)
+## Cell 67 — `code`
 
 ```python
 # # ── Cell 52: Training loop — Phase 7 battle-tested flow ───────────────────────
@@ -4912,7 +3794,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 68 — `code` (execution #55)
+## Cell 68 — `code`
 
 ```python
 # import matplotlib.pyplot as plt
@@ -4962,7 +3844,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 69 — `code` (execution #56)
+## Cell 69 — `code`
 
 ```python
 # # ── Cell 53: Load best checkpoint and save merged model ───────────────────────
@@ -4983,7 +3865,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 70 — `code` (execution #57)
+## Cell 70 — `code`
 
 ```python
 # ── Final benchmark ───────────────────────────────────────────────────────────
@@ -5031,140 +3913,9 @@ plot_detailed_phase_comparison()
 
 ```
 
-### Output
-
-**[stdout]**
-```
-[ckpt] Loaded phase5_benchmark_step000000.pt
-Loaded Phase 5 benchmark from checkpoint.
-[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
-[summary] Stored P5_FullFT (4 total)
-[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
-[detailed] Stored P5_FullFT
-
-================================================================================
-  P5_FullFT - 1056.0M params
-================================================================================
-Overall: BLEU=3.95  ChrF=25.95±9.28  RTF=0.1631
-
-Per-Pair (6 pairs):
-  Pair                  N     BLEU     ChrF      RTF
-  arb→ben              33     2.28    20.72   0.1809
-  ben→arb              33     1.94    18.72   0.1491
-  ben→eng              33     5.01    29.76   0.1299
-  ben→hin              33     6.56    27.97   0.1607
-  eng→ben              33     3.99    29.40   0.1932
-  hin→ben              33     3.91    29.12   0.1649
-
-By Source Language:
-     ARB: BLEU=  2.28  ChrF= 20.72  (n=33)
-     BEN: BLEU=  4.50  ChrF= 25.49  (n=99)
-     ENG: BLEU=  3.99  ChrF= 29.40  (n=33)
-     HIN: BLEU=  3.91  ChrF= 29.12  (n=33)
-
-By Target Language:
-     ARB: BLEU=  1.94  ChrF= 18.72  (n=33)
-     BEN: BLEU=  3.39  ChrF= 26.42  (n=99)
-     ENG: BLEU=  5.01  ChrF= 29.76  (n=33)
-     HIN: BLEU=  6.56  ChrF= 27.97  (n=33)
-================================================================================
-
-==================================================
-  TEACHER vs STUDENT (Bengali pairs):
-==================================================
-  arb→ben             BLEU: Teacher=4.66  Student=2.28  Δ=-2.38   |  ChrF: Teacher=34.13  Student=20.72  Δ=-13.41 
-  ben→arb             BLEU: Teacher=5.69  Student=1.94  Δ=-3.75   |  ChrF: Teacher=31.39  Student=18.72  Δ=-12.67 
-  ben→eng             BLEU: Teacher=16.85  Student=5.01  Δ=-11.84   |  ChrF: Teacher=52.04  Student=29.76  Δ=-22.28 
-  ben→hin             BLEU: Teacher=8.86  Student=6.56  Δ=-2.29   |  ChrF: Teacher=37.45  Student=27.97  Δ=-9.48 
-  eng→ben             BLEU: Teacher=11.58  Student=3.99  Δ=-7.59   |  ChrF: Teacher=48.11  Student=29.40  Δ=-18.71 
-  hin→ben             BLEU: Teacher=7.08  Student=3.91  Δ=-3.17   |  ChrF: Teacher=38.87  Student=29.12  Δ=-9.74 
-==================================================
-[rclone] 2026/05/26 06:39:58 -     2.144 KiB / 2.144 KiB, 100%, 0 B/s, ETA -
-[rclone] 2026/05/26 06:40:00 -     5.259 KiB / 5.259 KiB, 100%, 0 B/s, ETA -
-[fig] Saved phase_comparison.png
-```
-
-```
-<Figure size 1920x1200 with 4 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-Plotting detailed comparison for 4 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L', 'P5_FullFT']
-```
-
-```
-<Figure size 1800x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
-```
-
-```
-<Figure size 2160x1080 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
-```
-
-```
-<Figure size 2520x1080 with 2 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
-```
-
-```
-<Figure size 1800x1260 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
-```
-
-```
-<Figure size 1800x900 with 1 Axes>
-```
-*[Image output — PNG]*
-
-**[stdout]**
-```
-  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
-
-✅ All 6 figures saved.
-   📄 detailed_comparison_01_overall_quality.png
-   📄 detailed_comparison_02_bleu_by_pair.png
-   📄 detailed_comparison_03_chrf_by_pair.png
-   📄 detailed_comparison_04_bengali_focus.png
-   📄 detailed_comparison_05_size_vs_quality.png
-   📄 detailed_comparison_06_rtf.png
-```
-
 ---
 
-## Cell 71 — `code` (execution #58)
+## Cell 71 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -5209,17 +3960,9 @@ print(f'[Config] PSEUDO_DIR={PSEUDO_DIR}')
 print(f'[Config] MDC API key loaded: {"YES" if MDC_API_KEY else "NO — check your Kaggle secret!"}')
 ```
 
-### Output
-
-**[stdout]**
-```
-[Config] PSEUDO_DIR=/kaggle/working/pseudo_cv25
-[Config] MDC API key loaded: YES
-```
-
 ---
 
-## Cell 72 — `code` (execution #59)
+## Cell 72 — `code`
 
 ```python
 # # ═══════════════════════════════════════════════════════════════════════════════
@@ -5277,7 +4020,7 @@ print(f'[Config] MDC API key loaded: {"YES" if MDC_API_KEY else "NO — check yo
 
 ---
 
-## Cell 73 — `code` (execution #60)
+## Cell 73 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -5752,7 +4495,7 @@ print(f'[Config] MDC API key loaded: {"YES" if MDC_API_KEY else "NO — check yo
 
 ---
 
-## Cell 74 — `code` (execution #61)
+## Cell 74 — `code`
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -6268,18 +5011,9 @@ print('  Fix 1: Targeted GDrive sync (no stale parquet re-downloads)')
 print('  Fix 2: wget progress labels each attempt (no more confusing resets)')
 ```
 
-### Output
-
-**[stdout]**
-```
-Cross-Lingual Pseudo-Labeler Ready with 100% Safe Disk Management.
-  Fix 1: Targeted GDrive sync (no stale parquet re-downloads)
-  Fix 2: wget progress labels each attempt (no more confusing resets)
-```
-
 ---
 
-## Cell 75 — `code` (execution #62)
+## Cell 75 — `code`
 
 ```python
 # # ── TEST CELL: Prove Pipeline Integrity (WAV + ZSTD) ──
@@ -6365,15 +5099,7 @@ Cross-Lingual Pseudo-Labeler Ready with 100% Safe Disk Management.
 
 ---
 
-## Cell 76 — `code` (execution #63)
-
-```python
-!ls pseudo_cv25
-```
-
----
-
-## Cell 77 — `code` (execution #64)
+## Cell 76 — `code`
 
 ```python
 # # ── Cell 73: EXECUTE CROSS-LINGUAL Pseudo-Labeling ───────────────────────────
@@ -6392,7 +5118,7 @@ Cross-Lingual Pseudo-Labeler Ready with 100% Safe Disk Management.
 
 ---
 
-## Cell 78 — `code` (execution #65)
+## Cell 77 — `code`
 
 ```python
 # !rclone copy gdrive:seamTL_bengali/pseudo_cv25 /kaggle/working/pseudo_cv25
@@ -6400,13 +5126,13 @@ Cross-Lingual Pseudo-Labeler Ready with 100% Safe Disk Management.
 
 ---
 
-## Cell 79 — `code` (execution #66)
+## Cell 78 — `code`
 
 ```python
-# ── Cell 74: Load Combined Dataset (FLEURS + CV25 Pseudo) ──────────
+# ── Cell 78: Load Combined Dataset (FLEURS + CV25 Pseudo) ──────────
 import pandas as pd, pathlib, os
+import collections, random
 
-# If you mount both datasets, they will appear here:
 KAGGLE_FLEURS_ROOT = '/kaggle/input/datasets/rayedriasat/fleurs-original-zstd'
 KAGGLE_PSEUDO_ROOT = '/kaggle/input/datasets/rayedriasat/cv25-pseudo-labels'
 
@@ -6417,8 +5143,6 @@ ACTIVE_PSEUDO_PATH = KAGGLE_PSEUDO_ROOT if os.path.exists(KAGGLE_PSEUDO_ROOT) el
 def _build_pseudo_metadata(path: str) -> list:
     meta = []
     print(f'Loading pseudo-label metadata from {path}...')
-    
-    # If path is GDrive, rclone copy it locally first for speed
     if "gdrive:" in path:
         print("  [GDrive] Pulling parquets locally for fast loading...")
         subprocess.run(f'rclone sync "{path}/" "{PSEUDO_DIR}/" --transfers=8', shell=True)
@@ -6448,7 +5172,7 @@ def _build_pseudo_metadata(path: str) -> list:
     print(f'  [Pseudo] Successfully loaded {len(meta)} entries.')
     return meta
 
-def load_all_metadata_combined(max_fleurs: int = 4000) -> list:
+def load_all_metadata_combined_stratified(max_fleurs: int = 4000) -> list:
     all_meta = []
     print(f'Loading original FLEURS metadata from {ACTIVE_FLEURS_PATH}...')
     for src, tgt in EVAL_LANG_PAIRS:
@@ -6458,48 +5182,46 @@ def load_all_metadata_combined(max_fleurs: int = 4000) -> list:
     pseudo = _build_pseudo_metadata(ACTIVE_PSEUDO_PATH)
     all_meta.extend(pseudo)
     
+    # --- PERFECT STRATIFIED INTERLEAVING ---
+    # This prevents the "Homogeneous Chunk" bug and stops catastrophic CE spikes
+    pair_dict = collections.defaultdict(list)
+    for s in all_meta:
+        pair_dict[f"{s['src_lang']}→{s['tgt_lang']}"].append(s)
+
+    print("\nApplying perfect mathematical stratification across all language pairs...")
+    stratified_meta = []
+    
+    # We assign a floating point position from 0.0 to 1.0 to every sample.
+    # This perfectly spaces out even imbalanced datasets.
+    for pair_name, lst in pair_dict.items():
+        random.shuffle(lst) # Shuffle within the pair
+        n = len(lst)
+        for i, item in enumerate(lst):
+            # i/n spaces them evenly. The random.uniform adds a tiny jitter to break exact ties.
+            position = (i / n) + random.uniform(0, 0.5 / max(n, 1))
+            stratified_meta.append((position, item))
+            
+    # Sort by the floating point position to interleave all lists seamlessly
+    stratified_meta.sort(key=lambda x: x[0])
+    final_meta = [item for pos, item in stratified_meta]
+    
     from collections import Counter
-    counts = Counter(f"{s['src_lang']}→{s['tgt_lang']}" for s in all_meta)
-    print(f'\n✓ Combined: {len(all_meta)} total training samples')
+    counts = Counter(f"{s['src_lang']}→{s['tgt_lang']}" for s in final_meta)
+    print(f'✓ Combined & Stratified: {len(final_meta)} total training samples')
     for pair, n in sorted(counts.items()):
         print(f'  {pair}: {n}{"  ★ Bengali" if "ben" in pair else ""}')
-    return all_meta
+        
+    return final_meta
 
-combined_metadata = load_all_metadata_combined(max_fleurs=4000)
+combined_metadata = load_all_metadata_combined_stratified(max_fleurs=4000)
 ft_samples = ChunkedStreamingDataset(combined_metadata, chunk_size=CHUNK_SIZE, prefetch=True)
 N_TRAIN = len(ft_samples)
-print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples ready for Massive KD Training.')
-```
-
-### Output
-
-**[stdout]**
-```
-Loading original FLEURS metadata from /kaggle/input/datasets/rayedriasat/fleurs-original-zstd...
-  Indexed 1449 samples from ben→eng
-  Indexed 1449 samples from eng→ben
-  Indexed 1288 samples from ben→hin
-  Indexed 1288 samples from hin→ben
-  Indexed 1250 samples from ben→arb
-  Indexed 1250 samples from arb→ben
-Loading pseudo-label metadata from /kaggle/input/datasets/rayedriasat/cv25-pseudo-labels...
-  [Pseudo] Successfully loaded 116107 entries.
-
-✓ Combined: 124081 total training samples
-  arb→ben: 26249  ★ Bengali
-  ben→arb: 16250  ★ Bengali
-  ben→eng: 21449  ★ Bengali
-  ben→hin: 16288  ★ Bengali
-  eng→ben: 31449  ★ Bengali
-  hin→ben: 12396  ★ Bengali
-  ChunkedStreamingDataset: 124081 samples | chunk=2000
-
-✓ ft_samples Phase 6: 124081 samples ready for Massive KD Training.
+print(f'\n✓ ft_samples Phase 6: {N_TRAIN} perfectly mixed samples ready for Training.')
 ```
 
 ---
 
-## Cell 80 — `code` (execution #67)
+## Cell 79 — `code`
 
 ```python
 # heed
@@ -6507,7 +5229,7 @@ Loading pseudo-label metadata from /kaggle/input/datasets/rayedriasat/cv25-pseud
 
 ---
 
-## Cell 81 — `code` (execution #68)
+## Cell 80 — `code`
 
 ```python
 # from transformers import SeamlessM4Tv2ForSpeechToSpeech
@@ -6517,150 +5239,39 @@ Loading pseudo-label metadata from /kaggle/input/datasets/rayedriasat/cv25-pseud
 
 ---
 
-## Cell 82 — `code` (execution #69)
+## Cell 81 — `code`
 
 ```python
-for i in range(40000, 40003):
-    print(f"{ft_samples[i]}")
-```
-
-### Output
-
-**[stdout]**
-```
-{'id': 'p6_bn2arb_007027', 'src_lang': 'ben', 'tgt_lang': 'arb', 'ref': 'من بين المحررين والمساهمين السابقين محمود شام، ناصر ناجي، وشفي آكيل.', 'wav': array([ 0.0000000e+00,  0.0000000e+00,  0.0000000e+00, ...,
-        0.0000000e+00, -3.0517578e-05, -6.1035156e-05], dtype=float32)}
-{'id': 'p6_bn2arb_007028', 'src_lang': 'ben', 'tgt_lang': 'arb', 'ref': 'أساسا كلمة "شخص" من اللغة السنسكريتية.', 'wav': array([ 0.0000000e+00,  0.0000000e+00,  0.0000000e+00, ...,
-       -3.0517578e-05,  0.0000000e+00, -3.0517578e-05], dtype=float32)}
-{'id': 'p6_bn2arb_007029', 'src_lang': 'ben', 'tgt_lang': 'arb', 'ref': 'هذا يعني: الرب، المالك، الحُسّامي، الحاكم، الملك.', 'wav': array([ 0.0000000e+00,  0.0000000e+00,  0.0000000e+00, ...,
-       -3.0517578e-05, -3.0517578e-05, -3.0517578e-05], dtype=float32)}
+# for i in range(40033, 40133):
+#     print(f"{ft_samples[i]}")
 ```
 
 ---
 
-## Cell 83 — `code` (execution #70)
+## Cell 82 — `code`
 
 ```python
-mdl = teacher
-for i in range(40000, 40003):
-    s = ft_samples[i]
-    print(f"{s['wav'][325:345]}")
+# mdl = teacher
+# for i in range(40000, 40003):
+#     s = ft_samples[i]
+#     print(f"{s['wav'][325:345]}")
     
-    dur = len(s['wav']) / 16000
-    t0  = time.time()
-    _, wav_out = run_s2st(mdl, s['wav'], tgt_lang=s['tgt_lang'])
-    rtf  = (time.time() - t0) / max(dur, 0.01)
-    pred = asr_transcribe(wav_out, s['tgt_lang'])
-    bleu = compute_bleu(pred, s['ref'])
-    chrf = compute_chrf(pred, s['ref'])
-    print(f'  [{i}] BLEU={bleu:5.1f} ChrF={chrf:5.1f} RTF={rtf:.3f}')
-    print(f'              pred: {pred[:80]}')
+#     dur = len(s['wav']) / 16000
+#     t0  = time.time()
+#     _, wav_out = run_s2st(mdl, s['wav'], tgt_lang=s['tgt_lang'])
+#     rtf  = (time.time() - t0) / max(dur, 0.01)
+#     pred = asr_transcribe(wav_out, s['tgt_lang'])
+#     bleu = compute_bleu(pred, s['ref'])
+#     chrf = compute_chrf(pred, s['ref'])
+#     print(f'  [{i}] BLEU={bleu:5.1f} ChrF={chrf:5.1f} RTF={rtf:.3f}')
+#     print(f'              pred: {pred[:80]}')
 
-    play(s['wav'], 16000, label=f'_s{i+1}in.wav')
-```
-
-### Output
-
-**[stdout]**
-```
-[-3.0517578e-05 -3.0517578e-05 -3.0517578e-05 -3.0517578e-05
- -3.0517578e-05 -3.0517578e-05 -3.0517578e-05 -3.0517578e-05
- -3.0517578e-05  0.0000000e+00 -3.0517578e-05 -3.0517578e-05
-  0.0000000e+00  0.0000000e+00 -3.0517578e-05 -3.0517578e-05
- -3.0517578e-05 -3.0517578e-05  0.0000000e+00  0.0000000e+00]
-[MMS-ASR] Loading lang=ara...
-```
-
-```
-preprocessor_config.json:   0%|          | 0.00/254 [00:00<?, ?B/s]
-```
-
-```
-config.json: 0.00B [00:00, ?B/s]
-```
-
-```
-tokenizer_config.json:   0%|          | 0.00/397 [00:00<?, ?B/s]
-```
-
-```
-vocab.json: 0.00B [00:00, ?B/s]
-```
-
-```
-special_tokens_map.json:   0%|          | 0.00/96.0 [00:00<?, ?B/s]
-```
-
-```
-model.safetensors:   0%|          | 0.00/3.86G [00:00<?, ?B/s]
-```
-
-```
-Loading weights:   0%|          | 0/1096 [00:00<?, ?it/s]
-```
-
-```
-adapter.ara.safetensors:   0%|          | 0.00/9.26M [00:00<?, ?B/s]
-```
-
-**[stdout]**
-```
-  [40000] BLEU= 17.4 ChrF= 78.6 RTF=0.727
-              pred: من بين المحرين والمساهمين السابقين محمود شام ناصر ناجي وشفي آكل
-  _s40001in.wav  (8.9s | sr=16000)
-```
-
-```
-<IPython.lib.display.Audio object>
-```
-*[HTML output — plain text preview]*
-```
-Your browser does not support the audio element.
-```
-
-**[stdout]**
-```
-[-3.0517578e-05 -3.0517578e-05 -3.0517578e-05  0.0000000e+00
-  0.0000000e+00 -3.0517578e-05 -3.0517578e-05 -3.0517578e-05
- -3.0517578e-05 -3.0517578e-05 -3.0517578e-05 -3.0517578e-05
- -3.0517578e-05 -3.0517578e-05 -3.0517578e-05 -3.0517578e-05
- -3.0517578e-05 -3.0517578e-05 -3.0517578e-05 -3.0517578e-05]
-  [40001] BLEU=  7.0 ChrF= 58.0 RTF=0.395
-              pred: أساساً من كلمة شخص  من اللوغة السنسكريتية
-  _s40002in.wav  (5.0s | sr=16000)
-```
-
-```
-<IPython.lib.display.Audio object>
-```
-*[HTML output — plain text preview]*
-```
-Your browser does not support the audio element.
-```
-
-**[stdout]**
-```
-[-3.0517578e-05  0.0000000e+00 -3.0517578e-05 -3.0517578e-05
-  0.0000000e+00  0.0000000e+00 -3.0517578e-05  0.0000000e+00
-  0.0000000e+00  0.0000000e+00  0.0000000e+00 -3.0517578e-05
-  0.0000000e+00 -3.0517578e-05 -3.0517578e-05  0.0000000e+00
- -3.0517578e-05  0.0000000e+00  0.0000000e+00 -3.0517578e-05]
-  [40002] BLEU= 10.9 ChrF= 43.7 RTF=0.259
-              pred: هذا يعني الرب المالك الحسام الحاكم الملك
-  _s40003in.wav  (6.8s | sr=16000)
-```
-
-```
-<IPython.lib.display.Audio object>
-```
-*[HTML output — plain text preview]*
-```
-Your browser does not support the audio element.
+#     play(s['wav'], 16000, label=f'_s{i+1}in.wav')
 ```
 
 ---
 
-## Cell 84 — `code` (execution #71)
+## Cell 83 — `code`
 
 ```python
 # !rclone copy /kaggle/working/ gdrive:seamTL_bengali/
@@ -6668,7 +5279,7 @@ Your browser does not support the audio element.
 
 ---
 
-## Cell 85 — `code` (execution #72)
+## Cell 84 — `code`
 
 ```python
 # publish_kaggle_dataset(message='Restored FLEURS and added structured Pseudo-Labels')
@@ -6676,7 +5287,7 @@ Your browser does not support the audio element.
 
 ---
 
-## Cell 86 — `code` (execution #73)
+## Cell 85 — `code`
 
 ```python
 # subprocess.run(
@@ -6687,7 +5298,7 @@ Your browser does not support the audio element.
 
 ---
 
-## Cell 87 — `code` (execution #74)
+## Cell 86 — `code`
 
 ```python
 # publish_kaggle_dataset(message='Fixed wav having all zeros, used zstd compression, previous error was bfloat16 silent crash on kaggle T4')
@@ -6695,7 +5306,7 @@ Your browser does not support the audio element.
 
 ---
 
-## Cell 88 — `code` (execution #75)
+## Cell 87 — `code`
 
 ```python
 # # ═══════════════════════════════════════════════════════════════════════════════
@@ -6766,7 +5377,7 @@ Your browser does not support the audio element.
 
 ---
 
-## Cell 89 — `code` (execution #76)
+## Cell 88 — `code`
 
 ```python
 # heed
@@ -6774,40 +5385,16 @@ Your browser does not support the audio element.
 
 ---
 
-## Cell 90 — `code` (execution #77)
+## Cell 89 — `code`
 
 ```python
-text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
-print(f"pre p6 eval → Text ChrF: {text_chrf:.2f} | ASR ChrF: {asr_chrf:.2f}")
-```
-
-### Output
-
-**[stdout]**
-```
-  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
-[MMS-ASR] Loading lang=ben...
-```
-
-```
-Loading weights:   0%|          | 0/1096 [00:00<?, ?it/s]
-```
-
-```
-adapter.ben.safetensors:   0%|          | 0.00/9.34M [00:00<?, ?B/s]
-```
-
-**[stdout]**
-```
-  [ASR] Offloaded models to CPU to clear VRAM for training.
-✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
-✓ GC selectively ENABLED for: speech_encoder
-pre p6 eval → Text ChrF: 26.74 | ASR ChrF: 26.22
+# text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
+# print(f"pre p6 eval → Text ChrF: {text_chrf:.2f} | ASR ChrF: {asr_chrf:.2f}")
 ```
 
 ---
 
-## Cell 91 — `code` (execution #78)
+## Cell 90 — `code`
 
 ```python
 # ── Cell A: Bridge Definitions (NOT injected yet) ─────────────────────────────
@@ -6913,17 +5500,9 @@ else:
     print("   Bridges will be added in the optional Cell F (after backbone recovers).")
 ```
 
-### Output
-
-**[stdout]**
-```
-✓  Bridge definitions loaded. Bridges NOT injected — backbone trains clean.
-   Bridges will be added in the optional Cell F (after backbone recovers).
-```
-
 ---
 
-## Cell 92 — `code` (execution #79)
+## Cell 91 — `code`
 
 ```python
 # ── Cell B: Bridge injection guard ────────────────────────────────────────────
@@ -6933,12 +5512,12 @@ print("✓  Skipping bridge injection. Backbone will train without adapters.")
 print("   This is intentional — see analysis in Cell A.")
 ```
 
-### Output
+---
 
-**[stdout]**
-```
-✓  Skipping bridge injection. Backbone will train without adapters.
-   This is intentional — see analysis in Cell A.
+## Cell 92 — `code`
+
+```python
+print("Deleting models/")
 ```
 
 ---
@@ -6946,16 +5525,32 @@ print("   This is intentional — see analysis in Cell A.")
 ## Cell 93 — `code`
 
 ```python
-# ── Cell E: Phase 6 — Bengali Recovery Training (Fixed) ──────────────────────
+!rm -rf /kaggle/working/models
+```
+
+---
+
+## Cell 94 — `code`
+
+```python
+!ls
+```
+
+---
+
+## Cell 95 — `code`
+
+```python
+# ── Cell E: Phase 6 — Bengali Recovery Training (Flawless Iteration & Resume) ────────────
 import bitsandbytes as bnb
 from transformers import get_cosine_schedule_with_warmup
-import math, time, random, gc, queue, threading
+import math, time, random, gc, queue, threading, glob, os
 import concurrent.futures
 
 # ── Hyperparameters ────────────────────────────────────────────────────────────
 BATCH_SIZE    = 4
 GRAD_ACCUM    = 8       # effective batch = 32
-LR_BACKBONE   = 3e-5   # conservative — avoids destabilising the pruned backbone
+LR_BACKBONE   = 2e-5    # Reduced slightly for safety due to previous INF gradients
 WEIGHT_DECAY  = 1e-2
 MAX_EPOCHS    = 8
 EVAL_STEPS    = 500
@@ -6963,7 +5558,7 @@ LOG_STEPS     = 20
 
 STEPS_PER_EPOCH = math.ceil(len(ft_samples) / (BATCH_SIZE * GRAD_ACCUM))
 TOTAL_STEPS     = STEPS_PER_EPOCH * MAX_EPOCHS
-WARMUP_STEPS    = min(500, int(TOTAL_STEPS * 0.03))   # short warmup, fast start
+WARMUP_STEPS    = min(500, int(TOTAL_STEPS * 0.03))
 
 print(f"Samples       : {len(ft_samples)}")
 print(f"Steps/epoch   : {STEPS_PER_EPOCH}")
@@ -6971,27 +5566,21 @@ print(f"Total steps   : {TOTAL_STEPS}")
 print(f"Warmup steps  : {WARMUP_STEPS}")
 print(f"Effective batch: {BATCH_SIZE * GRAD_ACCUM}")
 
-# ── Confirm no bridges are present ────────────────────────────────────────────
 if any('bridge' in n for n, _ in student.named_parameters()):
-    raise RuntimeError(
-        "Bridges are injected! Phase 6 must run WITHOUT bridges.\n"
-        "Reload student from phase5_ft checkpoint and re-run Cells A and B."
-    )
+    raise RuntimeError("Bridges are injected! Phase 6 must run WITHOUT bridges.")
 
-# ── Load pristine Phase 5 weights ─────────────────────────────────────────────
 print("\nLoading Phase 5 weights...")
 ckpt = load_latest_checkpoint('phase5_ft')
 if ckpt:
-    missing, unexpected = student.load_state_dict(ckpt['model_state'], strict=False)
-    if missing:
-        print(f"  [WARN] Missing keys: {missing[:5]}")
+    student.load_state_dict(ckpt['model_state'], strict=False)
     print(f"  ✓ Phase 5 weights loaded.")
     del ckpt; free_cpu_ram()
-else:
-    print("  [WARN] No phase5_ft checkpoint found — training from current student state.")
-    print("         This is risky. Ideally, load the Phase 5 model explicitly first.")
 
-# ── Cast all trainable params to fp32 for optimizer stability ─────────────────
+    subprocess.run(f"rm -rf {MODEL_DIR}/* {CKPT_DIR}/phase5_ft* ", shell=True)
+    print("  🧹 Swept local storage (deleted old models and phase5_ft* checkpoints).")
+else:
+    print("  [WARN] No phase5_ft checkpoint found.")
+
 for name, param in student.named_parameters():
     param.requires_grad = True
     if param.dtype != torch.float32:
@@ -6999,59 +5588,822 @@ for name, param in student.named_parameters():
 
 disable_all_gradient_checkpointing(student)
 
-# ── Grouped optimizer: lm_head + shared get 0.3× LR (they generalise easily) ──
 lm_keys       = ['lm_head', 'shared']
-lm_params     = [p for n, p in student.named_parameters()
-                 if p.requires_grad and any(k in n for k in lm_keys)]
-other_params  = [p for n, p in student.named_parameters()
-                 if p.requires_grad and not any(k in n for k in lm_keys)]
+lm_params     = [p for n, p in student.named_parameters() if p.requires_grad and any(k in n for k in lm_keys)]
+other_params  = [p for n, p in student.named_parameters() if p.requires_grad and not any(k in n for k in lm_keys)]
 
 param_groups = [
     {'params': lm_params,    'lr': LR_BACKBONE * 0.3, 'name': 'lm_head'},
     {'params': other_params, 'lr': LR_BACKBONE,        'name': 'backbone'},
 ]
 
-optimizer = bnb.optim.AdamW8bit(
-    param_groups,
-    weight_decay = WEIGHT_DECAY,
-    betas        = (0.9, 0.98),
-    eps          = 1e-6,
-)
-scheduler = get_cosine_schedule_with_warmup(
-    optimizer,
-    num_warmup_steps    = WARMUP_STEPS,
-    num_training_steps  = TOTAL_STEPS,
-)
+optimizer = bnb.optim.AdamW8bit(param_groups, weight_decay=WEIGHT_DECAY, betas=(0.9, 0.98), eps=1e-6)
+scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=WARMUP_STEPS, num_training_steps=TOTAL_STEPS)
 scaler = torch.cuda.amp.GradScaler()
 
+print("optimizer, scheduler, scaler ready")
+```
+
+---
+
+## Cell 96 — `code`
+
+```python
+# """
+# ═══════════════════════════════════════════════════════════════════════════════
+# DEBUG CELL — Training Instability Diagnosis
+# Paste this as a single notebook cell and run it BEFORE restarting training.
+# It produces a structured report. Paste the full output back as your next message.
+# Does NOT modify the model or optimizer state.
+# ═══════════════════════════════════════════════════════════════════════════════
+# """
+# import math, random, time, traceback, gc, collections
+# import numpy as np
+# import torch
+# import torch.nn.functional as F
+
+# SEP  = "─" * 65
+# SEP2 = "═" * 65
+
+# print(SEP2)
+# print("  TRAINING INSTABILITY DEBUG REPORT")
+# print(SEP2)
+
+# # ─────────────────────────────────────────────────────────────────────────────
+# # SECTION 1 — Epoch / steps-per-epoch accounting
+# # ─────────────────────────────────────────────────────────────────────────────
+# print(f"\n{SEP}")
+# print("  SECTION 1: Epoch & step accounting")
+# print(SEP)
+
+# N              = len(ft_samples)
+# BATCH_SIZE_DBG = 4
+# GRAD_ACCUM_DBG = 8
+# eff_batch      = BATCH_SIZE_DBG * GRAD_ACCUM_DBG
+
+# # How chunk_friendly_shuffle produces indices
+# random.seed(999)
+# try:
+#     all_idx_test = chunk_friendly_shuffle(N, CHUNK_SIZE, BATCH_SIZE_DBG)
+#     idx_len = len(all_idx_test)
+# except Exception as e:
+#     print(f"  [ERROR] chunk_friendly_shuffle failed: {e}")
+#     all_idx_test = list(range(N))
+#     idx_len = N
+
+# physical_batches_per_epoch = math.ceil(idx_len / BATCH_SIZE_DBG)
+# opt_steps_per_epoch_math   = math.ceil(N / eff_batch)         # what the code computes
+# opt_steps_per_epoch_actual = physical_batches_per_epoch // GRAD_ACCUM_DBG  # what actually happens
+
+# print(f"  ft_samples length        : {N}")
+# print(f"  chunk_friendly_shuffle() : {idx_len} indices  (expected {N})")
+# print(f"  BATCH_SIZE               : {BATCH_SIZE_DBG}")
+# print(f"  GRAD_ACCUM               : {GRAD_ACCUM_DBG}")
+# print(f"  effective_batch          : {eff_batch}")
+# print(f"  STEPS_PER_EPOCH (code)   : {opt_steps_per_epoch_math}   ← what Cell E uses")
+# print(f"  STEPS_PER_EPOCH (actual) : {opt_steps_per_epoch_actual} ← real opt steps from iterating")
+# if opt_steps_per_epoch_math != opt_steps_per_epoch_actual:
+#     print(f"  ⚠  MISMATCH: {opt_steps_per_epoch_math} vs {opt_steps_per_epoch_actual}")
+# else:
+#     print(f"  ✓  Match: {opt_steps_per_epoch_math}")
+
+# # Simulate the prefetcher + epoch boundary bug
+# # At EVAL_STEPS=500: batch_idx inside the loop when opt_step hits 500
+# batches_consumed_at_first_eval = 500 * GRAD_ACCUM_DBG   # = 4000 physical batches
+# batch_idx_at_first_eval        = batches_consumed_at_first_eval - 1   # 0-indexed = 3999
+# current_idx_start_after_eval   = (batch_idx_at_first_eval + 1) * BATCH_SIZE_DBG  # = 16000
+# remaining_after_reassign       = idx_len - current_idx_start_after_eval
+
+# print(f"\n  --- Prefetcher reassignment bug ---")
+# print(f"  At eval step 500: {batches_consumed_at_first_eval} physical batches consumed")
+# print(f"  batch_idx in for-loop at that point : {batch_idx_at_first_eval}")
+# print(f"  current_idx_start after eval        : {current_idx_start_after_eval}")
+# print(f"  Samples remaining in new prefetcher : {remaining_after_reassign}")
+# print(f"  BUT: Python for-loop is still bound to the ORIGINAL prefetcher object.")
+# print(f"  The original prefetcher was .stop()'d → next iteration hits StopIteration.")
+# print(f"  → Epoch ends after only {500} steps instead of {opt_steps_per_epoch_actual}.")
+# print(f"  → Dataset coverage per epoch: {current_idx_start_after_eval}/{N} = {current_idx_start_after_eval/N*100:.1f}%  ← ONLY {current_idx_start_after_eval/N*100:.0f}% OF DATA SEEN!")
+
+# # ─────────────────────────────────────────────────────────────────────────────
+# # SECTION 2 — Dataset composition & chunk ordering
+# # ─────────────────────────────────────────────────────────────────────────────
+# print(f"\n{SEP}")
+# print("  SECTION 2: Dataset composition and chunk ordering")
+# print(SEP)
+
+# # Count samples by language pair in order
+# pair_positions = collections.defaultdict(list)
+# try:
+#     meta = ft_samples.index_samples if hasattr(ft_samples, 'index_samples') else \
+#            ft_samples._chunked.index_samples if hasattr(ft_samples, '_chunked') else None
+#     if meta is not None:
+#         for i, s in enumerate(meta):
+#             pair = f"{s['src_lang']}→{s['tgt_lang']}"
+#             pair_positions[pair].append(i)
+
+#         print(f"  Total samples in metadata: {len(meta)}")
+#         print(f"  Language pair distribution:")
+#         for pair, positions in sorted(pair_positions.items()):
+#             first, last = positions[0], positions[-1]
+#             print(f"    {pair:<20} n={len(positions):<7}  positions [{first}..{last}]")
+
+#         # Check if pairs are contiguous blocks (bad) or interleaved (good)
+#         print(f"\n  First 40 samples by pair (should be interleaved, NOT all one pair):")
+#         for i in range(min(40, len(meta))):
+#             s = meta[i]
+#             print(f"    [{i:>4}] {s['src_lang']}→{s['tgt_lang']}", end="")
+#             if (i + 1) % 5 == 0: print()
+#         print()
+
+#         # Show what CHUNK_SIZE=2000 chunks look like
+#         print(f"\n  Per-chunk pair composition (CHUNK_SIZE={CHUNK_SIZE}):")
+#         n_chunks = math.ceil(len(meta) / CHUNK_SIZE)
+#         for c in range(min(n_chunks, 10)):
+#             start = c * CHUNK_SIZE
+#             end   = min(start + CHUNK_SIZE, len(meta))
+#             chunk_pairs = collections.Counter(
+#                 f"{meta[i]['src_lang']}→{meta[i]['tgt_lang']}" for i in range(start, end))
+#             dominant = chunk_pairs.most_common(1)[0]
+#             dom_pct  = dominant[1] / (end - start) * 100
+#             print(f"    Chunk {c:>3} [{start:>6}..{end:>6}]: dominant={dominant[0]} ({dom_pct:.0f}%)")
+#             if dom_pct > 80:
+#                 print(f"              ⚠  HOMOGENEOUS CHUNK — this causes CE spikes!")
+#     else:
+#         print("  [WARN] Could not access metadata — ft_samples structure not recognized")
+#         print(f"  type(ft_samples) = {type(ft_samples)}")
+#         if hasattr(ft_samples, '__dict__'):
+#             print(f"  attributes: {list(ft_samples.__dict__.keys())}")
+# except Exception as e:
+#     print(f"  [ERROR] {e}")
+#     traceback.print_exc()
+
+# # ─────────────────────────────────────────────────────────────────────────────
+# # SECTION 3 — Shuffle quality after chunk_friendly_shuffle
+# # ─────────────────────────────────────────────────────────────────────────────
+# print(f"\n{SEP}")
+# print("  SECTION 3: chunk_friendly_shuffle quality")
+# print(SEP)
+
+# try:
+#     random.seed(42)
+#     test_idx = chunk_friendly_shuffle(N, CHUNK_SIZE, BATCH_SIZE_DBG)
+#     random.seed(42)
+
+#     # For first 4000 indices (what epoch 1 actually sees before eval stops it),
+#     # check pair diversity within each batch of BATCH_SIZE=4
+#     if meta is not None:
+#         batch_homogeneity_scores = []
+#         for b in range(0, min(4000, len(test_idx)), BATCH_SIZE_DBG):
+#             batch_indices = test_idx[b:b+BATCH_SIZE_DBG]
+#             pairs = [f"{meta[i]['src_lang']}→{meta[i]['tgt_lang']}" for i in batch_indices]
+#             n_unique = len(set(pairs))
+#             batch_homogeneity_scores.append(n_unique)
+
+#         avg_diversity = sum(batch_homogeneity_scores) / len(batch_homogeneity_scores)
+#         all_same      = sum(1 for s in batch_homogeneity_scores if s == 1)
+#         all_diff      = sum(1 for s in batch_homogeneity_scores if s == BATCH_SIZE_DBG)
+
+#         print(f"  Batches analyzed (first 4000 indices): {len(batch_homogeneity_scores)}")
+#         print(f"  Avg unique pairs per batch: {avg_diversity:.2f}  (max={BATCH_SIZE_DBG})")
+#         print(f"  All-same-pair batches    : {all_same} ({all_same/len(batch_homogeneity_scores)*100:.0f}%)")
+#         print(f"  All-different batches    : {all_diff} ({all_diff/len(batch_homogeneity_scores)*100:.0f}%)")
+
+#         # Sample consecutive CE-spike region: batches 130-170 (steps 130-170 ~ where CE spikes)
+#         print(f"\n  Pairs in physical batches 130–170 (around where CE spikes at step ~140):")
+#         for b_num in range(130, min(171, len(test_idx)//BATCH_SIZE_DBG)):
+#             b_start = b_num * BATCH_SIZE_DBG
+#             batch_indices = test_idx[b_start:b_start+BATCH_SIZE_DBG]
+#             pairs = [f"{meta[i]['src_lang']}→{meta[i]['tgt_lang']}" for i in batch_indices]
+#             print(f"    batch {b_num:>3}: {pairs}")
+#     else:
+#         print("  [SKIP] Cannot check shuffle quality — no metadata accessible")
+# except Exception as e:
+#     print(f"  [ERROR] {e}")
+#     traceback.print_exc()
+
+# # ─────────────────────────────────────────────────────────────────────────────
+# # SECTION 4 — Single-batch CE measurement per language pair
+# # (does one specific pair genuinely have much higher CE than others?)
+# # ─────────────────────────────────────────────────────────────────────────────
+# print(f"\n{SEP}")
+# print("  SECTION 4: Per-pair CE measurement (4 samples each, no gradient)")
+# print(SEP)
+
+# student.eval()
+# teacher.eval()
+
+# ALPHA_TEST = 0.30
+
+# def _measure_pair_ce(src, tgt, n=4):
+#     """Grab n samples of one pair, run forward, return CE and KD."""
+#     if meta is None:
+#         return None, None
+#     indices = [i for i, s in enumerate(meta) if s['src_lang'] == src and s['tgt_lang'] == tgt]
+#     if not indices:
+#         return None, None
+#     chosen = indices[:n]
+#     samples = [ft_samples[i] for i in chosen]
+#     batch   = collate_s2t_batch(samples)
+#     if batch is None:
+#         return None, None
+#     try:
+#         with torch.no_grad():
+#             topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
+#             L = batch['labels_s'].shape[1]
+#             topk_vals = topk_vals[:, :L, :].contiguous()
+#             topk_idx  = topk_idx[:, :L, :].contiguous()
+#             s_log     = student_logits_gpu(batch['feat'], batch['dec_s'])
+#             s_log     = s_log[:, :L, :].contiguous()
+#             labels_dev = batch['labels_s'].to('cuda:1', non_blocking=True)
+#             loss, ce_v, kd_v = compute_recovery_loss_gpu(
+#                 s_log, labels_dev, topk_vals, topk_idx,
+#                 alpha=ALPHA_TEST, tgt_langs=batch.get('tgt_langs'))
+#         del batch, topk_vals, topk_idx, s_log, labels_dev, loss
+#         torch.cuda.empty_cache()
+#         return round(ce_v, 4), round(kd_v, 4)
+#     except Exception as e:
+#         print(f"    [error] {src}→{tgt}: {e}")
+#         return None, None
+
+# # Detect all pairs present in dataset
+# all_pairs = sorted(set(
+#     (s['src_lang'], s['tgt_lang'])
+#     for s in (meta or [])
+# ))
+
+# print(f"  {'Pair':<20} {'CE':>8} {'KD':>8}  {'Status'}")
+# print(f"  {'─'*20} {'─'*8} {'─'*8}  {'─'*20}")
+# pair_ce_results = {}
+# for src, tgt in all_pairs:
+#     ce_v, kd_v = _measure_pair_ce(src, tgt, n=4)
+#     if ce_v is not None:
+#         pair_ce_results[f"{src}→{tgt}"] = ce_v
+#         flag = "⚠  HIGH" if ce_v > 7.0 else ("OK" if ce_v < 5.0 else "medium")
+#         print(f"  {src}→{tgt:<16} {ce_v:>8.4f} {kd_v:>8.4f}  {flag}")
+#     else:
+#         print(f"  {src}→{tgt:<16} {'N/A':>8} {'N/A':>8}  no samples")
+
+# if pair_ce_results:
+#     min_pair = min(pair_ce_results, key=pair_ce_results.get)
+#     max_pair = max(pair_ce_results, key=pair_ce_results.get)
+#     ce_range = pair_ce_results[max_pair] - pair_ce_results[min_pair]
+#     print(f"\n  Lowest CE: {min_pair} = {pair_ce_results[min_pair]:.4f}")
+#     print(f"  Highest CE: {max_pair} = {pair_ce_results[max_pair]:.4f}")
+#     print(f"  Range: {ce_range:.4f}  {'⚠  LARGE — batch mixing matters a lot' if ce_range > 3.0 else 'OK'}")
+
+# # ─────────────────────────────────────────────────────────────────────────────
+# # SECTION 5 — Gradient norm distribution per parameter group
+# # (is any specific group causing exploding gradients?)
+# # ─────────────────────────────────────────────────────────────────────────────
+# print(f"\n{SEP}")
+# print("  SECTION 5: Gradient norm audit (1 forward+backward, no optimizer step)")
+# print(SEP)
+
+# student.train()
+
+# try:
+#     # Use a Bengali-target batch
+#     if meta is not None:
+#         ben_indices = [i for i, s in enumerate(meta) if s['tgt_lang'] == 'ben'][:4]
+#         test_samples = [ft_samples[i] for i in ben_indices]
+#     else:
+#         test_samples = [ft_samples[i] for i in range(4)]
+
+#     test_batch = collate_s2t_batch(test_samples)
+#     if test_batch is not None:
+#         topk_vals, topk_idx = teacher_topk_direct(test_batch['feat'], test_batch['dec_full'])
+#         L = test_batch['labels_s'].shape[1]
+#         topk_vals  = topk_vals[:, :L, :].contiguous()
+#         topk_idx   = topk_idx[:, :L, :].contiguous()
+#         s_log      = student_logits_gpu(test_batch['feat'], test_batch['dec_s'])
+#         s_log      = s_log[:, :L, :].contiguous()
+#         labels_dev = test_batch['labels_s'].to('cuda:1', non_blocking=True)
+
+#         loss, ce_v, kd_v = compute_recovery_loss_gpu(
+#             s_log, labels_dev, topk_vals, topk_idx,
+#             alpha=ALPHA_TEST, tgt_langs=test_batch.get('tgt_langs'))
+
+#         # Zero existing grads first
+#         for p in student.parameters():
+#             if p.grad is not None:
+#                 p.grad = None
+
+#         loss.backward()
+
+#         # Collect grad norms per module group
+#         groups = {
+#             'speech_encoder': [],
+#             'text_decoder':   [],
+#             'lm_head':        [],
+#             't2u_model':      [],
+#             'shared':         [],
+#             'other':          [],
+#         }
+#         for name, param in student.named_parameters():
+#             if param.grad is None:
+#                 continue
+#             norm = param.grad.detach().float().norm().item()
+#             assigned = False
+#             for g in groups:
+#                 if g in name:
+#                     groups[g].append(norm)
+#                     assigned = True
+#                     break
+#             if not assigned:
+#                 groups['other'].append(norm)
+
+#         print(f"  Test batch CE={ce_v:.4f}  KD={kd_v:.4f}")
+#         print(f"\n  {'Group':<20} {'n_params':>8} {'mean_norm':>12} {'max_norm':>12} {'status'}")
+#         print(f"  {'─'*20} {'─'*8} {'─'*12} {'─'*12} {'─'*15}")
+#         for group, norms in groups.items():
+#             if not norms:
+#                 continue
+#             mean_n = sum(norms) / len(norms)
+#             max_n  = max(norms)
+#             flag   = "⚠  EXPLODING" if max_n > 10.0 else ("⚠  high" if max_n > 1.0 else "ok")
+#             print(f"  {group:<20} {len(norms):>8} {mean_n:>12.6f} {max_n:>12.6f} {flag}")
+
+#         # Total grad norm (what clip_grad_norm sees)
+#         all_norms = [n for ns in groups.values() for n in ns]
+#         total_norm = math.sqrt(sum(n**2 for n in all_norms))
+#         print(f"\n  Total gradient norm before clipping: {total_norm:.4f}")
+#         if total_norm > 10.0:
+#             print(f"  ⚠  VERY HIGH — clip_grad_norm(0.5) will cut it to {0.5/total_norm*100:.1f}% of actual gradient")
+#         elif total_norm > 1.0:
+#             print(f"  ⚠  Moderate — clip_grad_norm(0.5) will cut it to {0.5/total_norm*100:.1f}%")
+#         else:
+#             print(f"  ✓  Within clip threshold")
+
+#         # Zero grads so we don't accidentally carry them forward
+#         for p in student.parameters():
+#             if p.grad is not None:
+#                 p.grad = None
+#         del test_batch, topk_vals, topk_idx, s_log, labels_dev, loss
+#         torch.cuda.empty_cache()
+#     else:
+#         print("  [SKIP] Could not build test batch")
+# except Exception as e:
+#     print(f"  [ERROR] {e}")
+#     traceback.print_exc()
+
+# # ─────────────────────────────────────────────────────────────────────────────
+# # SECTION 6 — Optimizer & scheduler state (resume correctness)
+# # ─────────────────────────────────────────────────────────────────────────────
+# print(f"\n{SEP}")
+# print("  SECTION 6: Optimizer & scheduler state check")
+# print(SEP)
+
+# try:
+#     print(f"  Optimizer type      : {type(optimizer).__name__}")
+#     print(f"  Param groups        : {len(optimizer.param_groups)}")
+#     for i, g in enumerate(optimizer.param_groups):
+#         print(f"    group[{i}]  lr={g['lr']:.2e}  name={g.get('name','?')}  n_params={len(g['params'])}")
+
+#     # Check whether optimizer has momentum state (i.e. has been stepped at all)
+#     has_state = any(len(v) > 0 for v in optimizer.state.values())
+#     print(f"  Optimizer has moment state: {has_state}  ('False' means never stepped — fresh start)")
+
+#     # Scheduler
+#     if hasattr(scheduler, 'last_epoch'):
+#         print(f"  scheduler.last_epoch: {scheduler.last_epoch}  (== opt_steps taken so far)")
+#     if hasattr(scheduler, '_last_lr'):
+#         print(f"  scheduler._last_lr : {scheduler._last_lr}")
+#     if hasattr(scheduler, 'get_last_lr'):
+#         try:
+#             print(f"  scheduler.get_last_lr(): {scheduler.get_last_lr()}")
+#         except:
+#             pass
+
+#     # Check for LR group count mismatch
+#     n_sched_lrs = len(scheduler.get_last_lr()) if hasattr(scheduler, 'get_last_lr') else None
+#     n_opt_groups = len(optimizer.param_groups)
+#     if n_sched_lrs is not None and n_sched_lrs != n_opt_groups:
+#         print(f"  ⚠  MISMATCH: scheduler tracks {n_sched_lrs} LRs but optimizer has {n_opt_groups} groups")
+#         print(f"     This causes wrong LR after resume if optimizer was rebuilt with different groups.")
+#     else:
+#         print(f"  ✓  Scheduler LR count matches optimizer groups")
+
+#     # Scaler state
+#     print(f"\n  GradScaler:")
+#     print(f"    scale           : {scaler.get_scale():.1f}")
+#     print(f"    growth_interval : {scaler._growth_interval}")
+#     if scaler.get_scale() < 256:
+#         print(f"    ⚠  Low scale — suggests recent NaN/Inf in gradients (fp16 underflow/overflow)")
+#     else:
+#         print(f"    ✓  Scale is healthy")
+
+# except Exception as e:
+#     print(f"  [ERROR] {e}")
+#     traceback.print_exc()
+
+# # ─────────────────────────────────────────────────────────────────────────────
+# # SECTION 7 — Label quality spot-check
+# # (are pseudo-labels producing extreme token distributions?)
+# # ─────────────────────────────────────────────────────────────────────────────
+# print(f"\n{SEP}")
+# print("  SECTION 7: Label quality — token distribution spot-check")
+# print(SEP)
+
+# try:
+#     if meta is not None:
+#         pairs_to_check = list(set((s['src_lang'], s['tgt_lang']) for s in meta))[:4]
+#         for src, tgt in pairs_to_check:
+#             indices = [i for i, s in enumerate(meta) if s['src_lang']==src and s['tgt_lang']==tgt]
+#             if not indices: continue
+#             samples = [ft_samples[i] for i in indices[:4]]
+#             batch   = collate_s2t_batch(samples)
+#             if batch is None: continue
+
+#             labels = batch['labels_s']  # [B, T]
+#             valid  = labels[labels != -100]
+#             n_pads = (labels == -100).sum().item()
+#             n_real = valid.numel()
+
+#             # Token id distribution — check for degenerate labels
+#             if n_real > 0:
+#                 unique_toks = valid.unique()
+#                 tok_entropy = -(torch.ones(len(unique_toks)) / len(unique_toks) *
+#                                 torch.ones(len(unique_toks)).log()).sum().item()
+#                 ref_lengths = [len(s['ref']) for s in samples]
+#                 audio_lengths_s = [len(s['wav'])/16000 for s in samples]
+
+#                 print(f"  {src}→{tgt}:")
+#                 print(f"    label tokens   : {n_real} real, {n_pads} masked")
+#                 print(f"    unique tokens  : {len(unique_toks)}")
+#                 print(f"    ref text lens  : {ref_lengths}  chars")
+#                 print(f"    audio durations: {[round(a,1) for a in audio_lengths_s]}  sec")
+
+#                 # Check for zero-audio samples
+#                 all_wavs = [s['wav'] for s in samples]
+#                 zero_wavs = sum(1 for w in all_wavs if np.abs(w).max() < 1e-6)
+#                 if zero_wavs:
+#                     print(f"    ⚠  {zero_wavs}/{len(all_wavs)} samples have near-ZERO AUDIO")
+#                 else:
+#                     print(f"    ✓  All audio non-zero")
+
+#             del batch
+#             torch.cuda.empty_cache()
+# except Exception as e:
+#     print(f"  [ERROR] {e}")
+#     traceback.print_exc()
+
+# # ─────────────────────────────────────────────────────────────────────────────
+# # SECTION 8 — AMP / fp16 stability check
+# # (are we getting NaN/Inf in student logits for specific pairs?)
+# # ─────────────────────────────────────────────────────────────────────────────
+# print(f"\n{SEP}")
+# print("  SECTION 8: AMP / fp16 stability — NaN/Inf check per pair")
+# print(SEP)
+
+# student.eval()
+# try:
+#     if meta is not None:
+#         for src, tgt in all_pairs:
+#             indices = [i for i, s in enumerate(meta) if s['src_lang']==src and s['tgt_lang']==tgt]
+#             if not indices: continue
+#             samples = [ft_samples[i] for i in indices[:4]]
+#             batch   = collate_s2t_batch(samples)
+#             if batch is None: continue
+
+#             with torch.no_grad():
+#                 s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
+
+#             has_nan = torch.isnan(s_log).any().item()
+#             has_inf = torch.isinf(s_log).any().item()
+#             logit_max = s_log.abs().max().item()
+#             logit_mean = s_log.abs().mean().item()
+
+#             flag = ""
+#             if has_nan: flag += "⚠  NaN IN LOGITS  "
+#             if has_inf: flag += "⚠  Inf IN LOGITS  "
+#             if logit_max > 100: flag += "⚠  huge magnitude  "
+#             if not flag: flag = "✓  ok"
+
+#             print(f"  {src}→{tgt:<16} max={logit_max:>8.2f}  mean={logit_mean:>6.2f}  {flag}")
+#             del batch, s_log
+#             torch.cuda.empty_cache()
+# except Exception as e:
+#     print(f"  [ERROR] {e}")
+#     traceback.print_exc()
+
+# student.train()
+
+# # ─────────────────────────────────────────────────────────────────────────────
+# # SECTION 9 — Checkpoint resume integrity
+# # ─────────────────────────────────────────────────────────────────────────────
+# print(f"\n{SEP}")
+# print("  SECTION 9: Checkpoint resume integrity")
+# print(SEP)
+
+# try:
+#     ckpt = load_latest_checkpoint('phase6_ft')
+#     if ckpt is None:
+#         ckpt = load_latest_checkpoint('phase6_best')
+
+#     if ckpt is not None:
+#         ckpt_keys = set(ckpt.keys())
+#         required  = {'model_state', 'optimizer_state', 'scheduler_state', 'opt_step', 'best_chrf'}
+#         missing   = required - ckpt_keys
+#         print(f"  Checkpoint keys     : {sorted(ckpt_keys)}")
+#         if missing:
+#             print(f"  ⚠  MISSING KEYS     : {missing}  — resume will be incomplete")
+#         else:
+#             print(f"  ✓  All required keys present")
+
+#         opt_step_ckpt = ckpt.get('opt_step', 0)
+#         best_chrf_ckpt = ckpt.get('best_chrf', 0.0)
+#         print(f"  opt_step in ckpt    : {opt_step_ckpt}")
+#         print(f"  best_chrf in ckpt   : {best_chrf_ckpt:.4f}")
+
+#         # Check model state key count
+#         model_keys_ckpt    = set(ckpt['model_state'].keys())
+#         model_keys_current = set(student.state_dict().keys())
+#         extra   = model_keys_ckpt - model_keys_current
+#         missing_m = model_keys_current - model_keys_ckpt
+#         print(f"  Model state keys: ckpt={len(model_keys_ckpt)}  current={len(model_keys_current)}")
+#         if extra:
+#             print(f"  ⚠  Extra keys in ckpt (not in current model): {len(extra)}  e.g. {list(extra)[:3]}")
+#         if missing_m:
+#             print(f"  ⚠  Keys in current model missing from ckpt  : {len(missing_m)}  e.g. {list(missing_m)[:3]}")
+#         if not extra and not missing_m:
+#             print(f"  ✓  Model state keys match exactly")
+
+#         # Check optimizer group count
+#         if 'optimizer_state' in ckpt:
+#             ckpt_pg_count = len(ckpt['optimizer_state'].get('param_groups', []))
+#             cur_pg_count  = len(optimizer.param_groups)
+#             if ckpt_pg_count != cur_pg_count:
+#                 print(f"  ⚠  Optimizer param_groups: ckpt={ckpt_pg_count}  current={cur_pg_count}")
+#                 print(f"     This will SILENTLY corrupt LR on resume!")
+#             else:
+#                 print(f"  ✓  Optimizer param group count matches: {cur_pg_count}")
+
+#         del ckpt
+#     else:
+#         print("  No phase6_ft or phase6_best checkpoint found — fresh start.")
+# except Exception as e:
+#     print(f"  [ERROR] {e}")
+#     traceback.print_exc()
+
+# # ─────────────────────────────────────────────────────────────────────────────
+# # SECTION 10 — Interleaved metadata check (what simple fix would give us)
+# # ─────────────────────────────────────────────────────────────────────────────
+# print(f"\n{SEP}")
+# print("  SECTION 10: What interleaved metadata would look like")
+# print(SEP)
+
+# try:
+#     if meta is not None and len(pair_positions) > 1:
+#         # Simulate round-robin interleaving
+#         from itertools import zip_longest
+#         pair_lists = list(pair_positions.values())
+#         interleaved = []
+#         for group in zip_longest(*pair_lists):
+#             for idx in group:
+#                 if idx is not None:
+#                     interleaved.append(idx)
+
+#         # Check chunk composition after interleaving
+#         print(f"  If metadata were round-robin interleaved:")
+#         n_chunks = math.ceil(len(interleaved) / CHUNK_SIZE)
+#         max_dom = 0
+#         for c in range(min(n_chunks, 8)):
+#             start = c * CHUNK_SIZE
+#             end   = min(start + CHUNK_SIZE, len(interleaved))
+#             chunk_pairs = collections.Counter(
+#                 f"{meta[interleaved[i]]['src_lang']}→{meta[interleaved[i]]['tgt_lang']}"
+#                 for i in range(start, end))
+#             dominant = chunk_pairs.most_common(1)[0]
+#             dom_pct  = dominant[1] / (end - start) * 100
+#             max_dom  = max(max_dom, dom_pct)
+#             print(f"    Chunk {c:>3}: dominant={dominant[0]} ({dom_pct:.0f}%)  pairs={len(chunk_pairs)}")
+#         print(f"\n  Current max chunk dominance: needs data from section 2 above")
+#         print(f"  Interleaved max chunk dominance: {max_dom:.0f}%  (lower is better)")
+#     else:
+#         print("  [SKIP] Only one pair or no metadata accessible")
+# except Exception as e:
+#     print(f"  [ERROR] {e}")
+#     traceback.print_exc()
+
+# # ─────────────────────────────────────────────────────────────────────────────
+# print(f"\n{SEP2}")
+# print("  DEBUG REPORT COMPLETE — paste full output as your next message")
+# print(SEP2)
+
+# # Restore student to train mode
+# student.train()
+# disable_all_gradient_checkpointing(student)
+# gc.collect()
+# torch.cuda.empty_cache()
+```
+
+---
+
+## Cell 97 — `code`
+
+```python
+# """
+# ULTIMATE DEBUG CELL V2
+# Run this cell. It will not modify your weights and will safely catch missing variables.
+# """
+# import math, random, time, traceback, gc, collections
+# import numpy as np
+# import torch
+
+# print("=" * 70)
+# print(" ULTIMATE DEBUG REPORT V2: PINPOINTING THE CULPRITS")
+# print("=" * 70)
+
+# # Safe variable retrieval
+# my_student = globals().get('student')
+# my_teacher = globals().get('teacher')
+# my_optimizer = globals().get('optimizer')
+# my_scheduler = globals().get('scheduler')
+# my_ft_samples = globals().get('ft_samples')
+# my_collate = globals().get('collate_s2t_batch')
+# my_chunk_size = globals().get('CHUNK_SIZE', 2000)
+
+# print("\n--- 1. DATASET HOMOGENEITY (THE CE SPIKE CULPRIT) ---")
+# if my_ft_samples is None:
+#     print("❌ ft_samples is not defined.")
+# else:
+#     try:
+#         # Safely extract metadata
+#         meta = getattr(my_ft_samples, 'index_samples', None)
+#         if meta is None and hasattr(my_ft_samples, '_chunked'):
+#             meta = getattr(my_ft_samples._chunked, 'index_samples', None)
+
+#         if meta is not None:
+#             print(f"Total samples: {len(meta)}")
+#             n_chunks = math.ceil(len(meta) / my_chunk_size)
+#             homogenous_chunks = 0
+            
+#             for c in range(n_chunks):
+#                 start = c * my_chunk_size
+#                 end = min(start + my_chunk_size, len(meta))
+#                 pairs = collections.Counter([f"{meta[i]['src_lang']}→{meta[i]['tgt_lang']}" for i in range(start, end)])
+#                 dom_pair, dom_count = pairs.most_common(1)[0]
+#                 dom_pct = (dom_count / (end - start)) * 100
+                
+#                 # Print first few and last few chunks to visualize the problem
+#                 if c < 5 or c >= n_chunks - 2:
+#                     print(f"Chunk {c:>3}: Dominant Pair = {dom_pair:<10} ({dom_pct:.1f}%) | Unique Pairs = {len(pairs)}")
+#                 elif c == 5:
+#                     print("... (skipping middle chunks) ...")
+                    
+#                 if dom_pct > 90:
+#                     homogenous_chunks += 1
+                    
+#             print(f"\nResult: {homogenous_chunks}/{n_chunks} chunks are >90% homogeneous.")
+#             if homogenous_chunks > 0:
+#                 print("🚨 CRITICAL: chunk_friendly_shuffle cannot mix pairs! Batches are monolingual, causing wild CE swings.")
+#         else:
+#             print("❌ Could not extract metadata from ft_samples.")
+#     except Exception as e:
+#         print(f"❌ Error checking dataset: {e}")
+
+# print("\n--- 2. THE PREFETCHER LOOP BUG (THE EARLY EPOCH CULPRIT) ---")
+# try:
+#     class DummyPrefetcher:
+#         def __init__(self, items):
+#             self.items = items
+#             self.idx = 0
+#             self.stopped = False
+#         def __iter__(self): return self
+#         def __next__(self):
+#             if self.stopped or self.idx >= len(self.items): raise StopIteration
+#             val = self.items[self.idx]
+#             self.idx += 1
+#             return val
+#         def stop(self): self.stopped = True
+
+#     print("Simulating the 'for batch in prefetcher' loop from Cell 95...")
+#     dummy_data = list(range(10))
+#     prefetcher = DummyPrefetcher(dummy_data)
+#     iterations = 0
+#     for batch_idx, batch in enumerate(prefetcher):
+#         iterations += 1
+#         if batch_idx == 4: # simulate EVAL_STEPS
+#             print("  Eval triggered at batch_idx == 4. Calling prefetcher.stop()...")
+#             prefetcher.stop()
+#             print("  Reassigning 'prefetcher = DummyPrefetcher(...)'...")
+#             prefetcher = DummyPrefetcher(dummy_data[5:])
+            
+#     print(f"Loop finished. Total iterations executed: {iterations}")
+#     if iterations < 10:
+#         print("🚨 CRITICAL: The loop broke early! Reassigning the iterator variable INSIDE the 'for' loop does NOT change the active iterator. This is why Epochs end at 500 steps.")
+# except Exception as e:
+#     print(f"❌ Error in prefetcher simulation: {e}")
+
+# print("\n--- 3. OPTIMIZER & SCHEDULER STATE ---")
+# if my_optimizer is None:
+#     print("⚠️ Optimizer not defined (expected if you haven't run Cell 95 yet).")
+# else:
+#     print(f"Optimizer: {type(my_optimizer).__name__}")
+#     print(f"Param Groups: {len(my_optimizer.param_groups)}")
+#     for i, g in enumerate(my_optimizer.param_groups):
+#         print(f"  Group {i} LR: {g['lr']:.2e} | params: {len(g['params'])}")
+#     if my_scheduler:
+#         try: print(f"Scheduler last LR: {my_scheduler.get_last_lr()}")
+#         except: pass
+
+# print("\n--- 4. MOCK GRADIENT PASS & AMP CHECK ---")
+# if my_student and my_teacher and my_collate and my_ft_samples:
+#     try:
+#         my_student.train()
+#         my_teacher.eval()
+        
+#         # Grab a truly mixed batch safely
+#         meta = getattr(my_ft_samples, 'index_samples', getattr(getattr(my_ft_samples, '_chunked', None), 'index_samples', None))
+#         test_batch_indices = []
+#         if meta:
+#             seen_pairs = set()
+#             for i, s in enumerate(meta):
+#                 pair = f"{s['src_lang']}→{s['tgt_lang']}"
+#                 if pair not in seen_pairs:
+#                     test_batch_indices.append(i)
+#                     seen_pairs.add(pair)
+#                 if len(test_batch_indices) == 4: break
+                
+#         if len(test_batch_indices) < 4:
+#             test_batch_indices = list(range(4))
+
+#         print(f"Creating mock batch from indices: {test_batch_indices}")
+#         raw = [my_ft_samples[i] for i in test_batch_indices]
+#         batch = my_collate(raw)
+
+#         if batch:
+#             topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
+#             L = batch['labels_s'].shape[1]
+#             topk_vals = topk_vals[:, :L, :].contiguous()
+#             topk_idx = topk_idx[:, :L, :].contiguous()
+#             s_log = student_logits_gpu(batch['feat'], batch['dec_s'])[:, :L, :].contiguous()
+#             labels_dev = batch['labels_s'].to('cuda:1')
+            
+#             # Use fixed dummy alpha
+#             loss, ce_v, kd_v = compute_recovery_loss_gpu(
+#                 s_log, labels_dev, topk_vals, topk_idx, alpha=0.30, tgt_langs=batch.get('tgt_langs'))
+            
+#             print(f"Loss computed successfully! CE={ce_v:.4f}, KD={kd_v:.4f}")
+            
+#             # Safe backward pass
+#             scaler = torch.cuda.amp.GradScaler()
+#             scaler.scale(loss).backward()
+            
+#             norms = []
+#             for p in my_student.parameters():
+#                 if p.grad is not None:
+#                     norms.append(p.grad.detach().float().norm().item())
+#             if norms:
+#                 total_norm = math.sqrt(sum(n**2 for n in norms))
+#                 print(f"Total Gradient Norm: {total_norm:.4f}")
+#                 if total_norm > 5.0:
+#                     print("⚠️ Norm is high! We will need strict gradient clipping.")
+#             else:
+#                 print("⚠️ No gradients computed.")
+                
+#             my_student.zero_grad(set_to_none=True)
+#             torch.cuda.empty_cache()
+#             print("✅ Mock pass clean. Model architecture and loss functions are mathematically sound.")
+#     except Exception as e:
+#         print(f"❌ Error in mock gradient pass: {e}")
+#         traceback.print_exc()
+# else:
+#     print("⚠️ Missing model/dataset components to run mock pass. Skipping.")
+
+# print("\n" + "=" * 70)
+# print(" END OF DEBUG REPORT. Please paste this output in your next message.")
+# print("=" * 70)
+```
+
+---
+
+## Cell 98 — `code`
+
+```python
 all_trainable = [p for g in param_groups for p in g['params']]
-total_trainable_M = sum(p.numel() for p in all_trainable) / 1e6
 print(f"\n{'='*60}")
-print(f"Phase 6 — Bengali Recovery Training (No Bridges)")
-print(f"Total steps: {TOTAL_STEPS}  |  Trainable: {total_trainable_M:.1f}M")
-print(f"LR backbone: {LR_BACKBONE:.1e}  |  LR lm_head: {LR_BACKBONE*0.3:.1e}")
+print(f"Phase 6 — Bengali Recovery Training (No Bridges, AMP Safe)")
+print(f"Total steps: {TOTAL_STEPS}  |  LR backbone: {LR_BACKBONE:.1e}")
 print(f"{'='*60}\n")
 
-# ── Background batch prefetcher ────────────────────────────────────────────────
 class BatchPrefetcher:
     def __init__(self, dataset, indices, batch_size, collate_fn, prefetch_size=4):
-        self.dataset     = dataset
-        self.indices     = indices
-        self.batch_size  = batch_size
-        self.collate_fn  = collate_fn
-        self.queue       = queue.Queue(maxsize=prefetch_size)
-        self.stop_event  = threading.Event()
-        self.thread      = threading.Thread(target=self._worker, daemon=True)
+        self.dataset = dataset
+        self.indices = indices
+        self.batch_size = batch_size
+        self.collate_fn = collate_fn
+        self.queue = queue.Queue(maxsize=prefetch_size)
+        self.stop_event = threading.Event()
+        self.thread = threading.Thread(target=self._worker, daemon=True)
         self.thread.start()
 
     def _worker(self):
         for batch_start in range(0, len(self.indices), self.batch_size):
             if self.stop_event.is_set(): break
             chunk = self.indices[batch_start : batch_start + self.batch_size]
-            try:
-                self.queue.put(self.collate_fn([self.dataset[i] for i in chunk]))
-            except Exception:
-                self.queue.put(None)
+            try: self.queue.put(self.collate_fn([self.dataset[i] for i in chunk]))
+            except Exception: self.queue.put(None)
         self.queue.put("DONE")
 
     def __iter__(self): return self
@@ -7059,51 +6411,53 @@ class BatchPrefetcher:
         item = self.queue.get()
         if item == "DONE": raise StopIteration
         return item
-
     def stop(self):
         self.stop_event.set()
         while not self.queue.empty():
             try: self.queue.get_nowait()
             except: pass
 
-
 def _save_p6(opt_step, best_chrf, history, is_best=False):
     state = dict(
-        model_state     = student.state_dict(),
-        optimizer_state = optimizer.state_dict(),
-        scheduler_state = scheduler.state_dict(),
-        opt_step        = opt_step,
-        best_chrf       = best_chrf,
-        train_history   = history,
+        model_state=student.state_dict(), optimizer_state=optimizer.state_dict(),
+        scheduler_state=scheduler.state_dict(), opt_step=opt_step,
+        best_chrf=best_chrf, train_history=history,
     )
     name = 'phase6_best' if is_best else 'phase6_ft'
     save_checkpoint(state, name, opt_step, keep=1)
 
-
 def run_phase6():
     best_chrf     = 0.0
-    patience_left = 30           # more patience — eval every 500 steps
+    patience_left = 30
     opt_step      = 0
-    train_history = {
-        'step': [], 'ce': [], 'kd': [], 'lr': [],
-        'eval_step': [], 'eval_text': [], 'eval_asr': [],
-    }
+    train_history = {'step': [], 'ce': [], 'kd': [], 'lr': [], 'eval_step': [], 'eval_text': [], 'eval_asr': []}
 
-    # Resume from checkpoint if available
-    p6_ckpt = load_latest_checkpoint('phase6_ft')
+    # ── Smart Resume Logic: Scan for latest step across BOTH ft and best ──
+    all_ckpts = glob.glob(f'{CKPT_DIR}/phase6_ft_step*.pt') + glob.glob(f'{CKPT_DIR}/phase6_best_step*.pt')
+    p6_ckpt = None
+    if all_ckpts:
+        latest_file = max(all_ckpts, key=lambda f: int(f.split('_step')[-1].split('.pt')[0]))
+        print(f"\n  [ckpt] Smart Scanner found latest checkpoint: {os.path.basename(latest_file)}")
+        p6_ckpt = torch.load(latest_file, map_location='cpu', weights_only=False)
+    else:
+        print("\n  [ckpt] No Phase 6 checkpoint found. Starting fresh.")
+
     if p6_ckpt:
         student.load_state_dict(p6_ckpt['model_state'], strict=False)
         try:
             optimizer.load_state_dict(p6_ckpt['optimizer_state'])
             scheduler.load_state_dict(p6_ckpt['scheduler_state'])
-        except Exception as e:
-            print(f"  [WARN] Could not restore optimizer/scheduler: {e}")
+        except Exception as e: print(f"  [WARN] Optim load failed: {e}")
         opt_step  = p6_ckpt.get('opt_step', 0)
         best_chrf = p6_ckpt.get('best_chrf', 0.0)
-        if 'train_history' in p6_ckpt:
-            train_history = p6_ckpt['train_history']
+        if 'train_history' in p6_ckpt: train_history = p6_ckpt['train_history']
         print(f"  ✓ Resumed Phase 6 at step {opt_step}  best_chrf={best_chrf:.2f}")
         del p6_ckpt; free_cpu_ram()
+
+        # ─── Delete loaded p6 ckpt on session storage ──────────────────────────────────────────────
+        subprocess.run(f"rm -rf {CKPT_DIR}/phase6* ", shell=True)
+        print("  🧹 Swept local storage (deleted phase 6 checkpoints).")
+        # ───────────────────────────────────────────────────────────────────────
 
     start_epoch      = opt_step // STEPS_PER_EPOCH
     batches_to_skip  = (opt_step % STEPS_PER_EPOCH) * GRAD_ACCUM
@@ -7120,136 +6474,114 @@ def run_phase6():
         all_idx = chunk_friendly_shuffle(len(ft_samples), CHUNK_SIZE, BATCH_SIZE)
         random.seed(42)
 
+        batches_processed_in_epoch = 0
         if epoch == start_epoch and batches_to_skip > 0:
-            all_idx = all_idx[batches_to_skip * BATCH_SIZE:]
+            batches_processed_in_epoch = batches_to_skip
 
-        print(f"\n  Phase 6 — Epoch {epoch+1}/{MAX_EPOCHS}"
-              f"  |  KD_alpha={current_alpha:.2f}  |  LR_peak={LR_BACKBONE:.1e}")
+        print(f"\n  Phase 6 — Epoch {epoch+1}/{MAX_EPOCHS}  |  KD_alpha={current_alpha:.2f}  |  LR_peak={LR_BACKBONE:.1e}")
         t_epoch = time.time()
-        prefetcher = BatchPrefetcher(ft_samples, all_idx, BATCH_SIZE, collate_s2t_batch)
+        
+        prefetcher = BatchPrefetcher(ft_samples, all_idx[batches_processed_in_epoch * BATCH_SIZE:], BATCH_SIZE, collate_s2t_batch)
 
-        for batch_idx, batch in enumerate(prefetcher):
+        while True:
             if opt_step >= TOTAL_STEPS:
-                prefetcher.stop(); break
-            if batch is None:
-                continue
+                prefetcher.stop()
+                break
+
+            try:
+                batch = next(prefetcher)
+            except StopIteration:
+                break # Epoch naturally finished
+
+            batches_processed_in_epoch += 1
+            if batch is None: continue
 
             t0 = time.time()
-
-            # ── Parallel teacher + student forward ────────────────────────────
             res_t, res_s = {}, {}
 
             def _t_task():
-                try:
-                    res_t['v'], res_t['i'] = teacher_topk_direct(
-                        batch['feat'], batch['dec_full'])
-                except Exception as e:
-                    res_t['e'] = str(e)
+                try: res_t['v'], res_t['i'] = teacher_topk_direct(batch['feat'], batch['dec_full'])
+                except Exception as e: res_t['e'] = str(e)
 
             def _s_task():
-                try:
-                    res_s['s'] = student_logits_gpu(batch['feat'], batch['dec_s'])
-                except Exception as e:
-                    res_s['e'] = str(e)
+                try: res_s['s'] = student_logits_gpu(batch['feat'], batch['dec_s'])
+                except Exception as e: res_s['e'] = str(e)
 
             future_t = executor.submit(_t_task)
             future_s = executor.submit(_s_task)
             concurrent.futures.wait([future_t, future_s])
 
             if 'e' in res_t or 'e' in res_s:
-                print(f"  [Skip] T:{res_t.get('e')}  S:{res_s.get('e')}")
-                del batch, res_t, res_s
-                torch.cuda.empty_cache(); gc.collect()
+                del batch, res_t, res_s; torch.cuda.empty_cache(); gc.collect()
                 continue
 
             topk_vals, topk_idx, s_log = res_t['v'], res_t['i'], res_s['s']
             L = batch['labels_s'].shape[1]
-
-            # Align sequence lengths
             topk_vals = topk_vals[:, :L, :].contiguous()
             topk_idx  = topk_idx[:, :L, :].contiguous()
             s_log     = s_log[:, :L, :].contiguous()
-
-            # Labels and tgt_langs for Bengali weighting
             labels_dev = batch['labels_s'].to('cuda:1', non_blocking=True)
             tgt_langs  = batch.get('tgt_langs', None)
 
             try:
-                loss, ce_v, kd_v = compute_recovery_loss_gpu(
-                    s_log, labels_dev,
-                    topk_vals, topk_idx,
-                    alpha     = current_alpha,
-                    tgt_langs = tgt_langs,
-                )
+                loss, ce_v, kd_v = compute_recovery_loss_gpu(s_log, labels_dev, topk_vals, topk_idx, alpha=current_alpha, tgt_langs=tgt_langs)
                 scaler.scale(loss / GRAD_ACCUM).backward()
-
             except torch.cuda.OutOfMemoryError:
-                print("  [OOM] Skipping batch")
-                del batch, res_t, res_s, topk_vals, topk_idx, s_log, labels_dev
-                torch.cuda.empty_cache(); gc.collect(); free_cpu_ram()
+                del batch, res_t, res_s, topk_vals, topk_idx, s_log, labels_dev; torch.cuda.empty_cache(); gc.collect(); free_cpu_ram()
                 continue
             except Exception as e:
-                print(f"  [Loss error] {e}")
-                del batch, res_t, res_s, topk_vals, topk_idx, s_log, labels_dev
-                torch.cuda.empty_cache(); gc.collect()
+                del batch, res_t, res_s, topk_vals, topk_idx, s_log, labels_dev; torch.cuda.empty_cache(); gc.collect()
                 continue
 
             del res_t, res_s, topk_vals, topk_idx, s_log, labels_dev, loss
             ep_ce += ce_v; ep_kd += kd_v; ep_n += 1; accum += 1
 
-            # ── Gradient step ─────────────────────────────────────────────────
             if accum >= GRAD_ACCUM:
                 scaler.unscale_(optimizer)
-                torch.nn.utils.clip_grad_norm_(all_trainable, 1.0)
+                
+                grad_norm = torch.nn.utils.clip_grad_norm_(all_trainable, 1.0)
+                if math.isinf(grad_norm) or math.isnan(grad_norm):
+                    print(f"  [AMP Safeguard] Step {opt_step} skipped. Inf/NaN grad norm detected.")
+                    optimizer.zero_grad(set_to_none=True)
+                    scaler.update() # Update scaler to drop multiplier, but skip optimizer/scheduler step
+                    accum = 0
+                    continue
+
                 scaler.step(optimizer)
                 scaler.update()
                 scheduler.step()
                 optimizer.zero_grad(set_to_none=True)
                 accum = 0; opt_step += 1
 
-                # ── Logging ───────────────────────────────────────────────────
                 if opt_step % LOG_STEPS == 0:
                     step_times.append(time.time() - t0)
-                    lrs     = scheduler.get_last_lr()
-                    lr_now  = lrs[1] if len(lrs) > 1 else lrs[0]
-                    avg_ce  = ep_ce / max(ep_n, 1)
-                    avg_kd  = ep_kd / max(ep_n, 1)
-                    eta_min = (TOTAL_STEPS - opt_step) * \
-                              (sum(step_times[-20:]) / max(len(step_times[-20:]), 1)) / 60
+                    lrs = scheduler.get_last_lr()
+                    lr_now = lrs[1] if len(lrs) > 1 else lrs[0]
+                    avg_ce = ep_ce / max(ep_n, 1)
+                    avg_kd = ep_kd / max(ep_n, 1)
+                    eta_min = (TOTAL_STEPS - opt_step) * (sum(step_times[-20:]) / max(len(step_times[-20:]), 1)) / 60
                     train_history['step'].append(opt_step)
                     train_history['ce'].append(avg_ce)
                     train_history['kd'].append(avg_kd)
                     train_history['lr'].append(float(lr_now))
-                    print(f"  P6 step {opt_step:>5}/{TOTAL_STEPS}"
-                          f" | CE={avg_ce:.4f} KD={avg_kd:.4f}"
-                          f" | α={current_alpha:.2f} | lr={lr_now:.1e}"
-                          f" | ETA={eta_min:.0f}min")
+                    print(f"  P6 step {opt_step:>5}/{TOTAL_STEPS} | CE={avg_ce:.4f} KD={avg_kd:.4f} | α={current_alpha:.2f} | lr={lr_now:.1e} | ETA={eta_min:.0f}min")
                     ep_ce = ep_kd = ep_n = 0.0
                     free_cpu_ram()
 
-                # ── Evaluation ────────────────────────────────────────────────
                 if opt_step % EVAL_STEPS == 0:
                     prefetcher.stop()
 
                     text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
+                    eval_score = asr_chrf if asr_chrf > 1.0 else text_chrf * 0.3
 
-                    # Compute a combined score that prioritises ASR (real quality)
-                    # but uses text as tiebreaker early in training when ASR=0
-                    if asr_chrf > 1.0:
-                        eval_score = asr_chrf
-                    else:
-                        eval_score = text_chrf * 0.3   # text only as fallback signal
-
-                    print(f"\n  ★ P6 step {opt_step}"
-                          f" → Text={text_chrf:.2f}  ASR={asr_chrf:.2f}"
-                          f"  [score={eval_score:.2f}]")
+                    print(f"\n  ★ P6 step {opt_step} → Text={text_chrf:.2f}  ASR={asr_chrf:.2f}  [score={eval_score:.2f}]")
 
                     train_history['eval_step'].append(opt_step)
                     train_history['eval_text'].append(float(text_chrf))
                     train_history['eval_asr'].append(float(asr_chrf))
 
                     if eval_score > best_chrf:
-                        best_chrf     = eval_score
+                        best_chrf = eval_score
                         patience_left = 30
                         _save_p6(opt_step, best_chrf, train_history, is_best=True)
                         print(f"  ✓ NEW BEST score={best_chrf:.2f} — saved phase6_best")
@@ -7262,11 +6594,7 @@ def run_phase6():
                             executor.shutdown(wait=False)
                             return opt_step, best_chrf, train_history
 
-                    # Restart prefetcher for remaining batches in this epoch
-                    current_idx_start = (batch_idx + 1) * BATCH_SIZE
-                    prefetcher = BatchPrefetcher(
-                        ft_samples, all_idx[current_idx_start:],
-                        BATCH_SIZE, collate_s2t_batch)
+                    prefetcher = BatchPrefetcher(ft_samples, all_idx[batches_processed_in_epoch * BATCH_SIZE:], BATCH_SIZE, collate_s2t_batch)
 
             del batch
 
@@ -7276,46 +6604,13 @@ def run_phase6():
     executor.shutdown(wait=False)
     return opt_step, best_chrf, train_history
 
-
-# ── Run Phase 6 ────────────────────────────────────────────────────────────────
 final_step, final_score, p6_history = run_phase6()
 print(f"\n✓ Phase 6 complete. Best score: {final_score:.2f} at step {final_step}")
 ```
 
-### Output
-
-**[stdout]**
-```
-Samples       : 124081
-Steps/epoch   : 3878
-Total steps   : 31024
-Warmup steps  : 500
-Effective batch: 32
-
-Loading Phase 5 weights...
-[ckpt] Loaded phase5_ft_step001400.pt
-  ✓ Phase 5 weights loaded.
-✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
-✓ GC selectively ENABLED for: speech_encoder
-
-============================================================
-Phase 6 — Bengali Recovery Training (No Bridges)
-Total steps: 31024  |  Trainable: 1056.0M
-LR backbone: 3.0e-05  |  LR lm_head: 9.0e-06
-============================================================
-
-[ckpt] No checkpoint for 'phase6_ft'
-
-  Phase 6 — Epoch 1/8  |  KD_alpha=0.30  |  LR_peak=3.0e-05
-  P6 step    20/31024 | CE=8.1650 KD=1.5522 | α=0.30 | lr=1.2e-06 | ETA=703min
-  P6 step    40/31024 | CE=8.1141 KD=1.5360 | α=0.30 | lr=2.4e-06 | ETA=684min
-  P6 step    60/31024 | CE=7.9421 KD=1.4848 | α=0.30 | lr=3.6e-06 | ETA=704min
-  P6 step    80/31024 | CE=4.5621 KD=1.6999 | α=0.30 | lr=4.8e-06 | ETA=647min
-```
-
 ---
 
-## Cell 94 — `code`
+## Cell 99 — `code`
 
 ```python
 # ── Cell 78: Plot Training History ───────────────────────────────────────────
@@ -7368,7 +6663,7 @@ else:
 
 ---
 
-## Cell 95 — `code`
+## Cell 100 — `code`
 
 ```python
 # # ── Cell F: Bridge Fine-Control Phase (run AFTER Phase 6 backbone recovery) ───
@@ -7618,7 +6913,7 @@ else:
 
 ---
 
-## Cell 96 — `code`
+## Cell 101 — `code`
 
 ```python
 # ── Cell 79: Load Best Checkpoint and Save Final Model ───────────────────────
@@ -7642,7 +6937,7 @@ print('✓ Saved final model to Google Drive as `phase6_massive_ft_merged`')
 
 ---
 
-## Cell 97 — `code`
+## Cell 102 — `code`
 
 ```python
 # ── Cell 80: Final Comprehensive Benchmark ───────────────────────────────────
@@ -7697,7 +6992,7 @@ print("\n🎉 PIPELINE COMPLETE! 🎉")
 
 ---
 
-## Cell 98 — `markdown`
+## Cell 103 — `markdown`
 
 > ## Summary
 > 
