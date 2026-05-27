@@ -5129,14 +5129,13 @@ print('  Fix 2: wget progress labels each attempt (no more confusing resets)')
 ## Cell 78 — `code`
 
 ```python
-# ── Cell 78: Load Combined Dataset (FLEURS + CV25 Pseudo) ──────────
+# ── Cell 78: Load Combined Dataset (Optimized Multi-Cache) ──────────
 import pandas as pd, pathlib, os
 import collections, random
 
 KAGGLE_FLEURS_ROOT = '/kaggle/input/datasets/rayedriasat/fleurs-original-zstd'
 KAGGLE_PSEUDO_ROOT = '/kaggle/input/datasets/rayedriasat/cv25-pseudo-labels'
 
-# Fallback auto-detection for local testing
 ACTIVE_FLEURS_PATH = KAGGLE_FLEURS_ROOT if os.path.exists(KAGGLE_FLEURS_ROOT) else LOCAL_PARQUET_CACHE
 ACTIVE_PSEUDO_PATH = KAGGLE_PSEUDO_ROOT if os.path.exists(KAGGLE_PSEUDO_ROOT) else f"{GDRIVE_ROOT}/pseudo_cv25_parquets"
 
@@ -5149,9 +5148,7 @@ def _build_pseudo_metadata(path: str) -> list:
         path = PSEUDO_DIR
 
     parquet_files = list(pathlib.Path(path).glob('pseudo_*.parquet'))
-    if not parquet_files:
-        print(f"  [Warning] No parquets found in {path}!")
-        return meta
+    if not parquet_files: return meta
         
     for f in sorted(parquet_files):
         try: lang_pair = f.stem.split('_')[1]     
@@ -5172,51 +5169,55 @@ def _build_pseudo_metadata(path: str) -> list:
     print(f'  [Pseudo] Successfully loaded {len(meta)} entries.')
     return meta
 
-def load_all_metadata_combined_stratified(max_fleurs: int = 4000) -> list:
-    all_meta = []
+def load_grouped_metadata(max_fleurs: int = 4000) -> dict:
+    pair_dict = collections.defaultdict(list)
     print(f'Loading original FLEURS metadata from {ACTIVE_FLEURS_PATH}...')
     for src, tgt in EVAL_LANG_PAIRS:
         ds = ParquetStreamingDataset(ACTIVE_FLEURS_PATH, src, tgt, 'train', max_fleurs)
-        all_meta.extend(ds.samples)
-    
-    pseudo = _build_pseudo_metadata(ACTIVE_PSEUDO_PATH)
-    all_meta.extend(pseudo)
-    
-    # --- PERFECT STRATIFIED INTERLEAVING ---
-    # This prevents the "Homogeneous Chunk" bug and stops catastrophic CE spikes
-    pair_dict = collections.defaultdict(list)
-    for s in all_meta:
-        pair_dict[f"{s['src_lang']}→{s['tgt_lang']}"].append(s)
-
-    print("\nApplying perfect mathematical stratification across all language pairs...")
-    stratified_meta = []
-    
-    # We assign a floating point position from 0.0 to 1.0 to every sample.
-    # This perfectly spaces out even imbalanced datasets.
-    for pair_name, lst in pair_dict.items():
-        random.shuffle(lst) # Shuffle within the pair
-        n = len(lst)
-        for i, item in enumerate(lst):
-            # i/n spaces them evenly. The random.uniform adds a tiny jitter to break exact ties.
-            position = (i / n) + random.uniform(0, 0.5 / max(n, 1))
-            stratified_meta.append((position, item))
-            
-    # Sort by the floating point position to interleave all lists seamlessly
-    stratified_meta.sort(key=lambda x: x[0])
-    final_meta = [item for pos, item in stratified_meta]
-    
-    from collections import Counter
-    counts = Counter(f"{s['src_lang']}→{s['tgt_lang']}" for s in final_meta)
-    print(f'✓ Combined & Stratified: {len(final_meta)} total training samples')
-    for pair, n in sorted(counts.items()):
-        print(f'  {pair}: {n}{"  ★ Bengali" if "ben" in pair else ""}')
+        pair_dict[f"{src}→{tgt}"].extend(ds.samples)
         
-    return final_meta
+    pseudo = _build_pseudo_metadata(ACTIVE_PSEUDO_PATH)
+    for s in pseudo:
+        pair_dict[f"{s['src_lang']}→{s['tgt_lang']}"].append(s)
+    return pair_dict
 
-combined_metadata = load_all_metadata_combined_stratified(max_fleurs=4000)
-ft_samples = ChunkedStreamingDataset(combined_metadata, chunk_size=CHUNK_SIZE, prefetch=True)
+class OptimizedMultilingualDataset:
+    """
+    Creates multiple independent ChunkedStreamingDatasets (one per language pair).
+    This guarantees that loading a chunk of 2000 items only touches 1-2 Parquet files.
+    Eliminates I/O thrashing and cloud disk speed throttling!
+    """
+    def __init__(self, grouped_meta, chunk_size=2000):
+        self.datasets = []
+        self.dataset_lengths = []
+        self.index_map = []
+        self.pair_names = []
+        
+        print("\nBuilding Independent Cache Streams per Language Pair:")
+        for pair_name, meta_list in sorted(grouped_meta.items()):
+            if not meta_list: continue
+            
+            chunked_ds = ChunkedStreamingDataset(meta_list, chunk_size=chunk_size, prefetch=True)
+            ds_idx = len(self.datasets)
+            self.datasets.append(chunked_ds)
+            self.dataset_lengths.append(len(meta_list))
+            self.pair_names.append(pair_name)
+            
+            for local_idx in range(len(meta_list)):
+                self.index_map.append((ds_idx, local_idx))
+                
+            print(f"  ✓ {pair_name:<15} cache active ({len(meta_list)} samples)")
+                
+    def __len__(self): return len(self.index_map)
+    def __getitem__(self, idx):
+        if isinstance(idx, slice): return [self[i] for i in range(*idx.indices(len(self)))]
+        ds_idx, local_idx = self.index_map[idx]
+        return self.datasets[ds_idx][local_idx]
+
+grouped_metadata = load_grouped_metadata(max_fleurs=4000)
+ft_samples = OptimizedMultilingualDataset(grouped_metadata, chunk_size=CHUNK_SIZE)
 N_TRAIN = len(ft_samples)
-print(f'\n✓ ft_samples Phase 6: {N_TRAIN} perfectly mixed samples ready for Training.')
+print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples optimized for Lightning I/O.')
 ```
 
 ---
@@ -5541,16 +5542,15 @@ print("Deleting models/")
 ## Cell 95 — `code`
 
 ```python
-# ── Cell E: Phase 6 — Bengali Recovery Training (Flawless Iteration & Resume) ────────────
+# ── Cell E: Phase 6 — Bengali Recovery Training (Fast I/O & Flawless Resume) ────
 import bitsandbytes as bnb
 from transformers import get_cosine_schedule_with_warmup
 import math, time, random, gc, queue, threading, glob, os
-import concurrent.futures
 
 # ── Hyperparameters ────────────────────────────────────────────────────────────
 BATCH_SIZE    = 4
 GRAD_ACCUM    = 8       # effective batch = 32
-LR_BACKBONE   = 2e-5    # Reduced slightly for safety due to previous INF gradients
+LR_BACKBONE   = 2e-5    
 WEIGHT_DECAY  = 1e-2
 MAX_EPOCHS    = 8
 EVAL_STEPS    = 500
@@ -5563,7 +5563,6 @@ WARMUP_STEPS    = min(500, int(TOTAL_STEPS * 0.03))
 print(f"Samples       : {len(ft_samples)}")
 print(f"Steps/epoch   : {STEPS_PER_EPOCH}")
 print(f"Total steps   : {TOTAL_STEPS}")
-print(f"Warmup steps  : {WARMUP_STEPS}")
 print(f"Effective batch: {BATCH_SIZE * GRAD_ACCUM}")
 
 if any('bridge' in n for n, _ in student.named_parameters()):
@@ -6383,9 +6382,49 @@ print("optimizer, scheduler, scaler ready")
 ```python
 all_trainable = [p for g in param_groups for p in g['params']]
 print(f"\n{'='*60}")
-print(f"Phase 6 — Bengali Recovery Training (No Bridges, AMP Safe)")
+print(f"Phase 6 — Bengali Recovery Training (Fast I/O & Mixed Batches)")
 print(f"Total steps: {TOTAL_STEPS}  |  LR backbone: {LR_BACKBONE:.1e}")
 print(f"{'='*60}\n")
+
+def balanced_multilingual_shuffle(dataset_lengths, chunk_size, batch_size, seed):
+    """
+    Creates a perfect batch mix by round-robining across the 6 independent language streams.
+    Guarantees heterogeneous batches (No CE Spikes) while maintaining sequential chunk reads (Fast I/O).
+    """
+    random.seed(seed)
+    offsets = [0]
+    for l in dataset_lengths[:-1]: offsets.append(offsets[-1] + l)
+        
+    ds_indices = []
+    for ds_len in dataset_lengths:
+        chunks = list(range(0, ds_len, chunk_size))
+        random.shuffle(chunks)
+        order = []
+        for c_start in chunks:
+            c_idx = list(range(c_start, min(c_start + chunk_size, ds_len)))
+            random.shuffle(c_idx)
+            order.extend(c_idx)
+        ds_indices.append(order)
+        
+    all_batches = []
+    ptrs = [0] * len(dataset_lengths)
+    active = list(range(len(dataset_lengths)))
+    
+    while active:
+        batch = []
+        random.shuffle(active)
+        for _ in range(batch_size):
+            if not active: break
+            ds_idx = active[len(batch) % len(active)]
+            local_idx = ds_indices[ds_idx][ptrs[ds_idx]]
+            batch.append(offsets[ds_idx] + local_idx)
+            
+            ptrs[ds_idx] += 1
+            if ptrs[ds_idx] >= dataset_lengths[ds_idx]:
+                active.remove(ds_idx)
+        if batch: all_batches.append(batch)
+            
+    return [idx for b in all_batches for idx in b]
 
 class BatchPrefetcher:
     def __init__(self, dataset, indices, batch_size, collate_fn, prefetch_size=4):
@@ -6432,15 +6471,12 @@ def run_phase6():
     opt_step      = 0
     train_history = {'step': [], 'ce': [], 'kd': [], 'lr': [], 'eval_step': [], 'eval_text': [], 'eval_asr': []}
 
-    # ── Smart Resume Logic: Scan for latest step across BOTH ft and best ──
     all_ckpts = glob.glob(f'{CKPT_DIR}/phase6_ft_step*.pt') + glob.glob(f'{CKPT_DIR}/phase6_best_step*.pt')
     p6_ckpt = None
     if all_ckpts:
         latest_file = max(all_ckpts, key=lambda f: int(f.split('_step')[-1].split('.pt')[0]))
         print(f"\n  [ckpt] Smart Scanner found latest checkpoint: {os.path.basename(latest_file)}")
         p6_ckpt = torch.load(latest_file, map_location='cpu', weights_only=False)
-    else:
-        print("\n  [ckpt] No Phase 6 checkpoint found. Starting fresh.")
 
     if p6_ckpt:
         student.load_state_dict(p6_ckpt['model_state'], strict=False)
@@ -6454,15 +6490,9 @@ def run_phase6():
         print(f"  ✓ Resumed Phase 6 at step {opt_step}  best_chrf={best_chrf:.2f}")
         del p6_ckpt; free_cpu_ram()
 
-        # ─── Delete loaded p6 ckpt on session storage ──────────────────────────────────────────────
-        subprocess.run(f"rm -rf {CKPT_DIR}/phase6* ", shell=True)
-        print("  🧹 Swept local storage (deleted phase 6 checkpoints).")
-        # ───────────────────────────────────────────────────────────────────────
-
     start_epoch      = opt_step // STEPS_PER_EPOCH
     batches_to_skip  = (opt_step % STEPS_PER_EPOCH) * GRAD_ACCUM
     step_times       = []
-    executor         = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 
     for epoch in range(start_epoch, MAX_EPOCHS):
         current_alpha = get_kd_alpha(epoch)
@@ -6470,9 +6500,8 @@ def run_phase6():
         accum = 0
         optimizer.zero_grad(set_to_none=True)
 
-        random.seed(epoch + 300)
-        all_idx = chunk_friendly_shuffle(len(ft_samples), CHUNK_SIZE, BATCH_SIZE)
-        random.seed(42)
+        # Uses the new intelligent shuffle
+        all_idx = balanced_multilingual_shuffle(ft_samples.dataset_lengths, CHUNK_SIZE, BATCH_SIZE, seed=epoch+300)
 
         batches_processed_in_epoch = 0
         if epoch == start_epoch and batches_to_skip > 0:
@@ -6497,25 +6526,15 @@ def run_phase6():
             if batch is None: continue
 
             t0 = time.time()
-            res_t, res_s = {}, {}
 
-            def _t_task():
-                try: res_t['v'], res_t['i'] = teacher_topk_direct(batch['feat'], batch['dec_full'])
-                except Exception as e: res_t['e'] = str(e)
-
-            def _s_task():
-                try: res_s['s'] = student_logits_gpu(batch['feat'], batch['dec_s'])
-                except Exception as e: res_s['e'] = str(e)
-
-            future_t = executor.submit(_t_task)
-            future_s = executor.submit(_s_task)
-            concurrent.futures.wait([future_t, future_s])
-
-            if 'e' in res_t or 'e' in res_s:
-                del batch, res_t, res_s; torch.cuda.empty_cache(); gc.collect()
+            # SEQUENTIAL FORWARD PASS (Removes Python Thread/GIL blocking, executes much faster natively)
+            try: 
+                topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
+                s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
+            except Exception as e:
+                del batch; torch.cuda.empty_cache(); gc.collect()
                 continue
 
-            topk_vals, topk_idx, s_log = res_t['v'], res_t['i'], res_s['s']
             L = batch['labels_s'].shape[1]
             topk_vals = topk_vals[:, :L, :].contiguous()
             topk_idx  = topk_idx[:, :L, :].contiguous()
@@ -6527,13 +6546,13 @@ def run_phase6():
                 loss, ce_v, kd_v = compute_recovery_loss_gpu(s_log, labels_dev, topk_vals, topk_idx, alpha=current_alpha, tgt_langs=tgt_langs)
                 scaler.scale(loss / GRAD_ACCUM).backward()
             except torch.cuda.OutOfMemoryError:
-                del batch, res_t, res_s, topk_vals, topk_idx, s_log, labels_dev; torch.cuda.empty_cache(); gc.collect(); free_cpu_ram()
+                del batch, topk_vals, topk_idx, s_log, labels_dev; torch.cuda.empty_cache(); gc.collect(); free_cpu_ram()
                 continue
             except Exception as e:
-                del batch, res_t, res_s, topk_vals, topk_idx, s_log, labels_dev; torch.cuda.empty_cache(); gc.collect()
+                del batch, topk_vals, topk_idx, s_log, labels_dev; torch.cuda.empty_cache(); gc.collect()
                 continue
 
-            del res_t, res_s, topk_vals, topk_idx, s_log, labels_dev, loss
+            del topk_vals, topk_idx, s_log, labels_dev, loss, batch
             ep_ce += ce_v; ep_kd += kd_v; ep_n += 1; accum += 1
 
             if accum >= GRAD_ACCUM:
@@ -6543,7 +6562,7 @@ def run_phase6():
                 if math.isinf(grad_norm) or math.isnan(grad_norm):
                     print(f"  [AMP Safeguard] Step {opt_step} skipped. Inf/NaN grad norm detected.")
                     optimizer.zero_grad(set_to_none=True)
-                    scaler.update() # Update scaler to drop multiplier, but skip optimizer/scheduler step
+                    scaler.update()
                     accum = 0
                     continue
 
@@ -6591,17 +6610,14 @@ def run_phase6():
                         print(f"  patience={patience_left}/30")
                         if patience_left <= 0:
                             print("\n  Early stop triggered.")
-                            executor.shutdown(wait=False)
                             return opt_step, best_chrf, train_history
 
+                    # Flawless Resume: Accurately spin up a new prefetcher bypassing the spent batches
                     prefetcher = BatchPrefetcher(ft_samples, all_idx[batches_processed_in_epoch * BATCH_SIZE:], BATCH_SIZE, collate_s2t_batch)
-
-            del batch
 
         prefetcher.stop()
         print(f"  Epoch {epoch+1} done | {(time.time()-t_epoch)/60:.1f} min")
 
-    executor.shutdown(wait=False)
     return opt_step, best_chrf, train_history
 
 final_step, final_score, p6_history = run_phase6()
