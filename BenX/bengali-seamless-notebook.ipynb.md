@@ -162,12 +162,12 @@ print('All packages installed.')
 
 **[stdout]**
 ```
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 33.6 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.1/84.1 kB 5.8 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.8/100.8 kB 7.8 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 91.0 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 kB 9.5 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 788.2/788.2 kB 44.3 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 10.5 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.1/84.1 kB 5.1 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.8/100.8 kB 7.4 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 46.1 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 kB 11.1 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 788.2/788.2 kB 46.3 MB/s eta 0:00:00
 All packages installed.
 ```
 
@@ -1536,7 +1536,7 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 **[stdout]**
 ```
 [ckpt] Syncing from rclone remote...
-[ckpt] 13 file(s) available
+[ckpt] 12 file(s) available
   all_detailed_summaries_step000000.pt                        0.0 MB
   all_summaries_step000000.pt                                 0.0 MB
   phase0_benchmark_step000000.pt                              0.1 MB
@@ -1548,11 +1548,10 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
   phase4_benchmark_step000000.pt                              0.1 MB
   phase4_dec_pruning_step000000.pt                            0.0 MB
   phase5_benchmark_step000000.pt                              0.1 MB
-  phase6_ft_step009000.pt                                  5837.8 MB
   phase6_ft_step009500.pt                                  5837.8 MB
 =================================================================
-  Platform : kaggle   Time : 2026-05-27 13:55
-  Checkpoint files: 13
+  Platform : kaggle   Time : 2026-05-27 14:21
+  Checkpoint files: 12
     all_detailed_summaries_step000000.pt                    0.0 MB
     all_summaries_step000000.pt                             0.0 MB
     phase0_benchmark_step000000.pt                          0.1 MB
@@ -1564,7 +1563,6 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
     phase4_benchmark_step000000.pt                          0.1 MB
     phase4_dec_pruning_step000000.pt                        0.0 MB
     phase5_benchmark_step000000.pt                          0.1 MB
-    phase6_ft_step009000.pt                              5837.8 MB
     phase6_ft_step009500.pt                              5837.8 MB
   GPU: Tesla T4  VRAM: 15.6 GB
 =================================================================
@@ -2341,7 +2339,7 @@ By Target Language:
      ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
      HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
 ================================================================================
-[rclone] 2026/05/27 13:56:04 -     1.581 KiB / 1.581 KiB, 100%, 1.580 KiB/s, ETA 0s
+[rclone] 2026/05/27 14:21:54 -     1.581 KiB / 1.581 KiB, 100%, 1.580 KiB/s, ETA 0s
 [fig] Saved phase_comparison.png
 ```
 
@@ -2353,7 +2351,6 @@ By Target Language:
 **[stdout]**
 ```
 Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
-[rclone] 2026/05/27 13:56:06 -     2.446 KiB / 2.446 KiB, 100%, 2.445 KiB/s, ETA 0s
 ```
 
 ```
@@ -2871,7 +2868,6 @@ Loaded Phase 1 benchmark from checkpoint.
 [ckpt] Deleted old checkpoint: all_summaries_step000000.pt
 [ckpt] Saved all_summaries_step000000.pt (0.0 MB)
 [summary] Stored P1_Vocab4L (2 total)
-[ckpt] Deleted old checkpoint: all_detailed_summaries_step000000.pt
 [ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
 [detailed] Stored P1_Vocab4L
 
@@ -2905,7 +2901,13 @@ By Target Language:
   ── Quality Gate ──
   Bengali ChrF : P0=40.37  →  P1=40.37  Δ=+0.00
   ✓ Within ±1.5 — vocab trim is lossless.
-[rclone] 2026/05/27 13:56:10 -     1.769 KiB / 1.769 KiB, 100%, 1.768 KiB/s, ETA 0s
+[rclone] 
+[rclone] 2026/05/27 14:21:58 ERROR : all_detailed_summaries_step000000.pt: corrupted on transfer: md5 hashes differ src(Local file system at /kaggle/working/checkpoints) "f14da38f69e4ca84be7c5f5df6f64eec" vs dst(Google drive root 'seamTL_bengali/checkpoints') "48da2d86af26b9f1cd88a5fbd6038889"
+[rclone] 2026/05/27 14:21:58 -     2.446 KiB / 2.446 KiB, 100%, 2.445 KiB/s, ETA 0s
+[rclone] 2026/05/27 14:21:59 ERROR : Attempt 1/3 failed with 1 errors and: corrupted on transfer: md5 hashes differ src(Local file system at /kaggle/working/checkpoints) "f14da38f69e4ca84be7c5f5df6f64eec" vs dst(Google drive root 'seamTL_bengali/checkpoints') "48da2d86af26b9f1cd88a5fbd6038889"
+[rclone] 2026/05/27 14:21:59 -     2.446 KiB / 2.446 KiB, 100%, 1.223 KiB/s, ETA 0s
+[rclone] 2026/05/27 14:22:01 ERROR : Attempt 2/3 succeeded
+[rclone] 2026/05/27 14:22:01 -     5.830 KiB / 5.830 KiB, 100%, 1.457 KiB/s, ETA 0s2026/05/27 14:22:01 -     5.830 KiB / 5.830 KiB, 100%, 1.457 KiB/s, ETA 0s
 [fig] Saved phase_comparison.png
 ```
 
@@ -2927,7 +2929,6 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 **[stdout]**
 ```
   ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-[rclone] 2026/05/27 13:56:12 -     3.384 KiB / 3.384 KiB, 100%, 3.383 KiB/s, ETA 0s
 ```
 
 ```
@@ -2958,6 +2959,7 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 **[stdout]**
 ```
   ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+[rclone] 2026/05/27 14:22:04 -     1.769 KiB / 1.769 KiB, 100%, 1.768 KiB/s, ETA 0s
 ```
 
 ```
@@ -3282,7 +3284,8 @@ By Target Language:
      ENG: BLEU=  1.70  ChrF= 15.74  (n=33)
      HIN: BLEU=  0.36  ChrF=  6.06  (n=33)
 ================================================================================
-[rclone] 2026/05/27 13:56:16 -     1.956 KiB / 1.956 KiB, 100%, 0 B/s, ETA -
+[rclone] 2026/05/27 14:22:06 -           0 B / 0 B, -, 0 B/s, ETA -
+[rclone] 2026/05/27 14:22:10 -     1.956 KiB / 1.956 KiB, 100%, 1.955 KiB/s, ETA 0s
 [fig] Saved phase_comparison.png
 ```
 
@@ -3294,7 +3297,6 @@ By Target Language:
 **[stdout]**
 ```
 Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L']
-[rclone] 2026/05/27 13:56:18 -     4.321 KiB / 4.321 KiB, 100%, 4.320 KiB/s, ETA 0s
 ```
 
 ```
@@ -3335,6 +3337,7 @@ Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_
 **[stdout]**
 ```
   ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+[rclone] 2026/05/27 14:22:14 -     4.321 KiB / 4.321 KiB, 100%, 4.320 KiB/s, ETA 0s
 ```
 
 ```
@@ -3594,7 +3597,7 @@ Frozen (vocoder): 41.91M params
 Trainable: 1014.1M / 1056.0M (96.0%)
 ✓ All trainable params fp32 — GradScaler will work correctly
   GPU0: 1.19GB alloc / 1.28GB reserved
-  GPU1: 6.62GB alloc / 6.71GB reserved
+  GPU1: 6.62GB alloc / 6.66GB reserved
 ```
 
 ---
@@ -4098,7 +4101,7 @@ gpu_mem()
 
 VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32
   GPU0: 1.19GB alloc / 1.28GB reserved
-  GPU1: 6.62GB alloc / 6.71GB reserved
+  GPU1: 6.62GB alloc / 6.66GB reserved
 ```
 
 ---
@@ -4548,40 +4551,75 @@ print(f'  Teacher top-k={TOP_K_TEACHER}  T={KD_TEMPERATURE}')
 **[stdout]**
 ```
 Collecting bitsandbytes
+
   Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl.metadata (10 kB)
+
 Requirement already satisfied: torch<3,>=2.3 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.10.0+cu128)
+
 Requirement already satisfied: numpy>=1.17 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.0.2)
+
 Requirement already satisfied: packaging>=20.9 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (26.0)
+
 Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.24.3)
+
 Requirement already satisfied: typing-extensions>=4.10.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (4.15.0)
+
 Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (75.2.0)
+
 Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.14.0)
+
 Requirement already satisfied: networkx>=2.5.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.1)
+
 Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.1.6)
+
 Requirement already satisfied: fsspec>=0.8.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2026.2.0)
+
 Requirement already satisfied: cuda-bindings==12.9.4 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.9.4)
+
 Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
+
 Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+
 Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+
 Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (9.10.2.21)
+
 Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.4.1)
+
 Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.3.3.83)
+
 Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (10.3.9.90)
+
 Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.7.3.90)
+
 Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.5.8.93)
+
 Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (0.7.1)
+
 Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2.27.5)
+
 Requirement already satisfied: nvidia-nvshmem-cu12==3.4.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.4.5)
+
 Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+
 Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
+
 Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.13.1.3)
+
 Requirement already satisfied: triton==3.6.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.0)
+
 Requirement already satisfied: cuda-pathfinder~=1.1 in /usr/local/lib/python3.12/dist-packages (from cuda-bindings==12.9.4->torch<3,>=2.3->bitsandbytes) (1.3.5)
+
 Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy>=1.13.3->torch<3,>=2.3->bitsandbytes) (1.3.0)
+
 Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2->torch<3,>=2.3->bitsandbytes) (3.0.3)
+
 Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl (60.7 MB)
-[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m60.7/60.7 MB[0m [31m31.0 MB/s[0m eta [36m0:00:00[0m:00:01[0m00:01[0m
+
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m60.7/60.7 MB[0m [31m25.5 MB/s[0m eta [36m0:00:00[0m
+
 [?25hInstalling collected packages: bitsandbytes
+
 Successfully installed bitsandbytes-0.49.2
 ```
 
@@ -5127,7 +5165,7 @@ By Target Language:
   eng→ben             BLEU: Teacher=11.58  Student=3.99  Δ=-7.59   |  ChrF: Teacher=48.11  Student=29.40  Δ=-18.71 
   hin→ben             BLEU: Teacher=7.08  Student=3.91  Δ=-3.17   |  ChrF: Teacher=38.87  Student=29.12  Δ=-9.74 
 ==================================================
-[rclone] 2026/05/27 13:58:02 -     2.144 KiB / 2.144 KiB, 100%, 2.143 KiB/s, ETA 0s
+[rclone] 2026/05/27 14:26:05 -     2.144 KiB / 2.144 KiB, 100%, 1.071 KiB/s, ETA 0s
 [fig] Saved phase_comparison.png
 ```
 
@@ -5139,7 +5177,6 @@ By Target Language:
 **[stdout]**
 ```
 Plotting detailed comparison for 4 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L', 'P5_FullFT']
-[rclone] 2026/05/27 13:58:03 -     5.259 KiB / 5.259 KiB, 100%, 0 B/s, ETA -
 ```
 
 ```
@@ -5180,6 +5217,7 @@ Plotting detailed comparison for 4 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_
 **[stdout]**
 ```
   ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+[rclone] 2026/05/27 14:26:08 -     5.259 KiB / 5.259 KiB, 100%, 5.258 KiB/s, ETA 0s
 ```
 
 ```
@@ -6549,17 +6587,17 @@ Loading pseudo-label metadata from /kaggle/input/datasets/rayedriasat/cv25-pseud
   [Pseudo] Successfully loaded 116107 entries.
 
 Building Independent Cache Streams per Language Pair:
-  ChunkedStreamingDataset: 26249 samples | chunk=4000
+  ChunkedStreamingDataset: 26249 samples | chunk=2000
   ✓ arb→ben         cache active (26249 samples)
-  ChunkedStreamingDataset: 16250 samples | chunk=4000
+  ChunkedStreamingDataset: 16250 samples | chunk=2000
   ✓ ben→arb         cache active (16250 samples)
-  ChunkedStreamingDataset: 21449 samples | chunk=4000
+  ChunkedStreamingDataset: 21449 samples | chunk=2000
   ✓ ben→eng         cache active (21449 samples)
-  ChunkedStreamingDataset: 16288 samples | chunk=4000
+  ChunkedStreamingDataset: 16288 samples | chunk=2000
   ✓ ben→hin         cache active (16288 samples)
-  ChunkedStreamingDataset: 31449 samples | chunk=4000
+  ChunkedStreamingDataset: 31449 samples | chunk=2000
   ✓ eng→ben         cache active (31449 samples)
-  ChunkedStreamingDataset: 12396 samples | chunk=4000
+  ChunkedStreamingDataset: 12396 samples | chunk=2000
   ✓ hin→ben         cache active (12396 samples)
 
 ✓ ft_samples Phase 6: 124081 samples optimized for Lightning I/O.
@@ -6909,7 +6947,7 @@ Deleting models/
 
 **[stdout]**
 ```
-audio  checkpoints  cv25_raw  figures  pseudo_cv25
+audio  checkpoints  cv25_raw  figures  __notebook__.ipynb  pseudo_cv25
 ```
 
 ---
@@ -8031,6 +8069,33 @@ Total steps: 31024  |  LR backbone: 2.0e-05
 
   [ckpt] Smart Scanner found latest checkpoint: phase6_ft_step009500.pt
   ✓ Resumed Phase 6 at step 9500  best_chrf=32.86
+
+  Phase 6 — Epoch 3/8  |  KD_alpha=0.25  |  LR_peak=2.0e-05
+  P6 step  9520/31024 | CE=3.9999 KD=1.0971 | α=0.25 | lr=1.6e-05 | ETA=232min
+  P6 step  9540/31024 | CE=4.1066 KD=1.1378 | α=0.25 | lr=1.6e-05 | ETA=363min
+  P6 step  9560/31024 | CE=4.0659 KD=1.1236 | α=0.25 | lr=1.6e-05 | ETA=338min
+  P6 step  9580/31024 | CE=4.0832 KD=1.1215 | α=0.25 | lr=1.6e-05 | ETA=403min
+  P6 step  9600/31024 | CE=4.1502 KD=1.1246 | α=0.25 | lr=1.6e-05 | ETA=431min
+  P6 step  9620/31024 | CE=4.1116 KD=1.0890 | α=0.25 | lr=1.6e-05 | ETA=401min
+  P6 step  9640/31024 | CE=4.3173 KD=1.0962 | α=0.25 | lr=1.6e-05 | ETA=400min
+  P6 step  9660/31024 | CE=4.5848 KD=1.1456 | α=0.25 | lr=1.6e-05 | ETA=382min
+  P6 step  9680/31024 | CE=4.5247 KD=1.1480 | α=0.25 | lr=1.6e-05 | ETA=422min
+  P6 step  9700/31024 | CE=4.4593 KD=1.1099 | α=0.25 | lr=1.6e-05 | ETA=414min
+  P6 step  9720/31024 | CE=4.3304 KD=1.1025 | α=0.25 | lr=1.6e-05 | ETA=405min
+  P6 step  9740/31024 | CE=4.3677 KD=1.0979 | α=0.25 | lr=1.6e-05 | ETA=419min
+  P6 step  9760/31024 | CE=4.3243 KD=1.1072 | α=0.25 | lr=1.6e-05 | ETA=411min
+  P6 step  9780/31024 | CE=4.2393 KD=1.1166 | α=0.25 | lr=1.6e-05 | ETA=407min
+  P6 step  9800/31024 | CE=4.3512 KD=1.1032 | α=0.25 | lr=1.6e-05 | ETA=402min
+  P6 step  9820/31024 | CE=4.2523 KD=1.1065 | α=0.25 | lr=1.6e-05 | ETA=397min
+  P6 step  9840/31024 | CE=4.1709 KD=1.1229 | α=0.25 | lr=1.6e-05 | ETA=388min
+  P6 step  9860/31024 | CE=4.2574 KD=1.0935 | α=0.25 | lr=1.6e-05 | ETA=395min
+  P6 step  9880/31024 | CE=4.2152 KD=1.1110 | α=0.25 | lr=1.6e-05 | ETA=391min
+  P6 step  9900/31024 | CE=4.3124 KD=1.1023 | α=0.25 | lr=1.6e-05 | ETA=385min
+  P6 step  9920/31024 | CE=4.2789 KD=1.0844 | α=0.25 | lr=1.6e-05 | ETA=388min
+  P6 step  9940/31024 | CE=4.3704 KD=1.0739 | α=0.25 | lr=1.6e-05 | ETA=378min
+  P6 step  9960/31024 | CE=4.2671 KD=1.1115 | α=0.25 | lr=1.6e-05 | ETA=376min
+  P6 step  9980/31024 | CE=4.3122 KD=1.1152 | α=0.25 | lr=1.6e-05 | ETA=359min
+  P6 step 10000/31024 | CE=4.2662 KD=1.1143 | α=0.25 | lr=1.6e-05 | ETA=344min
   [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
 [MMS-ASR] Loading lang=ben...
 ```
@@ -8071,54 +8136,149 @@ adapter.ben.safetensors:   0%|          | 0.00/9.34M [00:00<?, ?B/s]
 ```
   [ASR] Offloaded models to CPU to clear VRAM for training.
 ✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
-First Resume eval → Text ChrF: 31.96 | ASR ChrF: 30.31
 
-  Phase 6 — Epoch 3/8  |  KD_alpha=0.25  |  LR_peak=2.0e-05
-  P6 step  9520/31024 | CE=4.6747 KD=1.1319 | α=0.25 | lr=1.6e-05 | ETA=1048min
-  P6 step  9540/31024 | CE=4.5182 KD=1.1076 | α=0.25 | lr=1.6e-05 | ETA=839min
-  P6 step  9560/31024 | CE=4.5604 KD=1.1048 | α=0.25 | lr=1.6e-05 | ETA=740min
-  P6 step  9580/31024 | CE=4.5873 KD=1.1133 | α=0.25 | lr=1.6e-05 | ETA=648min
-```
+  ★ P6 step 10000 → Text=31.52  ASR=29.70  [score=29.70]
+[ckpt] Deleted old checkpoint: phase6_ft_step009500.pt
+[ckpt] Saved phase6_ft_step010000.pt (5837.8 MB)
+  patience=29/30
+  P6 step 10020/31024 | CE=4.3679 KD=1.1281 | α=0.25 | lr=1.6e-05 | ETA=348min
+[rclone] 2026/05/27 15:30:08 -   296.652 MiB / 5.437 GiB, 5%, 29.465 MiB/s, ETA 2m58s2026/05/27 15:30:18 -       640 MiB / 5.437 GiB, 11%, 33.484 MiB/s, ETA 2m27s2026/05/27 15:30:28 -     1.045 GiB / 5.437 GiB, 19%, 36.152 MiB/s, ETA 2m4s2026/05/27 15:30:38 -     1.408 GiB / 5.437 GiB, 26%, 36.467 MiB/s, ETA 1m53s2026/05/27 15:30:48 -     1.750 GiB / 5.437 GiB, 32%, 36.541 MiB/s, ETA 1m43s2026/05/27 15:30:58 -     2.170 GiB / 5.437 GiB, 40%, 38.729 MiB/s, ETA 1m26s2026/05/27 15:31:08 -     2.545 GiB / 5.437 GiB, 47%, 38.618 MiB/s, ETA 1m16s2026/05/27 15:31:18 -     2.894 GiB / 5.437 GiB, 53%, 37.234 MiB/s, ETA 1m9s2026/05/27 15:31:28 -     3.176 GiB / 5.437 GiB, 58%, 33.364 MiB/s, ETA 1m9s2026/05/27 15:31:38 -     3.423 GiB / 5.437 GiB, 63%, 29.817 MiB/s, ETA 1m9s2026/05/27 15:31:48 -     3.678 GiB / 5.437 GiB, 68%, 27.788 MiB/s, ETA 1m4s2026/05/27 15:31:58 -     3.938 GiB / 5.437 GiB, 72%, 27.720 MiB/s, ETA 55s2026/05/27 15:32:08 -     4.293 GiB / 5.437 GiB, 79%, 31.188 MiB/s, ETA 37s2026/05/27 15:32:18 -     4.679 GiB / 5.437 GiB, 86%, 34.799 MiB/s, ETA 22s2026/05/27 15:32:28 -     4.993 GiB / 5.437 GiB, 92%, 33.494 MiB/s, ETA 13s2026/05/27 15:32:38 -     5.357 GiB / 5.437 GiB, 99%, 34.103 MiB/s, ETA 2s2026/05/27 15:32:42 -     5.437 GiB / 5.437 GiB, 100%, 33.286 MiB/s, ETA 0s
+  P6 step 10040/31024 | CE=4.3896 KD=1.1161 | α=0.25 | lr=1.6e-05 | ETA=357min
+  P6 step 10060/31024 | CE=4.5256 KD=1.1279 | α=0.25 | lr=1.6e-05 | ETA=359min
+  P6 step 10080/31024 | CE=4.2089 KD=1.1146 | α=0.25 | lr=1.6e-05 | ETA=344min
+  P6 step 10100/31024 | CE=4.1774 KD=1.0955 | α=0.25 | lr=1.6e-05 | ETA=342min
+  P6 step 10120/31024 | CE=4.1360 KD=1.1198 | α=0.25 | lr=1.5e-05 | ETA=339min
+  P6 step 10140/31024 | CE=4.1808 KD=1.1028 | α=0.25 | lr=1.5e-05 | ETA=325min
+  P6 step 10160/31024 | CE=4.0978 KD=1.0607 | α=0.25 | lr=1.5e-05 | ETA=328min
+  P6 step 10180/31024 | CE=4.2077 KD=1.1076 | α=0.25 | lr=1.5e-05 | ETA=327min
+  P6 step 10200/31024 | CE=4.2038 KD=1.1079 | α=0.25 | lr=1.5e-05 | ETA=324min
+  P6 step 10220/31024 | CE=4.2324 KD=1.1030 | α=0.25 | lr=1.5e-05 | ETA=319min
+  P6 step 10240/31024 | CE=4.1300 KD=1.1247 | α=0.25 | lr=1.5e-05 | ETA=326min
+  P6 step 10260/31024 | CE=4.1348 KD=1.0935 | α=0.25 | lr=1.5e-05 | ETA=322min
+  P6 step 10280/31024 | CE=4.0663 KD=1.0708 | α=0.25 | lr=1.5e-05 | ETA=321min
+  P6 step 10300/31024 | CE=4.1563 KD=1.0920 | α=0.25 | lr=1.5e-05 | ETA=324min
+  P6 step 10320/31024 | CE=4.0857 KD=1.0950 | α=0.25 | lr=1.5e-05 | ETA=346min
+  P6 step 10340/31024 | CE=4.0973 KD=1.0885 | α=0.25 | lr=1.5e-05 | ETA=350min
+  P6 step 10360/31024 | CE=4.4370 KD=1.1052 | α=0.25 | lr=1.5e-05 | ETA=350min
+  P6 step 10380/31024 | CE=4.4052 KD=1.0896 | α=0.25 | lr=1.5e-05 | ETA=354min
+  P6 step 10400/31024 | CE=4.5659 KD=1.0844 | α=0.25 | lr=1.5e-05 | ETA=358min
+  P6 step 10420/31024 | CE=4.5434 KD=1.1047 | α=0.25 | lr=1.5e-05 | ETA=355min
+  P6 step 10440/31024 | CE=4.4340 KD=1.0703 | α=0.25 | lr=1.5e-05 | ETA=340min
+  P6 step 10460/31024 | CE=4.6765 KD=1.0968 | α=0.25 | lr=1.5e-05 | ETA=348min
+  P6 step 10480/31024 | CE=4.2359 KD=1.0960 | α=0.25 | lr=1.5e-05 | ETA=342min
+  P6 step 10500/31024 | CE=4.4225 KD=1.0919 | α=0.25 | lr=1.5e-05 | ETA=345min
+  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
+  [ASR] Offloaded models to CPU to clear VRAM for training.
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
 
-**[ERROR]** `KeyboardInterrupt: `
-```
----------------------------------------------------------------------------
-KeyboardInterrupt                         Traceback (most recent call last)
-/tmp/ipykernel_57/1941859161.py in <cell line: 0>()
-    242     return opt_step, best_chrf, train_history
-    243 
---> 244 final_step, final_score, p6_history = run_phase6()
-    245 print(f"\n✓ Phase 6 complete. Best score: {final_score:.2f} at step {final_step}")
+  ★ P6 step 10500 → Text=32.36  ASR=30.51  [score=30.51]
+[ckpt] Deleted old checkpoint: phase6_ft_step010000.pt
+[ckpt] Saved phase6_ft_step010500.pt (5837.8 MB)
+  patience=28/30
+  P6 step 10520/31024 | CE=4.3044 KD=1.1093 | α=0.25 | lr=1.5e-05 | ETA=346min
+[rclone] 2026/05/27 16:25:56 -   356.465 MiB / 5.437 GiB, 6%, 35.556 MiB/s, ETA 2m26s2026/05/27 16:26:06 -   730.809 MiB / 5.437 GiB, 13%, 36.969 MiB/s, ETA 2m10s2026/05/27 16:26:16 -     1.108 GiB / 5.437 GiB, 20%, 37.633 MiB/s, ETA 1m57s2026/05/27 16:26:26 -     1.540 GiB / 5.437 GiB, 28%, 40.777 MiB/s, ETA 1m37s2026/05/27 16:26:36 -     1.938 GiB / 5.437 GiB, 36%, 41.126 MiB/s, ETA 1m27s2026/05/27 16:26:46 -     2.358 GiB / 5.437 GiB, 43%, 40.473 MiB/s, ETA 1m17s2026/05/27 16:26:56 -     2.778 GiB / 5.437 GiB, 51%, 42.289 MiB/s, ETA 1m4s2026/05/27 16:27:06 -     3.188 GiB / 5.437 GiB, 59%, 43.444 MiB/s, ETA 53s2026/05/27 16:27:16 -     3.536 GiB / 5.437 GiB, 65%, 38.188 MiB/s, ETA 50s2026/05/27 16:27:26 -     3.827 GiB / 5.437 GiB, 70%, 35.014 MiB/s, ETA 47s2026/05/27 16:27:36 -     4.188 GiB / 5.437 GiB, 77%, 35.800 MiB/s, ETA 35s2026/05/27 16:27:46 -     4.562 GiB / 5.437 GiB, 84%, 38.046 MiB/s, ETA 23s2026/05/27 16:27:56 -     4.938 GiB / 5.437 GiB, 91%, 37.965 MiB/s, ETA 13s2026/05/27 16:28:06 -     5.375 GiB / 5.437 GiB, 99%, 40.182 MiB/s, ETA 1s2026/05/27 16:28:09 -     5.437 GiB / 5.437 GiB, 100%, 39.300 MiB/s, ETA 0s
+  P6 step 10540/31024 | CE=4.4255 KD=1.1031 | α=0.25 | lr=1.5e-05 | ETA=343min
+  P6 step 10560/31024 | CE=4.5361 KD=1.0993 | α=0.25 | lr=1.5e-05 | ETA=339min
+  P6 step 10580/31024 | CE=4.6004 KD=1.1243 | α=0.25 | lr=1.5e-05 | ETA=341min
+  P6 step 10600/31024 | CE=4.4367 KD=1.0990 | α=0.25 | lr=1.5e-05 | ETA=341min
+  P6 step 10620/31024 | CE=4.5550 KD=1.1090 | α=0.25 | lr=1.5e-05 | ETA=345min
+  P6 step 10640/31024 | CE=4.5023 KD=1.0852 | α=0.25 | lr=1.5e-05 | ETA=338min
+  P6 step 10660/31024 | CE=4.4393 KD=1.1024 | α=0.25 | lr=1.5e-05 | ETA=328min
+  P6 step 10680/31024 | CE=4.1428 KD=1.1465 | α=0.25 | lr=1.5e-05 | ETA=324min
+  P6 step 10700/31024 | CE=4.4822 KD=1.1890 | α=0.25 | lr=1.5e-05 | ETA=323min
+  P6 step 10720/31024 | CE=4.5502 KD=1.1324 | α=0.25 | lr=1.5e-05 | ETA=301min
+  P6 step 10740/31024 | CE=4.4542 KD=1.1581 | α=0.25 | lr=1.5e-05 | ETA=294min
+  P6 step 10760/31024 | CE=4.3666 KD=1.1629 | α=0.25 | lr=1.5e-05 | ETA=292min
+  P6 step 10780/31024 | CE=4.3832 KD=1.1669 | α=0.25 | lr=1.5e-05 | ETA=286min
+  P6 step 10800/31024 | CE=4.4680 KD=1.2151 | α=0.25 | lr=1.5e-05 | ETA=281min
+  P6 step 10820/31024 | CE=4.3642 KD=1.1799 | α=0.25 | lr=1.5e-05 | ETA=281min
+  P6 step 10840/31024 | CE=4.2835 KD=1.1608 | α=0.25 | lr=1.5e-05 | ETA=279min
+  P6 step 10860/31024 | CE=4.3815 KD=1.1544 | α=0.25 | lr=1.5e-05 | ETA=267min
+  P6 step 10880/31024 | CE=4.2426 KD=1.1360 | α=0.25 | lr=1.5e-05 | ETA=264min
+  P6 step 10900/31024 | CE=4.3474 KD=1.1681 | α=0.25 | lr=1.5e-05 | ETA=258min
+  P6 step 10920/31024 | CE=4.3302 KD=1.1605 | α=0.25 | lr=1.5e-05 | ETA=258min
+  P6 step 10940/31024 | CE=4.4755 KD=1.1587 | α=0.25 | lr=1.5e-05 | ETA=257min
+  P6 step 10960/31024 | CE=4.3370 KD=1.1297 | α=0.25 | lr=1.5e-05 | ETA=253min
+  P6 step 10980/31024 | CE=4.3225 KD=1.1498 | α=0.25 | lr=1.5e-05 | ETA=244min
+  P6 step 11000/31024 | CE=4.2662 KD=1.1547 | α=0.25 | lr=1.5e-05 | ETA=242min
+  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
+  [ASR] Offloaded models to CPU to clear VRAM for training.
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
 
-/tmp/ipykernel_57/1941859161.py in run_phase6()
-    151             # SEQUENTIAL FORWARD PASS (Removes Python Thread/GIL blocking, executes much faster natively)
-    152             try:
---> 153                 topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
-    154                 s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
-    155             except Exception as e:
+  ★ P6 step 11000 → Text=35.85  ASR=34.19  [score=34.19]
+[ckpt] Saved phase6_best_step011000.pt (5837.8 MB)
+  ✓ NEW BEST score=34.19 — saved phase6_best
+  P6 step 11020/31024 | CE=4.2000 KD=1.1568 | α=0.25 | lr=1.5e-05 | ETA=242min
+[rclone] 2026/05/27 17:11:01 -   330.059 MiB / 5.437 GiB, 6%, 34.291 MiB/s, ETA 2m32s2026/05/27 17:11:11 -       768 MiB / 5.437 GiB, 14%, 39.882 MiB/s, ETA 2m2026/05/27 17:11:21 -     1.168 GiB / 5.437 GiB, 21%, 40.001 MiB/s, ETA 1m49s2026/05/27 17:11:31 -     1.558 GiB / 5.437 GiB, 29%, 41.426 MiB/s, ETA 1m35s2026/05/27 17:11:41 -     2.042 GiB / 5.437 GiB, 38%, 44.279 MiB/s, ETA 1m18s2026/05/27 17:11:51 -     2.482 GiB / 5.437 GiB, 46%, 45.388 MiB/s, ETA 1m6s2026/05/27 17:12:01 -     2.857 GiB / 5.437 GiB, 53%, 41.133 MiB/s, ETA 1m4s2026/05/27 17:12:11 -     3.193 GiB / 5.437 GiB, 59%, 38.851 MiB/s, ETA 59s2026/05/27 17:12:21 -     3.536 GiB / 5.437 GiB, 65%, 35.604 MiB/s, ETA 54s2026/05/27 17:12:31 -     3.832 GiB / 5.437 GiB, 70%, 33.762 MiB/s, ETA 48s2026/05/27 17:12:41 -     4.188 GiB / 5.437 GiB, 77%, 35.388 MiB/s, ETA 36s2026/05/27 17:12:51 -     4.604 GiB / 5.437 GiB, 85%, 37.399 MiB/s, ETA 22s2026/05/27 17:13:01 -     5.038 GiB / 5.437 GiB, 93%, 40.750 MiB/s, ETA 10s2026/05/27 17:13:11 -     5.437 GiB / 5.437 GiB, 100%, 42.893 MiB/s, ETA 0s2026/05/27 17:13:13 -     5.437 GiB / 5.437 GiB, 100%, 40.212 MiB/s, ETA 0s
+  P6 step 11040/31024 | CE=4.3483 KD=1.2209 | α=0.25 | lr=1.5e-05 | ETA=242min
+  P6 step 11060/31024 | CE=4.2071 KD=1.1911 | α=0.25 | lr=1.5e-05 | ETA=242min
+  P6 step 11080/31024 | CE=4.3183 KD=1.1579 | α=0.25 | lr=1.5e-05 | ETA=245min
+  P6 step 11100/31024 | CE=4.3801 KD=1.1913 | α=0.25 | lr=1.5e-05 | ETA=242min
+  P6 step 11120/31024 | CE=4.2490 KD=1.1817 | α=0.25 | lr=1.5e-05 | ETA=240min
+  P6 step 11140/31024 | CE=4.3020 KD=1.1860 | α=0.25 | lr=1.5e-05 | ETA=243min
+  P6 step 11160/31024 | CE=4.2177 KD=1.1805 | α=0.25 | lr=1.5e-05 | ETA=245min
+  P6 step 11180/31024 | CE=4.2666 KD=1.1531 | α=0.25 | lr=1.5e-05 | ETA=249min
+  P6 step 11200/31024 | CE=5.3882 KD=1.1817 | α=0.25 | lr=1.5e-05 | ETA=251min
+  P6 step 11220/31024 | CE=5.7493 KD=1.2159 | α=0.25 | lr=1.5e-05 | ETA=249min
+  P6 step 11240/31024 | CE=5.8883 KD=1.2240 | α=0.25 | lr=1.4e-05 | ETA=250min
+  P6 step 11260/31024 | CE=5.8946 KD=1.2024 | α=0.25 | lr=1.4e-05 | ETA=250min
+  P6 step 11280/31024 | CE=5.7729 KD=1.2664 | α=0.25 | lr=1.4e-05 | ETA=252min
+  P6 step 11300/31024 | CE=5.8435 KD=1.2300 | α=0.25 | lr=1.4e-05 | ETA=250min
+  P6 step 11320/31024 | CE=5.5527 KD=1.2595 | α=0.25 | lr=1.4e-05 | ETA=248min
+  P6 step 11340/31024 | CE=5.6135 KD=1.2483 | α=0.25 | lr=1.4e-05 | ETA=248min
+  P6 step 11360/31024 | CE=5.5344 KD=1.1947 | α=0.25 | lr=1.4e-05 | ETA=249min
+  P6 step 11380/31024 | CE=5.3206 KD=1.2255 | α=0.25 | lr=1.4e-05 | ETA=254min
+  P6 step 11400/31024 | CE=5.3221 KD=1.2408 | α=0.25 | lr=1.4e-05 | ETA=253min
+  P6 step 11420/31024 | CE=5.2611 KD=1.2120 | α=0.25 | lr=1.4e-05 | ETA=250min
+  P6 step 11440/31024 | CE=5.5879 KD=1.2098 | α=0.25 | lr=1.4e-05 | ETA=248min
+  P6 step 11460/31024 | CE=5.5023 KD=1.2316 | α=0.25 | lr=1.4e-05 | ETA=247min
+  P6 step 11480/31024 | CE=5.2519 KD=1.2334 | α=0.25 | lr=1.4e-05 | ETA=242min
+  P6 step 11500/31024 | CE=4.9938 KD=1.3120 | α=0.25 | lr=1.4e-05 | ETA=242min
+  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
+  [ASR] Offloaded models to CPU to clear VRAM for training.
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
 
-/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py in decorate_context(*args, **kwargs)
-    122         # pyrefly: ignore [bad-context-manager]
-    123         with ctx_factory():
---> 124             return func(*args, **kwargs)
-    125 
-    126     return decorate_context
+  ★ P6 step 11500 → Text=32.97  ASR=30.99  [score=30.99]
+[ckpt] Deleted old checkpoint: phase6_ft_step010500.pt
+[ckpt] Saved phase6_ft_step011500.pt (5837.8 MB)
+  patience=29/30
+  P6 step 11520/31024 | CE=5.0032 KD=1.2983 | α=0.25 | lr=1.4e-05 | ETA=240min
+[rclone] 2026/05/27 17:49:52 -   348.809 MiB / 5.437 GiB, 6%, 37.319 MiB/s, ETA 2m19s2026/05/27 17:50:02 -   743.902 MiB / 5.437 GiB, 13%, 38.650 MiB/s, ETA 2m4s2026/05/27 17:50:12 -     1.144 GiB / 5.437 GiB, 21%, 40.205 MiB/s, ETA 1m49s2026/05/27 17:50:22 -     1.560 GiB / 5.437 GiB, 29%, 42.077 MiB/s, ETA 1m34s2026/05/27 17:50:32 -     1.943 GiB / 5.437 GiB, 36%, 40.589 MiB/s, ETA 1m28s2026/05/27 17:50:42 -     2.419 GiB / 5.437 GiB, 44%, 44.276 MiB/s, ETA 1m9s2026/05/27 17:50:52 -     2.812 GiB / 5.437 GiB, 52%, 42.697 MiB/s, ETA 1m2s2026/05/27 17:51:02 -     3.172 GiB / 5.437 GiB, 58%, 39.406 MiB/s, ETA 58s2026/05/27 17:51:12 -     3.514 GiB / 5.437 GiB, 65%, 37.059 MiB/s, ETA 53s2026/05/27 17:51:22 -     3.864 GiB / 5.437 GiB, 71%, 36.988 MiB/s, ETA 43s2026/05/27 17:51:32 -     4.294 GiB / 5.437 GiB, 79%, 40.683 MiB/s, ETA 28s2026/05/27 17:51:42 -     4.709 GiB / 5.437 GiB, 87%, 40.787 MiB/s, ETA 18s2026/05/27 17:51:52 -     5.100 GiB / 5.437 GiB, 94%, 41.215 MiB/s, ETA 8s2026/05/27 17:52:02 -     5.437 GiB / 5.437 GiB, 100%, 37.324 MiB/s, ETA 0s2026/05/27 17:52:02 -     5.437 GiB / 5.437 GiB, 100%, 37.324 MiB/s, ETA 0s
+  P6 step 11540/31024 | CE=4.8627 KD=1.3098 | α=0.25 | lr=1.4e-05 | ETA=235min
+  P6 step 11560/31024 | CE=4.8765 KD=1.2852 | α=0.25 | lr=1.4e-05 | ETA=233min
+  P6 step 11580/31024 | CE=5.5838 KD=1.3678 | α=0.25 | lr=1.4e-05 | ETA=250min
+  P6 step 11600/31024 | CE=6.4509 KD=1.3781 | α=0.25 | lr=1.4e-05 | ETA=267min
+  P6 step 11620/31024 | CE=6.6773 KD=1.3805 | α=0.25 | lr=1.4e-05 | ETA=268min
+  Epoch 3 done | 217.7 min
 
-/tmp/ipykernel_57/3232484038.py in teacher_topk_direct(feat_cpu, dec_full_cpu, k, T)
-     15     Returns top-k probs + indices on cuda:1.
-     16     """
----> 17     feat1 = _to_dev(feat_cpu, 'cuda:1')
-     18     dec1  = dec_full_cpu.to('cuda:1')
-     19 
+  Phase 6 — Epoch 4/8  |  KD_alpha=0.25  |  LR_peak=2.0e-05
+  P6 step 11640/31024 | CE=4.7307 KD=1.1270 | α=0.25 | lr=1.4e-05 | ETA=272min
+  P6 step 11660/31024 | CE=4.4188 KD=1.1215 | α=0.25 | lr=1.4e-05 | ETA=273min
+  P6 step 11680/31024 | CE=4.4800 KD=1.1132 | α=0.25 | lr=1.4e-05 | ETA=276min
+  P6 step 11700/31024 | CE=4.4253 KD=1.0925 | α=0.25 | lr=1.4e-05 | ETA=302min
+  P6 step 11720/31024 | CE=4.3502 KD=1.1326 | α=0.25 | lr=1.4e-05 | ETA=307min
+  P6 step 11740/31024 | CE=4.4652 KD=1.1209 | α=0.25 | lr=1.4e-05 | ETA=326min
+  P6 step 11760/31024 | CE=4.4568 KD=1.1470 | α=0.25 | lr=1.4e-05 | ETA=328min
+  P6 step 11780/31024 | CE=4.3500 KD=1.1312 | α=0.25 | lr=1.4e-05 | ETA=327min
+  P6 step 11800/31024 | CE=4.3360 KD=1.1253 | α=0.25 | lr=1.4e-05 | ETA=330min
+  P6 step 11820/31024 | CE=4.4238 KD=1.1339 | α=0.25 | lr=1.4e-05 | ETA=336min
+  P6 step 11840/31024 | CE=4.3098 KD=1.1076 | α=0.25 | lr=1.4e-05 | ETA=341min
+  P6 step 11860/31024 | CE=4.3730 KD=1.1312 | α=0.25 | lr=1.4e-05 | ETA=346min
+  P6 step 11880/31024 | CE=4.4513 KD=1.1363 | α=0.25 | lr=1.4e-05 | ETA=353min
+  P6 step 11900/31024 | CE=4.4491 KD=1.1474 | α=0.25 | lr=1.4e-05 | ETA=355min
+  P6 step 11920/31024 | CE=4.4488 KD=1.1185 | α=0.25 | lr=1.4e-05 | ETA=356min
+  P6 step 11940/31024 | CE=4.4168 KD=1.1062 | α=0.25 | lr=1.4e-05 | ETA=361min
+  P6 step 11960/31024 | CE=4.4262 KD=1.1215 | α=0.25 | lr=1.4e-05 | ETA=385min
+  P6 step 11980/31024 | CE=4.3143 KD=1.1129 | α=0.25 | lr=1.4e-05 | ETA=377min
+  P6 step 12000/31024 | CE=4.4737 KD=1.1246 | α=0.25 | lr=1.4e-05 | ETA=373min
+  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
+  [ASR] Offloaded models to CPU to clear VRAM for training.
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
 
-/tmp/ipykernel_57/3232484038.py in _to_dev(batch_dict, device, dtype)
-      3 def _to_dev(batch_dict, device, dtype=torch.float16):
-      4     return {
-----> 5         k: v.to(device=device, dtype=dtype if v.is_floating_point() else v.dtype)
-      6         if isinstance(v, torch.Tensor) else v
-      7         for k, v in batch_dict.items()
-
-KeyboardInterrupt: 
+  ★ P6 step 12000 → Text=35.85  ASR=34.52  [score=34.52]
+[ckpt] Deleted old checkpoint: phase6_best_step011000.pt
+[ckpt] Saved phase6_best_step012000.pt (5837.8 MB)
+  ✓ NEW BEST score=34.52 — saved phase6_best
 ```
 
 ---
