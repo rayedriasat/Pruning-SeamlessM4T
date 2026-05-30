@@ -19,7 +19,7 @@
 
 ---
 
-## Cell 3 — `code`
+## Cell 3 — `code` (execution #1)
 
 ```python
 import os
@@ -30,7 +30,7 @@ import torch
 
 ---
 
-## Cell 4 — `code`
+## Cell 4 — `code` (execution #2)
 
 ```python
 import os, sys, subprocess, pathlib, re, glob, json, gc, copy, time, math, shutil, random
@@ -60,9 +60,17 @@ print(f'Platform : {PLATFORM}')
 print(f'Work dir : {WORK_DIR}')
 ```
 
+### Output
+
+**[stdout]**
+```
+Platform : kaggle
+Work dir : /kaggle/working
+```
+
 ---
 
-## Cell 5 — `code`
+## Cell 5 — `code` (execution #3)
 
 ```python
 if ON_COLAB:
@@ -119,9 +127,24 @@ except Exception as e:
 
 ```
 
+### Output
+
+**[stdout]**
+```
+rclone v1.74.2
+Drive root:
+           0 2026-04-17 11:03:10        -1 Colab Notebooks
+           0 2026-05-26 13:47:55        -1 Rifa Wedding files
+           0 2025-11-10 11:33:43        -1 ScholarMate
+           0 2026-04-05 12:59:09        -1 cse465
+           0 2026-04-12 12:42:04        -1 cse465v5
+           0 2026-05-1
+HuggingFace login: OK
+```
+
 ---
 
-## Cell 6 — `code`
+## Cell 6 — `code` (execution #4)
 
 ```python
 subprocess.run([
@@ -135,9 +158,36 @@ print('All packages installed.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.2/12.2 MB 90.1 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 80.3 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.1/84.1 kB 5.6 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.8/100.8 kB 7.5 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 96.5 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 kB 8.4 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 788.2/788.2 kB 43.2 MB/s eta 0:00:00
+All packages installed.
+```
+
+**[stderr]**
+```
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+dask-cuda 26.2.0 requires cuda-core==0.3.*, but you have cuda-core 1.0.1 which is incompatible.
+dask-cuda 26.2.0 requires numba-cuda<0.23.0,>=0.22.1, but you have numba-cuda 0.30.2 which is incompatible.
+distributed-ucxx-cu12 0.48.0 requires numba-cuda[cu12]<0.23.0,>=0.22.1, but you have numba-cuda 0.30.2 which is incompatible.
+cuml-cu12 26.2.0 requires numba<0.62.0,>=0.60.0, but you have numba 0.65.1 which is incompatible.
+cuml-cu12 26.2.0 requires numba-cuda[cu12]<0.23.0,>=0.22.1, but you have numba-cuda 0.30.2 which is incompatible.
+ucxx-cu12 0.48.0 requires numba-cuda[cu12]<0.23.0,>=0.22.1, but you have numba-cuda 0.30.2 which is incompatible.
+cudf-cu12 26.2.1 requires numba<0.62.0,>=0.60.0, but you have numba 0.65.1 which is incompatible.
+cudf-cu12 26.2.1 requires numba-cuda[cu12]<0.23.0,>=0.22.2, but you have numba-cuda 0.30.2 which is incompatible.
+```
+
 ---
 
-## Cell 7 — `code`
+## Cell 7 — `code` (execution #5)
 
 ```python
 import torch
@@ -155,7 +205,7 @@ torch.cuda.manual_seed_all(seed)
 
 ---
 
-## Cell 8 — `code`
+## Cell 8 — `code` (execution #6)
 
 ```python
 import torch, numpy as np, random
@@ -216,9 +266,19 @@ print('Core utilities ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+PyTorch 2.10.0+cu128 | CUDA True | GPUs 2
+  GPU0: Tesla T4  15.6 GB
+  GPU1: Tesla T4  15.6 GB
+Core utilities ready.
+```
+
 ---
 
-## Cell 9 — `code`
+## Cell 9 — `code` (execution #7)
 
 ```python
 import queue, threading
@@ -350,9 +410,16 @@ print('Checkpoint helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Checkpoint helpers ready.
+```
+
 ---
 
-## Cell 10 — `code`
+## Cell 10 — `code` (execution #8)
 
 ```python
 import torch.nn as nn, torch.nn.functional as F
@@ -529,9 +596,16 @@ print('Model I/O helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Model I/O helpers ready.
+```
+
 ---
 
-## Cell 11 — `code`
+## Cell 11 — `code` (execution #9)
 
 ```python
 from collections import defaultdict
@@ -761,6 +835,15 @@ print('Summary + plotting helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] No checkpoint for 'all_summaries'
+[ckpt] No checkpoint for 'all_detailed_summaries'
+Summary + plotting helpers ready.
+```
+
 ---
 
 ## Cell 12 — `markdown`
@@ -769,7 +852,7 @@ print('Summary + plotting helpers ready.')
 
 ---
 
-## Cell 13 — `code`
+## Cell 13 — `code` (execution #10)
 
 ```python
 # ── Bengali-centric language pairs: Ben↔X and X↔Ben ─────────────────────────
@@ -812,6 +895,16 @@ print(f'Train samples    : {N_TRAIN_PER_PAIR} per pair = {N_TRAIN_PER_PAIR*len(E
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Target languages : ['ben', 'eng', 'hin', 'arb']
+Lang pairs (6): [('ben', 'eng'), ('eng', 'ben'), ('ben', 'hin'), ('hin', 'ben'), ('ben', 'arb'), ('arb', 'ben')]
+Eval samples     : 33 per pair  = 198 total
+Train samples    : 4000 per pair = 24000 total
+```
+
 ---
 
 ## Cell 14 — `markdown`
@@ -820,7 +913,7 @@ print(f'Train samples    : {N_TRAIN_PER_PAIR} per pair = {N_TRAIN_PER_PAIR*len(E
 
 ---
 
-## Cell 15 — `code`
+## Cell 15 — `code` (execution #11)
 
 ```python
 import gc as _gc
@@ -937,9 +1030,18 @@ print('  - Whisper-medium : English')
 print('  - MMS-1b-all     : Bengali, Hindi, Arabic')
 ```
 
+### Output
+
+**[stdout]**
+```
+ASR stack ready with dynamic VRAM offloading:
+  - Whisper-medium : English
+  - MMS-1b-all     : Bengali, Hindi, Arabic
+```
+
 ---
 
-## Cell 16 — `code`
+## Cell 16 — `code` (execution #12)
 
 ```python
 from sacrebleu.metrics import BLEU, CHRF
@@ -999,6 +1101,13 @@ def free_cpu_ram():
 print('Inference helpers ready (with elegant empty-string catch).')
 ```
 
+### Output
+
+**[stdout]**
+```
+Inference helpers ready (with elegant empty-string catch).
+```
+
 ---
 
 ## Cell 17 — `markdown`
@@ -1007,7 +1116,7 @@ print('Inference helpers ready (with elegant empty-string catch).')
 
 ---
 
-## Cell 18 — `code`
+## Cell 18 — `code` (execution #13)
 
 ```python
 import pyarrow.parquet as pq
@@ -1110,9 +1219,16 @@ print('✓ Streaming dataset classes ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ Streaming dataset classes ready.
+```
+
 ---
 
-## Cell 19 — `code`
+## Cell 19 — `code` (execution #14)
 
 ```python
 print('Loading evaluation samples (streaming mode)...')
@@ -1134,9 +1250,33 @@ print(f'  Reference: {test_s["ref"][:60]}...')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Loading evaluation samples (streaming mode)...
+  Indexed 33 samples from ben→eng
+  Indexed 33 samples from eng→ben
+  Indexed 33 samples from ben→hin
+  Indexed 33 samples from hin→ben
+  Indexed 33 samples from ben→arb
+  Indexed 33 samples from arb→ben
+
+✓ Multilingual dataset ready: 198 total samples
+  RAM usage: ~0.2 MB (metadata only)
+
+✓ Loaded 198 multilingual eval samples
+  Language pairs: [('ben', 'eng'), ('eng', 'ben'), ('ben', 'hin'), ('hin', 'ben'), ('ben', 'arb'), ('arb', 'ben')]
+
+✓ Test sample loaded:
+  ID: ben2eng_1660
+  Audio shape: (216960,)
+  Reference: romanticism had a large element of cultural determinism draw...
+```
+
 ---
 
-## Cell 20 — `code`
+## Cell 20 — `code` (execution #15)
 
 ```python
 # # Cell 18 — Training samples (streaming metadata only, audio loaded per-batch)
@@ -1159,7 +1299,7 @@ print(f'  Reference: {test_s["ref"][:60]}...')
 
 ---
 
-## Cell 21 — `code`
+## Cell 21 — `code` (execution #16)
 
 ```python
 # ── Cell 18-A: ChunkedStreamingDataset (No Silent Failures) ────────────────────
@@ -1248,9 +1388,16 @@ class ChunkedStreamingDataset:
 print('✓ ChunkedStreamingDataset ready (with strict error logging).')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ ChunkedStreamingDataset ready (with strict error logging).
+```
+
 ---
 
-## Cell 22 — `code`
+## Cell 22 — `code` (execution #17)
 
 ```python
 # ── Cell 18-B: ChunkedMultilingualDataset ────────────────────────────────────
@@ -1310,9 +1457,16 @@ class ChunkedMultilingualDataset:
 print('✓ ChunkedMultilingualDataset ready.')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ ChunkedMultilingualDataset ready.
+```
+
 ---
 
-## Cell 23 — `code`
+## Cell 23 — `code` (execution #18)
 
 ```python
 # # ── Cell 18-C: Rebuild ft_samples with chunk caching ─────────────────────────
@@ -1335,7 +1489,7 @@ print('✓ ChunkedMultilingualDataset ready.')
 
 ---
 
-## Cell 24 — `code`
+## Cell 24 — `code` (execution #19)
 
 ```python
 # heed dataset
@@ -1343,7 +1497,7 @@ print('✓ ChunkedMultilingualDataset ready.')
 
 ---
 
-## Cell 25 — `code`
+## Cell 25 — `code` (execution #20)
 
 ```python
 from transformers import SeamlessM4Tv2ForSpeechToSpeech, SeamlessM4TProcessor
@@ -1391,6 +1545,45 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Syncing from rclone remote...
+[ckpt] 12 file(s) available
+  all_detailed_summaries_step000000.pt                        0.0 MB
+  all_summaries_step000000.pt                                 0.0 MB
+  phase0_benchmark_step000000.pt                              0.1 MB
+  phase1_benchmark_step000000.pt                              0.1 MB
+  phase1_vocab_step000000.pt                                  0.6 MB
+  phase2_enc_pruning_step000000.pt                            0.0 MB
+  phase3_t2u_dec_pruning_step000000.pt                        0.0 MB
+  phase3_t2u_enc_pruning_step000000.pt                        0.0 MB
+  phase4_benchmark_step000000.pt                              0.1 MB
+  phase4_dec_pruning_step000000.pt                            0.0 MB
+  phase5_benchmark_step000000.pt                              0.1 MB
+  phase6_ft_step018500.pt                                  5837.8 MB
+=================================================================
+  Platform : kaggle   Time : 2026-05-30 05:10
+  Checkpoint files: 12
+    all_detailed_summaries_step000000.pt                    0.0 MB
+    all_summaries_step000000.pt                             0.0 MB
+    phase0_benchmark_step000000.pt                          0.1 MB
+    phase1_benchmark_step000000.pt                          0.1 MB
+    phase1_vocab_step000000.pt                              0.6 MB
+    phase2_enc_pruning_step000000.pt                        0.0 MB
+    phase3_t2u_dec_pruning_step000000.pt                    0.0 MB
+    phase3_t2u_enc_pruning_step000000.pt                    0.0 MB
+    phase4_benchmark_step000000.pt                          0.1 MB
+    phase4_dec_pruning_step000000.pt                        0.0 MB
+    phase5_benchmark_step000000.pt                          0.1 MB
+    phase6_ft_step018500.pt                              5837.8 MB
+  GPU: Tesla T4  VRAM: 15.6 GB
+=================================================================
+
+✓ ALL SETUP CELLS COMPLETE — proceed to phases.
+```
+
 ---
 
 ## Cell 26 — `markdown`
@@ -1401,7 +1594,7 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 
 ---
 
-## Cell 27 — `code`
+## Cell 27 — `code` (execution #21)
 
 ```python
 def run_benchmark(mdl, samples, label='model', save_n=2, max_samples=None):
@@ -1485,6 +1678,13 @@ print('Benchmark functions ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Benchmark functions ready.
+```
+
 ---
 
 ## Cell 28 — `markdown`
@@ -1504,7 +1704,7 @@ print('Benchmark functions ready.')
 
 ---
 
-## Cell 29 — `code`
+## Cell 29 — `code` (execution #22)
 
 ```python
 import torch
@@ -1517,9 +1717,16 @@ transformers.models.seamless_m4t_v2.modeling_seamless_m4t_v2.SeamlessM4Tv2ForSpe
 print("✓ SeamlessM4Tv2 class device property successfully patched to cuda:1")
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ SeamlessM4Tv2 class device property successfully patched to cuda:1
+```
+
 ---
 
-## Cell 30 — `code`
+## Cell 30 — `code` (execution #23)
 
 ```python
 # ── Quick evaluation helpers ──────────────────────────────────────────────────
@@ -1669,9 +1876,18 @@ print('chunk_friendly_shuffle ready.')
 print('quick_eval_chrf ready.')
 ```
 
+### Output
+
+**[stdout]**
+```
+Quick eval helpers ready.
+chunk_friendly_shuffle ready.
+quick_eval_chrf ready.
+```
+
 ---
 
-## Cell 31 — `code`
+## Cell 31 — `code` (execution #24)
 
 ```python
 # ── Encoder pruning helpers ───────────────────────────────────────────────────
@@ -1801,9 +2017,16 @@ print('Encoder pruning helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Encoder pruning helpers ready.
+```
+
 ---
 
-## Cell 32 — `code`
+## Cell 32 — `code` (execution #25)
 
 ```python
 # ── Text Decoder pruning helpers ──────────────────────────────────────────────
@@ -1942,9 +2165,16 @@ print('Decoder pruning helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+Decoder pruning helpers ready.
+```
+
 ---
 
-## Cell 33 — `code`
+## Cell 33 — `code` (execution #26)
 
 ```python
 # ── T2U pruning helpers (ASR-BLEU primary, ASR-ChrF fallback) ────────────────
@@ -2030,6 +2260,13 @@ print('T2U pruning helpers ready.')
 
 ```
 
+### Output
+
+**[stdout]**
+```
+T2U pruning helpers ready.
+```
+
 ---
 
 ## Cell 34 — `markdown`
@@ -2040,7 +2277,7 @@ print('T2U pruning helpers ready.')
 
 ---
 
-## Cell 35 — `code`
+## Cell 35 — `code` (execution #27)
 
 ```python
 # # Load teacher/base model
@@ -2052,7 +2289,7 @@ print('T2U pruning helpers ready.')
 
 ---
 
-## Cell 36 — `code`
+## Cell 36 — `code` (execution #28)
 
 ```python
 p0_bench = load_latest_checkpoint('phase0_benchmark')
@@ -2077,6 +2314,128 @@ plot_detailed_phase_comparison()
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Loaded phase0_benchmark_step000000.pt
+Loaded Phase 0 benchmark from checkpoint.
+[ckpt] Deleted old checkpoint: all_summaries_step000000.pt
+[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
+[summary] Stored P0_V1_Baseline (1 total)
+[ckpt] Deleted old checkpoint: all_detailed_summaries_step000000.pt
+[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
+[detailed] Stored P0_V1_Baseline
+
+================================================================================
+  P0_V1_Baseline - 1805.5M params
+================================================================================
+Overall: BLEU=9.12  ChrF=40.33±11.80  RTF=0.2094
+
+Per-Pair (6 pairs):
+  Pair                  N     BLEU     ChrF      RTF
+  arb→ben              33     4.66    34.13   0.2625
+  ben→arb              33     5.69    31.39   0.1915
+  ben→eng              33    16.85    52.04   0.1577
+  ben→hin              33     8.86    37.45   0.1703
+  eng→ben              33    11.58    48.11   0.2508
+  hin→ben              33     7.08    38.87   0.2233
+
+By Source Language:
+     ARB: BLEU=  4.66  ChrF= 34.13  (n=33)
+     BEN: BLEU= 10.47  ChrF= 40.29  (n=99)
+     ENG: BLEU= 11.58  ChrF= 48.11  (n=33)
+     HIN: BLEU=  7.08  ChrF= 38.87  (n=33)
+
+By Target Language:
+     ARB: BLEU=  5.69  ChrF= 31.39  (n=33)
+     BEN: BLEU=  7.77  ChrF= 40.37  (n=99)
+     ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
+     HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
+================================================================================
+[rclone] 2026/05/30 05:10:25 -     1.581 KiB / 1.581 KiB, 100%, 1.580 KiB/s, ETA 0s
+[fig] Saved phase_comparison.png
+```
+
+```
+<Figure size 1920x1200 with 4 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
+```
+
+```
+<Figure size 1800x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
+[rclone] 2026/05/30 05:10:28 -     2.446 KiB / 2.446 KiB, 100%, 2.445 KiB/s, ETA 0s
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
+```
+
+```
+<Figure size 2520x1080 with 2 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+```
+
+```
+<Figure size 1800x1260 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
+```
+
+```
+<Figure size 1800x900 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
+
+✅ All 6 figures saved.
+   📄 detailed_comparison_01_overall_quality.png
+   📄 detailed_comparison_02_bleu_by_pair.png
+   📄 detailed_comparison_03_chrf_by_pair.png
+   📄 detailed_comparison_04_bengali_focus.png
+   📄 detailed_comparison_05_size_vs_quality.png
+   📄 detailed_comparison_06_rtf.png
+```
+
 ---
 
 ## Cell 37 — `markdown`
@@ -2087,7 +2446,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 38 — `code`
+## Cell 38 — `code` (execution #29)
 
 ```python
 # # ══════════════════════════════════════════════════════════════════════════════
@@ -2469,7 +2828,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 39 — `code`
+## Cell 39 — `code` (execution #30)
 
 ```python
 
@@ -2515,6 +2874,132 @@ plot_phase_comparison()
 plot_detailed_phase_comparison()
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Loaded phase1_benchmark_step000000.pt
+Loaded Phase 1 benchmark from checkpoint.
+[ckpt] Deleted old checkpoint: all_summaries_step000000.pt
+[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
+[summary] Stored P1_Vocab4L (2 total)
+[ckpt] Deleted old checkpoint: all_detailed_summaries_step000000.pt
+[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
+[detailed] Stored P1_Vocab4L
+
+================================================================================
+  P1_Vocab4L - 1686.3M params
+================================================================================
+Overall: BLEU=9.12  ChrF=40.33±11.80  RTF=0.1609
+
+Per-Pair (6 pairs):
+  Pair                  N     BLEU     ChrF      RTF
+  arb→ben              33     4.66    34.13   0.1938
+  ben→arb              33     5.69    31.39   0.1445
+  ben→eng              33    16.85    52.04   0.1271
+  ben→hin              33     8.86    37.45   0.1393
+  eng→ben              33    11.58    48.11   0.1897
+  hin→ben              33     7.08    38.87   0.1710
+
+By Source Language:
+     ARB: BLEU=  4.66  ChrF= 34.13  (n=33)
+     BEN: BLEU= 10.47  ChrF= 40.29  (n=99)
+     ENG: BLEU= 11.58  ChrF= 48.11  (n=33)
+     HIN: BLEU=  7.08  ChrF= 38.87  (n=33)
+
+By Target Language:
+     ARB: BLEU=  5.69  ChrF= 31.39  (n=33)
+     BEN: BLEU=  7.77  ChrF= 40.37  (n=99)
+     ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
+     HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
+================================================================================
+
+  ── Quality Gate ──
+  Bengali ChrF : P0=40.37  →  P1=40.37  Δ=+0.00
+  ✓ Within ±1.5 — vocab trim is lossless.
+[rclone] 2026/05/30 05:10:32 -     1.769 KiB / 1.769 KiB, 100%, 1.768 KiB/s, ETA 0s
+[fig] Saved phase_comparison.png
+```
+
+```
+<Figure size 1920x1200 with 4 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
+```
+
+```
+<Figure size 1800x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
+[rclone] 2026/05/30 05:10:34 -     3.384 KiB / 3.384 KiB, 100%, 3.383 KiB/s, ETA 0s
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
+```
+
+```
+<Figure size 2520x1080 with 2 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+```
+
+```
+<Figure size 1800x1260 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
+```
+
+```
+<Figure size 1800x900 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
+
+✅ All 6 figures saved.
+   📄 detailed_comparison_01_overall_quality.png
+   📄 detailed_comparison_02_bleu_by_pair.png
+   📄 detailed_comparison_03_chrf_by_pair.png
+   📄 detailed_comparison_04_bengali_focus.png
+   📄 detailed_comparison_05_size_vs_quality.png
+   📄 detailed_comparison_06_rtf.png
+```
+
 ---
 
 ## Cell 40 — `markdown`
@@ -2525,7 +3010,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 41 — `code`
+## Cell 41 — `code` (execution #31)
 
 ```python
 # # Load Phase 1 model to prune
@@ -2573,7 +3058,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 42 — `code`
+## Cell 42 — `code` (execution #32)
 
 ```python
 # p2_bench = load_latest_checkpoint('phase2_benchmark')
@@ -2607,7 +3092,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 44 — `code`
+## Cell 44 — `code` (execution #33)
 
 ```python
 # model_p3 = model_p2   # continue from enc-pruned model
@@ -2649,7 +3134,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 45 — `code`
+## Cell 45 — `code` (execution #34)
 
 ```python
 # p3_bench = load_latest_checkpoint('phase3_benchmark')
@@ -2682,7 +3167,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 47 — `code`
+## Cell 47 — `code` (execution #35)
 
 ```python
 # model_p4 = model_p3
@@ -2740,7 +3225,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 48 — `code`
+## Cell 48 — `code` (execution #36)
 
 ```python
 # model_p4, processor = load_model_from_drive('phase4_dec_14L')
@@ -2748,7 +3233,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 49 — `code`
+## Cell 49 — `code` (execution #37)
 
 ```python
 p4_bench = load_latest_checkpoint('phase4_benchmark')
@@ -2771,9 +3256,130 @@ plot_detailed_phase_comparison()
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Loaded phase4_benchmark_step000000.pt
+[ckpt] Deleted old checkpoint: all_summaries_step000000.pt
+[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
+[summary] Stored P4_Dec14L (3 total)
+[ckpt] Deleted old checkpoint: all_detailed_summaries_step000000.pt
+[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
+[detailed] Stored P4_Dec14L
+
+================================================================================
+  P4_Dec14L - 1056.0M params
+================================================================================
+Overall: BLEU=0.58  ChrF=8.33±6.25  RTF=0.2754
+
+Per-Pair (6 pairs):
+  Pair                  N     BLEU     ChrF      RTF
+  arb→ben              33     0.23     5.21   0.3273
+  ben→arb              33     0.22     5.89   0.2860
+  ben→eng              33     1.70    15.74   0.1019
+  ben→hin              33     0.36     6.06   0.3497
+  eng→ben              32     0.73     7.96   0.2600
+  hin→ben              33     0.25     9.09   0.3269
+
+By Source Language:
+     ARB: BLEU=  0.23  ChrF=  5.21  (n=33)
+     BEN: BLEU=  0.76  ChrF=  9.23  (n=99)
+     ENG: BLEU=  0.73  ChrF=  7.96  (n=32)
+     HIN: BLEU=  0.25  ChrF=  9.09  (n=33)
+
+By Target Language:
+     ARB: BLEU=  0.22  ChrF=  5.89  (n=33)
+     BEN: BLEU=  0.40  ChrF=  7.42  (n=98)
+     ENG: BLEU=  1.70  ChrF= 15.74  (n=33)
+     HIN: BLEU=  0.36  ChrF=  6.06  (n=33)
+================================================================================
+[rclone] 2026/05/30 05:10:38 -     1.956 KiB / 1.956 KiB, 100%, 1.955 KiB/s, ETA 0s
+[fig] Saved phase_comparison.png
+```
+
+```
+<Figure size 1920x1200 with 4 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L']
+```
+
+```
+<Figure size 1800x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
+[rclone] 2026/05/30 05:10:40 -     4.321 KiB / 4.321 KiB, 100%, 4.320 KiB/s, ETA 0s
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
+```
+
+```
+<Figure size 2520x1080 with 2 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+```
+
+```
+<Figure size 1800x1260 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
+```
+
+```
+<Figure size 1800x900 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
+
+✅ All 6 figures saved.
+   📄 detailed_comparison_01_overall_quality.png
+   📄 detailed_comparison_02_bleu_by_pair.png
+   📄 detailed_comparison_03_chrf_by_pair.png
+   📄 detailed_comparison_04_bengali_focus.png
+   📄 detailed_comparison_05_size_vs_quality.png
+   📄 detailed_comparison_06_rtf.png
+```
+
 ---
 
-## Cell 50 — `code`
+## Cell 50 — `code` (execution #38)
 
 ```python
 # heed
@@ -2801,7 +3407,7 @@ plot_detailed_phase_comparison()
 
 ---
 
-## Cell 52 — `code`
+## Cell 52 — `code` (execution #39)
 
 ```python
 # ── Cell 45: Load pruned student for full fine-tuning ──────────────────────────
@@ -2846,9 +3452,46 @@ print_model_breakdown(student, 'Student (Pruned, Pre-FT)')
 gpu_mem()
 ```
 
+### Output
+
+**[stdout]**
+```
+Loading phase5_ft_merged for fine-tuning with Custom Device Split...
+[model] Not in local cache — pulling from remote...
+[rclone] Pulled phase5_ft_merged → /kaggle/working/models/phase5_ft_merged
+[model] Loading phase5_ft_merged from /kaggle/working/models/phase5_ft_merged ...
+```
+
+```
+Loading weights:   0%|          | 0/1106 [00:00<?, ?it/s]
+```
+
+**[stdout]**
+```
+  Restored custom state: ['_vocab_remap_to_old']
+[model] Loaded phase5_ft_merged.
+✓ Speech encoder : 10L
+✓ Text decoder   : 14L
+✓ T2U encoder    : 5L
+✓ T2U decoder    : 5L
+✓ Vocab size     : 139697
+
+--- Student (Pruned, Pre-FT) ---
+  text_decoder                           495.7M  ( 46.9%)
+  speech_encoder                         296.5M  ( 28.1%)
+  t2u_model                              221.9M  ( 21.0%)
+  shared                                 143.0M  ( 13.5%)
+  lm_head                                143.0M  ( 13.5%)
+  vocoder                                 41.9M  (  4.0%)
+  TOTAL                                 1056.0M
+---
+  GPU0: 0.59GB alloc / 0.61GB reserved
+  GPU1: 1.54GB alloc / 1.55GB reserved
+```
+
 ---
 
-## Cell 53 — `code`
+## Cell 53 — `code` (execution #40)
 
 ```python
 # ── Cell 46: Load teacher on cuda:1 ───────────────────────────────────────────
@@ -2877,9 +3520,47 @@ print(f'Teacher loaded. Params: {count_params(teacher):.1f}M')
 gpu_mem()
 ```
 
+### Output
+
+**[stdout]**
+```
+Loading teacher model on cuda:1...
+```
+
+```
+config.json: 0.00B [00:00, ?B/s]
+```
+
+```
+model.safetensors.index.json: 0.00B [00:00, ?B/s]
+```
+
+```
+Downloading (incomplete total...): 0.00B [00:00, ?B/s]
+```
+
+```
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]
+```
+
+```
+Loading weights:   0%|          | 0/1846 [00:00<?, ?it/s]
+```
+
+```
+generation_config.json: 0.00B [00:00, ?B/s]
+```
+
+**[stdout]**
+```
+Teacher loaded. Params: 1805.5M
+  GPU0: 0.59GB alloc / 0.61GB reserved
+  GPU1: 5.18GB alloc / 5.19GB reserved
+```
+
 ---
 
-## Cell 54 — `code`
+## Cell 54 — `code` (execution #41)
 
 ```python
 # ── Cell 47: Unfreeze all except vocoder ──────────────────────────────────────
@@ -2917,18 +3598,396 @@ else:
 gpu_mem()
 ```
 
+### Output
+
+**[stdout]**
+```
+Frozen (vocoder): 41.91M params
+Trainable: 1014.1M / 1056.0M (96.0%)
+✓ All trainable params fp32 — GradScaler will work correctly
+  GPU0: 1.19GB alloc / 1.30GB reserved
+  GPU1: 6.62GB alloc / 6.66GB reserved
+```
+
 ---
 
-## Cell 55 — `code`
+## Cell 55 — `code` (execution #42)
 
 ```python
 print(student)
 # heed
 ```
 
+### Output
+
+**[stdout]**
+```
+SeamlessM4Tv2ForSpeechToSpeech(
+  (shared): Embedding(139697, 1024, padding_idx=0)
+  (speech_encoder): SeamlessM4Tv2SpeechEncoder(
+    (feature_projection): SeamlessM4Tv2ConformerFeatureProjection(
+      (layer_norm): LayerNorm((160,), eps=1e-05, elementwise_affine=True)
+      (projection): Linear(in_features=160, out_features=1024, bias=True)
+      (dropout): Dropout(p=0.0, inplace=False)
+    )
+    (encoder): SeamlessM4Tv2ConformerEncoder(
+      (dropout): Dropout(p=0.0, inplace=False)
+      (layers): ModuleList(
+        (0-9): 10 x SeamlessM4Tv2ConformerEncoderLayer(
+          (ffn1_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (ffn1): SeamlessM4Tv2ConformerFeedForward(
+            (intermediate_dropout): Dropout(p=0.0, inplace=False)
+            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
+            (intermediate_act_fn): SiLU()
+            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
+            (output_dropout): Dropout(p=0.0, inplace=False)
+          )
+          (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (self_attn_dropout): Dropout(p=0.0, inplace=False)
+          (self_attn): SeamlessM4Tv2ConformerSelfAttention(
+            (linear_q): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_k): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_v): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_out): Linear(in_features=1024, out_features=1024, bias=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+            (distance_embedding): Embedding(73, 64)
+          )
+          (conv_module): SeamlessM4Tv2ConformerConvolutionModule(
+            (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (pointwise_conv1): Conv1d(1024, 2048, kernel_size=(1,), stride=(1,), bias=False)
+            (glu): GLU(dim=1)
+            (depthwise_conv): Conv1d(1024, 1024, kernel_size=(31,), stride=(1,), groups=1024, bias=False)
+            (depthwise_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (activation): SiLU()
+            (pointwise_conv2): Conv1d(1024, 1024, kernel_size=(1,), stride=(1,), bias=False)
+            (dropout): Dropout(p=0.0, inplace=False)
+          )
+          (ffn2_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (ffn2): SeamlessM4Tv2ConformerFeedForward(
+            (intermediate_dropout): Dropout(p=0.0, inplace=False)
+            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
+            (intermediate_act_fn): SiLU()
+            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
+            (output_dropout): Dropout(p=0.0, inplace=False)
+          )
+          (final_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        )
+      )
+      (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+    )
+    (intermediate_ffn): SeamlessM4Tv2ConformerFeedForward(
+      (intermediate_dropout): Dropout(p=0.0, inplace=False)
+      (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
+      (intermediate_act_fn): ReLU()
+      (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
+      (output_dropout): Dropout(p=0.0, inplace=False)
+    )
+    (adapter): SeamlessM4Tv2ConformerAdapter(
+      (layers): ModuleList(
+        (0): SeamlessM4Tv2ConformerAdapterLayer(
+          (residual_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (residual_conv): Conv1d(1024, 2048, kernel_size=(8,), stride=(8,), padding=(4,))
+          (activation): GLU(dim=1)
+          (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (self_attn_conv): Conv1d(1024, 2048, kernel_size=(8,), stride=(8,), padding=(4,))
+          (self_attn): SeamlessM4Tv2ConformerSelfAttention(
+            (linear_q): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_k): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_v): Linear(in_features=1024, out_features=1024, bias=True)
+            (linear_out): Linear(in_features=1024, out_features=1024, bias=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+          )
+          (self_attn_dropout): Dropout(p=0.1, inplace=False)
+          (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (ffn): SeamlessM4Tv2ConformerFeedForward(
+            (intermediate_dropout): Dropout(p=0.1, inplace=False)
+            (intermediate_dense): Linear(in_features=1024, out_features=4096, bias=True)
+            (intermediate_act_fn): ReLU()
+            (output_dense): Linear(in_features=4096, out_features=1024, bias=True)
+            (output_dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+      )
+    )
+    (inner_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+  )
+  (text_decoder): SeamlessM4Tv2Decoder(
+    (embed_tokens): SeamlessM4Tv2ScaledWordEmbedding(139697, 1024, padding_idx=0)
+    (embed_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
+    (layers): ModuleList(
+      (0-13): 14 x SeamlessM4Tv2DecoderLayer(
+        (self_attn): SeamlessM4Tv2Attention(
+          (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
+        )
+        (activation_fn): ReLU()
+        (attn_dropout): Dropout(p=0.1, inplace=False)
+        (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (cross_attention): SeamlessM4Tv2Attention(
+          (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
+        )
+        (cross_attention_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (ffn): SeamlessM4Tv2FeedForwardNetwork(
+          (fc1): Linear(in_features=1024, out_features=8192, bias=True)
+          (fc2): Linear(in_features=8192, out_features=1024, bias=True)
+          (dropout): Dropout(p=0.0, inplace=False)
+          (act): ReLU()
+        )
+        (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        (ffn_dropout): Dropout(p=0.0, inplace=False)
+      )
+    )
+    (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+  )
+  (lm_head): Linear(in_features=1024, out_features=139697, bias=False)
+  (t2u_model): SeamlessM4Tv2TextToUnitForConditionalGeneration(
+    (model): SeamlessM4Tv2TextToUnitModel(
+      (encoder): SeamlessM4Tv2Encoder(
+        (layers): ModuleList(
+          (0-4): 5 x SeamlessM4Tv2EncoderLayer(
+            (self_attn): SeamlessM4Tv2Attention(
+              (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
+            )
+            (attn_dropout): Dropout(p=0.1, inplace=False)
+            (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (ffn): SeamlessM4Tv2FeedForwardNetwork(
+              (fc1): Linear(in_features=1024, out_features=8192, bias=True)
+              (fc2): Linear(in_features=8192, out_features=1024, bias=True)
+              (dropout): Dropout(p=0.0, inplace=False)
+              (act): ReLU()
+            )
+            (ffn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (ffn_dropout): Dropout(p=0.0, inplace=False)
+          )
+        )
+        (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+      )
+      (decoder): SeamlessM4Tv2TextToUnitDecoder(
+        (embed_tokens): Embedding(10082, 1024, padding_idx=1)
+        (embed_char): Embedding(10943, 1024)
+        (embed_char_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
+        (duration_predictor): SeamlessM4Tv2VariancePredictor(
+          (conv1): Conv1d(1024, 256, kernel_size=(3,), stride=(1,), padding=same)
+          (activation_function): ReLU()
+          (ln1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (dropout_module): Dropout(p=0.5, inplace=False)
+          (conv2): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=same)
+          (ln2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (proj): Linear(in_features=256, out_features=1, bias=True)
+        )
+        (embed_positions): SeamlessM4Tv2SinusoidalPositionalEmbedding()
+        (layers): ModuleList(
+          (0-4): 5 x SeamlessM4Tv2TextToUnitDecoderLayer(
+            (self_attn): SeamlessM4Tv2Attention(
+              (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
+              (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
+            )
+            (self_attn_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (conv1): Conv1d(1024, 1024, kernel_size=(7,), stride=(1,), padding=same)
+            (activation_fn): ReLU()
+            (conv2): Conv1d(1024, 1024, kernel_size=(7,), stride=(1,), padding=same)
+            (conv_layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+            (conv_dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (layer_norm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+      )
+    )
+    (lm_head): Linear(in_features=1024, out_features=10082, bias=False)
+  )
+  (vocoder): SeamlessM4Tv2CodeHifiGan(
+    (dur_predictor): SeamlessM4Tv2VariancePredictor(
+      (conv1): Conv1d(1280, 1280, kernel_size=(3,), stride=(1,), padding=same)
+      (activation_function): ReLU()
+      (ln1): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
+      (dropout_module): Dropout(p=0.5, inplace=False)
+      (conv2): Conv1d(1280, 1280, kernel_size=(3,), stride=(1,), padding=same)
+      (ln2): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
+      (proj): Linear(in_features=1280, out_features=1, bias=True)
+    )
+    (unit_embedding): Embedding(10000, 1280)
+    (speaker_embedding): Embedding(200, 256)
+    (language_embedding): Embedding(36, 256)
+    (hifi_gan): SeamlessM4Tv2HifiGan(
+      (conv_pre): Conv1d(1792, 512, kernel_size=(7,), stride=(1,), padding=(3,))
+      (upsampler): ModuleList(
+        (0): ConvTranspose1d(512, 256, kernel_size=(11,), stride=(5,), padding=(3,))
+        (1): ConvTranspose1d(256, 128, kernel_size=(8,), stride=(4,), padding=(2,))
+        (2): ConvTranspose1d(128, 64, kernel_size=(8,), stride=(4,), padding=(2,))
+        (3): ConvTranspose1d(64, 32, kernel_size=(4,), stride=(2,), padding=(1,))
+        (4): ConvTranspose1d(32, 16, kernel_size=(4,), stride=(2,), padding=(1,))
+      )
+      (resblocks): ModuleList(
+        (0): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(256, 256, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (1): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(256, 256, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (2): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(256, 256, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+        (3): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(128, 128, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (4): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(128, 128, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (5): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(128, 128, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+        (6): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(64, 64, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (7): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(64, 64, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (8): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(64, 64, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+        (9): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (10): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(32, 32, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (11): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(32, 32, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+        (12): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
+            (1): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(3,), dilation=(3,))
+            (2): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(5,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
+          )
+        )
+        (13): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(3,))
+            (1): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(9,), dilation=(3,))
+            (2): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(15,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(3,))
+          )
+        )
+        (14): HifiGanResidualBlock(
+          (convs1): ModuleList(
+            (0): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(5,))
+            (1): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(15,), dilation=(3,))
+            (2): Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(25,), dilation=(5,))
+          )
+          (convs2): ModuleList(
+            (0-2): 3 x Conv1d(16, 16, kernel_size=(11,), stride=(1,), padding=(5,))
+          )
+        )
+      )
+      (conv_post): Conv1d(16, 1, kernel_size=(7,), stride=(1,), padding=(3,))
+    )
+  )
+)
+```
+
 ---
 
-## Cell 56 — `code`
+## Cell 56 — `code` (execution #43)
 
 ```python
 # ── Cell 48: Gradient checkpointing strategy for full fine-tuning on 2×T4 ─────
@@ -3042,9 +4101,21 @@ print('VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32')
 gpu_mem()
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
+⚠ Still on: []
+
+VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32
+  GPU0: 1.19GB alloc / 1.30GB reserved
+  GPU1: 6.62GB alloc / 6.66GB reserved
+```
+
 ---
 
-## Cell 57 — `code`
+## Cell 57 — `code` (execution #44)
 
 ```python
 # ── Cell 49A: Vocab remap tables (exact Phase 7 / Cell 41+43+48 pattern) ──────
@@ -3119,9 +4190,25 @@ for _l in ['eng', 'ben', 'hin', 'arb']:
 print('✓ Vocab remap ready.')
 ```
 
+### Output
+
+**[stdout]**
+```
+Mapped: 139697/256102 (54.5%)
+EOS (token 3) → student: 3  ← must be 3
+OLD_TO_NEW_GPU: 1.0MB VRAM
+
+Special tokens: PAD_S=0  BOS_S=2  EOS_S=3
+  eng: student_id=139620
+  ben: student_id=139607
+  hin: student_id=139631
+  arb: student_id=139601
+✓ Vocab remap ready.
+```
+
 ---
 
-## Cell 58 — `code`
+## Cell 58 — `code` (execution #45)
 
 ```python
 # ── Cell 49B: Collation — exact Phase 7 / Cell 44 layout ──────────────────────
@@ -3222,9 +4309,18 @@ print(f'  dec layout: [BOS | __tgt__ | content]  length=T+2')
 print(f'  lab layout: [__tgt__ | content | EOS]  length=T+2')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ Collation ready (exact Phase 7 token layout)
+  dec layout: [BOS | __tgt__ | content]  length=T+2
+  lab layout: [__tgt__ | content | EOS]  length=T+2
+```
+
 ---
 
-## Cell 59 — `code`
+## Cell 59 — `code` (execution #46)
 
 ```python
 # ── Cell C: Fixed Loss Functions ──────────────────────────────────────────────
@@ -3365,9 +4461,19 @@ print(f'  Alpha schedule: epoch0-1=0.30, epoch2-3=0.25, epoch4-5=0.20, epoch6-7=
 print(f'  Bengali CE upweight: 2× on all Bengali-target positions')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ Fixed loss functions ready.
+  KD_TEMPERATURE=2.0  TOP_K=128
+  Alpha schedule: epoch0-1=0.30, epoch2-3=0.25, epoch4-5=0.20, epoch6-7=0.15
+  Bengali CE upweight: 2× on all Bengali-target positions
+```
+
 ---
 
-## Cell 60 — `code`
+## Cell 60 — `code` (execution #47)
 
 ```python
 # ── Cell D: Teacher & Student forward functions (fixed) ───────────────────────
@@ -3433,17 +4539,67 @@ print('✓ teacher_topk_direct and student_logits_gpu ready (both output on cuda
 print(f'  Teacher top-k={TOP_K_TEACHER}  T={KD_TEMPERATURE}')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ teacher_topk_direct and student_logits_gpu ready (both output on cuda:1).
+  Teacher top-k=128  T=2.0
+```
+
 ---
 
-## Cell 61 — `code`
+## Cell 61 — `code` (execution #48)
 
 ```python
 !pip install bitsandbytes
 ```
 
+### Output
+
+**[stdout]**
+```
+Collecting bitsandbytes
+  Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl.metadata (10 kB)
+Requirement already satisfied: torch<3,>=2.3 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.10.0+cu128)
+Requirement already satisfied: numpy>=1.17 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.4.6)
+Requirement already satisfied: packaging>=20.9 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (26.2)
+Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.25.2)
+Requirement already satisfied: typing-extensions>=4.10.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (4.15.0)
+Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (75.2.0)
+Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.14.0)
+Requirement already satisfied: networkx>=2.5.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.1)
+Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.1.6)
+Requirement already satisfied: fsspec>=0.8.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2025.3.0)
+Requirement already satisfied: cuda-bindings==12.9.4 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.9.4)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
+Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (9.10.2.21)
+Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.4.1)
+Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.3.3.83)
+Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (10.3.9.90)
+Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.7.3.90)
+Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.5.8.93)
+Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (0.7.1)
+Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2.27.5)
+Requirement already satisfied: nvidia-nvshmem-cu12==3.4.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.4.5)
+Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
+Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.13.1.3)
+Requirement already satisfied: triton==3.6.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.0)
+Requirement already satisfied: cuda-pathfinder~=1.1 in /usr/local/lib/python3.12/dist-packages (from cuda-bindings==12.9.4->torch<3,>=2.3->bitsandbytes) (1.5.4)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy>=1.13.3->torch<3,>=2.3->bitsandbytes) (1.3.0)
+Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2->torch<3,>=2.3->bitsandbytes) (3.0.3)
+Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl (60.7 MB)
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m60.7/60.7 MB[0m [31m30.0 MB/s[0m eta [36m0:00:00[0m:00:01[0m00:01[0m
+[?25hInstalling collected packages: bitsandbytes
+Successfully installed bitsandbytes-0.49.2
+```
+
 ---
 
-## Cell 62 — `code`
+## Cell 62 — `code` (execution #49)
 
 ```python
 # # ── Cell 51: Training configuration + optimizer ────────────────────────────────
@@ -3514,7 +4670,7 @@ print(f'  Teacher top-k={TOP_K_TEACHER}  T={KD_TEMPERATURE}')
 
 ---
 
-## Cell 63 — `code`
+## Cell 63 — `code` (execution #93)
 
 ```python
 # ── Cell 51B: Quick eval helper ────────────────────────────────────────────────
@@ -3545,11 +4701,11 @@ def _eval_quick_p5(n_samples=18):
         print(f'  [Critical Eval Failure] {e}')
         text_chrf, asr_chrf = 0.0, 0.0
     finally:
-        # CRITICAL VRAM FIX: Kick the ASR model back to the CPU
-        try:
-            offload_asr_models()
-        except NameError:
-            pass 
+        # # CRITICAL VRAM FIX: Kick the ASR model back to the CPU
+        # try:
+        #     offload_asr_models()
+        # except NameError:
+        #     pass 
 
         student.train()
         # Re-verify gradient checkpointing strategy for training mode
@@ -3560,9 +4716,16 @@ def _eval_quick_p5(n_samples=18):
 print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 ```
 
+### Output
+
+**[stdout]**
+```
+✓ _eval_quick_p5 ready with persistent list and dictionary caching.
+```
+
 ---
 
-## Cell 64 — `code`
+## Cell 64 — `code` (execution #51)
 
 ```python
 # heed
@@ -3570,7 +4733,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 65 — `code`
+## Cell 65 — `code` (execution #52)
 
 ```python
 # print("Student: ")
@@ -3582,7 +4745,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 66 — `code`
+## Cell 66 — `code` (execution #53)
 
 ```python
 # s   = eval_samples[2]
@@ -3597,7 +4760,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 67 — `code`
+## Cell 67 — `code` (execution #54)
 
 ```python
 # # ── Cell 52: Training loop — Phase 7 battle-tested flow ───────────────────────
@@ -3807,7 +4970,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 68 — `code`
+## Cell 68 — `code` (execution #55)
 
 ```python
 # import matplotlib.pyplot as plt
@@ -3857,7 +5020,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 69 — `code`
+## Cell 69 — `code` (execution #56)
 
 ```python
 # # ── Cell 53: Load best checkpoint and save merged model ───────────────────────
@@ -3878,7 +5041,7 @@ print('✓ _eval_quick_p5 ready with persistent list and dictionary caching.')
 
 ---
 
-## Cell 70 — `code`
+## Cell 70 — `code` (execution #57)
 
 ```python
 # ── Final benchmark ───────────────────────────────────────────────────────────
@@ -3926,9 +5089,142 @@ plot_detailed_phase_comparison()
 
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] Loaded phase5_benchmark_step000000.pt
+Loaded Phase 5 benchmark from checkpoint.
+[ckpt] Deleted old checkpoint: all_summaries_step000000.pt
+[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
+[summary] Stored P5_FullFT (4 total)
+[ckpt] Deleted old checkpoint: all_detailed_summaries_step000000.pt
+[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
+[detailed] Stored P5_FullFT
+
+================================================================================
+  P5_FullFT - 1056.0M params
+================================================================================
+Overall: BLEU=3.95  ChrF=25.95±9.28  RTF=0.1631
+
+Per-Pair (6 pairs):
+  Pair                  N     BLEU     ChrF      RTF
+  arb→ben              33     2.28    20.72   0.1809
+  ben→arb              33     1.94    18.72   0.1491
+  ben→eng              33     5.01    29.76   0.1299
+  ben→hin              33     6.56    27.97   0.1607
+  eng→ben              33     3.99    29.40   0.1932
+  hin→ben              33     3.91    29.12   0.1649
+
+By Source Language:
+     ARB: BLEU=  2.28  ChrF= 20.72  (n=33)
+     BEN: BLEU=  4.50  ChrF= 25.49  (n=99)
+     ENG: BLEU=  3.99  ChrF= 29.40  (n=33)
+     HIN: BLEU=  3.91  ChrF= 29.12  (n=33)
+
+By Target Language:
+     ARB: BLEU=  1.94  ChrF= 18.72  (n=33)
+     BEN: BLEU=  3.39  ChrF= 26.42  (n=99)
+     ENG: BLEU=  5.01  ChrF= 29.76  (n=33)
+     HIN: BLEU=  6.56  ChrF= 27.97  (n=33)
+================================================================================
+
+==================================================
+  TEACHER vs STUDENT (Bengali pairs):
+==================================================
+  arb→ben             BLEU: Teacher=4.66  Student=2.28  Δ=-2.38   |  ChrF: Teacher=34.13  Student=20.72  Δ=-13.41 
+  ben→arb             BLEU: Teacher=5.69  Student=1.94  Δ=-3.75   |  ChrF: Teacher=31.39  Student=18.72  Δ=-12.67 
+  ben→eng             BLEU: Teacher=16.85  Student=5.01  Δ=-11.84   |  ChrF: Teacher=52.04  Student=29.76  Δ=-22.28 
+  ben→hin             BLEU: Teacher=8.86  Student=6.56  Δ=-2.29   |  ChrF: Teacher=37.45  Student=27.97  Δ=-9.48 
+  eng→ben             BLEU: Teacher=11.58  Student=3.99  Δ=-7.59   |  ChrF: Teacher=48.11  Student=29.40  Δ=-18.71 
+  hin→ben             BLEU: Teacher=7.08  Student=3.91  Δ=-3.17   |  ChrF: Teacher=38.87  Student=29.12  Δ=-9.74 
+==================================================
+[rclone] 2026/05/30 05:12:29 -     2.144 KiB / 2.144 KiB, 100%, 2.143 KiB/s, ETA 0s
+[fig] Saved phase_comparison.png
+```
+
+```
+<Figure size 1920x1200 with 4 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+Plotting detailed comparison for 4 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L', 'P5_FullFT']
+```
+
+```
+<Figure size 1800x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
+[rclone] 2026/05/30 05:12:31 -     5.259 KiB / 5.259 KiB, 100%, 5.258 KiB/s, ETA 0s
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
+```
+
+```
+<Figure size 2520x1080 with 2 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+```
+
+```
+<Figure size 1800x1260 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
+```
+
+```
+<Figure size 1800x900 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
+
+✅ All 6 figures saved.
+   📄 detailed_comparison_01_overall_quality.png
+   📄 detailed_comparison_02_bleu_by_pair.png
+   📄 detailed_comparison_03_chrf_by_pair.png
+   📄 detailed_comparison_04_bengali_focus.png
+   📄 detailed_comparison_05_size_vs_quality.png
+   📄 detailed_comparison_06_rtf.png
+```
+
 ---
 
-## Cell 71 — `code`
+## Cell 71 — `code` (execution #58)
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -3973,9 +5269,17 @@ print(f'[Config] PSEUDO_DIR={PSEUDO_DIR}')
 print(f'[Config] MDC API key loaded: {"YES" if MDC_API_KEY else "NO — check your Kaggle secret!"}')
 ```
 
+### Output
+
+**[stdout]**
+```
+[Config] PSEUDO_DIR=/kaggle/working/pseudo_cv25
+[Config] MDC API key loaded: YES
+```
+
 ---
 
-## Cell 72 — `code`
+## Cell 72 — `code` (execution #59)
 
 ```python
 # # ═══════════════════════════════════════════════════════════════════════════════
@@ -4033,7 +5337,7 @@ print(f'[Config] MDC API key loaded: {"YES" if MDC_API_KEY else "NO — check yo
 
 ---
 
-## Cell 73 — `code`
+## Cell 73 — `code` (execution #60)
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -4508,7 +5812,7 @@ print(f'[Config] MDC API key loaded: {"YES" if MDC_API_KEY else "NO — check yo
 
 ---
 
-## Cell 74 — `code`
+## Cell 74 — `code` (execution #61)
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -5024,9 +6328,18 @@ print('  Fix 1: Targeted GDrive sync (no stale parquet re-downloads)')
 print('  Fix 2: wget progress labels each attempt (no more confusing resets)')
 ```
 
+### Output
+
+**[stdout]**
+```
+Cross-Lingual Pseudo-Labeler Ready with 100% Safe Disk Management.
+  Fix 1: Targeted GDrive sync (no stale parquet re-downloads)
+  Fix 2: wget progress labels each attempt (no more confusing resets)
+```
+
 ---
 
-## Cell 75 — `code`
+## Cell 75 — `code` (execution #62)
 
 ```python
 # # ── TEST CELL: Prove Pipeline Integrity (WAV + ZSTD) ──
@@ -5112,7 +6425,7 @@ print('  Fix 2: wget progress labels each attempt (no more confusing resets)')
 
 ---
 
-## Cell 76 — `code`
+## Cell 76 — `code` (execution #63)
 
 ```python
 # # ── Cell 73: EXECUTE CROSS-LINGUAL Pseudo-Labeling ───────────────────────────
@@ -5131,7 +6444,7 @@ print('  Fix 2: wget progress labels each attempt (no more confusing resets)')
 
 ---
 
-## Cell 77 — `code`
+## Cell 77 — `code` (execution #64)
 
 ```python
 # !rclone copy gdrive:seamTL_bengali/pseudo_cv25 /kaggle/working/pseudo_cv25
@@ -5139,7 +6452,7 @@ print('  Fix 2: wget progress labels each attempt (no more confusing resets)')
 
 ---
 
-## Cell 78 — `code`
+## Cell 78 — `code` (execution #65)
 
 ```python
 # ── Cell 78: Load Combined Dataset (Optimized Multi-Cache) ──────────
@@ -5233,9 +6546,40 @@ N_TRAIN = len(ft_samples)
 print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples optimized for Lightning I/O.')
 ```
 
+### Output
+
+**[stdout]**
+```
+Loading original FLEURS metadata from /kaggle/input/datasets/rayedriasat/fleurs-original-zstd...
+  Indexed 1449 samples from ben→eng
+  Indexed 1449 samples from eng→ben
+  Indexed 1288 samples from ben→hin
+  Indexed 1288 samples from hin→ben
+  Indexed 1250 samples from ben→arb
+  Indexed 1250 samples from arb→ben
+Loading pseudo-label metadata from /kaggle/input/datasets/rayedriasat/cv25-pseudo-labels...
+  [Pseudo] Successfully loaded 116107 entries.
+
+Building Independent Cache Streams per Language Pair:
+  ChunkedStreamingDataset: 26249 samples | chunk=2000
+  ✓ arb→ben         cache active (26249 samples)
+  ChunkedStreamingDataset: 16250 samples | chunk=2000
+  ✓ ben→arb         cache active (16250 samples)
+  ChunkedStreamingDataset: 21449 samples | chunk=2000
+  ✓ ben→eng         cache active (21449 samples)
+  ChunkedStreamingDataset: 16288 samples | chunk=2000
+  ✓ ben→hin         cache active (16288 samples)
+  ChunkedStreamingDataset: 31449 samples | chunk=2000
+  ✓ eng→ben         cache active (31449 samples)
+  ChunkedStreamingDataset: 12396 samples | chunk=2000
+  ✓ hin→ben         cache active (12396 samples)
+
+✓ ft_samples Phase 6: 124081 samples optimized for Lightning I/O.
+```
+
 ---
 
-## Cell 79 — `code`
+## Cell 79 — `code` (execution #66)
 
 ```python
 # heed
@@ -5243,7 +6587,7 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples optimized for Lightning I/O.
 
 ---
 
-## Cell 80 — `code`
+## Cell 80 — `code` (execution #67)
 
 ```python
 # from transformers import SeamlessM4Tv2ForSpeechToSpeech
@@ -5253,7 +6597,7 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples optimized for Lightning I/O.
 
 ---
 
-## Cell 81 — `code`
+## Cell 81 — `code` (execution #68)
 
 ```python
 # for i in range(40033, 40133):
@@ -5262,7 +6606,7 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples optimized for Lightning I/O.
 
 ---
 
-## Cell 82 — `code`
+## Cell 82 — `code` (execution #69)
 
 ```python
 # mdl = teacher
@@ -5285,7 +6629,7 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples optimized for Lightning I/O.
 
 ---
 
-## Cell 83 — `code`
+## Cell 83 — `code` (execution #70)
 
 ```python
 # !rclone copy /kaggle/working/ gdrive:seamTL_bengali/
@@ -5293,7 +6637,7 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples optimized for Lightning I/O.
 
 ---
 
-## Cell 84 — `code`
+## Cell 84 — `code` (execution #71)
 
 ```python
 # publish_kaggle_dataset(message='Restored FLEURS and added structured Pseudo-Labels')
@@ -5301,7 +6645,7 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples optimized for Lightning I/O.
 
 ---
 
-## Cell 85 — `code`
+## Cell 85 — `code` (execution #72)
 
 ```python
 # subprocess.run(
@@ -5312,7 +6656,7 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples optimized for Lightning I/O.
 
 ---
 
-## Cell 86 — `code`
+## Cell 86 — `code` (execution #73)
 
 ```python
 # publish_kaggle_dataset(message='Fixed wav having all zeros, used zstd compression, previous error was bfloat16 silent crash on kaggle T4')
@@ -5320,7 +6664,7 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples optimized for Lightning I/O.
 
 ---
 
-## Cell 87 — `code`
+## Cell 87 — `code` (execution #74)
 
 ```python
 # # ═══════════════════════════════════════════════════════════════════════════════
@@ -5391,7 +6735,7 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples optimized for Lightning I/O.
 
 ---
 
-## Cell 88 — `code`
+## Cell 88 — `code` (execution #75)
 
 ```python
 # heed
@@ -5399,7 +6743,7 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples optimized for Lightning I/O.
 
 ---
 
-## Cell 89 — `code`
+## Cell 89 — `code` (execution #76)
 
 ```python
 # text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
@@ -5408,7 +6752,7 @@ print(f'\n✓ ft_samples Phase 6: {N_TRAIN} samples optimized for Lightning I/O.
 
 ---
 
-## Cell 90 — `code`
+## Cell 90 — `code` (execution #77)
 
 ```python
 # ── Cell A: Bridge Definitions (NOT injected yet) ─────────────────────────────
@@ -5514,9 +6858,17 @@ else:
     print("   Bridges will be added in the optional Cell F (after backbone recovers).")
 ```
 
+### Output
+
+**[stdout]**
+```
+✓  Bridge definitions loaded. Bridges NOT injected — backbone trains clean.
+   Bridges will be added in the optional Cell F (after backbone recovers).
+```
+
 ---
 
-## Cell 91 — `code`
+## Cell 91 — `code` (execution #78)
 
 ```python
 # ── Cell B: Bridge injection guard ────────────────────────────────────────────
@@ -5526,17 +6878,32 @@ print("✓  Skipping bridge injection. Backbone will train without adapters.")
 print("   This is intentional — see analysis in Cell A.")
 ```
 
+### Output
+
+**[stdout]**
+```
+✓  Skipping bridge injection. Backbone will train without adapters.
+   This is intentional — see analysis in Cell A.
+```
+
 ---
 
-## Cell 92 — `code`
+## Cell 92 — `code` (execution #79)
 
 ```python
 print("Deleting models/")
 ```
 
+### Output
+
+**[stdout]**
+```
+Deleting models/
+```
+
 ---
 
-## Cell 93 — `code`
+## Cell 93 — `code` (execution #80)
 
 ```python
 !rm -rf /kaggle/working/models
@@ -5544,427 +6911,450 @@ print("Deleting models/")
 
 ---
 
-## Cell 94 — `code`
+## Cell 94 — `code` (execution #81)
 
 ```python
 !ls
 ```
 
+### Output
+
+**[stdout]**
+```
+audio  checkpoints  cv25_raw  figures  pseudo_cv25
+```
+
 ---
 
-## Cell 95 — `code`
+## Cell 95 — `code` (execution #82)
 
 ```python
-# # ═══════════════════════════════════════════════════════════════════════════════
-# # ── FINAL OOM FIX: Sequential PyArrow + Flawless Dataset Rebuild ───────────────
-# # ═══════════════════════════════════════════════════════════════════════════════
-# import bitsandbytes as bnb
-# from transformers import get_cosine_schedule_with_warmup
-# import math, time, random, gc, queue, threading, glob, os
-# import pyarrow as pa
-# import pyarrow.parquet as pq
-# import ctypes
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── FINAL OOM FIX: Sequential PyArrow + Flawless Dataset Rebuild ───────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+import bitsandbytes as bnb
+from transformers import get_cosine_schedule_with_warmup
+import math, time, random, gc, queue, threading, glob, os
+import pyarrow as pa
+import pyarrow.parquet as pq
+import ctypes
 
-# # 1. Tame PyArrow's aggressive C++ memory pool and thread spawning
-# pa.set_cpu_count(1)
+# 1. Tame PyArrow's aggressive C++ memory pool and thread spawning
+pa.set_cpu_count(1)
 
-# # 2. Re-define the dataset WITHOUT the internal thread-bomb prefetcher
-# class SafeChunkedStreamingDataset:
-#     def __init__(self, index_samples, chunk_size=CHUNK_SIZE):
-#         self.index_samples = index_samples
-#         self.chunk_size    = chunk_size
-#         self._chunk_start  = -1      
-#         self._chunk_data   = {}      
+# 2. Re-define the dataset WITHOUT the internal thread-bomb prefetcher
+class SafeChunkedStreamingDataset:
+    def __init__(self, index_samples, chunk_size=CHUNK_SIZE):
+        self.index_samples = index_samples
+        self.chunk_size    = chunk_size
+        self._chunk_start  = -1      
+        self._chunk_data   = {}      
 
-#     def _load_chunk_into(self, chunk_start, target_dict):
-#         target_dict.clear()
-#         end = min(chunk_start + self.chunk_size, len(self.index_samples))
-#         chunk_indices = list(range(chunk_start, end))
+    def _load_chunk_into(self, chunk_start, target_dict):
+        target_dict.clear()
+        end = min(chunk_start + self.chunk_size, len(self.index_samples))
+        chunk_indices = list(range(chunk_start, end))
 
-#         by_file = {}
-#         for idx in chunk_indices:
-#             s = self.index_samples[idx]
-#             f = s['_src_file']
-#             if f not in by_file: by_file[f] = []
-#             by_file[f].append((idx, s['_src_idx']))
+        by_file = {}
+        for idx in chunk_indices:
+            s = self.index_samples[idx]
+            f = s['_src_file']
+            if f not in by_file: by_file[f] = []
+            by_file[f].append((idx, s['_src_idx']))
 
-#         for parquet_file, idx_pairs in by_file.items():
-#             try:
-#                 table  = pq.read_table(parquet_file, columns=['audio'])
-#                 df_col = table.column('audio')
-#                 for global_idx, row_idx in idx_pairs:
-#                     try:
-#                         audio_cell = df_col[row_idx].as_py()
-#                         target_dict[global_idx] = _load_wav(audio_cell)
-#                     except Exception:
-#                         target_dict[global_idx] = np.zeros(16000, dtype=np.float32)
-#             except Exception:
-#                 for global_idx, _ in idx_pairs:
-#                     target_dict[global_idx] = np.zeros(16000, dtype=np.float32)
+        for parquet_file, idx_pairs in by_file.items():
+            try:
+                table  = pq.read_table(parquet_file, columns=['audio'])
+                df_col = table.column('audio')
+                for global_idx, row_idx in idx_pairs:
+                    try:
+                        audio_cell = df_col[row_idx].as_py()
+                        target_dict[global_idx] = _load_wav(audio_cell)
+                    except Exception:
+                        target_dict[global_idx] = np.zeros(16000, dtype=np.float32)
+            except Exception:
+                for global_idx, _ in idx_pairs:
+                    target_dict[global_idx] = np.zeros(16000, dtype=np.float32)
 
-#     def _ensure_chunk(self, idx):
-#         chunk_start = (idx // self.chunk_size) * self.chunk_size
-#         if chunk_start == self._chunk_start: return  
+    def _ensure_chunk(self, idx):
+        chunk_start = (idx // self.chunk_size) * self.chunk_size
+        if chunk_start == self._chunk_start: return  
         
-#         new_chunk = {}
-#         self._load_chunk_into(chunk_start, new_chunk)
-#         self._chunk_data = new_chunk
-#         self._chunk_start = chunk_start
+        new_chunk = {}
+        self._load_chunk_into(chunk_start, new_chunk)
+        self._chunk_data = new_chunk
+        self._chunk_start = chunk_start
 
-#     def invalidate_cache(self):
-#         self._chunk_start = -1
-#         self._chunk_data = {}
-#         gc.collect()
+    def invalidate_cache(self):
+        self._chunk_start = -1
+        self._chunk_data = {}
+        gc.collect()
 
-#     def __len__(self): return len(self.index_samples)
+    def __len__(self): return len(self.index_samples)
     
-#     def __getitem__(self, idx):
-#         if isinstance(idx, slice): return [self[i] for i in range(*idx.indices(len(self)))]
-#         self._ensure_chunk(idx)
-#         meta = self.index_samples[idx]
-#         wav  = self._chunk_data.get(idx, np.zeros(16000, dtype=np.float32))
-#         return {'id': meta['id'], 'src_lang': meta['src_lang'], 'tgt_lang': meta['tgt_lang'], 'ref': meta['ref'], 'wav': wav}
+    def __getitem__(self, idx):
+        if isinstance(idx, slice): return [self[i] for i in range(*idx.indices(len(self)))]
+        self._ensure_chunk(idx)
+        meta = self.index_samples[idx]
+        wav  = self._chunk_data.get(idx, np.zeros(16000, dtype=np.float32))
+        return {'id': meta['id'], 'src_lang': meta['src_lang'], 'tgt_lang': meta['tgt_lang'], 'ref': meta['ref'], 'wav': wav}
 
-# class SafeOptimizedMultilingualDataset:
-#     def __init__(self, grouped_meta, chunk_size=CHUNK_SIZE):
-#         self.datasets = []
-#         self.dataset_lengths = []
-#         self.index_map = []
-#         self.pair_names = []
+class SafeOptimizedMultilingualDataset:
+    def __init__(self, grouped_meta, chunk_size=CHUNK_SIZE):
+        self.datasets = []
+        self.dataset_lengths = []
+        self.index_map = []
+        self.pair_names = []
         
-#         for pair_name, meta_list in sorted(grouped_meta.items()):
-#             if not meta_list: continue
-#             chunked_ds = SafeChunkedStreamingDataset(meta_list, chunk_size=chunk_size)
-#             ds_idx = len(self.datasets)
-#             self.datasets.append(chunked_ds)
-#             self.dataset_lengths.append(len(meta_list))
-#             self.pair_names.append(pair_name)
-#             for local_idx in range(len(meta_list)):
-#                 self.index_map.append((ds_idx, local_idx))
+        for pair_name, meta_list in sorted(grouped_meta.items()):
+            if not meta_list: continue
+            chunked_ds = SafeChunkedStreamingDataset(meta_list, chunk_size=chunk_size)
+            ds_idx = len(self.datasets)
+            self.datasets.append(chunked_ds)
+            self.dataset_lengths.append(len(meta_list))
+            self.pair_names.append(pair_name)
+            for local_idx in range(len(meta_list)):
+                self.index_map.append((ds_idx, local_idx))
                 
-#     def __len__(self): return len(self.index_map)
-#     def __getitem__(self, idx):
-#         ds_idx, local_idx = self.index_map[idx]
-#         return self.datasets[ds_idx][local_idx]
+    def __len__(self): return len(self.index_map)
+    def __getitem__(self, idx):
+        ds_idx, local_idx = self.index_map[idx]
+        return self.datasets[ds_idx][local_idx]
 
-# # 3. Rebuild the dataset cleanly
-# ft_samples = SafeOptimizedMultilingualDataset(grouped_metadata, chunk_size=CHUNK_SIZE)
+# 3. Rebuild the dataset cleanly
+ft_samples = SafeOptimizedMultilingualDataset(grouped_metadata, chunk_size=CHUNK_SIZE)
 
 
-# # ═══════════════════════════════════════════════════════════════════════════════
-# # ── Phase 6 Training Core ──────────────────────────────────────────────────────
-# # ═══════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── Phase 6 Training Core ──────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
 
-# BATCH_SIZE    = 4
-# GRAD_ACCUM    = 8
-# LR_BACKBONE   = 2e-5    
-# WEIGHT_DECAY  = 1e-2
-# MAX_EPOCHS    = 8
-# EVAL_STEPS    = 500
-# LOG_STEPS     = 20
+BATCH_SIZE    = 4
+GRAD_ACCUM    = 8
+LR_BACKBONE   = 2e-5    
+WEIGHT_DECAY  = 1e-2
+MAX_EPOCHS    = 8
+EVAL_STEPS    = 500
+LOG_STEPS     = 20
 
-# STEPS_PER_EPOCH = math.ceil(len(ft_samples) / (BATCH_SIZE * GRAD_ACCUM))
-# TOTAL_STEPS     = STEPS_PER_EPOCH * MAX_EPOCHS
-# WARMUP_STEPS    = min(500, int(TOTAL_STEPS * 0.03))
+STEPS_PER_EPOCH = math.ceil(len(ft_samples) / (BATCH_SIZE * GRAD_ACCUM))
+TOTAL_STEPS     = STEPS_PER_EPOCH * MAX_EPOCHS
+WARMUP_STEPS    = min(500, int(TOTAL_STEPS * 0.03))
 
-# print(f"\n{'='*60}")
-# print(f"Phase 6 — Bengali Recovery (OOM-Safe Sequential PyArrow)")
-# print(f"Total steps: {TOTAL_STEPS}  |  LR backbone: {LR_BACKBONE:.1e}")
-# print(f"{'='*60}\n")
+print(f"\n{'='*60}")
+print(f"Phase 6 — Bengali Recovery (OOM-Safe Sequential PyArrow)")
+print(f"Total steps: {TOTAL_STEPS}  |  LR backbone: {LR_BACKBONE:.1e}")
+print(f"{'='*60}\n")
 
-# if any('bridge' in n for n, _ in student.named_parameters()):
-#     raise RuntimeError("Bridges are injected! Phase 6 must run WITHOUT bridges.")
+if any('bridge' in n for n, _ in student.named_parameters()):
+    raise RuntimeError("Bridges are injected! Phase 6 must run WITHOUT bridges.")
 
-# print("Loading latest Phase 6 weights...")
-# ckpt = load_latest_checkpoint('phase6_ft') or load_latest_checkpoint('phase6_best')
-# if not ckpt:
-#     ckpt = load_latest_checkpoint('phase5_ft')
+print("Loading latest Phase 6 weights...")
+ckpt = load_latest_checkpoint('phase6_ft') or load_latest_checkpoint('phase6_best')
+if not ckpt:
+    ckpt = load_latest_checkpoint('phase5_ft')
     
-# if ckpt:
-#     student.load_state_dict(ckpt['model_state'], strict=False)
-#     print("  ✓ Model weights loaded successfully.")
-# else:
-#     print("  [WARN] No checkpoint found. Starting from scratch.")
+if ckpt:
+    student.load_state_dict(ckpt['model_state'], strict=False)
+    print("  ✓ Model weights loaded successfully.")
+else:
+    print("  [WARN] No checkpoint found. Starting from scratch.")
 
-# for name, param in student.named_parameters():
-#     param.requires_grad = True
-#     if param.dtype != torch.float32:
-#         param.data = param.data.to(torch.float32)
+for name, param in student.named_parameters():
+    param.requires_grad = True
+    if param.dtype != torch.float32:
+        param.data = param.data.to(torch.float32)
 
-# disable_all_gradient_checkpointing(student)
+disable_all_gradient_checkpointing(student)
 
-# lm_keys       = ['lm_head', 'shared']
-# lm_params     = [p for n, p in student.named_parameters() if p.requires_grad and any(k in n for k in lm_keys)]
-# other_params  = [p for n, p in student.named_parameters() if p.requires_grad and not any(k in n for k in lm_keys)]
+lm_keys       = ['lm_head', 'shared']
+lm_params     = [p for n, p in student.named_parameters() if p.requires_grad and any(k in n for k in lm_keys)]
+other_params  = [p for n, p in student.named_parameters() if p.requires_grad and not any(k in n for k in lm_keys)]
 
-# param_groups = [
-#     {'params': lm_params,    'lr': LR_BACKBONE * 0.3, 'name': 'lm_head'},
-#     {'params': other_params, 'lr': LR_BACKBONE,        'name': 'backbone'},
-# ]
+param_groups = [
+    {'params': lm_params,    'lr': LR_BACKBONE * 0.3, 'name': 'lm_head'},
+    {'params': other_params, 'lr': LR_BACKBONE,        'name': 'backbone'},
+]
 
-# optimizer = bnb.optim.AdamW8bit(param_groups, weight_decay=WEIGHT_DECAY, betas=(0.9, 0.98), eps=1e-6)
-# scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=WARMUP_STEPS, num_training_steps=TOTAL_STEPS)
-# scaler = torch.cuda.amp.GradScaler()
-# all_trainable = lm_params + other_params
+optimizer = bnb.optim.AdamW8bit(param_groups, weight_decay=WEIGHT_DECAY, betas=(0.9, 0.98), eps=1e-6)
+scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=WARMUP_STEPS, num_training_steps=TOTAL_STEPS)
+scaler = torch.cuda.amp.GradScaler()
+all_trainable = lm_params + other_params
 
-# def balanced_multilingual_shuffle(dataset_lengths, chunk_size, batch_size, seed):
-#     random.seed(seed)
-#     offsets = [0]
-#     for l in dataset_lengths[:-1]: offsets.append(offsets[-1] + l)
+def balanced_multilingual_shuffle(dataset_lengths, chunk_size, batch_size, seed):
+    random.seed(seed)
+    offsets = [0]
+    for l in dataset_lengths[:-1]: offsets.append(offsets[-1] + l)
         
-#     ds_indices = []
-#     for ds_len in dataset_lengths:
-#         chunks = list(range(0, ds_len, chunk_size))
-#         random.shuffle(chunks)
-#         order = []
-#         for c_start in chunks:
-#             c_idx = list(range(c_start, min(c_start + chunk_size, ds_len)))
-#             random.shuffle(c_idx)
-#             order.extend(c_idx)
-#         ds_indices.append(order)
+    ds_indices = []
+    for ds_len in dataset_lengths:
+        chunks = list(range(0, ds_len, chunk_size))
+        random.shuffle(chunks)
+        order = []
+        for c_start in chunks:
+            c_idx = list(range(c_start, min(c_start + chunk_size, ds_len)))
+            random.shuffle(c_idx)
+            order.extend(c_idx)
+        ds_indices.append(order)
         
-#     all_batches = []
-#     ptrs = [0] * len(dataset_lengths)
-#     active = list(range(len(dataset_lengths)))
+    all_batches = []
+    ptrs = [0] * len(dataset_lengths)
+    active = list(range(len(dataset_lengths)))
     
-#     while active:
-#         batch = []
-#         random.shuffle(active)
-#         for _ in range(batch_size):
-#             if not active: break
-#             ds_idx = active[len(batch) % len(active)]
-#             local_idx = ds_indices[ds_idx][ptrs[ds_idx]]
-#             batch.append(offsets[ds_idx] + local_idx)
+    while active:
+        batch = []
+        random.shuffle(active)
+        for _ in range(batch_size):
+            if not active: break
+            ds_idx = active[len(batch) % len(active)]
+            local_idx = ds_indices[ds_idx][ptrs[ds_idx]]
+            batch.append(offsets[ds_idx] + local_idx)
             
-#             ptrs[ds_idx] += 1
-#             if ptrs[ds_idx] >= dataset_lengths[ds_idx]:
-#                 active.remove(ds_idx)
-#         if batch: all_batches.append(batch)
+            ptrs[ds_idx] += 1
+            if ptrs[ds_idx] >= dataset_lengths[ds_idx]:
+                active.remove(ds_idx)
+        if batch: all_batches.append(batch)
             
-#     return [idx for b in all_batches for idx in b]
+    return [idx for b in all_batches for idx in b]
 
-# class BatchPrefetcher:
-#     def __init__(self, dataset, indices, batch_size, collate_fn, prefetch_size=4):
-#         self.dataset = dataset
-#         self.indices = indices
-#         self.batch_size = batch_size
-#         self.collate_fn = collate_fn
-#         self.queue = queue.Queue(maxsize=prefetch_size)
-#         self.stop_event = threading.Event()
-#         self.thread = threading.Thread(target=self._worker, daemon=True)
-#         self.thread.start()
+class BatchPrefetcher:
+    def __init__(self, dataset, indices, batch_size, collate_fn, prefetch_size=4):
+        self.dataset = dataset
+        self.indices = indices
+        self.batch_size = batch_size
+        self.collate_fn = collate_fn
+        self.queue = queue.Queue(maxsize=prefetch_size)
+        self.stop_event = threading.Event()
+        self.thread = threading.Thread(target=self._worker, daemon=True)
+        self.thread.start()
 
-#     def _worker(self):
-#         for batch_start in range(0, len(self.indices), self.batch_size):
-#             if self.stop_event.is_set(): break
-#             chunk = self.indices[batch_start : batch_start + self.batch_size]
-#             try: self.queue.put(self.collate_fn([self.dataset[i] for i in chunk]))
-#             except Exception: self.queue.put(None)
-#         self.queue.put("DONE")
+    def _worker(self):
+        for batch_start in range(0, len(self.indices), self.batch_size):
+            if self.stop_event.is_set(): break
+            chunk = self.indices[batch_start : batch_start + self.batch_size]
+            try: self.queue.put(self.collate_fn([self.dataset[i] for i in chunk]))
+            except Exception: self.queue.put(None)
+        self.queue.put("DONE")
 
-#     def __iter__(self): return self
-#     def __next__(self):
-#         item = self.queue.get()
-#         if item == "DONE": raise StopIteration
-#         return item
+    def __iter__(self): return self
+    def __next__(self):
+        item = self.queue.get()
+        if item == "DONE": raise StopIteration
+        return item
         
-#     def stop(self):
-#         self.stop_event.set()
-#         while self.thread.is_alive():
-#             while not self.queue.empty():
-#                 try: self.queue.get_nowait()
-#                 except: pass
-#             self.thread.join(timeout=0.1)
+    def stop(self):
+        self.stop_event.set()
+        while self.thread.is_alive():
+            while not self.queue.empty():
+                try: self.queue.get_nowait()
+                except: pass
+            self.thread.join(timeout=0.1)
 
-# def _save_p6(opt_step, best_chrf, history, is_best=False):
-#     # # 1. Clear caches synchronously 
-#     # for ds in ft_samples.datasets:
-#     #     if hasattr(ds, 'invalidate_cache'):
-#     #         ds.invalidate_cache()
-#     free_cpu_ram()
+def _save_p6(opt_step, best_chrf, history, is_best=False):
+    # # 1. Clear caches synchronously 
+    # for ds in ft_samples.datasets:
+    #     if hasattr(ds, 'invalidate_cache'):
+    #         ds.invalidate_cache()
+    free_cpu_ram()
     
-#     name = 'phase6_best' if is_best else 'phase6_ft'
-#     os.makedirs(CKPT_DIR, exist_ok=True)
+    name = 'phase6_best' if is_best else 'phase6_ft'
+    os.makedirs(CKPT_DIR, exist_ok=True)
     
-#     # 2. Cleanup old checkpoints
-#     old = sorted(glob.glob(f'{CKPT_DIR}/{name}_step*.pt'))
-#     for f in old:
-#         if os.path.exists(f):
-#             try: os.remove(f)
-#             except: pass
+    # 2. Cleanup old checkpoints
+    old = sorted(glob.glob(f'{CKPT_DIR}/{name}_step*.pt'))
+    for f in old:
+        if os.path.exists(f):
+            try: os.remove(f)
+            except: pass
             
-#     fname = f'{name}_step{opt_step:06d}.pt'
-#     path  = f'{CKPT_DIR}/{fname}'
+    fname = f'{name}_step{opt_step:06d}.pt'
+    path  = f'{CKPT_DIR}/{fname}'
     
-#     # 3. Save inline
-#     torch.save(dict(
-#         model_state=student.state_dict(), 
-#         optimizer_state=optimizer.state_dict(),
-#         scheduler_state=scheduler.state_dict(), 
-#         opt_step=opt_step,
-#         best_chrf=best_chrf, 
-#         train_history=history,
-#     ), path)
+    # 3. Save inline
+    torch.save(dict(
+        model_state=student.state_dict(), 
+        optimizer_state=optimizer.state_dict(),
+        scheduler_state=scheduler.state_dict(), 
+        opt_step=opt_step,
+        best_chrf=best_chrf, 
+        train_history=history,
+    ), path)
     
-#     mb = os.path.getsize(path) / 1e6
-#     print(f'[ckpt] Saved {fname} ({mb:.1f} MB)')
+    mb = os.path.getsize(path) / 1e6
+    print(f'[ckpt] Saved {fname} ({mb:.1f} MB)')
     
-#     # 4. Final GC sweep BEFORE rclone forks
-#     free_cpu_ram()
-#     if ON_KAGGLE:
-#         _rclone_push_async(path, 'checkpoints')
+    # 4. Final GC sweep BEFORE rclone forks
+    free_cpu_ram()
+    if ON_KAGGLE:
+        _rclone_push_async(path, 'checkpoints')
 
-# def run_phase6():
-#     best_chrf     = 0.0
-#     patience_left = 30
-#     opt_step      = 0
-#     train_history = {'step': [], 'ce': [], 'kd': [], 'lr': [], 'eval_step': [], 'eval_text': [], 'eval_asr': []}
+def run_phase6():
+    best_chrf     = 0.0
+    patience_left = 30
+    opt_step      = 0
+    train_history = {'step': [], 'ce': [], 'kd': [], 'lr': [], 'eval_step': [], 'eval_text': [], 'eval_asr': []}
 
-#     if ckpt:
-#         try:
-#             optimizer.load_state_dict(ckpt['optimizer_state'])
-#             scheduler.load_state_dict(ckpt['scheduler_state'])
-#         except Exception as e: print(f"  [WARN] Optim load failed: {e}")
-#         opt_step  = ckpt.get('opt_step', 0)
-#         best_chrf = ckpt.get('best_chrf', 0.0)
-#         if 'train_history' in ckpt: train_history = ckpt['train_history']
-#         print(f"  ✓ Resumed Phase 6 at step {opt_step}  best_chrf={best_chrf:.2f}")
+    if ckpt:
+        try:
+            optimizer.load_state_dict(ckpt['optimizer_state'])
+            scheduler.load_state_dict(ckpt['scheduler_state'])
+        except Exception as e: print(f"  [WARN] Optim load failed: {e}")
+        opt_step  = ckpt.get('opt_step', 0)
+        best_chrf = ckpt.get('best_chrf', 0.0)
+        if 'train_history' in ckpt: train_history = ckpt['train_history']
+        print(f"  ✓ Resumed Phase 6 at step {opt_step}  best_chrf={best_chrf:.2f}")
 
-#         return opt_step, best_chrf, train_history
+        return opt_step, best_chrf, train_history
 
-#     start_epoch      = opt_step // STEPS_PER_EPOCH
-#     batches_to_skip  = (opt_step % STEPS_PER_EPOCH) * GRAD_ACCUM
-#     step_times       = []
+    start_epoch      = opt_step // STEPS_PER_EPOCH
+    batches_to_skip  = (opt_step % STEPS_PER_EPOCH) * GRAD_ACCUM
+    step_times       = []
 
-#     for epoch in range(start_epoch, MAX_EPOCHS):
-#         current_alpha = get_kd_alpha(epoch)
-#         ep_ce = ep_kd = ep_n = 0.0
-#         accum = 0
-#         optimizer.zero_grad(set_to_none=True)
+    for epoch in range(start_epoch, MAX_EPOCHS):
+        current_alpha = get_kd_alpha(epoch)
+        ep_ce = ep_kd = ep_n = 0.0
+        accum = 0
+        optimizer.zero_grad(set_to_none=True)
 
-#         all_idx = balanced_multilingual_shuffle(ft_samples.dataset_lengths, CHUNK_SIZE, BATCH_SIZE, seed=epoch+300)
+        all_idx = balanced_multilingual_shuffle(ft_samples.dataset_lengths, CHUNK_SIZE, BATCH_SIZE, seed=epoch+300)
 
-#         batches_processed_in_epoch = 0
-#         if epoch == start_epoch and batches_to_skip > 0:
-#             batches_processed_in_epoch = batches_to_skip
+        batches_processed_in_epoch = 0
+        if epoch == start_epoch and batches_to_skip > 0:
+            batches_processed_in_epoch = batches_to_skip
 
-#         print(f"\n  Phase 6 — Epoch {epoch+1}/{MAX_EPOCHS}  |  KD_alpha={current_alpha:.2f}  |  LR_peak={LR_BACKBONE:.1e}")
-#         t_epoch = time.time()
+        print(f"\n  Phase 6 — Epoch {epoch+1}/{MAX_EPOCHS}  |  KD_alpha={current_alpha:.2f}  |  LR_peak={LR_BACKBONE:.1e}")
+        t_epoch = time.time()
         
-#         prefetcher = BatchPrefetcher(ft_samples, all_idx[batches_processed_in_epoch * BATCH_SIZE:], BATCH_SIZE, collate_s2t_batch)
+        prefetcher = BatchPrefetcher(ft_samples, all_idx[batches_processed_in_epoch * BATCH_SIZE:], BATCH_SIZE, collate_s2t_batch)
 
-#         while True:
-#             if opt_step >= TOTAL_STEPS:
-#                 prefetcher.stop()
-#                 break
+        while True:
+            if opt_step >= TOTAL_STEPS:
+                prefetcher.stop()
+                break
 
-#             try:
-#                 batch = next(prefetcher)
-#             except StopIteration:
-#                 break
+            try:
+                batch = next(prefetcher)
+            except StopIteration:
+                break
 
-#             batches_processed_in_epoch += 1
-#             if batch is None: continue
+            batches_processed_in_epoch += 1
+            if batch is None: continue
 
-#             t0 = time.time()
+            t0 = time.time()
 
-#             try: 
-#                 topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
-#                 s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
-#             except Exception:
-#                 del batch; torch.cuda.empty_cache(); gc.collect()
-#                 continue
+            try: 
+                topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
+                s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
+            except Exception:
+                del batch; torch.cuda.empty_cache(); gc.collect()
+                continue
 
-#             L = batch['labels_s'].shape[1]
-#             topk_vals = topk_vals[:, :L, :].contiguous()
-#             topk_idx  = topk_idx[:, :L, :].contiguous()
-#             s_log     = s_log[:, :L, :].contiguous()
-#             labels_dev = batch['labels_s'].to('cuda:1', non_blocking=True)
-#             tgt_langs  = batch.get('tgt_langs', None)
+            L = batch['labels_s'].shape[1]
+            topk_vals = topk_vals[:, :L, :].contiguous()
+            topk_idx  = topk_idx[:, :L, :].contiguous()
+            s_log     = s_log[:, :L, :].contiguous()
+            labels_dev = batch['labels_s'].to('cuda:1', non_blocking=True)
+            tgt_langs  = batch.get('tgt_langs', None)
 
-#             try:
-#                 loss, ce_v, kd_v = compute_recovery_loss_gpu(s_log, labels_dev, topk_vals, topk_idx, alpha=current_alpha, tgt_langs=tgt_langs)
-#                 scaler.scale(loss / GRAD_ACCUM).backward()
-#             except torch.cuda.OutOfMemoryError:
-#                 del batch, topk_vals, topk_idx, s_log, labels_dev; torch.cuda.empty_cache(); gc.collect(); free_cpu_ram()
-#                 continue
-#             except Exception:
-#                 del batch, topk_vals, topk_idx, s_log, labels_dev; torch.cuda.empty_cache(); gc.collect()
-#                 continue
+            try:
+                loss, ce_v, kd_v = compute_recovery_loss_gpu(s_log, labels_dev, topk_vals, topk_idx, alpha=current_alpha, tgt_langs=tgt_langs)
+                scaler.scale(loss / GRAD_ACCUM).backward()
+            except torch.cuda.OutOfMemoryError:
+                del batch, topk_vals, topk_idx, s_log, labels_dev; torch.cuda.empty_cache(); gc.collect(); free_cpu_ram()
+                continue
+            except Exception:
+                del batch, topk_vals, topk_idx, s_log, labels_dev; torch.cuda.empty_cache(); gc.collect()
+                continue
 
-#             del topk_vals, topk_idx, s_log, labels_dev, loss, batch
-#             ep_ce += ce_v; ep_kd += kd_v; ep_n += 1; accum += 1
+            del topk_vals, topk_idx, s_log, labels_dev, loss, batch
+            ep_ce += ce_v; ep_kd += kd_v; ep_n += 1; accum += 1
 
-#             if accum >= GRAD_ACCUM:
-#                 scaler.unscale_(optimizer)
+            if accum >= GRAD_ACCUM:
+                scaler.unscale_(optimizer)
                 
-#                 grad_norm = torch.nn.utils.clip_grad_norm_(all_trainable, 1.0)
-#                 if math.isinf(grad_norm) or math.isnan(grad_norm):
-#                     optimizer.zero_grad(set_to_none=True)
-#                     scaler.update()
-#                     accum = 0
-#                     continue
+                grad_norm = torch.nn.utils.clip_grad_norm_(all_trainable, 1.0)
+                if math.isinf(grad_norm) or math.isnan(grad_norm):
+                    optimizer.zero_grad(set_to_none=True)
+                    scaler.update()
+                    accum = 0
+                    continue
 
-#                 scaler.step(optimizer)
-#                 scaler.update()
-#                 scheduler.step()
-#                 optimizer.zero_grad(set_to_none=True)
-#                 accum = 0; opt_step += 1
+                scaler.step(optimizer)
+                scaler.update()
+                scheduler.step()
+                optimizer.zero_grad(set_to_none=True)
+                accum = 0; opt_step += 1
 
-#                 if opt_step % LOG_STEPS == 0:
-#                     step_times.append(time.time() - t0)
-#                     lrs = scheduler.get_last_lr()
-#                     lr_now = lrs[1] if len(lrs) > 1 else lrs[0]
-#                     avg_ce = ep_ce / max(ep_n, 1)
-#                     avg_kd = ep_kd / max(ep_n, 1)
-#                     eta_min = (TOTAL_STEPS - opt_step) * (sum(step_times[-20:]) / max(len(step_times[-20:]), 1)) / 60
-#                     train_history['step'].append(opt_step)
-#                     train_history['ce'].append(avg_ce)
-#                     train_history['kd'].append(avg_kd)
-#                     train_history['lr'].append(float(lr_now))
-#                     print(f"  P6 step {opt_step:>5}/{TOTAL_STEPS} | CE={avg_ce:.4f} KD={avg_kd:.4f} | α={current_alpha:.2f} | lr={lr_now:.1e} | ETA={eta_min:.0f}min")
-#                     ep_ce = ep_kd = ep_n = 0.0
-#                     free_cpu_ram()
+                if opt_step % LOG_STEPS == 0:
+                    step_times.append(time.time() - t0)
+                    lrs = scheduler.get_last_lr()
+                    lr_now = lrs[1] if len(lrs) > 1 else lrs[0]
+                    avg_ce = ep_ce / max(ep_n, 1)
+                    avg_kd = ep_kd / max(ep_n, 1)
+                    eta_min = (TOTAL_STEPS - opt_step) * (sum(step_times[-20:]) / max(len(step_times[-20:]), 1)) / 60
+                    train_history['step'].append(opt_step)
+                    train_history['ce'].append(avg_ce)
+                    train_history['kd'].append(avg_kd)
+                    train_history['lr'].append(float(lr_now))
+                    print(f"  P6 step {opt_step:>5}/{TOTAL_STEPS} | CE={avg_ce:.4f} KD={avg_kd:.4f} | α={current_alpha:.2f} | lr={lr_now:.1e} | ETA={eta_min:.0f}min")
+                    ep_ce = ep_kd = ep_n = 0.0
+                    free_cpu_ram()
 
-#                 if opt_step % EVAL_STEPS == 0:
-#                     prefetcher.stop()
+                if opt_step % EVAL_STEPS == 0:
+                    prefetcher.stop()
 
-#                     text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
-#                     eval_score = asr_chrf if asr_chrf > 1.0 else text_chrf * 0.3
+                    text_chrf, asr_chrf = _eval_quick_p5(n_samples=18)
+                    eval_score = asr_chrf if asr_chrf > 1.0 else text_chrf * 0.3
 
-#                     print(f"\n  ★ P6 step {opt_step} → Text={text_chrf:.2f}  ASR={asr_chrf:.2f}  [score={eval_score:.2f}]")
+                    print(f"\n  ★ P6 step {opt_step} → Text={text_chrf:.2f}  ASR={asr_chrf:.2f}  [score={eval_score:.2f}]")
 
-#                     train_history['eval_step'].append(opt_step)
-#                     train_history['eval_text'].append(float(text_chrf))
-#                     train_history['eval_asr'].append(float(asr_chrf))
+                    train_history['eval_step'].append(opt_step)
+                    train_history['eval_text'].append(float(text_chrf))
+                    train_history['eval_asr'].append(float(asr_chrf))
 
-#                     if eval_score > best_chrf:
-#                         best_chrf = eval_score
-#                         patience_left = 30
-#                         _save_p6(opt_step, best_chrf, train_history, is_best=True)
-#                         print(f"  ✓ NEW BEST score={best_chrf:.2f} — saved phase6_best")
-#                     else:
-#                         patience_left -= 1
-#                         _save_p6(opt_step, best_chrf, train_history, is_best=False)
-#                         print(f"  patience={patience_left}/30")
-#                         if patience_left <= 0:
-#                             print("\n  Early stop triggered.")
-#                             return opt_step, best_chrf, train_history
+                    if eval_score > best_chrf:
+                        best_chrf = eval_score
+                        patience_left = 30
+                        _save_p6(opt_step, best_chrf, train_history, is_best=True)
+                        print(f"  ✓ NEW BEST score={best_chrf:.2f} — saved phase6_best")
+                    else:
+                        patience_left -= 1
+                        _save_p6(opt_step, best_chrf, train_history, is_best=False)
+                        print(f"  patience={patience_left}/30")
+                        if patience_left <= 0:
+                            print("\n  Early stop triggered.")
+                            return opt_step, best_chrf, train_history
 
-#                     prefetcher = BatchPrefetcher(ft_samples, all_idx[batches_processed_in_epoch * BATCH_SIZE:], BATCH_SIZE, collate_s2t_batch)
+                    prefetcher = BatchPrefetcher(ft_samples, all_idx[batches_processed_in_epoch * BATCH_SIZE:], BATCH_SIZE, collate_s2t_batch)
 
-#         prefetcher.stop()
-#         print(f"  Epoch {epoch+1} done | {(time.time()-t_epoch)/60:.1f} min")
+        prefetcher.stop()
+        print(f"  Epoch {epoch+1} done | {(time.time()-t_epoch)/60:.1f} min")
 
-#     return opt_step, best_chrf, train_history
+    return opt_step, best_chrf, train_history
 
 # final_step, final_score, p6_history = run_phase6()
 # print(f"\n✓ Phase 6 complete. Best score: {final_score:.2f} at step {final_step}")
 ```
 
+### Output
+
+**[stdout]**
+```
+
+============================================================
+Phase 6 — Bengali Recovery (OOM-Safe Sequential PyArrow)
+Total steps: 31024  |  LR backbone: 2.0e-05
+============================================================
+
+Loading latest Phase 6 weights...
+[ckpt] Loaded phase6_ft_step018500.pt
+  ✓ Model weights loaded successfully.
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
+```
+
 ---
 
-## Cell 96 — `code`
+## Cell 96 — `code` (execution #83)
 
 ```python
 # # ── Cell 78: Plot Training History ───────────────────────────────────────────
@@ -6017,144 +7407,400 @@ print("Deleting models/")
 
 ---
 
-## Cell 97 — `code`
+## Cell 97 — `code` (execution #84)
 
 ```python
-# # ═══════════════════════════════════════════════════════════════════════════════
-# # ── Cell F: Phase 7 — Bridge Injection & Final Supremacy Push ────────────────
-# # ═══════════════════════════════════════════════════════════════════════════════
-# import bitsandbytes as bnb
-# from transformers import get_cosine_schedule_with_warmup
-# import math, time, random, gc, os, glob
-# import torch
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── Cell F: Phase 7 — Bridge Injection & Final Supremacy Push ────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+import bitsandbytes as bnb
+from transformers import get_cosine_schedule_with_warmup
+import math, time, random, gc, os, glob
+import torch
 
-# # ── 1. Load the Step 19000 Backbone First ─────────────────────────────────────
-# print("Loading backbone checkpoint (Step 18500)...")
-# ckpt_path = f"{CKPT_DIR}/phase6_ft_step018500.pt"
+# ── 1. Load the Step 19000 Backbone First ─────────────────────────────────────
+print("Loading backbone checkpoint (Step 18500)...")
+ckpt_path = f"{CKPT_DIR}/phase6_ft_step018500.pt"
 
-# if not os.path.exists(ckpt_path):
-#     # Fallback to latest if 19000 isn't explicitly found
-#     print(f"  [WARN] {ckpt_path} not found. Searching for latest...")
-#     ckpt = load_latest_checkpoint('phase6_ft') or load_latest_checkpoint('phase6_best')
-# else:
-#     ckpt = torch.load(ckpt_path, map_location='cpu', weights_only=False)
+if not os.path.exists(ckpt_path):
+    # Fallback to latest if 19000 isn't explicitly found
+    print(f"  [WARN] {ckpt_path} not found. Searching for latest...")
+    ckpt = load_latest_checkpoint('phase6_ft') or load_latest_checkpoint('phase6_best')
+else:
+    ckpt = torch.load(ckpt_path, map_location='cpu', weights_only=False)
 
-# if ckpt:
-#     # Strict=False because we might be loading into a model that already has bridges from a failed run
-#     student.load_state_dict(ckpt['model_state'], strict=False)
-#     print(f"  ✓ Loaded checkpoint from step {ckpt.get('opt_step', 'unknown')}")
-#     del ckpt; free_cpu_ram()
-# else:
-#     raise RuntimeError("Could not find backbone checkpoint to load!")
+if ckpt:
+    # Strict=False because we might be loading into a model that already has bridges from a failed run
+    student.load_state_dict(ckpt['model_state'], strict=False)
+    print(f"  ✓ Loaded checkpoint from step {ckpt.get('opt_step', 'unknown')}")
+    del ckpt; free_cpu_ram()
+else:
+    raise RuntimeError("Could not find backbone checkpoint to load!")
 
-# # ── 2. Inject Bridges (If not already present) ────────────────────────────────
-# already_injected = any('bridge' in n for n, _ in student.named_parameters())
-# if not already_injected:
-#     print("\nInjecting Bridges into Backbone...")
-#     # Using bottleneck=256 to give max capacity for Bengali Supremacy
-#     student = inject_bridges(student, enc_d_model=1024, dec_d_model=1024, bottleneck=256)
-# else:
-#     print("\n✓ Bridges are already present in the model architecture.")
+# ── 2. Inject Bridges (If not already present) ────────────────────────────────
+already_injected = any('bridge' in n for n, _ in student.named_parameters())
+if not already_injected:
+    print("\nInjecting Bridges into Backbone...")
+    # Using bottleneck=256 to give max capacity for Bengali Supremacy
+    student = inject_bridges(student, enc_d_model=1024, dec_d_model=1024, bottleneck=256)
+else:
+    print("\n✓ Bridges are already present in the model architecture.")
 
-# bridge_params   = [p for n, p in student.named_parameters() if 'bridge' in n]
-# backbone_params = [p for n, p in student.named_parameters() if 'bridge' not in n and p.requires_grad]
+bridge_params   = [p for n, p in student.named_parameters() if 'bridge' in n]
+backbone_params = [p for n, p in student.named_parameters() if 'bridge' not in n and p.requires_grad]
 
-# # Cast to fp32 for GradScaler
-# for p in bridge_params + backbone_params:
-#     if p.requires_grad and p.dtype != torch.float32:
-#         p.data = p.data.to(torch.float32)
+# Cast to fp32 for GradScaler
+for p in bridge_params + backbone_params:
+    if p.requires_grad and p.dtype != torch.float32:
+        p.data = p.data.to(torch.float32)
 
-# print(f"  Bridge Capacity Added: {sum(p.numel() for p in bridge_params) / 1e6:.2f} M params")
+print(f"  Bridge Capacity Added: {sum(p.numel() for p in bridge_params) / 1e6:.2f} M params")
 
-# def _save_p7(opt_step, best_chrf, history, prefix='phase7_joint'):
-#     # OOM Safe Save
-#     # for ds in ft_samples.datasets:
-#     #     if hasattr(ds, 'invalidate_cache'): ds.invalidate_cache()
-#     free_cpu_ram()
-#     os.makedirs(CKPT_DIR, exist_ok=True)
+def _save_p7(opt_step, best_chrf, history, prefix='phase7_joint'):
+    # OOM Safe Save
+    # for ds in ft_samples.datasets:
+    #     if hasattr(ds, 'invalidate_cache'): ds.invalidate_cache()
+    free_cpu_ram()
+    os.makedirs(CKPT_DIR, exist_ok=True)
     
-#     old = sorted(glob.glob(f'{CKPT_DIR}/{prefix}_step*.pt'))
-#     for f in old:
-#         if os.path.exists(f):
-#             try: os.remove(f)
-#             except: pass
+    old = sorted(glob.glob(f'{CKPT_DIR}/{prefix}_step*.pt'))
+    for f in old:
+        if os.path.exists(f):
+            try: os.remove(f)
+            except: pass
             
-#     fname = f'{prefix}_step{opt_step:06d}.pt'
-#     path  = f'{CKPT_DIR}/{fname}'
-#     torch.save(dict(model_state=student.state_dict(), opt_step=opt_step, best_chrf=best_chrf, train_history=history), path)
-#     print(f'\n[ckpt] Saved {fname} ({os.path.getsize(path)/1e6:.1f} MB)')
-#     free_cpu_ram()
-#     if ON_KAGGLE: _rclone_push_async(path, 'checkpoints')
+    fname = f'{prefix}_step{opt_step:06d}.pt'
+    path  = f'{CKPT_DIR}/{fname}'
+    torch.save(dict(model_state=student.state_dict(), opt_step=opt_step, best_chrf=best_chrf, train_history=history), path)
+    print(f'\n[ckpt] Saved {fname} ({os.path.getsize(path)/1e6:.1f} MB)')
+    free_cpu_ram()
+    if ON_KAGGLE: _rclone_push_async(path, 'checkpoints')
+```
+
+### Output
+
+**[stdout]**
+```
+Loading backbone checkpoint (Step 18500)...
+  ✓ Loaded checkpoint from step 18500
+
+Injecting Bridges into Backbone...
+  [DTB] Injected 10 Dilated Acoustic Bridges.
+  [SSB] Injected 14 SwiGLU Semantic Bridges.
+  [Architecture] Total bridge params: 16.33M
+  Bridge Capacity Added: 16.33 M params
 ```
 
 ---
 
-## Cell 98 — `code`
+## Cell 98 — `code` (execution #85)
 
 ```python
 # # ═══════════════════════════════════════════════════════════════════════════════
-# # ── STAGE 1: Bridge Warmup (Backbone FROZEN) ──────────────────────────────────
+# # ── STAGE 1: Bridge Warmup (Backbone FROZEN) — 1 FULL EPOCH ────────────────────
 # # ═══════════════════════════════════════════════════════════════════════════════
-# WARMUP_STEPS = 500
+# W_EPOCHS = 1
 # W_BATCH  = 4
-# W_ACCUM  = 4      # Faster updates for warmup
-# W_ALPHA  = 0.30   # Higher KD during warmup to match teacher distributions
+# W_ACCUM  = 4      # Faster updates for warmup (Effective Batch = 16)
+# W_ALPHA  = 0.25   # Slightly softer labels so bridges learn the manifold
+# W_LR     = 1e-4
+
+# STEPS_PER_EPOCH_W = math.ceil(len(ft_samples) / (W_BATCH * W_ACCUM))
+# TOTAL_STEPS_W     = STEPS_PER_EPOCH_W * W_EPOCHS
+# WARMUP_STEPS_W    = int(TOTAL_STEPS_W * 0.05) # 5% warmup of the LR schedule
 
 # print(f"\n{'='*60}")
-# print(f"STAGE 1: Bridge Warmup ({WARMUP_STEPS} steps)")
-# print(f"Backbone: FROZEN | Bridges: TRAINING | LR: 1e-4")
+# print(f"STAGE 1: Bridge Warmup ({W_EPOCHS} Epoch)")
+# print(f"Total Steps: {TOTAL_STEPS_W} | Backbone: FROZEN | Bridges: TRAINING")
+# print(f"LR: {W_LR:.1e} | KD_ALPHA: {W_ALPHA:.2f}")
 # print(f"{'='*60}\n")
 
+# # 1. Freeze backbone, unfreeze bridges
 # for p in backbone_params: p.requires_grad = False
 # for p in bridge_params:   p.requires_grad = True
 
-# w_opt = bnb.optim.AdamW8bit(bridge_params, lr=1e-4, weight_decay=1e-2)
-# w_sch = get_cosine_schedule_with_warmup(w_opt, num_warmup_steps=50, num_training_steps=WARMUP_STEPS)
+# w_opt = bnb.optim.AdamW8bit(bridge_params, lr=W_LR, weight_decay=1e-2)
+# w_sch = get_cosine_schedule_with_warmup(w_opt, num_warmup_steps=WARMUP_STEPS_W, num_training_steps=TOTAL_STEPS_W)
 # w_scaler = torch.cuda.amp.GradScaler()
-
-# idx_w = balanced_multilingual_shuffle(ft_samples.dataset_lengths, CHUNK_SIZE, W_BATCH, seed=999)
-# prefetcher = BatchPrefetcher(ft_samples, idx_w, W_BATCH, collate_s2t_batch)
 
 # w_step = w_accum = 0
 # w_ce = w_kd = w_n = 0.0
+# step_times_w = []
 
-# student.train(); teacher.eval()
-# while w_step < WARMUP_STEPS:
-#     try: batch = next(prefetcher)
-#     except StopIteration: break
-#     if batch is None: continue
+# # 2. Check for existing Warmup checkpoint
+# w_ckpt_path = f"{CKPT_DIR}/phase7_warmup_step{TOTAL_STEPS_W:06d}.pt"
+# latest_w_ckpt = load_latest_checkpoint('phase7_warmup')
 
-#     try:
-#         topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
-#         s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
-#     except Exception:
-#         del batch; torch.cuda.empty_cache(); gc.collect(); continue
+# if os.path.exists(w_ckpt_path):
+#     print("  ✓ Stage 1 Warmup is already complete! Moving directly to Stage 2.")
+#     w_step = TOTAL_STEPS_W
+# elif latest_w_ckpt:
+#     student.load_state_dict(latest_w_ckpt['model_state'], strict=False)
+#     w_opt.load_state_dict(latest_w_ckpt['optimizer_state'])
+#     w_sch.load_state_dict(latest_w_ckpt['scheduler_state'])
+#     w_step = latest_w_ckpt.get('opt_step', 0)
+#     print(f"  ✓ Resumed Warmup at step {w_step}")
+#     del latest_w_ckpt; free_cpu_ram()
 
-#     L = batch['labels_s'].shape[1]
-#     loss, ce_v, kd_v = compute_recovery_loss_gpu(
-#         s_log[:, :L, :].contiguous(), 
-#         batch['labels_s'].to('cuda:1', non_blocking=True), 
-#         topk_vals[:, :L, :].contiguous(), 
-#         topk_idx[:, :L, :].contiguous(), 
-#         alpha=W_ALPHA, tgt_langs=batch.get('tgt_langs')
-#     )
+# # 3. Warmup Training Loop
+# if w_step < TOTAL_STEPS_W:
+#     student.train(); teacher.eval()
     
-#     w_scaler.scale(loss / W_ACCUM).backward()
-#     del batch, topk_vals, topk_idx, s_log, loss; w_ce += ce_v; w_kd += kd_v; w_n += 1; w_accum += 1
+#     start_epoch_w = w_step // STEPS_PER_EPOCH_W
+#     batches_to_skip_w = (w_step % STEPS_PER_EPOCH_W) * W_ACCUM
 
-#     if w_accum >= W_ACCUM:
-#         w_scaler.unscale_(w_opt)
-#         torch.nn.utils.clip_grad_norm_(bridge_params, 0.5)
-#         w_scaler.step(w_opt); w_scaler.update(); w_sch.step()
-#         w_opt.zero_grad(set_to_none=True)
-#         w_accum = 0; w_step += 1
+#     for epoch in range(start_epoch_w, W_EPOCHS):
+#         idx_w = balanced_multilingual_shuffle(ft_samples.dataset_lengths, CHUNK_SIZE, W_BATCH, seed=epoch+100)
+        
+#         batches_processed = batches_to_skip_w if epoch == start_epoch_w else 0
+#         prefetcher = BatchPrefetcher(ft_samples, idx_w[batches_processed * W_BATCH:], W_BATCH, collate_s2t_batch)
+#         t_epoch = time.time()
+        
+#         while True:
+#             if w_step >= TOTAL_STEPS_W:
+#                 prefetcher.stop()
+#                 break
+                
+#             try: batch = next(prefetcher)
+#             except StopIteration: break
+            
+#             batches_processed += 1
+#             if batch is None: continue
 
-#         if w_step % 20 == 0:
-#             print(f"  Warmup Step {w_step:>3}/{WARMUP_STEPS} | CE={w_ce/w_n:.4f} KD={w_kd/w_n:.4f} | lr={w_sch.get_last_lr()[0]:.1e}")
-#             w_ce = w_kd = w_n = 0.0; free_cpu_ram()
+#             t0 = time.time()
 
-# prefetcher.stop()
-# _save_p7(w_step, 0.0, {}, prefix='phase7_warmup')
+#             try:
+#                 topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
+#                 s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
+#             except Exception:
+#                 del batch; torch.cuda.empty_cache(); gc.collect(); continue
+
+#             L = batch['labels_s'].shape[1]
+#             try:
+#                 loss, ce_v, kd_v = compute_recovery_loss_gpu(
+#                     s_log[:, :L, :].contiguous(), 
+#                     batch['labels_s'].to('cuda:1', non_blocking=True), 
+#                     topk_vals[:, :L, :].contiguous(), 
+#                     topk_idx[:, :L, :].contiguous(), 
+#                     alpha=W_ALPHA, tgt_langs=batch.get('tgt_langs')
+#                 )
+#                 w_scaler.scale(loss / W_ACCUM).backward()
+#             except torch.cuda.OutOfMemoryError:
+#                 del batch, topk_vals, topk_idx, s_log, loss; torch.cuda.empty_cache(); gc.collect(); free_cpu_ram(); continue
+#             except Exception:
+#                 del batch, topk_vals, topk_idx, s_log, loss; torch.cuda.empty_cache(); gc.collect(); continue
+            
+#             del batch, topk_vals, topk_idx, s_log, loss
+#             w_ce += ce_v; w_kd += kd_v; w_n += 1; w_accum += 1
+
+#             if w_accum >= W_ACCUM:
+#                 w_scaler.unscale_(w_opt)
+#                 torch.nn.utils.clip_grad_norm_(bridge_params, 0.5)
+#                 w_scaler.step(w_opt); w_scaler.update(); w_sch.step()
+#                 w_opt.zero_grad(set_to_none=True)
+#                 w_accum = 0; w_step += 1
+
+#                 if w_step % 50 == 0:
+#                     step_times_w.append(time.time() - t0)
+#                     eta_min = (TOTAL_STEPS_W - w_step) * (sum(step_times_w[-20:]) / max(len(step_times_w[-20:]), 1)) / 60
+#                     print(f"  Warmup Step {w_step:>4}/{TOTAL_STEPS_W} | CE={w_ce/w_n:.4f} KD={w_kd/w_n:.4f} | lr={w_sch.get_last_lr()[0]:.1e} | ETA={eta_min:.0f}m")
+#                     w_ce = w_kd = w_n = 0.0; free_cpu_ram()
+                    
+#                 # Save safety checkpoint every 2000 steps during warmup
+#                 if w_step % 2000 == 0 and w_step < TOTAL_STEPS_W:
+#                     prefetcher.stop()
+#                     _save_p7(w_step, 0.0, {}, prefix='phase7_warmup')
+#                     prefetcher = BatchPrefetcher(ft_samples, idx_w[batches_processed * W_BATCH:], W_BATCH, collate_s2t_batch)
+
+#         prefetcher.stop()
+#         print(f"  Warmup Epoch {epoch+1} done | {(time.time()-t_epoch)/60:.1f} min")
+
+#     # Save final warmup state
+#     _save_p7(w_step, 0.0, {}, prefix='phase7_warmup')
+#     print("\n✓ Stage 1: Bridge Warmup Complete.")
+```
+
+### Output
+
+**[stdout]**
+```
+
+============================================================
+STAGE 1: Bridge Warmup (1 Epoch)
+Total Steps: 7756 | Backbone: FROZEN | Bridges: TRAINING
+LR: 1.0e-04 | KD_ALPHA: 0.25
+============================================================
+
+[ckpt] No checkpoint for 'phase7_warmup'
+  Warmup Step   50/7756 | CE=4.3288 KD=1.2570 | lr=1.3e-05 | ETA=76m
+  Warmup Step  100/7756 | CE=4.2081 KD=1.2691 | lr=2.6e-05 | ETA=82m
+  Warmup Step  150/7756 | CE=4.3496 KD=1.2778 | lr=3.9e-05 | ETA=90m
+  Warmup Step  200/7756 | CE=4.1872 KD=1.2651 | lr=5.2e-05 | ETA=81m
+  Warmup Step  250/7756 | CE=4.2770 KD=1.2768 | lr=6.5e-05 | ETA=84m
+  Warmup Step  300/7756 | CE=4.1404 KD=1.1860 | lr=7.8e-05 | ETA=87m
+  Warmup Step  350/7756 | CE=4.1227 KD=1.2043 | lr=9.0e-05 | ETA=90m
+  Warmup Step  400/7756 | CE=4.2024 KD=1.1940 | lr=1.0e-04 | ETA=91m
+  Warmup Step  450/7756 | CE=4.1865 KD=1.2072 | lr=1.0e-04 | ETA=90m
+  Warmup Step  500/7756 | CE=4.3061 KD=1.2062 | lr=1.0e-04 | ETA=89m
+  Warmup Step  550/7756 | CE=4.2358 KD=1.1768 | lr=1.0e-04 | ETA=86m
+  Warmup Step  600/7756 | CE=4.2499 KD=1.2025 | lr=1.0e-04 | ETA=87m
+  Warmup Step  650/7756 | CE=4.2397 KD=1.1621 | lr=1.0e-04 | ETA=84m
+  Warmup Step  700/7756 | CE=4.2129 KD=1.1758 | lr=1.0e-04 | ETA=94m
+  Warmup Step  750/7756 | CE=4.3031 KD=1.1632 | lr=9.9e-05 | ETA=91m
+  Warmup Step  800/7756 | CE=3.7366 KD=1.1284 | lr=9.9e-05 | ETA=88m
+  Warmup Step  850/7756 | CE=3.7555 KD=1.1515 | lr=9.9e-05 | ETA=85m
+  Warmup Step  900/7756 | CE=3.8226 KD=1.1592 | lr=9.9e-05 | ETA=83m
+  Warmup Step  950/7756 | CE=3.9409 KD=1.1426 | lr=9.9e-05 | ETA=83m
+  Warmup Step 1000/7756 | CE=3.8211 KD=1.1260 | lr=9.8e-05 | ETA=85m
+  Warmup Step 1050/7756 | CE=3.8961 KD=1.1530 | lr=9.8e-05 | ETA=84m
+  Warmup Step 1100/7756 | CE=3.9039 KD=1.1214 | lr=9.8e-05 | ETA=83m
+  Warmup Step 1150/7756 | CE=3.9617 KD=1.1267 | lr=9.7e-05 | ETA=80m
+  Warmup Step 1200/7756 | CE=3.8566 KD=1.1287 | lr=9.7e-05 | ETA=81m
+  Warmup Step 1250/7756 | CE=3.8316 KD=1.1434 | lr=9.7e-05 | ETA=81m
+  Warmup Step 1300/7756 | CE=3.8198 KD=1.1472 | lr=9.6e-05 | ETA=79m
+  Warmup Step 1350/7756 | CE=3.7951 KD=1.1387 | lr=9.6e-05 | ETA=79m
+  Warmup Step 1400/7756 | CE=3.8258 KD=1.1089 | lr=9.5e-05 | ETA=77m
+  Warmup Step 1450/7756 | CE=3.7872 KD=1.1408 | lr=9.5e-05 | ETA=78m
+  Warmup Step 1500/7756 | CE=3.9179 KD=1.1409 | lr=9.4e-05 | ETA=79m
+  Warmup Step 1550/7756 | CE=3.8488 KD=1.1857 | lr=9.4e-05 | ETA=80m
+  Warmup Step 1600/7756 | CE=3.9738 KD=1.1822 | lr=9.3e-05 | ETA=79m
+  Warmup Step 1650/7756 | CE=3.8550 KD=1.2014 | lr=9.3e-05 | ETA=80m
+  Warmup Step 1700/7756 | CE=3.8135 KD=1.1665 | lr=9.2e-05 | ETA=76m
+  Warmup Step 1750/7756 | CE=3.8063 KD=1.1475 | lr=9.2e-05 | ETA=77m
+  Warmup Step 1800/7756 | CE=3.8873 KD=1.1752 | lr=9.1e-05 | ETA=78m
+  Warmup Step 1850/7756 | CE=3.8270 KD=1.1761 | lr=9.1e-05 | ETA=81m
+  Warmup Step 1900/7756 | CE=3.8874 KD=1.1428 | lr=9.0e-05 | ETA=82m
+  Warmup Step 1950/7756 | CE=3.8307 KD=1.1603 | lr=8.9e-05 | ETA=80m
+  Warmup Step 2000/7756 | CE=3.7820 KD=1.1561 | lr=8.9e-05 | ETA=77m
+
+[ckpt] Saved phase7_warmup_step002000.pt (4290.0 MB)
+[rclone] 2026/05/30 06:48:47 -   558.871 MiB / 3.995 GiB, 14%, 56.888 MiB/s, ETA 1m2s2026/05/30 06:48:57 -     1.059 GiB / 3.995 GiB, 26%, 54.382 MiB/s, ETA 55s2026/05/30 06:49:07 -     1.652 GiB / 3.995 GiB, 41%, 57.576 MiB/s, ETA 41s2026/05/30 06:49:17 -     2.188 GiB / 3.995 GiB, 55%, 57.813 MiB/s, ETA 32s2026/05/30 06:49:27 -     2.768 GiB / 3.995 GiB, 69%, 56.563 MiB/s, ETA 22s2026/05/30 06:49:37 -     3.364 GiB / 3.995 GiB, 84%, 58.767 MiB/s, ETA 11s2026/05/30 06:49:47 -     3.924 GiB / 3.995 GiB, 98%, 58.233 MiB/s, ETA 1s2026/05/30 06:49:50 -     3.995 GiB / 3.995 GiB, 100%, 55.000 MiB/s, ETA 0s
+  Warmup Step 2050/7756 | CE=3.7645 KD=1.1721 | lr=8.8e-05 | ETA=76m
+  Warmup Step 2100/7756 | CE=3.8864 KD=1.1843 | lr=8.7e-05 | ETA=75m
+  Warmup Step 2150/7756 | CE=3.8791 KD=1.1537 | lr=8.7e-05 | ETA=75m
+  Warmup Step 2200/7756 | CE=3.9274 KD=1.1812 | lr=8.6e-05 | ETA=73m
+  Warmup Step 2250/7756 | CE=3.7988 KD=1.1559 | lr=8.5e-05 | ETA=71m
+  Warmup Step 2300/7756 | CE=3.8178 KD=1.1326 | lr=8.4e-05 | ETA=71m
+  Warmup Step 2350/7756 | CE=3.8034 KD=1.1482 | lr=8.3e-05 | ETA=68m
+  Warmup Step 2400/7756 | CE=3.8278 KD=1.1296 | lr=8.3e-05 | ETA=67m
+  Warmup Step 2450/7756 | CE=3.7931 KD=1.1226 | lr=8.2e-05 | ETA=64m
+  Warmup Step 2500/7756 | CE=3.7153 KD=1.1083 | lr=8.1e-05 | ETA=61m
+  Warmup Step 2550/7756 | CE=3.8833 KD=1.1436 | lr=8.0e-05 | ETA=60m
+  Warmup Step 2600/7756 | CE=3.9374 KD=1.1341 | lr=7.9e-05 | ETA=58m
+  Warmup Step 2650/7756 | CE=3.8308 KD=1.1229 | lr=7.8e-05 | ETA=57m
+  Warmup Step 2700/7756 | CE=3.7268 KD=1.1225 | lr=7.8e-05 | ETA=53m
+  Warmup Step 2750/7756 | CE=3.7429 KD=1.1266 | lr=7.7e-05 | ETA=52m
+  Warmup Step 2800/7756 | CE=3.7902 KD=1.1321 | lr=7.6e-05 | ETA=51m
+  Warmup Step 2850/7756 | CE=3.8652 KD=1.1312 | lr=7.5e-05 | ETA=47m
+  Warmup Step 2900/7756 | CE=3.7271 KD=1.1338 | lr=7.4e-05 | ETA=46m
+  Warmup Step 2950/7756 | CE=3.7997 KD=1.1565 | lr=7.3e-05 | ETA=45m
+  Warmup Step 3000/7756 | CE=3.8080 KD=1.0950 | lr=7.2e-05 | ETA=45m
+  Warmup Step 3050/7756 | CE=3.9080 KD=1.1801 | lr=7.1e-05 | ETA=45m
+  Warmup Step 3100/7756 | CE=3.8800 KD=1.1662 | lr=7.0e-05 | ETA=45m
+  Warmup Step 3150/7756 | CE=3.9898 KD=1.1808 | lr=6.9e-05 | ETA=43m
+  Warmup Step 3200/7756 | CE=4.0074 KD=1.1660 | lr=6.8e-05 | ETA=43m
+  Warmup Step 3250/7756 | CE=3.8982 KD=1.1836 | lr=6.7e-05 | ETA=42m
+  Warmup Step 3300/7756 | CE=3.9982 KD=1.1773 | lr=6.6e-05 | ETA=41m
+  Warmup Step 3350/7756 | CE=3.8877 KD=1.1586 | lr=6.5e-05 | ETA=41m
+  Warmup Step 3400/7756 | CE=3.8853 KD=1.1875 | lr=6.4e-05 | ETA=40m
+  Warmup Step 3450/7756 | CE=3.9044 KD=1.1716 | lr=6.3e-05 | ETA=40m
+  Warmup Step 3500/7756 | CE=3.9624 KD=1.1699 | lr=6.2e-05 | ETA=40m
+  Warmup Step 3550/7756 | CE=3.9651 KD=1.1670 | lr=6.1e-05 | ETA=41m
+  Warmup Step 3600/7756 | CE=3.9361 KD=1.1828 | lr=6.0e-05 | ETA=40m
+  Warmup Step 3650/7756 | CE=4.0053 KD=1.1790 | lr=5.9e-05 | ETA=39m
+  Warmup Step 3700/7756 | CE=3.9538 KD=1.1851 | lr=5.8e-05 | ETA=39m
+  Warmup Step 3750/7756 | CE=4.0083 KD=1.1977 | lr=5.7e-05 | ETA=38m
+  Warmup Step 3800/7756 | CE=4.0399 KD=1.1757 | lr=5.6e-05 | ETA=39m
+  Warmup Step 3850/7756 | CE=4.3317 KD=1.1638 | lr=5.5e-05 | ETA=38m
+  Warmup Step 3900/7756 | CE=4.4537 KD=1.1695 | lr=5.4e-05 | ETA=38m
+  Warmup Step 3950/7756 | CE=4.3975 KD=1.1182 | lr=5.3e-05 | ETA=39m
+  Warmup Step 4000/7756 | CE=4.4814 KD=1.1161 | lr=5.2e-05 | ETA=38m
+
+[ckpt] Saved phase7_warmup_step004000.pt (4290.0 MB)
+[rclone] 2026/05/30 08:04:25 -   564.621 MiB / 3.995 GiB, 14%, 56.888 MiB/s, ETA 1m1s2026/05/30 08:04:35 -     1.125 GiB / 3.995 GiB, 28%, 58.774 MiB/s, ETA 50s2026/05/30 08:04:45 -     1.688 GiB / 3.995 GiB, 42%, 57.269 MiB/s, ETA 41s2026/05/30 08:04:55 -     2.188 GiB / 3.995 GiB, 55%, 55.738 MiB/s, ETA 33s2026/05/30 08:05:05 -     2.750 GiB / 3.995 GiB, 69%, 56.740 MiB/s, ETA 22s2026/05/30 08:05:15 -     3.341 GiB / 3.995 GiB, 84%, 58.011 MiB/s, ETA 11s2026/05/30 08:05:25 -     3.831 GiB / 3.995 GiB, 96%, 55.405 MiB/s, ETA 3s2026/05/30 08:05:30 -     3.995 GiB / 3.995 GiB, 100%, 49.769 MiB/s, ETA 0s
+  Warmup Step 4050/7756 | CE=4.2721 KD=1.1449 | lr=5.0e-05 | ETA=38m
+  Warmup Step 4100/7756 | CE=4.2837 KD=1.1364 | lr=4.9e-05 | ETA=39m
+  Warmup Step 4150/7756 | CE=4.3402 KD=1.1295 | lr=4.8e-05 | ETA=39m
+  Warmup Step 4200/7756 | CE=4.3153 KD=1.1226 | lr=4.7e-05 | ETA=38m
+  Warmup Step 4250/7756 | CE=4.3677 KD=1.1198 | lr=4.6e-05 | ETA=37m
+  Warmup Step 4300/7756 | CE=4.3348 KD=1.1119 | lr=4.5e-05 | ETA=37m
+  Warmup Step 4350/7756 | CE=4.2621 KD=1.1384 | lr=4.4e-05 | ETA=38m
+  Warmup Step 4400/7756 | CE=4.3954 KD=1.1327 | lr=4.3e-05 | ETA=38m
+  Warmup Step 4450/7756 | CE=4.1790 KD=1.1251 | lr=4.2e-05 | ETA=39m
+  Warmup Step 4500/7756 | CE=4.2641 KD=1.1237 | lr=4.1e-05 | ETA=38m
+  Warmup Step 4550/7756 | CE=4.0939 KD=1.1049 | lr=4.0e-05 | ETA=37m
+  Warmup Step 4600/7756 | CE=3.7428 KD=1.0907 | lr=3.9e-05 | ETA=36m
+  Warmup Step 4650/7756 | CE=3.6474 KD=1.1659 | lr=3.8e-05 | ETA=35m
+  Warmup Step 4700/7756 | CE=3.4586 KD=1.1118 | lr=3.7e-05 | ETA=35m
+  Warmup Step 4750/7756 | CE=3.4107 KD=1.0973 | lr=3.6e-05 | ETA=35m
+  Warmup Step 4800/7756 | CE=3.4574 KD=1.1142 | lr=3.5e-05 | ETA=33m
+  Warmup Step 4850/7756 | CE=3.4860 KD=1.1063 | lr=3.4e-05 | ETA=32m
+  Warmup Step 4900/7756 | CE=3.4891 KD=1.1162 | lr=3.3e-05 | ETA=32m
+  Warmup Step 4950/7756 | CE=3.4784 KD=1.0975 | lr=3.2e-05 | ETA=31m
+  Warmup Step 5000/7756 | CE=3.4893 KD=1.1175 | lr=3.1e-05 | ETA=30m
+  Warmup Step 5050/7756 | CE=3.5590 KD=1.0989 | lr=3.0e-05 | ETA=29m
+  Warmup Step 5100/7756 | CE=3.4795 KD=1.0982 | lr=2.9e-05 | ETA=28m
+  Warmup Step 5150/7756 | CE=3.3648 KD=1.0998 | lr=2.8e-05 | ETA=27m
+  Warmup Step 5200/7756 | CE=3.4179 KD=1.1303 | lr=2.7e-05 | ETA=27m
+  Warmup Step 5250/7756 | CE=3.6001 KD=1.1206 | lr=2.6e-05 | ETA=26m
+  Warmup Step 5300/7756 | CE=3.6698 KD=1.1077 | lr=2.5e-05 | ETA=26m
+  Warmup Step 5350/7756 | CE=3.5633 KD=1.1125 | lr=2.4e-05 | ETA=24m
+  Warmup Step 5400/7756 | CE=3.6450 KD=1.1247 | lr=2.3e-05 | ETA=24m
+  Warmup Step 5450/7756 | CE=3.5611 KD=1.0992 | lr=2.2e-05 | ETA=23m
+  Warmup Step 5500/7756 | CE=3.5891 KD=1.1028 | lr=2.1e-05 | ETA=22m
+  Warmup Step 5550/7756 | CE=3.4837 KD=1.1127 | lr=2.1e-05 | ETA=21m
+  Warmup Step 5600/7756 | CE=3.5561 KD=1.1027 | lr=2.0e-05 | ETA=21m
+  Warmup Step 5650/7756 | CE=3.6346 KD=1.1052 | lr=1.9e-05 | ETA=20m
+  Warmup Step 5700/7756 | CE=3.6040 KD=1.0974 | lr=1.8e-05 | ETA=20m
+  Warmup Step 5750/7756 | CE=3.5979 KD=1.1258 | lr=1.7e-05 | ETA=19m
+  Warmup Step 5800/7756 | CE=3.6729 KD=1.1245 | lr=1.6e-05 | ETA=19m
+  Warmup Step 5850/7756 | CE=3.4721 KD=1.0722 | lr=1.6e-05 | ETA=18m
+  Warmup Step 5900/7756 | CE=3.8100 KD=1.1477 | lr=1.5e-05 | ETA=17m
+  Warmup Step 5950/7756 | CE=3.9484 KD=1.1706 | lr=1.4e-05 | ETA=17m
+  Warmup Step 6000/7756 | CE=3.9723 KD=1.1910 | lr=1.3e-05 | ETA=16m
+
+[ckpt] Saved phase7_warmup_step006000.pt (4290.0 MB)
+[rclone] 2026/05/30 09:22:20 -   544.184 MiB / 3.995 GiB, 13%, 56.110 MiB/s, ETA 1m3s2026/05/30 09:22:30 -     1.125 GiB / 3.995 GiB, 28%, 59.218 MiB/s, ETA 49s2026/05/30 09:22:40 -     1.707 GiB / 3.995 GiB, 43%, 58.501 MiB/s, ETA 40s2026/05/30 09:22:50 -     2.254 GiB / 3.995 GiB, 56%, 59.039 MiB/s, ETA 30s2026/05/30 09:23:00 -     2.790 GiB / 3.995 GiB, 70%, 56.049 MiB/s, ETA 22s2026/05/30 09:23:10 -     3.312 GiB / 3.995 GiB, 83%, 55.750 MiB/s, ETA 12s2026/05/30 09:23:20 -     3.810 GiB / 3.995 GiB, 95%, 52.941 MiB/s, ETA 3s2026/05/30 09:23:25 -     3.995 GiB / 3.995 GiB, 100%, 47.022 MiB/s, ETA 0s
+  Warmup Step 6050/7756 | CE=3.8866 KD=1.1990 | lr=1.3e-05 | ETA=16m
+  Warmup Step 6100/7756 | CE=3.9421 KD=1.1804 | lr=1.2e-05 | ETA=15m
+  Warmup Step 6150/7756 | CE=3.9434 KD=1.1869 | lr=1.1e-05 | ETA=15m
+  Warmup Step 6200/7756 | CE=3.7681 KD=1.1556 | lr=1.1e-05 | ETA=15m
+  Warmup Step 6250/7756 | CE=3.8270 KD=1.1722 | lr=1.0e-05 | ETA=14m
+  Warmup Step 6300/7756 | CE=3.9257 KD=1.1779 | lr=9.3e-06 | ETA=14m
+  Warmup Step 6350/7756 | CE=3.8897 KD=1.1620 | lr=8.7e-06 | ETA=13m
+  Warmup Step 6400/7756 | CE=3.8466 KD=1.1590 | lr=8.1e-06 | ETA=12m
+  Warmup Step 6450/7756 | CE=3.9353 KD=1.1554 | lr=7.6e-06 | ETA=12m
+  Warmup Step 6500/7756 | CE=3.9014 KD=1.1619 | lr=7.0e-06 | ETA=11m
+  Warmup Step 6550/7756 | CE=3.9522 KD=1.1940 | lr=6.5e-06 | ETA=11m
+  Warmup Step 6600/7756 | CE=4.3417 KD=1.2271 | lr=6.0e-06 | ETA=10m
+  Warmup Step 6650/7756 | CE=4.1709 KD=1.2180 | lr=5.5e-06 | ETA=10m
+  Warmup Step 6700/7756 | CE=4.3136 KD=1.2114 | lr=5.0e-06 | ETA=9m
+  Warmup Step 6750/7756 | CE=4.1943 KD=1.2113 | lr=4.5e-06 | ETA=9m
+  Warmup Step 6800/7756 | CE=4.2581 KD=1.2035 | lr=4.1e-06 | ETA=8m
+  Warmup Step 6850/7756 | CE=4.6736 KD=1.2060 | lr=3.7e-06 | ETA=8m
+  Warmup Step 6900/7756 | CE=5.2161 KD=1.2468 | lr=3.3e-06 | ETA=7m
+  Warmup Step 6950/7756 | CE=5.2059 KD=1.2413 | lr=2.9e-06 | ETA=7m
+  Warmup Step 7000/7756 | CE=4.9213 KD=1.1656 | lr=2.6e-06 | ETA=7m
+  Warmup Step 7050/7756 | CE=4.9855 KD=1.1556 | lr=2.2e-06 | ETA=6m
+  Warmup Step 7100/7756 | CE=4.8894 KD=1.1524 | lr=1.9e-06 | ETA=6m
+  Warmup Step 7150/7756 | CE=4.7656 KD=1.1527 | lr=1.7e-06 | ETA=5m
+  Warmup Step 7200/7756 | CE=5.0662 KD=1.1758 | lr=1.4e-06 | ETA=4m
+  Warmup Step 7250/7756 | CE=4.9376 KD=1.2136 | lr=1.2e-06 | ETA=4m
+  Warmup Step 7300/7756 | CE=4.9582 KD=1.2119 | lr=9.4e-07 | ETA=4m
+  Warmup Step 7350/7756 | CE=5.0662 KD=1.2021 | lr=7.5e-07 | ETA=3m
+  Warmup Step 7400/7756 | CE=4.8728 KD=1.2085 | lr=5.7e-07 | ETA=3m
+  Warmup Step 7450/7756 | CE=4.8120 KD=1.2099 | lr=4.2e-07 | ETA=2m
+  Warmup Step 7500/7756 | CE=4.4884 KD=1.3345 | lr=3.0e-07 | ETA=2m
+  Warmup Step 7550/7756 | CE=4.5786 KD=1.2916 | lr=1.9e-07 | ETA=2m
+  Warmup Step 7600/7756 | CE=4.5026 KD=1.2747 | lr=1.1e-07 | ETA=1m
+  Warmup Step 7650/7756 | CE=5.3594 KD=1.3784 | lr=5.1e-08 | ETA=1m
+  Warmup Step 7700/7756 | CE=6.3393 KD=1.4548 | lr=1.4e-08 | ETA=1m
+  Warmup Step 7750/7756 | CE=6.3657 KD=1.4928 | lr=1.6e-10 | ETA=0m
+  Warmup Epoch 1 done | 307.9 min
+
+[ckpt] Saved phase7_warmup_step007755.pt (4290.0 MB)
+
+✓ Stage 1: Bridge Warmup Complete.
 ```
 
 ---
@@ -6232,12 +7878,14 @@ if all_ckpts:
     del p7_ckpt; free_cpu_ram()
 else:
     # Try to load warmup as baseline
-    w_ckpt_path = f"{CKPT_DIR}/phase7_warmup_step000500.pt"
-    if os.path.exists(w_ckpt_path):
-        print(f"  [ckpt] Found Warmup checkpoint. Starting Joint Fine-Tuning.")
-        w_ckpt = torch.load(w_ckpt_path, map_location='cpu', weights_only=False)
-        student.load_state_dict(w_ckpt['model_state'], strict=False)
-        del w_ckpt; free_cpu_ram()
+    # w_ckpt_path = f"{CKPT_DIR}/phase7_warmup_step000500.pt"
+    # if os.path.exists(w_ckpt_path):
+    #     print(f"  [ckpt] Found Warmup checkpoint. Starting Joint Fine-Tuning.")
+    #     w_ckpt = torch.load(w_ckpt_path, map_location='cpu', weights_only=False)
+    #     student.load_state_dict(w_ckpt['model_state'], strict=False)
+    #     del w_ckpt; free_cpu_ram()
+    print("Straight to joint training >>>")
+    free_cpu_ram()
 
 def _save_p7_epoch(opt_step, best_chrf, history, is_best=False):
     # for ds in ft_samples.datasets:
@@ -6381,6 +8029,216 @@ for epoch in range(start_epoch_p7, MAX_EPOCHS_P7):
         break
 
 print(f"\n🎉 PHASE 7 COMPLETE. Best Joint ASR ChrF: {best_j_chrf:.2f}")
+```
+
+### Output
+
+**[stdout]**
+```
+
+============================================================
+STAGE 2: Joint Supremacy Training (3 Epochs)
+Total Steps: 11634 (3878 steps/epoch)
+Backbone: UNFROZEN (LR=5.0e-06) | Bridges: UNFROZEN (LR=1.0e-05)
+KD_ALPHA Schedule: Epoch 0 = 0.15 | Epoch 1-2 = 0.10
+============================================================
+
+  [ckpt] Smart Scanner found latest Phase 7 checkpoint: phase7_joint_step002000.pt
+  ✓ Resumed Phase 7 at step 2000 | best_chrf=34.66
+
+  Phase 7 — Epoch 1/3  |  KD_alpha=0.15  |  Backbone LR=5.0e-06
+  P7 step  2020/11634 | CE=3.8054 KD=1.2600 | α=0.15 | lr=4.8e-06 | ETA=90min
+  P7 step  2040/11634 | CE=3.8082 KD=1.2377 | α=0.15 | lr=4.8e-06 | ETA=91min
+  P7 step  2060/11634 | CE=3.7881 KD=1.2489 | α=0.15 | lr=4.8e-06 | ETA=118min
+  P7 step  2080/11634 | CE=3.8720 KD=1.2571 | α=0.15 | lr=4.8e-06 | ETA=117min
+  P7 step  2100/11634 | CE=3.8545 KD=1.2386 | α=0.15 | lr=4.7e-06 | ETA=110min
+  P7 step  2120/11634 | CE=3.8034 KD=1.2490 | α=0.15 | lr=4.7e-06 | ETA=109min
+  P7 step  2140/11634 | CE=3.7482 KD=1.2454 | α=0.15 | lr=4.7e-06 | ETA=105min
+  P7 step  2160/11634 | CE=3.9291 KD=1.2693 | α=0.15 | lr=4.7e-06 | ETA=117min
+  P7 step  2180/11634 | CE=3.8314 KD=1.2680 | α=0.15 | lr=4.7e-06 | ETA=119min
+  P7 step  2200/11634 | CE=3.8765 KD=1.2999 | α=0.15 | lr=4.7e-06 | ETA=121min
+  P7 step  2220/11634 | CE=3.8084 KD=1.2571 | α=0.15 | lr=4.7e-06 | ETA=121min
+  P7 step  2240/11634 | CE=3.8554 KD=1.2671 | α=0.15 | lr=4.7e-06 | ETA=120min
+  P7 step  2260/11634 | CE=3.8640 KD=1.2669 | α=0.15 | lr=4.7e-06 | ETA=120min
+  P7 step  2280/11634 | CE=3.6815 KD=1.2684 | α=0.15 | lr=4.7e-06 | ETA=118min
+  P7 step  2300/11634 | CE=3.9359 KD=1.2954 | α=0.15 | lr=4.7e-06 | ETA=116min
+  P7 step  2320/11634 | CE=4.2102 KD=1.3214 | α=0.15 | lr=4.7e-06 | ETA=114min
+  P7 step  2340/11634 | CE=4.3440 KD=1.3148 | α=0.15 | lr=4.7e-06 | ETA=116min
+  P7 step  2360/11634 | CE=4.2470 KD=1.3106 | α=0.15 | lr=4.7e-06 | ETA=115min
+  P7 step  2380/11634 | CE=4.0634 KD=1.2868 | α=0.15 | lr=4.7e-06 | ETA=113min
+  P7 step  2400/11634 | CE=4.1990 KD=1.3227 | α=0.15 | lr=4.6e-06 | ETA=111min
+  P7 step  2420/11634 | CE=4.1859 KD=1.2947 | α=0.15 | lr=4.6e-06 | ETA=117min
+  P7 step  2440/11634 | CE=4.0171 KD=1.3289 | α=0.15 | lr=4.6e-06 | ETA=117min
+  P7 step  2460/11634 | CE=4.0674 KD=1.2938 | α=0.15 | lr=4.6e-06 | ETA=114min
+  P7 step  2480/11634 | CE=4.0924 KD=1.3113 | α=0.15 | lr=4.6e-06 | ETA=122min
+  P7 step  2500/11634 | CE=4.2202 KD=1.3016 | α=0.15 | lr=4.6e-06 | ETA=121min
+  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
+
+  ★ P7 step 2500 → Text=35.54  ASR=33.60  [score=33.60]
+
+[ckpt] Saved phase7_joint_step002500.pt (4323.9 MB)
+  patience=29/30
+[rclone] 2026/05/30 14:05:09 -   546.090 MiB / 4.027 GiB, 13%, 55.053 MiB/s, ETA 1m4s2026/05/30 14:05:19 -         1 GiB / 4.027 GiB, 25%, 52.881 MiB/s, ETA 58s2026/05/30 14:05:29 -     1.481 GiB / 4.027 GiB, 37%, 49.619 MiB/s, ETA 52s2026/05/30 14:05:39 -     2.020 GiB / 4.027 GiB, 50%, 52.397 MiB/s, ETA 39s2026/05/30 14:05:49 -     2.551 GiB / 4.027 GiB, 63%, 53.179 MiB/s, ETA 28s2026/05/30 14:05:59 -     3.058 GiB / 4.027 GiB, 76%, 52.371 MiB/s, ETA 18s2026/05/30 14:06:09 -     3.507 GiB / 4.027 GiB, 87%, 50.812 MiB/s, ETA 10s2026/05/30 14:06:19 -     3.922 GiB / 4.027 GiB, 97%, 45.212 MiB/s, ETA 2s2026/05/30 14:06:24 -     4.027 GiB / 4.027 GiB, 100%, 40.857 MiB/s, ETA 0s
+  P7 step  2520/11634 | CE=3.8393 KD=1.2713 | α=0.15 | lr=4.6e-06 | ETA=120min
+  P7 step  2540/11634 | CE=4.0784 KD=1.2584 | α=0.15 | lr=4.6e-06 | ETA=120min
+  P7 step  2560/11634 | CE=4.1851 KD=1.2525 | α=0.15 | lr=4.6e-06 | ETA=115min
+  P7 step  2580/11634 | CE=4.0124 KD=1.2441 | α=0.15 | lr=4.6e-06 | ETA=115min
+  P7 step  2600/11634 | CE=4.1471 KD=1.2717 | α=0.15 | lr=4.6e-06 | ETA=114min
+  P7 step  2620/11634 | CE=3.7148 KD=1.2130 | α=0.15 | lr=4.6e-06 | ETA=112min
+  P7 step  2640/11634 | CE=3.4632 KD=1.2267 | α=0.15 | lr=4.6e-06 | ETA=110min
+  P7 step  2660/11634 | CE=3.4170 KD=1.2167 | α=0.15 | lr=4.5e-06 | ETA=107min
+  P7 step  2680/11634 | CE=3.3825 KD=1.2046 | α=0.15 | lr=4.5e-06 | ETA=108min
+  P7 step  2700/11634 | CE=3.4345 KD=1.2056 | α=0.15 | lr=4.5e-06 | ETA=108min
+  P7 step  2720/11634 | CE=3.4317 KD=1.2350 | α=0.15 | lr=4.5e-06 | ETA=108min
+  P7 step  2740/11634 | CE=3.4614 KD=1.2426 | α=0.15 | lr=4.5e-06 | ETA=104min
+  P7 step  2760/11634 | CE=3.4169 KD=1.2332 | α=0.15 | lr=4.5e-06 | ETA=103min
+  P7 step  2780/11634 | CE=3.3986 KD=1.2134 | α=0.15 | lr=4.5e-06 | ETA=104min
+  P7 step  2800/11634 | CE=3.7765 KD=1.2077 | α=0.15 | lr=4.5e-06 | ETA=110min
+  P7 step  2820/11634 | CE=4.0420 KD=1.2187 | α=0.15 | lr=4.5e-06 | ETA=104min
+  P7 step  2840/11634 | CE=4.0857 KD=1.2526 | α=0.15 | lr=4.5e-06 | ETA=102min
+  P7 step  2860/11634 | CE=4.0537 KD=1.2272 | α=0.15 | lr=4.5e-06 | ETA=102min
+  P7 step  2880/11634 | CE=3.8552 KD=1.1927 | α=0.15 | lr=4.5e-06 | ETA=93min
+  P7 step  2900/11634 | CE=4.2929 KD=1.2361 | α=0.15 | lr=4.4e-06 | ETA=94min
+  P7 step  2920/11634 | CE=4.1538 KD=1.1959 | α=0.15 | lr=4.4e-06 | ETA=94min
+  P7 step  2940/11634 | CE=4.6552 KD=1.2809 | α=0.15 | lr=4.4e-06 | ETA=94min
+  P7 step  2960/11634 | CE=4.9870 KD=1.2858 | α=0.15 | lr=4.4e-06 | ETA=101min
+  P7 step  2980/11634 | CE=5.0826 KD=1.3085 | α=0.15 | lr=4.4e-06 | ETA=101min
+  P7 step  3000/11634 | CE=5.0004 KD=1.2996 | α=0.15 | lr=4.4e-06 | ETA=100min
+  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
+
+  ★ P7 step 3000 → Text=34.97  ASR=32.94  [score=32.94]
+
+[ckpt] Saved phase7_joint_step003000.pt (4323.9 MB)
+  patience=28/30
+[rclone] 2026/05/30 14:46:06 -       512 MiB / 4.027 GiB, 12%, 53.628 MiB/s, ETA 1m7s2026/05/30 14:46:16 -     1.062 GiB / 4.027 GiB, 26%, 56.553 MiB/s, ETA 53s2026/05/30 14:46:26 -     1.643 GiB / 4.027 GiB, 41%, 57.019 MiB/s, ETA 42s2026/05/30 14:46:36 -     2.148 GiB / 4.027 GiB, 53%, 55.141 MiB/s, ETA 34s2026/05/30 14:46:46 -     2.644 GiB / 4.027 GiB, 66%, 53.905 MiB/s, ETA 26s2026/05/30 14:46:56 -     3.182 GiB / 4.027 GiB, 79%, 53.981 MiB/s, ETA 16s2026/05/30 14:47:06 -     3.624 GiB / 4.027 GiB, 90%, 49.172 MiB/s, ETA 8s2026/05/30 14:47:16 -     4.027 GiB / 4.027 GiB, 100%, 47.086 MiB/s, ETA 0s2026/05/30 14:47:16 -     4.027 GiB / 4.027 GiB, 100%, 47.086 MiB/s, ETA 0s
+  P7 step  3020/11634 | CE=4.8037 KD=1.3101 | α=0.15 | lr=4.4e-06 | ETA=103min
+  P7 step  3040/11634 | CE=4.6147 KD=1.2757 | α=0.15 | lr=4.4e-06 | ETA=104min
+  P7 step  3060/11634 | CE=4.1278 KD=1.3027 | α=0.15 | lr=4.4e-06 | ETA=104min
+  P7 step  3080/11634 | CE=3.9162 KD=1.2837 | α=0.15 | lr=4.4e-06 | ETA=102min
+  P7 step  3100/11634 | CE=4.1815 KD=1.3352 | α=0.15 | lr=4.4e-06 | ETA=100min
+  P7 step  3120/11634 | CE=4.1115 KD=1.3489 | α=0.15 | lr=4.3e-06 | ETA=100min
+  P7 step  3140/11634 | CE=4.1387 KD=1.3163 | α=0.15 | lr=4.3e-06 | ETA=100min
+  P7 step  3160/11634 | CE=4.1408 KD=1.3459 | α=0.15 | lr=4.3e-06 | ETA=99min
+  P7 step  3180/11634 | CE=4.1232 KD=1.3283 | α=0.15 | lr=4.3e-06 | ETA=99min
+  P7 step  3200/11634 | CE=4.1701 KD=1.3577 | α=0.15 | lr=4.3e-06 | ETA=94min
+  P7 step  3220/11634 | CE=4.1608 KD=1.3402 | α=0.15 | lr=4.3e-06 | ETA=95min
+  P7 step  3240/11634 | CE=4.0768 KD=1.3695 | α=0.15 | lr=4.3e-06 | ETA=94min
+  P7 step  3260/11634 | CE=4.1131 KD=1.3379 | α=0.15 | lr=4.3e-06 | ETA=92min
+  P7 step  3280/11634 | CE=4.1594 KD=1.3336 | α=0.15 | lr=4.3e-06 | ETA=91min
+  P7 step  3300/11634 | CE=4.0999 KD=1.3455 | α=0.15 | lr=4.3e-06 | ETA=90min
+  P7 step  3320/11634 | CE=3.8055 KD=1.2775 | α=0.15 | lr=4.2e-06 | ETA=88min
+  P7 step  3340/11634 | CE=3.9075 KD=1.2902 | α=0.15 | lr=4.2e-06 | ETA=87min
+  P7 step  3360/11634 | CE=3.9401 KD=1.3143 | α=0.15 | lr=4.2e-06 | ETA=81min
+  P7 step  3380/11634 | CE=3.8726 KD=1.2713 | α=0.15 | lr=4.2e-06 | ETA=76min
+  P7 step  3400/11634 | CE=3.7822 KD=1.3041 | α=0.15 | lr=4.2e-06 | ETA=76min
+  P7 step  3420/11634 | CE=3.8222 KD=1.2786 | α=0.15 | lr=4.2e-06 | ETA=72min
+  P7 step  3440/11634 | CE=4.5519 KD=1.2886 | α=0.15 | lr=4.2e-06 | ETA=70min
+  P7 step  3460/11634 | CE=4.9151 KD=1.2741 | α=0.15 | lr=4.2e-06 | ETA=70min
+  P7 step  3480/11634 | CE=4.9774 KD=1.3311 | α=0.15 | lr=4.2e-06 | ETA=71min
+  P7 step  3500/11634 | CE=5.1461 KD=1.3269 | α=0.15 | lr=4.2e-06 | ETA=70min
+  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
+
+  ★ P7 step 3500 → Text=35.06  ASR=33.14  [score=33.14]
+
+[ckpt] Saved phase7_joint_step003500.pt (4323.9 MB)
+  patience=27/30
+  P7 step  3520/11634 | CE=4.9372 KD=1.3338 | α=0.15 | lr=4.1e-06 | ETA=69min
+[rclone] 2026/05/30 15:20:23 -   487.465 MiB / 4.027 GiB, 12%, 49.777 MiB/s, ETA 1m13s2026/05/30 15:20:33 -         1 GiB / 4.027 GiB, 25%, 51.709 MiB/s, ETA 59s2026/05/30 15:20:43 -     1.434 GiB / 4.027 GiB, 36%, 48.250 MiB/s, ETA 55s2026/05/30 15:20:53 -     1.955 GiB / 4.027 GiB, 49%, 50.085 MiB/s, ETA 42s2026/05/30 15:21:03 -     2.456 GiB / 4.027 GiB, 61%, 50.892 MiB/s, ETA 31s2026/05/30 15:21:13 -     2.957 GiB / 4.027 GiB, 73%, 51.166 MiB/s, ETA 21s2026/05/30 15:21:23 -     3.348 GiB / 4.027 GiB, 83%, 45.943 MiB/s, ETA 15s2026/05/30 15:21:33 -     3.688 GiB / 4.027 GiB, 92%, 40.262 MiB/s, ETA 8s2026/05/30 15:21:43 -     4.027 GiB / 4.027 GiB, 100%, 39.530 MiB/s, ETA 0s2026/05/30 15:21:44 -     4.027 GiB / 4.027 GiB, 100%, 37.059 MiB/s, ETA 0s
+  P7 step  3540/11634 | CE=4.8811 KD=1.3519 | α=0.15 | lr=4.1e-06 | ETA=69min
+  P7 step  3560/11634 | CE=4.7933 KD=1.3486 | α=0.15 | lr=4.1e-06 | ETA=68min
+  P7 step  3580/11634 | CE=4.8248 KD=1.3354 | α=0.15 | lr=4.1e-06 | ETA=66min
+  P7 step  3600/11634 | CE=4.9768 KD=1.3395 | α=0.15 | lr=4.1e-06 | ETA=68min
+  P7 step  3620/11634 | CE=4.8609 KD=1.3390 | α=0.15 | lr=4.1e-06 | ETA=67min
+  P7 step  3640/11634 | CE=4.8980 KD=1.3472 | α=0.15 | lr=4.1e-06 | ETA=66min
+  P7 step  3660/11634 | CE=4.9824 KD=1.3464 | α=0.15 | lr=4.1e-06 | ETA=66min
+  P7 step  3680/11634 | CE=4.8288 KD=1.3515 | α=0.15 | lr=4.1e-06 | ETA=66min
+  P7 step  3700/11634 | CE=4.9287 KD=1.3178 | α=0.15 | lr=4.0e-06 | ETA=65min
+  P7 step  3720/11634 | CE=4.7061 KD=1.4021 | α=0.15 | lr=4.0e-06 | ETA=65min
+  P7 step  3740/11634 | CE=4.4173 KD=1.4555 | α=0.15 | lr=4.0e-06 | ETA=64min
+  P7 step  3760/11634 | CE=4.4391 KD=1.4725 | α=0.15 | lr=4.0e-06 | ETA=63min
+  P7 step  3780/11634 | CE=4.5333 KD=1.4633 | α=0.15 | lr=4.0e-06 | ETA=62min
+  P7 step  3800/11634 | CE=4.4605 KD=1.4719 | α=0.15 | lr=4.0e-06 | ETA=60min
+  P7 step  3820/11634 | CE=4.4628 KD=1.5096 | α=0.15 | lr=4.0e-06 | ETA=60min
+  P7 step  3840/11634 | CE=4.7068 KD=1.4742 | α=0.15 | lr=4.0e-06 | ETA=61min
+  P7 step  3860/11634 | CE=4.7296 KD=1.4673 | α=0.15 | lr=4.0e-06 | ETA=60min
+  Epoch 1 done | 147.4 min
+
+  Phase 7 — Epoch 2/3  |  KD_alpha=0.10  |  Backbone LR=5.0e-06
+  P7 step  3880/11634 | CE=3.7243 KD=1.2499 | α=0.10 | lr=3.9e-06 | ETA=60min
+  P7 step  3900/11634 | CE=3.7552 KD=1.2557 | α=0.10 | lr=3.9e-06 | ETA=60min
+  P7 step  3920/11634 | CE=3.6860 KD=1.2925 | α=0.10 | lr=3.9e-06 | ETA=60min
+  P7 step  3940/11634 | CE=3.7126 KD=1.2528 | α=0.10 | lr=3.9e-06 | ETA=60min
+  P7 step  3960/11634 | CE=3.6870 KD=1.2788 | α=0.10 | lr=3.9e-06 | ETA=61min
+  P7 step  3980/11634 | CE=3.6320 KD=1.2499 | α=0.10 | lr=3.9e-06 | ETA=62min
+  P7 step  4000/11634 | CE=3.6089 KD=1.2417 | α=0.10 | lr=3.9e-06 | ETA=59min
+  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
+
+  ★ P7 step 4000 → Text=34.70  ASR=33.49  [score=33.49]
+
+[ckpt] Saved phase7_joint_step004000.pt (4323.9 MB)
+  patience=26/30
+  P7 step  4020/11634 | CE=3.6420 KD=1.3043 | α=0.10 | lr=3.9e-06 | ETA=59min
+[rclone] 2026/05/30 15:52:08 -   523.965 MiB / 4.027 GiB, 13%, 53.134 MiB/s, ETA 1m7s2026/05/30 15:52:18 -     1.024 GiB / 4.027 GiB, 25%, 52.895 MiB/s, ETA 58s2026/05/30 15:52:28 -     1.549 GiB / 4.027 GiB, 38%, 52.847 MiB/s, ETA 48s2026/05/30 15:52:38 -     2.033 GiB / 4.027 GiB, 50%, 51.779 MiB/s, ETA 39s2026/05/30 15:52:48 -     2.569 GiB / 4.027 GiB, 64%, 53.383 MiB/s, ETA 27s2026/05/30 15:52:58 -     3.125 GiB / 4.027 GiB, 78%, 55.278 MiB/s, ETA 16s2026/05/30 15:53:08 -     3.500 GiB / 4.027 GiB, 87%, 46.792 MiB/s, ETA 11s2026/05/30 15:53:18 -     3.930 GiB / 4.027 GiB, 98%, 45.893 MiB/s, ETA 2s2026/05/30 15:53:22 -     4.027 GiB / 4.027 GiB, 100%, 39.600 MiB/s, ETA 0s
+  P7 step  4040/11634 | CE=3.7240 KD=1.2737 | α=0.10 | lr=3.9e-06 | ETA=61min
+  P7 step  4060/11634 | CE=3.5753 KD=1.2602 | α=0.10 | lr=3.8e-06 | ETA=62min
+  P7 step  4080/11634 | CE=3.5801 KD=1.2521 | α=0.10 | lr=3.8e-06 | ETA=62min
+  P7 step  4100/11634 | CE=3.5907 KD=1.2849 | α=0.10 | lr=3.8e-06 | ETA=64min
+  P7 step  4120/11634 | CE=3.5162 KD=1.2379 | α=0.10 | lr=3.8e-06 | ETA=65min
+  P7 step  4140/11634 | CE=3.6460 KD=1.2839 | α=0.10 | lr=3.8e-06 | ETA=67min
+  P7 step  4160/11634 | CE=3.7262 KD=1.2680 | α=0.10 | lr=3.8e-06 | ETA=67min
+  P7 step  4180/11634 | CE=3.6670 KD=1.3048 | α=0.10 | lr=3.8e-06 | ETA=68min
+  P7 step  4200/11634 | CE=3.6036 KD=1.2611 | α=0.10 | lr=3.8e-06 | ETA=67min
+  P7 step  4220/11634 | CE=3.5816 KD=1.3018 | α=0.10 | lr=3.7e-06 | ETA=67min
+  P7 step  4240/11634 | CE=3.6638 KD=1.2714 | α=0.10 | lr=3.7e-06 | ETA=66min
+  P7 step  4260/11634 | CE=3.7244 KD=1.2980 | α=0.10 | lr=3.7e-06 | ETA=66min
+  P7 step  4280/11634 | CE=3.7502 KD=1.2724 | α=0.10 | lr=3.7e-06 | ETA=67min
+  P7 step  4300/11634 | CE=3.9698 KD=1.2930 | α=0.10 | lr=3.7e-06 | ETA=67min
+  P7 step  4320/11634 | CE=3.8255 KD=1.2732 | α=0.10 | lr=3.7e-06 | ETA=71min
+  P7 step  4340/11634 | CE=3.7563 KD=1.2933 | α=0.10 | lr=3.7e-06 | ETA=75min
+  P7 step  4360/11634 | CE=3.8122 KD=1.3170 | α=0.10 | lr=3.7e-06 | ETA=75min
+  P7 step  4380/11634 | CE=3.8389 KD=1.3078 | α=0.10 | lr=3.6e-06 | ETA=78min
+  P7 step  4400/11634 | CE=3.8280 KD=1.2784 | α=0.10 | lr=3.6e-06 | ETA=81min
+  P7 step  4420/11634 | CE=3.7297 KD=1.3116 | α=0.10 | lr=3.6e-06 | ETA=83min
+  P7 step  4440/11634 | CE=3.7481 KD=1.2932 | α=0.10 | lr=3.6e-06 | ETA=81min
+  P7 step  4460/11634 | CE=3.8700 KD=1.2988 | α=0.10 | lr=3.6e-06 | ETA=80min
+  P7 step  4480/11634 | CE=3.6735 KD=1.3056 | α=0.10 | lr=3.6e-06 | ETA=80min
+  P7 step  4500/11634 | CE=3.7536 KD=1.2735 | α=0.10 | lr=3.6e-06 | ETA=81min
+  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
+✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
+
+  ★ P7 step 4500 → Text=35.27  ASR=33.26  [score=33.26]
+
+[ckpt] Saved phase7_joint_step004500.pt (4323.9 MB)
+  patience=25/30
+[rclone] 2026/05/30 16:31:42 -   493.059 MiB / 4.027 GiB, 12%, 49.777 MiB/s, ETA 1m12s2026/05/30 16:31:52 -   939.996 MiB / 4.027 GiB, 23%, 46.952 MiB/s, ETA 1m7s2026/05/30 16:32:02 -     1.436 GiB / 4.027 GiB, 36%, 49.276 MiB/s, ETA 53s2026/05/30 16:32:12 -     1.923 GiB / 4.027 GiB, 48%, 48.334 MiB/s, ETA 44s2026/05/30 16:32:22 -     2.397 GiB / 4.027 GiB, 60%, 48.759 MiB/s, ETA 34s2026/05/30 16:32:32 -     2.875 GiB / 4.027 GiB, 71%, 50.278 MiB/s, ETA 23s2026/05/30 16:32:42 -     3.297 GiB / 4.027 GiB, 82%, 44.494 MiB/s, ETA 16s2026/05/30 16:32:52 -     3.688 GiB / 4.027 GiB, 92%, 43.311 MiB/s, ETA 8s2026/05/30 16:33:02 -     4.027 GiB / 4.027 GiB, 100%, 40.711 MiB/s, ETA 0s2026/05/30 16:33:03 -     4.027 GiB / 4.027 GiB, 100%, 38.668 MiB/s, ETA 0s
+  P7 step  4520/11634 | CE=3.7326 KD=1.3073 | α=0.10 | lr=3.6e-06 | ETA=79min
+  P7 step  4540/11634 | CE=3.8116 KD=1.2983 | α=0.10 | lr=3.5e-06 | ETA=80min
+  P7 step  4560/11634 | CE=3.8006 KD=1.2875 | α=0.10 | lr=3.5e-06 | ETA=80min
+  P7 step  4580/11634 | CE=3.7680 KD=1.3324 | α=0.10 | lr=3.5e-06 | ETA=80min
+  P7 step  4600/11634 | CE=3.7997 KD=1.3305 | α=0.10 | lr=3.5e-06 | ETA=80min
+  P7 step  4620/11634 | CE=3.8710 KD=1.3012 | α=0.10 | lr=3.5e-06 | ETA=80min
+  P7 step  4640/11634 | CE=3.6504 KD=1.2873 | α=0.10 | lr=3.5e-06 | ETA=81min
+  P7 step  4660/11634 | CE=3.6148 KD=1.2933 | α=0.10 | lr=3.5e-06 | ETA=81min
+  P7 step  4680/11634 | CE=3.6551 KD=1.3175 | α=0.10 | lr=3.5e-06 | ETA=81min
+  P7 step  4700/11634 | CE=3.5721 KD=1.2968 | α=0.10 | lr=3.4e-06 | ETA=80min
+  P7 step  4720/11634 | CE=3.7054 KD=1.3257 | α=0.10 | lr=3.4e-06 | ETA=76min
+  P7 step  4740/11634 | CE=3.6805 KD=1.3235 | α=0.10 | lr=3.4e-06 | ETA=72min
+  P7 step  4760/11634 | CE=3.6246 KD=1.2987 | α=0.10 | lr=3.4e-06 | ETA=71min
+  P7 step  4780/11634 | CE=3.7183 KD=1.3249 | α=0.10 | lr=3.4e-06 | ETA=67min
+  P7 step  4800/11634 | CE=3.6936 KD=1.3329 | α=0.10 | lr=3.4e-06 | ETA=65min
+  P7 step  4820/11634 | CE=3.5887 KD=1.2874 | α=0.10 | lr=3.4e-06 | ETA=63min
+  P7 step  4840/11634 | CE=3.6144 KD=1.3348 | α=0.10 | lr=3.3e-06 | ETA=63min
+  P7 step  4860/11634 | CE=3.6167 KD=1.3097 | α=0.10 | lr=3.3e-06 | ETA=62min
+  P7 step  4880/11634 | CE=3.6043 KD=1.3525 | α=0.10 | lr=3.3e-06 | ETA=62min
+  P7 step  4900/11634 | CE=3.6275 KD=1.3151 | α=0.10 | lr=3.3e-06 | ETA=60min
+  P7 step  4920/11634 | CE=3.6211 KD=1.3122 | α=0.10 | lr=3.3e-06 | ETA=60min
+  P7 step  4940/11634 | CE=3.6544 KD=1.3027 | α=0.10 | lr=3.3e-06 | ETA=59min
+  P7 step  4960/11634 | CE=3.7214 KD=1.3474 | α=0.10 | lr=3.3e-06 | ETA=58min
+  P7 step  4980/11634 | CE=3.6795 KD=1.3441 | α=0.10 | lr=3.3e-06 | ETA=58min
 ```
 
 ---
