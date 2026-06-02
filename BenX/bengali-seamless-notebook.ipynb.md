@@ -1,6 +1,6 @@
 # Notebook: `./bengali-seamless-notebook.ipynb`
 
-> Kernel: **Python 3** | Total cells: **108**
+> Kernel: **Python 3** | Total cells: **121**
 
 ---
 
@@ -136,9 +136,8 @@ Drive root:
            0 2026-04-17 11:03:10        -1 Colab Notebooks
            0 2026-05-26 13:47:55        -1 Rifa Wedding files
            0 2025-11-10 11:33:43        -1 ScholarMate
-           0 2026-04-05 12:59:09        -1 cse465
-           0 2026-04-12 12:42:04        -1 cse465v5
-           0 2026-05-1
+           0 2026-05-30 14:51:43        -1 ZeroToMastery - PyTorch for Deep Learning Bootcamp Zero to Mastery
+           0 2
 HuggingFace login: OK
 ```
 
@@ -162,27 +161,13 @@ print('All packages installed.')
 
 **[stdout]**
 ```
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.2/12.2 MB 90.1 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 80.3 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.1/84.1 kB 5.6 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.8/100.8 kB 7.5 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 96.5 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 kB 8.4 MB/s eta 0:00:00
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 788.2/788.2 kB 43.2 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 33.0 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.1/84.1 kB 5.2 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.8/100.8 kB 7.4 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 85.3 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 kB 9.6 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 788.2/788.2 kB 47.3 MB/s eta 0:00:00
 All packages installed.
-```
-
-**[stderr]**
-```
-ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
-dask-cuda 26.2.0 requires cuda-core==0.3.*, but you have cuda-core 1.0.1 which is incompatible.
-dask-cuda 26.2.0 requires numba-cuda<0.23.0,>=0.22.1, but you have numba-cuda 0.30.2 which is incompatible.
-distributed-ucxx-cu12 0.48.0 requires numba-cuda[cu12]<0.23.0,>=0.22.1, but you have numba-cuda 0.30.2 which is incompatible.
-cuml-cu12 26.2.0 requires numba<0.62.0,>=0.60.0, but you have numba 0.65.1 which is incompatible.
-cuml-cu12 26.2.0 requires numba-cuda[cu12]<0.23.0,>=0.22.1, but you have numba-cuda 0.30.2 which is incompatible.
-ucxx-cu12 0.48.0 requires numba-cuda[cu12]<0.23.0,>=0.22.1, but you have numba-cuda 0.30.2 which is incompatible.
-cudf-cu12 26.2.1 requires numba<0.62.0,>=0.60.0, but you have numba 0.65.1 which is incompatible.
-cudf-cu12 26.2.1 requires numba-cuda[cu12]<0.23.0,>=0.22.2, but you have numba-cuda 0.30.2 which is incompatible.
 ```
 
 ---
@@ -1550,7 +1535,7 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
 **[stdout]**
 ```
 [ckpt] Syncing from rclone remote...
-[ckpt] 12 file(s) available
+[ckpt] 14 file(s) available
   all_detailed_summaries_step000000.pt                        0.0 MB
   all_summaries_step000000.pt                                 0.0 MB
   phase0_benchmark_step000000.pt                              0.1 MB
@@ -1563,9 +1548,11 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
   phase4_dec_pruning_step000000.pt                            0.0 MB
   phase5_benchmark_step000000.pt                              0.1 MB
   phase6_ft_step018500.pt                                  5837.8 MB
+  phase7_joint_step011000.pt                               5937.1 MB
+  phase7_warmup_step007755.pt                              4290.0 MB
 =================================================================
-  Platform : kaggle   Time : 2026-05-30 05:10
-  Checkpoint files: 12
+  Platform : kaggle   Time : 2026-06-02 06:47
+  Checkpoint files: 14
     all_detailed_summaries_step000000.pt                    0.0 MB
     all_summaries_step000000.pt                             0.0 MB
     phase0_benchmark_step000000.pt                          0.1 MB
@@ -1578,6 +1565,8 @@ print('\n✓ ALL SETUP CELLS COMPLETE — proceed to phases.')
     phase4_dec_pruning_step000000.pt                        0.0 MB
     phase5_benchmark_step000000.pt                          0.1 MB
     phase6_ft_step018500.pt                              5837.8 MB
+    phase7_joint_step011000.pt                           5937.1 MB
+    phase7_warmup_step007755.pt                          4290.0 MB
   GPU: Tesla T4  VRAM: 15.6 GB
 =================================================================
 
@@ -2353,7 +2342,7 @@ By Target Language:
      ENG: BLEU= 16.85  ChrF= 52.04  (n=33)
      HIN: BLEU=  8.86  ChrF= 37.45  (n=33)
 ================================================================================
-[rclone] 2026/05/30 05:10:25 -     1.581 KiB / 1.581 KiB, 100%, 1.580 KiB/s, ETA 0s
+[rclone] 2026/06/02 06:47:37 -     1.581 KiB / 1.581 KiB, 100%, 1.580 KiB/s, ETA 0s
 [fig] Saved phase_comparison.png
 ```
 
@@ -2375,7 +2364,7 @@ Plotting detailed comparison for 1 phases: ['P0_V1_Baseline']
 **[stdout]**
 ```
   ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-[rclone] 2026/05/30 05:10:28 -     2.446 KiB / 2.446 KiB, 100%, 2.445 KiB/s, ETA 0s
+[rclone] 2026/06/02 06:47:39 -     2.446 KiB / 2.446 KiB, 100%, 2.445 KiB/s, ETA 0s
 ```
 
 ```
@@ -2917,7 +2906,8 @@ By Target Language:
   ── Quality Gate ──
   Bengali ChrF : P0=40.37  →  P1=40.37  Δ=+0.00
   ✓ Within ±1.5 — vocab trim is lossless.
-[rclone] 2026/05/30 05:10:32 -     1.769 KiB / 1.769 KiB, 100%, 1.768 KiB/s, ETA 0s
+[rclone] 2026/06/02 06:47:43 -     1.769 KiB / 1.769 KiB, 100%, 1.768 KiB/s, ETA 0s
+[rclone] 2026/06/02 06:47:45 -     3.384 KiB / 3.384 KiB, 100%, 0 B/s, ETA -
 [fig] Saved phase_comparison.png
 ```
 
@@ -2949,7 +2939,6 @@ Plotting detailed comparison for 2 phases: ['P0_V1_Baseline', 'P1_Vocab4L']
 **[stdout]**
 ```
   ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
-[rclone] 2026/05/30 05:10:34 -     3.384 KiB / 3.384 KiB, 100%, 3.383 KiB/s, ETA 0s
 ```
 
 ```
@@ -3294,8 +3283,9 @@ By Target Language:
      ENG: BLEU=  1.70  ChrF= 15.74  (n=33)
      HIN: BLEU=  0.36  ChrF=  6.06  (n=33)
 ================================================================================
-[rclone] 2026/05/30 05:10:38 -     1.956 KiB / 1.956 KiB, 100%, 1.955 KiB/s, ETA 0s
+[rclone] 2026/06/02 06:47:51 -     1.956 KiB / 1.956 KiB, 100%, 0 B/s, ETA -
 [fig] Saved phase_comparison.png
+[rclone] 2026/06/02 06:47:53 -     4.321 KiB / 4.321 KiB, 100%, 0 B/s, ETA -
 ```
 
 ```
@@ -3326,7 +3316,6 @@ Plotting detailed comparison for 3 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_
 **[stdout]**
 ```
   ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
-[rclone] 2026/05/30 05:10:40 -     4.321 KiB / 4.321 KiB, 100%, 4.320 KiB/s, ETA 0s
 ```
 
 ```
@@ -3605,7 +3594,7 @@ gpu_mem()
 Frozen (vocoder): 41.91M params
 Trainable: 1014.1M / 1056.0M (96.0%)
 ✓ All trainable params fp32 — GradScaler will work correctly
-  GPU0: 1.19GB alloc / 1.30GB reserved
+  GPU0: 1.19GB alloc / 1.28GB reserved
   GPU1: 6.62GB alloc / 6.66GB reserved
 ```
 
@@ -4109,7 +4098,7 @@ gpu_mem()
 ⚠ Still on: []
 
 VRAM strategy: GC=OFF, BATCH=4, ACCUM=8, effective_batch=32
-  GPU0: 1.19GB alloc / 1.30GB reserved
+  GPU0: 1.19GB alloc / 1.28GB reserved
   GPU1: 6.62GB alloc / 6.66GB reserved
 ```
 
@@ -4559,41 +4548,41 @@ print(f'  Teacher top-k={TOP_K_TEACHER}  T={KD_TEMPERATURE}')
 
 **[stdout]**
 ```
-Collecting bitsandbytes
-  Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl.metadata (10 kB)
-Requirement already satisfied: torch<3,>=2.3 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.10.0+cu128)
-Requirement already satisfied: numpy>=1.17 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.4.6)
-Requirement already satisfied: packaging>=20.9 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (26.2)
-Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.25.2)
-Requirement already satisfied: typing-extensions>=4.10.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (4.15.0)
-Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (75.2.0)
-Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.14.0)
-Requirement already satisfied: networkx>=2.5.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.1)
-Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.1.6)
-Requirement already satisfied: fsspec>=0.8.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2025.3.0)
-Requirement already satisfied: cuda-bindings==12.9.4 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.9.4)
-Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
-Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
-Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
-Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (9.10.2.21)
-Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.4.1)
-Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.3.3.83)
-Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (10.3.9.90)
-Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.7.3.90)
-Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.5.8.93)
-Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (0.7.1)
-Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2.27.5)
-Requirement already satisfied: nvidia-nvshmem-cu12==3.4.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.4.5)
-Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
-Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
-Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.13.1.3)
-Requirement already satisfied: triton==3.6.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.0)
-Requirement already satisfied: cuda-pathfinder~=1.1 in /usr/local/lib/python3.12/dist-packages (from cuda-bindings==12.9.4->torch<3,>=2.3->bitsandbytes) (1.5.4)
-Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy>=1.13.3->torch<3,>=2.3->bitsandbytes) (1.3.0)
-Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2->torch<3,>=2.3->bitsandbytes) (3.0.3)
-Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl (60.7 MB)
-[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m60.7/60.7 MB[0m [31m30.0 MB/s[0m eta [36m0:00:00[0m:00:01[0m00:01[0m
-[?25hInstalling collected packages: bitsandbytes
+Collecting bitsandbytes
+  Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl.metadata (10 kB)
+Requirement already satisfied: torch<3,>=2.3 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.10.0+cu128)
+Requirement already satisfied: numpy>=1.17 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (2.0.2)
+Requirement already satisfied: packaging>=20.9 in /usr/local/lib/python3.12/dist-packages (from bitsandbytes) (26.0)
+Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.24.3)
+Requirement already satisfied: typing-extensions>=4.10.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (4.15.0)
+Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (75.2.0)
+Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.14.0)
+Requirement already satisfied: networkx>=2.5.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.1)
+Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.1.6)
+Requirement already satisfied: fsspec>=0.8.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2026.2.0)
+Requirement already satisfied: cuda-bindings==12.9.4 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.9.4)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
+Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (9.10.2.21)
+Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.4.1)
+Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.3.3.83)
+Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (10.3.9.90)
+Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (11.7.3.90)
+Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.5.8.93)
+Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (0.7.1)
+Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (2.27.5)
+Requirement already satisfied: nvidia-nvshmem-cu12==3.4.5 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.4.5)
+Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.90)
+Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (12.8.93)
+Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (1.13.1.3)
+Requirement already satisfied: triton==3.6.0 in /usr/local/lib/python3.12/dist-packages (from torch<3,>=2.3->bitsandbytes) (3.6.0)
+Requirement already satisfied: cuda-pathfinder~=1.1 in /usr/local/lib/python3.12/dist-packages (from cuda-bindings==12.9.4->torch<3,>=2.3->bitsandbytes) (1.3.5)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy>=1.13.3->torch<3,>=2.3->bitsandbytes) (1.3.0)
+Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2->torch<3,>=2.3->bitsandbytes) (3.0.3)
+Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl (60.7 MB)
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m60.7/60.7 MB[0m [31m31.6 MB/s[0m eta [36m0:00:00[0m
+[?25hInstalling collected packages: bitsandbytes
 Successfully installed bitsandbytes-0.49.2
 ```
 
@@ -4670,7 +4659,7 @@ Successfully installed bitsandbytes-0.49.2
 
 ---
 
-## Cell 63 — `code` (execution #93)
+## Cell 63 — `code` (execution #50)
 
 ```python
 # ── Cell 51B: Quick eval helper ────────────────────────────────────────────────
@@ -5139,7 +5128,7 @@ By Target Language:
   eng→ben             BLEU: Teacher=11.58  Student=3.99  Δ=-7.59   |  ChrF: Teacher=48.11  Student=29.40  Δ=-18.71 
   hin→ben             BLEU: Teacher=7.08  Student=3.91  Δ=-3.17   |  ChrF: Teacher=38.87  Student=29.12  Δ=-9.74 
 ==================================================
-[rclone] 2026/05/30 05:12:29 -     2.144 KiB / 2.144 KiB, 100%, 2.143 KiB/s, ETA 0s
+[rclone] 2026/06/02 06:49:37 -     2.144 KiB / 2.144 KiB, 100%, 2.143 KiB/s, ETA 0s
 [fig] Saved phase_comparison.png
 ```
 
@@ -5161,7 +5150,7 @@ Plotting detailed comparison for 4 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_
 **[stdout]**
 ```
   ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
-[rclone] 2026/05/30 05:12:31 -     5.259 KiB / 5.259 KiB, 100%, 5.258 KiB/s, ETA 0s
+[rclone] 2026/06/02 06:49:39 -     5.259 KiB / 5.259 KiB, 100%, 5.258 KiB/s, ETA 0s
 ```
 
 ```
@@ -6921,7 +6910,7 @@ Deleting models/
 
 **[stdout]**
 ```
-audio  checkpoints  cv25_raw  figures  pseudo_cv25
+audio  checkpoints  cv25_raw  figures  __notebook__.ipynb  pseudo_cv25
 ```
 
 ---
@@ -7457,9 +7446,7 @@ for p in bridge_params + backbone_params:
 print(f"  Bridge Capacity Added: {sum(p.numel() for p in bridge_params) / 1e6:.2f} M params")
 
 def _save_p7(opt_step, best_chrf, history, prefix='phase7_joint'):
-    # OOM Safe Save
-    # for ds in ft_samples.datasets:
-    #     if hasattr(ds, 'invalidate_cache'): ds.invalidate_cache()
+    # warmup
     free_cpu_ram()
     os.makedirs(CKPT_DIR, exist_ok=True)
     
@@ -7471,7 +7458,14 @@ def _save_p7(opt_step, best_chrf, history, prefix='phase7_joint'):
             
     fname = f'{prefix}_step{opt_step:06d}.pt'
     path  = f'{CKPT_DIR}/{fname}'
-    torch.save(dict(model_state=student.state_dict(), opt_step=opt_step, best_chrf=best_chrf, train_history=history), path)
+    torch.save(dict(
+        model_state=student.state_dict(),
+        optimizer_state=j_opt.state_dict(),     # ← was missing
+        scheduler_state=j_sch.state_dict(),     # ← was missing
+        opt_step=opt_step,
+        best_chrf=best_chrf,
+        train_history=history,
+    ), path)
     print(f'\n[ckpt] Saved {fname} ({os.path.getsize(path)/1e6:.1f} MB)')
     free_cpu_ram()
     if ON_KAGGLE: _rclone_push_async(path, 'checkpoints')
@@ -7496,128 +7490,144 @@ Injecting Bridges into Backbone...
 ## Cell 98 — `code` (execution #85)
 
 ```python
-# # ═══════════════════════════════════════════════════════════════════════════════
-# # ── STAGE 1: Bridge Warmup (Backbone FROZEN) — 1 FULL EPOCH ────────────────────
-# # ═══════════════════════════════════════════════════════════════════════════════
-# W_EPOCHS = 1
-# W_BATCH  = 4
-# W_ACCUM  = 4      # Faster updates for warmup (Effective Batch = 16)
-# W_ALPHA  = 0.25   # Slightly softer labels so bridges learn the manifold
-# W_LR     = 1e-4
+print(f"  backbone_params: {sum(p.numel() for p in backbone_params) / 1e6:.2f} M params")
+```
 
-# STEPS_PER_EPOCH_W = math.ceil(len(ft_samples) / (W_BATCH * W_ACCUM))
-# TOTAL_STEPS_W     = STEPS_PER_EPOCH_W * W_EPOCHS
-# WARMUP_STEPS_W    = int(TOTAL_STEPS_W * 0.05) # 5% warmup of the LR schedule
+### Output
 
-# print(f"\n{'='*60}")
-# print(f"STAGE 1: Bridge Warmup ({W_EPOCHS} Epoch)")
-# print(f"Total Steps: {TOTAL_STEPS_W} | Backbone: FROZEN | Bridges: TRAINING")
-# print(f"LR: {W_LR:.1e} | KD_ALPHA: {W_ALPHA:.2f}")
-# print(f"{'='*60}\n")
+**[stdout]**
+```
+  backbone_params: 1056.02 M params
+```
 
-# # 1. Freeze backbone, unfreeze bridges
-# for p in backbone_params: p.requires_grad = False
-# for p in bridge_params:   p.requires_grad = True
+---
 
-# w_opt = bnb.optim.AdamW8bit(bridge_params, lr=W_LR, weight_decay=1e-2)
-# w_sch = get_cosine_schedule_with_warmup(w_opt, num_warmup_steps=WARMUP_STEPS_W, num_training_steps=TOTAL_STEPS_W)
-# w_scaler = torch.cuda.amp.GradScaler()
+## Cell 99 — `code` (execution #86)
 
-# w_step = w_accum = 0
-# w_ce = w_kd = w_n = 0.0
-# step_times_w = []
+```python
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── STAGE 1: Bridge Warmup (Backbone FROZEN) — 1 FULL EPOCH ────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+W_EPOCHS = 1
+W_BATCH  = 4
+W_ACCUM  = 4      # Faster updates for warmup (Effective Batch = 16)
+W_ALPHA  = 0.25   # Slightly softer labels so bridges learn the manifold
+W_LR     = 1e-4
 
-# # 2. Check for existing Warmup checkpoint
-# w_ckpt_path = f"{CKPT_DIR}/phase7_warmup_step{TOTAL_STEPS_W:06d}.pt"
-# latest_w_ckpt = load_latest_checkpoint('phase7_warmup')
+STEPS_PER_EPOCH_W = math.ceil(len(ft_samples) / (W_BATCH * W_ACCUM))
+TOTAL_STEPS_W     = STEPS_PER_EPOCH_W * W_EPOCHS
+WARMUP_STEPS_W    = int(TOTAL_STEPS_W * 0.05) # 5% warmup of the LR schedule
 
-# if os.path.exists(w_ckpt_path):
-#     print("  ✓ Stage 1 Warmup is already complete! Moving directly to Stage 2.")
-#     w_step = TOTAL_STEPS_W
-# elif latest_w_ckpt:
-#     student.load_state_dict(latest_w_ckpt['model_state'], strict=False)
-#     w_opt.load_state_dict(latest_w_ckpt['optimizer_state'])
-#     w_sch.load_state_dict(latest_w_ckpt['scheduler_state'])
-#     w_step = latest_w_ckpt.get('opt_step', 0)
-#     print(f"  ✓ Resumed Warmup at step {w_step}")
-#     del latest_w_ckpt; free_cpu_ram()
+print(f"\n{'='*60}")
+print(f"STAGE 1: Bridge Warmup ({W_EPOCHS} Epoch)")
+print(f"Total Steps: {TOTAL_STEPS_W} | Backbone: FROZEN | Bridges: TRAINING")
+print(f"LR: {W_LR:.1e} | KD_ALPHA: {W_ALPHA:.2f}")
+print(f"{'='*60}\n")
 
-# # 3. Warmup Training Loop
-# if w_step < TOTAL_STEPS_W:
-#     student.train(); teacher.eval()
+# 1. Freeze backbone, unfreeze bridges
+for p in backbone_params: p.requires_grad = False
+for p in bridge_params:   p.requires_grad = True
+
+w_opt = bnb.optim.AdamW8bit(bridge_params, lr=W_LR, weight_decay=1e-2)
+w_sch = get_cosine_schedule_with_warmup(w_opt, num_warmup_steps=WARMUP_STEPS_W, num_training_steps=TOTAL_STEPS_W)
+w_scaler = torch.cuda.amp.GradScaler()
+
+w_step = w_accum = 0
+w_ce = w_kd = w_n = 0.0
+step_times_w = []
+
+TOTAL_STEPS_W = TOTAL_STEPS_W - 1
+# 2. Check for existing Warmup checkpoint
+w_ckpt_path = f"{CKPT_DIR}/phase7_warmup_step{TOTAL_STEPS_W:06d}.pt"
+latest_w_ckpt = load_latest_checkpoint('phase7_warmup')
+
+if os.path.exists(w_ckpt_path):
+    print("  ✓ Stage 1 Warmup is already complete! Moving directly to Stage 2.")
+    w_step = TOTAL_STEPS_W
+elif latest_w_ckpt:
+    student.load_state_dict(latest_w_ckpt['model_state'], strict=False)
+    w_opt.load_state_dict(latest_w_ckpt['optimizer_state'])
+    w_sch.load_state_dict(latest_w_ckpt['scheduler_state'])
+    w_step = latest_w_ckpt.get('opt_step', 0)
+    print(f"  ✓ Resumed Warmup at step {w_step}")
+    del latest_w_ckpt; free_cpu_ram()
+
+# 3. Warmup Training Loop
+if w_step < TOTAL_STEPS_W:
+    student.train(); teacher.eval()
     
-#     start_epoch_w = w_step // STEPS_PER_EPOCH_W
-#     batches_to_skip_w = (w_step % STEPS_PER_EPOCH_W) * W_ACCUM
+    start_epoch_w = w_step // STEPS_PER_EPOCH_W
+    batches_to_skip_w = (w_step % STEPS_PER_EPOCH_W) * W_ACCUM
 
-#     for epoch in range(start_epoch_w, W_EPOCHS):
-#         idx_w = balanced_multilingual_shuffle(ft_samples.dataset_lengths, CHUNK_SIZE, W_BATCH, seed=epoch+100)
+    for epoch in range(start_epoch_w, W_EPOCHS):
+        idx_w = balanced_multilingual_shuffle(ft_samples.dataset_lengths, CHUNK_SIZE, W_BATCH, seed=epoch+100)
         
-#         batches_processed = batches_to_skip_w if epoch == start_epoch_w else 0
-#         prefetcher = BatchPrefetcher(ft_samples, idx_w[batches_processed * W_BATCH:], W_BATCH, collate_s2t_batch)
-#         t_epoch = time.time()
+        batches_processed = batches_to_skip_w if epoch == start_epoch_w else 0
+        prefetcher = BatchPrefetcher(ft_samples, idx_w[batches_processed * W_BATCH:], W_BATCH, collate_s2t_batch)
+        t_epoch = time.time()
         
-#         while True:
-#             if w_step >= TOTAL_STEPS_W:
-#                 prefetcher.stop()
-#                 break
+        while True:
+            if w_step >= TOTAL_STEPS_W:
+                prefetcher.stop()
+                break
                 
-#             try: batch = next(prefetcher)
-#             except StopIteration: break
+            try: batch = next(prefetcher)
+            except StopIteration: break
             
-#             batches_processed += 1
-#             if batch is None: continue
+            batches_processed += 1
+            if batch is None: continue
 
-#             t0 = time.time()
+            t0 = time.time()
 
-#             try:
-#                 topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
-#                 s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
-#             except Exception:
-#                 del batch; torch.cuda.empty_cache(); gc.collect(); continue
+            try:
+                topk_vals, topk_idx = teacher_topk_direct(batch['feat'], batch['dec_full'])
+                s_log = student_logits_gpu(batch['feat'], batch['dec_s'])
+            except Exception:
+                del batch; torch.cuda.empty_cache(); gc.collect(); continue
 
-#             L = batch['labels_s'].shape[1]
-#             try:
-#                 loss, ce_v, kd_v = compute_recovery_loss_gpu(
-#                     s_log[:, :L, :].contiguous(), 
-#                     batch['labels_s'].to('cuda:1', non_blocking=True), 
-#                     topk_vals[:, :L, :].contiguous(), 
-#                     topk_idx[:, :L, :].contiguous(), 
-#                     alpha=W_ALPHA, tgt_langs=batch.get('tgt_langs')
-#                 )
-#                 w_scaler.scale(loss / W_ACCUM).backward()
-#             except torch.cuda.OutOfMemoryError:
-#                 del batch, topk_vals, topk_idx, s_log, loss; torch.cuda.empty_cache(); gc.collect(); free_cpu_ram(); continue
-#             except Exception:
-#                 del batch, topk_vals, topk_idx, s_log, loss; torch.cuda.empty_cache(); gc.collect(); continue
+            L = batch['labels_s'].shape[1]
+            try:
+                loss, ce_v, kd_v = compute_recovery_loss_gpu(
+                    s_log[:, :L, :].contiguous(), 
+                    batch['labels_s'].to('cuda:1', non_blocking=True), 
+                    topk_vals[:, :L, :].contiguous(), 
+                    topk_idx[:, :L, :].contiguous(), 
+                    alpha=W_ALPHA, tgt_langs=batch.get('tgt_langs')
+                )
+                w_scaler.scale(loss / W_ACCUM).backward()
+            except torch.cuda.OutOfMemoryError:
+                del batch, topk_vals, topk_idx, s_log, loss; torch.cuda.empty_cache(); gc.collect(); free_cpu_ram(); continue
+            except Exception:
+                del batch, topk_vals, topk_idx, s_log, loss; torch.cuda.empty_cache(); gc.collect(); continue
             
-#             del batch, topk_vals, topk_idx, s_log, loss
-#             w_ce += ce_v; w_kd += kd_v; w_n += 1; w_accum += 1
+            del batch, topk_vals, topk_idx, s_log, loss
+            w_ce += ce_v; w_kd += kd_v; w_n += 1; w_accum += 1
 
-#             if w_accum >= W_ACCUM:
-#                 w_scaler.unscale_(w_opt)
-#                 torch.nn.utils.clip_grad_norm_(bridge_params, 0.5)
-#                 w_scaler.step(w_opt); w_scaler.update(); w_sch.step()
-#                 w_opt.zero_grad(set_to_none=True)
-#                 w_accum = 0; w_step += 1
+            if w_accum >= W_ACCUM:
+                w_scaler.unscale_(w_opt)
+                torch.nn.utils.clip_grad_norm_(bridge_params, 0.5)
+                w_scaler.step(w_opt); w_scaler.update(); w_sch.step()
+                w_opt.zero_grad(set_to_none=True)
+                w_accum = 0; w_step += 1
 
-#                 if w_step % 50 == 0:
-#                     step_times_w.append(time.time() - t0)
-#                     eta_min = (TOTAL_STEPS_W - w_step) * (sum(step_times_w[-20:]) / max(len(step_times_w[-20:]), 1)) / 60
-#                     print(f"  Warmup Step {w_step:>4}/{TOTAL_STEPS_W} | CE={w_ce/w_n:.4f} KD={w_kd/w_n:.4f} | lr={w_sch.get_last_lr()[0]:.1e} | ETA={eta_min:.0f}m")
-#                     w_ce = w_kd = w_n = 0.0; free_cpu_ram()
+                if w_step % 50 == 0:
+                    step_times_w.append(time.time() - t0)
+                    eta_min = (TOTAL_STEPS_W - w_step) * (sum(step_times_w[-20:]) / max(len(step_times_w[-20:]), 1)) / 60
+                    print(f"  Warmup Step {w_step:>4}/{TOTAL_STEPS_W} | CE={w_ce/w_n:.4f} KD={w_kd/w_n:.4f} | lr={w_sch.get_last_lr()[0]:.1e} | ETA={eta_min:.0f}m")
+                    w_ce = w_kd = w_n = 0.0; free_cpu_ram()
                     
-#                 # Save safety checkpoint every 2000 steps during warmup
-#                 if w_step % 2000 == 0 and w_step < TOTAL_STEPS_W:
-#                     prefetcher.stop()
-#                     _save_p7(w_step, 0.0, {}, prefix='phase7_warmup')
-#                     prefetcher = BatchPrefetcher(ft_samples, idx_w[batches_processed * W_BATCH:], W_BATCH, collate_s2t_batch)
+                # Save safety checkpoint every 2000 steps during warmup
+                if w_step % 2000 == 0 and w_step < TOTAL_STEPS_W:
+                    prefetcher.stop()
+                    _save_p7(w_step, 0.0, {}, prefix='phase7_warmup')
+                    prefetcher = BatchPrefetcher(ft_samples, idx_w[batches_processed * W_BATCH:], W_BATCH, collate_s2t_batch)
 
-#         prefetcher.stop()
-#         print(f"  Warmup Epoch {epoch+1} done | {(time.time()-t_epoch)/60:.1f} min")
+        prefetcher.stop()
+        print(f"  Warmup Epoch {epoch+1} done | {(time.time()-t_epoch)/60:.1f} min")
 
-#     # Save final warmup state
-#     _save_p7(w_step, 0.0, {}, prefix='phase7_warmup')
-#     print("\n✓ Stage 1: Bridge Warmup Complete.")
+    # Save final warmup state
+    _save_p7(w_step, 0.0, {}, prefix='phase7_warmup')
+    print("\n✓ Stage 1: Bridge Warmup Complete.")
 ```
 
 ### Output
@@ -7631,181 +7641,42 @@ Total Steps: 7756 | Backbone: FROZEN | Bridges: TRAINING
 LR: 1.0e-04 | KD_ALPHA: 0.25
 ============================================================
 
-[ckpt] No checkpoint for 'phase7_warmup'
-  Warmup Step   50/7756 | CE=4.3288 KD=1.2570 | lr=1.3e-05 | ETA=76m
-  Warmup Step  100/7756 | CE=4.2081 KD=1.2691 | lr=2.6e-05 | ETA=82m
-  Warmup Step  150/7756 | CE=4.3496 KD=1.2778 | lr=3.9e-05 | ETA=90m
-  Warmup Step  200/7756 | CE=4.1872 KD=1.2651 | lr=5.2e-05 | ETA=81m
-  Warmup Step  250/7756 | CE=4.2770 KD=1.2768 | lr=6.5e-05 | ETA=84m
-  Warmup Step  300/7756 | CE=4.1404 KD=1.1860 | lr=7.8e-05 | ETA=87m
-  Warmup Step  350/7756 | CE=4.1227 KD=1.2043 | lr=9.0e-05 | ETA=90m
-  Warmup Step  400/7756 | CE=4.2024 KD=1.1940 | lr=1.0e-04 | ETA=91m
-  Warmup Step  450/7756 | CE=4.1865 KD=1.2072 | lr=1.0e-04 | ETA=90m
-  Warmup Step  500/7756 | CE=4.3061 KD=1.2062 | lr=1.0e-04 | ETA=89m
-  Warmup Step  550/7756 | CE=4.2358 KD=1.1768 | lr=1.0e-04 | ETA=86m
-  Warmup Step  600/7756 | CE=4.2499 KD=1.2025 | lr=1.0e-04 | ETA=87m
-  Warmup Step  650/7756 | CE=4.2397 KD=1.1621 | lr=1.0e-04 | ETA=84m
-  Warmup Step  700/7756 | CE=4.2129 KD=1.1758 | lr=1.0e-04 | ETA=94m
-  Warmup Step  750/7756 | CE=4.3031 KD=1.1632 | lr=9.9e-05 | ETA=91m
-  Warmup Step  800/7756 | CE=3.7366 KD=1.1284 | lr=9.9e-05 | ETA=88m
-  Warmup Step  850/7756 | CE=3.7555 KD=1.1515 | lr=9.9e-05 | ETA=85m
-  Warmup Step  900/7756 | CE=3.8226 KD=1.1592 | lr=9.9e-05 | ETA=83m
-  Warmup Step  950/7756 | CE=3.9409 KD=1.1426 | lr=9.9e-05 | ETA=83m
-  Warmup Step 1000/7756 | CE=3.8211 KD=1.1260 | lr=9.8e-05 | ETA=85m
-  Warmup Step 1050/7756 | CE=3.8961 KD=1.1530 | lr=9.8e-05 | ETA=84m
-  Warmup Step 1100/7756 | CE=3.9039 KD=1.1214 | lr=9.8e-05 | ETA=83m
-  Warmup Step 1150/7756 | CE=3.9617 KD=1.1267 | lr=9.7e-05 | ETA=80m
-  Warmup Step 1200/7756 | CE=3.8566 KD=1.1287 | lr=9.7e-05 | ETA=81m
-  Warmup Step 1250/7756 | CE=3.8316 KD=1.1434 | lr=9.7e-05 | ETA=81m
-  Warmup Step 1300/7756 | CE=3.8198 KD=1.1472 | lr=9.6e-05 | ETA=79m
-  Warmup Step 1350/7756 | CE=3.7951 KD=1.1387 | lr=9.6e-05 | ETA=79m
-  Warmup Step 1400/7756 | CE=3.8258 KD=1.1089 | lr=9.5e-05 | ETA=77m
-  Warmup Step 1450/7756 | CE=3.7872 KD=1.1408 | lr=9.5e-05 | ETA=78m
-  Warmup Step 1500/7756 | CE=3.9179 KD=1.1409 | lr=9.4e-05 | ETA=79m
-  Warmup Step 1550/7756 | CE=3.8488 KD=1.1857 | lr=9.4e-05 | ETA=80m
-  Warmup Step 1600/7756 | CE=3.9738 KD=1.1822 | lr=9.3e-05 | ETA=79m
-  Warmup Step 1650/7756 | CE=3.8550 KD=1.2014 | lr=9.3e-05 | ETA=80m
-  Warmup Step 1700/7756 | CE=3.8135 KD=1.1665 | lr=9.2e-05 | ETA=76m
-  Warmup Step 1750/7756 | CE=3.8063 KD=1.1475 | lr=9.2e-05 | ETA=77m
-  Warmup Step 1800/7756 | CE=3.8873 KD=1.1752 | lr=9.1e-05 | ETA=78m
-  Warmup Step 1850/7756 | CE=3.8270 KD=1.1761 | lr=9.1e-05 | ETA=81m
-  Warmup Step 1900/7756 | CE=3.8874 KD=1.1428 | lr=9.0e-05 | ETA=82m
-  Warmup Step 1950/7756 | CE=3.8307 KD=1.1603 | lr=8.9e-05 | ETA=80m
-  Warmup Step 2000/7756 | CE=3.7820 KD=1.1561 | lr=8.9e-05 | ETA=77m
-
-[ckpt] Saved phase7_warmup_step002000.pt (4290.0 MB)
-[rclone] 2026/05/30 06:48:47 -   558.871 MiB / 3.995 GiB, 14%, 56.888 MiB/s, ETA 1m2s2026/05/30 06:48:57 -     1.059 GiB / 3.995 GiB, 26%, 54.382 MiB/s, ETA 55s2026/05/30 06:49:07 -     1.652 GiB / 3.995 GiB, 41%, 57.576 MiB/s, ETA 41s2026/05/30 06:49:17 -     2.188 GiB / 3.995 GiB, 55%, 57.813 MiB/s, ETA 32s2026/05/30 06:49:27 -     2.768 GiB / 3.995 GiB, 69%, 56.563 MiB/s, ETA 22s2026/05/30 06:49:37 -     3.364 GiB / 3.995 GiB, 84%, 58.767 MiB/s, ETA 11s2026/05/30 06:49:47 -     3.924 GiB / 3.995 GiB, 98%, 58.233 MiB/s, ETA 1s2026/05/30 06:49:50 -     3.995 GiB / 3.995 GiB, 100%, 55.000 MiB/s, ETA 0s
-  Warmup Step 2050/7756 | CE=3.7645 KD=1.1721 | lr=8.8e-05 | ETA=76m
-  Warmup Step 2100/7756 | CE=3.8864 KD=1.1843 | lr=8.7e-05 | ETA=75m
-  Warmup Step 2150/7756 | CE=3.8791 KD=1.1537 | lr=8.7e-05 | ETA=75m
-  Warmup Step 2200/7756 | CE=3.9274 KD=1.1812 | lr=8.6e-05 | ETA=73m
-  Warmup Step 2250/7756 | CE=3.7988 KD=1.1559 | lr=8.5e-05 | ETA=71m
-  Warmup Step 2300/7756 | CE=3.8178 KD=1.1326 | lr=8.4e-05 | ETA=71m
-  Warmup Step 2350/7756 | CE=3.8034 KD=1.1482 | lr=8.3e-05 | ETA=68m
-  Warmup Step 2400/7756 | CE=3.8278 KD=1.1296 | lr=8.3e-05 | ETA=67m
-  Warmup Step 2450/7756 | CE=3.7931 KD=1.1226 | lr=8.2e-05 | ETA=64m
-  Warmup Step 2500/7756 | CE=3.7153 KD=1.1083 | lr=8.1e-05 | ETA=61m
-  Warmup Step 2550/7756 | CE=3.8833 KD=1.1436 | lr=8.0e-05 | ETA=60m
-  Warmup Step 2600/7756 | CE=3.9374 KD=1.1341 | lr=7.9e-05 | ETA=58m
-  Warmup Step 2650/7756 | CE=3.8308 KD=1.1229 | lr=7.8e-05 | ETA=57m
-  Warmup Step 2700/7756 | CE=3.7268 KD=1.1225 | lr=7.8e-05 | ETA=53m
-  Warmup Step 2750/7756 | CE=3.7429 KD=1.1266 | lr=7.7e-05 | ETA=52m
-  Warmup Step 2800/7756 | CE=3.7902 KD=1.1321 | lr=7.6e-05 | ETA=51m
-  Warmup Step 2850/7756 | CE=3.8652 KD=1.1312 | lr=7.5e-05 | ETA=47m
-  Warmup Step 2900/7756 | CE=3.7271 KD=1.1338 | lr=7.4e-05 | ETA=46m
-  Warmup Step 2950/7756 | CE=3.7997 KD=1.1565 | lr=7.3e-05 | ETA=45m
-  Warmup Step 3000/7756 | CE=3.8080 KD=1.0950 | lr=7.2e-05 | ETA=45m
-  Warmup Step 3050/7756 | CE=3.9080 KD=1.1801 | lr=7.1e-05 | ETA=45m
-  Warmup Step 3100/7756 | CE=3.8800 KD=1.1662 | lr=7.0e-05 | ETA=45m
-  Warmup Step 3150/7756 | CE=3.9898 KD=1.1808 | lr=6.9e-05 | ETA=43m
-  Warmup Step 3200/7756 | CE=4.0074 KD=1.1660 | lr=6.8e-05 | ETA=43m
-  Warmup Step 3250/7756 | CE=3.8982 KD=1.1836 | lr=6.7e-05 | ETA=42m
-  Warmup Step 3300/7756 | CE=3.9982 KD=1.1773 | lr=6.6e-05 | ETA=41m
-  Warmup Step 3350/7756 | CE=3.8877 KD=1.1586 | lr=6.5e-05 | ETA=41m
-  Warmup Step 3400/7756 | CE=3.8853 KD=1.1875 | lr=6.4e-05 | ETA=40m
-  Warmup Step 3450/7756 | CE=3.9044 KD=1.1716 | lr=6.3e-05 | ETA=40m
-  Warmup Step 3500/7756 | CE=3.9624 KD=1.1699 | lr=6.2e-05 | ETA=40m
-  Warmup Step 3550/7756 | CE=3.9651 KD=1.1670 | lr=6.1e-05 | ETA=41m
-  Warmup Step 3600/7756 | CE=3.9361 KD=1.1828 | lr=6.0e-05 | ETA=40m
-  Warmup Step 3650/7756 | CE=4.0053 KD=1.1790 | lr=5.9e-05 | ETA=39m
-  Warmup Step 3700/7756 | CE=3.9538 KD=1.1851 | lr=5.8e-05 | ETA=39m
-  Warmup Step 3750/7756 | CE=4.0083 KD=1.1977 | lr=5.7e-05 | ETA=38m
-  Warmup Step 3800/7756 | CE=4.0399 KD=1.1757 | lr=5.6e-05 | ETA=39m
-  Warmup Step 3850/7756 | CE=4.3317 KD=1.1638 | lr=5.5e-05 | ETA=38m
-  Warmup Step 3900/7756 | CE=4.4537 KD=1.1695 | lr=5.4e-05 | ETA=38m
-  Warmup Step 3950/7756 | CE=4.3975 KD=1.1182 | lr=5.3e-05 | ETA=39m
-  Warmup Step 4000/7756 | CE=4.4814 KD=1.1161 | lr=5.2e-05 | ETA=38m
-
-[ckpt] Saved phase7_warmup_step004000.pt (4290.0 MB)
-[rclone] 2026/05/30 08:04:25 -   564.621 MiB / 3.995 GiB, 14%, 56.888 MiB/s, ETA 1m1s2026/05/30 08:04:35 -     1.125 GiB / 3.995 GiB, 28%, 58.774 MiB/s, ETA 50s2026/05/30 08:04:45 -     1.688 GiB / 3.995 GiB, 42%, 57.269 MiB/s, ETA 41s2026/05/30 08:04:55 -     2.188 GiB / 3.995 GiB, 55%, 55.738 MiB/s, ETA 33s2026/05/30 08:05:05 -     2.750 GiB / 3.995 GiB, 69%, 56.740 MiB/s, ETA 22s2026/05/30 08:05:15 -     3.341 GiB / 3.995 GiB, 84%, 58.011 MiB/s, ETA 11s2026/05/30 08:05:25 -     3.831 GiB / 3.995 GiB, 96%, 55.405 MiB/s, ETA 3s2026/05/30 08:05:30 -     3.995 GiB / 3.995 GiB, 100%, 49.769 MiB/s, ETA 0s
-  Warmup Step 4050/7756 | CE=4.2721 KD=1.1449 | lr=5.0e-05 | ETA=38m
-  Warmup Step 4100/7756 | CE=4.2837 KD=1.1364 | lr=4.9e-05 | ETA=39m
-  Warmup Step 4150/7756 | CE=4.3402 KD=1.1295 | lr=4.8e-05 | ETA=39m
-  Warmup Step 4200/7756 | CE=4.3153 KD=1.1226 | lr=4.7e-05 | ETA=38m
-  Warmup Step 4250/7756 | CE=4.3677 KD=1.1198 | lr=4.6e-05 | ETA=37m
-  Warmup Step 4300/7756 | CE=4.3348 KD=1.1119 | lr=4.5e-05 | ETA=37m
-  Warmup Step 4350/7756 | CE=4.2621 KD=1.1384 | lr=4.4e-05 | ETA=38m
-  Warmup Step 4400/7756 | CE=4.3954 KD=1.1327 | lr=4.3e-05 | ETA=38m
-  Warmup Step 4450/7756 | CE=4.1790 KD=1.1251 | lr=4.2e-05 | ETA=39m
-  Warmup Step 4500/7756 | CE=4.2641 KD=1.1237 | lr=4.1e-05 | ETA=38m
-  Warmup Step 4550/7756 | CE=4.0939 KD=1.1049 | lr=4.0e-05 | ETA=37m
-  Warmup Step 4600/7756 | CE=3.7428 KD=1.0907 | lr=3.9e-05 | ETA=36m
-  Warmup Step 4650/7756 | CE=3.6474 KD=1.1659 | lr=3.8e-05 | ETA=35m
-  Warmup Step 4700/7756 | CE=3.4586 KD=1.1118 | lr=3.7e-05 | ETA=35m
-  Warmup Step 4750/7756 | CE=3.4107 KD=1.0973 | lr=3.6e-05 | ETA=35m
-  Warmup Step 4800/7756 | CE=3.4574 KD=1.1142 | lr=3.5e-05 | ETA=33m
-  Warmup Step 4850/7756 | CE=3.4860 KD=1.1063 | lr=3.4e-05 | ETA=32m
-  Warmup Step 4900/7756 | CE=3.4891 KD=1.1162 | lr=3.3e-05 | ETA=32m
-  Warmup Step 4950/7756 | CE=3.4784 KD=1.0975 | lr=3.2e-05 | ETA=31m
-  Warmup Step 5000/7756 | CE=3.4893 KD=1.1175 | lr=3.1e-05 | ETA=30m
-  Warmup Step 5050/7756 | CE=3.5590 KD=1.0989 | lr=3.0e-05 | ETA=29m
-  Warmup Step 5100/7756 | CE=3.4795 KD=1.0982 | lr=2.9e-05 | ETA=28m
-  Warmup Step 5150/7756 | CE=3.3648 KD=1.0998 | lr=2.8e-05 | ETA=27m
-  Warmup Step 5200/7756 | CE=3.4179 KD=1.1303 | lr=2.7e-05 | ETA=27m
-  Warmup Step 5250/7756 | CE=3.6001 KD=1.1206 | lr=2.6e-05 | ETA=26m
-  Warmup Step 5300/7756 | CE=3.6698 KD=1.1077 | lr=2.5e-05 | ETA=26m
-  Warmup Step 5350/7756 | CE=3.5633 KD=1.1125 | lr=2.4e-05 | ETA=24m
-  Warmup Step 5400/7756 | CE=3.6450 KD=1.1247 | lr=2.3e-05 | ETA=24m
-  Warmup Step 5450/7756 | CE=3.5611 KD=1.0992 | lr=2.2e-05 | ETA=23m
-  Warmup Step 5500/7756 | CE=3.5891 KD=1.1028 | lr=2.1e-05 | ETA=22m
-  Warmup Step 5550/7756 | CE=3.4837 KD=1.1127 | lr=2.1e-05 | ETA=21m
-  Warmup Step 5600/7756 | CE=3.5561 KD=1.1027 | lr=2.0e-05 | ETA=21m
-  Warmup Step 5650/7756 | CE=3.6346 KD=1.1052 | lr=1.9e-05 | ETA=20m
-  Warmup Step 5700/7756 | CE=3.6040 KD=1.0974 | lr=1.8e-05 | ETA=20m
-  Warmup Step 5750/7756 | CE=3.5979 KD=1.1258 | lr=1.7e-05 | ETA=19m
-  Warmup Step 5800/7756 | CE=3.6729 KD=1.1245 | lr=1.6e-05 | ETA=19m
-  Warmup Step 5850/7756 | CE=3.4721 KD=1.0722 | lr=1.6e-05 | ETA=18m
-  Warmup Step 5900/7756 | CE=3.8100 KD=1.1477 | lr=1.5e-05 | ETA=17m
-  Warmup Step 5950/7756 | CE=3.9484 KD=1.1706 | lr=1.4e-05 | ETA=17m
-  Warmup Step 6000/7756 | CE=3.9723 KD=1.1910 | lr=1.3e-05 | ETA=16m
-
-[ckpt] Saved phase7_warmup_step006000.pt (4290.0 MB)
-[rclone] 2026/05/30 09:22:20 -   544.184 MiB / 3.995 GiB, 13%, 56.110 MiB/s, ETA 1m3s2026/05/30 09:22:30 -     1.125 GiB / 3.995 GiB, 28%, 59.218 MiB/s, ETA 49s2026/05/30 09:22:40 -     1.707 GiB / 3.995 GiB, 43%, 58.501 MiB/s, ETA 40s2026/05/30 09:22:50 -     2.254 GiB / 3.995 GiB, 56%, 59.039 MiB/s, ETA 30s2026/05/30 09:23:00 -     2.790 GiB / 3.995 GiB, 70%, 56.049 MiB/s, ETA 22s2026/05/30 09:23:10 -     3.312 GiB / 3.995 GiB, 83%, 55.750 MiB/s, ETA 12s2026/05/30 09:23:20 -     3.810 GiB / 3.995 GiB, 95%, 52.941 MiB/s, ETA 3s2026/05/30 09:23:25 -     3.995 GiB / 3.995 GiB, 100%, 47.022 MiB/s, ETA 0s
-  Warmup Step 6050/7756 | CE=3.8866 KD=1.1990 | lr=1.3e-05 | ETA=16m
-  Warmup Step 6100/7756 | CE=3.9421 KD=1.1804 | lr=1.2e-05 | ETA=15m
-  Warmup Step 6150/7756 | CE=3.9434 KD=1.1869 | lr=1.1e-05 | ETA=15m
-  Warmup Step 6200/7756 | CE=3.7681 KD=1.1556 | lr=1.1e-05 | ETA=15m
-  Warmup Step 6250/7756 | CE=3.8270 KD=1.1722 | lr=1.0e-05 | ETA=14m
-  Warmup Step 6300/7756 | CE=3.9257 KD=1.1779 | lr=9.3e-06 | ETA=14m
-  Warmup Step 6350/7756 | CE=3.8897 KD=1.1620 | lr=8.7e-06 | ETA=13m
-  Warmup Step 6400/7756 | CE=3.8466 KD=1.1590 | lr=8.1e-06 | ETA=12m
-  Warmup Step 6450/7756 | CE=3.9353 KD=1.1554 | lr=7.6e-06 | ETA=12m
-  Warmup Step 6500/7756 | CE=3.9014 KD=1.1619 | lr=7.0e-06 | ETA=11m
-  Warmup Step 6550/7756 | CE=3.9522 KD=1.1940 | lr=6.5e-06 | ETA=11m
-  Warmup Step 6600/7756 | CE=4.3417 KD=1.2271 | lr=6.0e-06 | ETA=10m
-  Warmup Step 6650/7756 | CE=4.1709 KD=1.2180 | lr=5.5e-06 | ETA=10m
-  Warmup Step 6700/7756 | CE=4.3136 KD=1.2114 | lr=5.0e-06 | ETA=9m
-  Warmup Step 6750/7756 | CE=4.1943 KD=1.2113 | lr=4.5e-06 | ETA=9m
-  Warmup Step 6800/7756 | CE=4.2581 KD=1.2035 | lr=4.1e-06 | ETA=8m
-  Warmup Step 6850/7756 | CE=4.6736 KD=1.2060 | lr=3.7e-06 | ETA=8m
-  Warmup Step 6900/7756 | CE=5.2161 KD=1.2468 | lr=3.3e-06 | ETA=7m
-  Warmup Step 6950/7756 | CE=5.2059 KD=1.2413 | lr=2.9e-06 | ETA=7m
-  Warmup Step 7000/7756 | CE=4.9213 KD=1.1656 | lr=2.6e-06 | ETA=7m
-  Warmup Step 7050/7756 | CE=4.9855 KD=1.1556 | lr=2.2e-06 | ETA=6m
-  Warmup Step 7100/7756 | CE=4.8894 KD=1.1524 | lr=1.9e-06 | ETA=6m
-  Warmup Step 7150/7756 | CE=4.7656 KD=1.1527 | lr=1.7e-06 | ETA=5m
-  Warmup Step 7200/7756 | CE=5.0662 KD=1.1758 | lr=1.4e-06 | ETA=4m
-  Warmup Step 7250/7756 | CE=4.9376 KD=1.2136 | lr=1.2e-06 | ETA=4m
-  Warmup Step 7300/7756 | CE=4.9582 KD=1.2119 | lr=9.4e-07 | ETA=4m
-  Warmup Step 7350/7756 | CE=5.0662 KD=1.2021 | lr=7.5e-07 | ETA=3m
-  Warmup Step 7400/7756 | CE=4.8728 KD=1.2085 | lr=5.7e-07 | ETA=3m
-  Warmup Step 7450/7756 | CE=4.8120 KD=1.2099 | lr=4.2e-07 | ETA=2m
-  Warmup Step 7500/7756 | CE=4.4884 KD=1.3345 | lr=3.0e-07 | ETA=2m
-  Warmup Step 7550/7756 | CE=4.5786 KD=1.2916 | lr=1.9e-07 | ETA=2m
-  Warmup Step 7600/7756 | CE=4.5026 KD=1.2747 | lr=1.1e-07 | ETA=1m
-  Warmup Step 7650/7756 | CE=5.3594 KD=1.3784 | lr=5.1e-08 | ETA=1m
-  Warmup Step 7700/7756 | CE=6.3393 KD=1.4548 | lr=1.4e-08 | ETA=1m
-  Warmup Step 7750/7756 | CE=6.3657 KD=1.4928 | lr=1.6e-10 | ETA=0m
-  Warmup Epoch 1 done | 307.9 min
-
-[ckpt] Saved phase7_warmup_step007755.pt (4290.0 MB)
-
-✓ Stage 1: Bridge Warmup Complete.
+[ckpt] Loaded phase7_warmup_step007755.pt
+  ✓ Stage 1 Warmup is already complete! Moving directly to Stage 2.
 ```
 
 ---
 
-## Cell 99 — `code`
+## Cell 100 — `code` (execution #87)
+
+```python
+w_ckpt_path = f"{CKPT_DIR}/phase7_warmup_step{TOTAL_STEPS_W:06d}.pt"
+latest_w_ckpt = load_latest_checkpoint('phase7_warmup')
+
+if os.path.exists(w_ckpt_path):
+    print("  ✓ Stage 1 Warmup is already complete! Moving directly to Stage 2.")
+    w_step = TOTAL_STEPS_W
+
+    student.load_state_dict(latest_w_ckpt['model_state'], strict=False)
+    # w_opt.load_state_dict(latest_w_ckpt['optimizer_state'])
+    # w_sch.load_state_dict(latest_w_ckpt['scheduler_state'])
+    w_step = latest_w_ckpt.get('opt_step', 0)
+    print(f"  ✓ Resumed Warmup at step {w_step}")
+    del latest_w_ckpt; free_cpu_ram()
+```
+
+### Output
+
+**[stdout]**
+```
+[ckpt] Loaded phase7_warmup_step007755.pt
+  ✓ Stage 1 Warmup is already complete! Moving directly to Stage 2.
+  ✓ Resumed Warmup at step 7755
+```
+
+---
+
+## Cell 101 — `code` (execution #88)
 
 ```python
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -7840,8 +7711,11 @@ print(f"KD_ALPHA Schedule: Epoch 0 = 0.15 | Epoch 1-2 = 0.10")
 print(f"{'='*60}\n")
 
 # Re-grab params from memory
+# for p in backbone_params: p.requires_grad = True
+# for p in bridge_params:   p.requires_grad = True
+
 bridge_params   = [p for n, p in student.named_parameters() if 'bridge' in n]
-backbone_params = [p for n, p in student.named_parameters() if 'bridge' not in n and p.requires_grad]
+backbone_params = [p for n, p in student.named_parameters() if 'bridge' not in n]
 
 for p in backbone_params + bridge_params: p.requires_grad = True
 
@@ -7887,18 +7761,216 @@ else:
     print("Straight to joint training >>>")
     free_cpu_ram()
 
+print("Hello")
+```
+
+### Output
+
+**[stdout]**
+```
+
+============================================================
+STAGE 2: Joint Supremacy Training (3 Epochs)
+Total Steps: 11634 (3878 steps/epoch)
+Backbone: UNFROZEN (LR=5.0e-06) | Bridges: UNFROZEN (LR=1.0e-05)
+KD_ALPHA Schedule: Epoch 0 = 0.15 | Epoch 1-2 = 0.10
+============================================================
+
+  [ckpt] Smart Scanner found latest Phase 7 checkpoint: phase7_joint_step011000.pt
+  ✓ Resumed Phase 7 at step 11000 | best_chrf=34.88
+Hello
+```
+
+---
+
+## Cell 102 — `code` (execution #89)
+
+```python
+print(f"  backbone_params: {sum(p.numel() for p in backbone_params) / 1e6:.2f} M params")
+```
+
+### Output
+
+**[stdout]**
+```
+  backbone_params: 1056.02 M params
+```
+
+---
+
+## Cell 103 — `code` (execution #90)
+
+```python
+backbone_params[5].requires_grad
+```
+
+### Output
+
+```
+True
+```
+
+---
+
+## Cell 104 — `code` (execution #91)
+
+```python
+# ── DEBUG 1: What's actually inside the .pt file? ──────────────────────────
+import glob, os, torch
+
+all_ckpts = glob.glob(f'{CKPT_DIR}/phase7_joint_step*.pt') + \
+            glob.glob(f'{CKPT_DIR}/phase7_best_step*.pt')
+latest_file = max(all_ckpts, key=lambda f: int(f.split('_step')[-1].split('.pt')[0]))
+
+print(f"Inspecting: {os.path.basename(latest_file)}")
+ckpt = torch.load(latest_file, map_location='cpu', weights_only=False)
+
+print(f"\nTop-level keys in checkpoint: {list(ckpt.keys())}")
+# Expected (broken): ['model_state', 'opt_step', 'best_chrf', 'train_history']
+# Expected (fixed):  ['model_state', 'optimizer_state', 'scheduler_state', 'opt_step', 'best_chrf', 'train_history']
+
+if 'optimizer_state' in ckpt:
+    opt_state = ckpt['optimizer_state']
+    print(f"\nOptimizer state keys: {list(opt_state.keys())}")
+    print(f"Number of param groups saved: {len(opt_state['param_groups'])}")
+    for i, pg in enumerate(opt_state['param_groups']):
+        print(f"  Group {i}: {len(pg['params'])} param tensors | lr={pg.get('lr','?')}")
+else:
+    print("\n❌ 'optimizer_state' NOT in checkpoint — this is why load fails!")
+
+del ckpt
+```
+
+### Output
+
+**[stdout]**
+```
+Inspecting: phase7_joint_step011000.pt
+
+Top-level keys in checkpoint: ['model_state', 'optimizer_state', 'scheduler_state', 'opt_step', 'best_chrf', 'train_history']
+
+Optimizer state keys: ['state', 'param_groups']
+Number of param groups saved: 2
+  Group 0: 1106 param tensors | lr=3.9895815209823606e-08
+  Group 1: 144 param tensors | lr=7.979163041964721e-08
+```
+
+---
+
+## Cell 105 — `code` (execution #92)
+
+```python
+# ── DEBUG 2: What does the CURRENT optimizer look like? ────────────────────
+print(f"Current j_opt param groups: {len(j_groups)}")
+for i, g in enumerate(j_groups):
+    params = g['params']
+    n_tensors = len(params)
+    total_numel = sum(p.numel() for p in params)
+    print(f"  Group {i} '{g['name']}': {n_tensors} tensors | {total_numel/1e6:.2f}M params | lr={g['lr']:.1e}")
+
+# Also check the student model for bridge params
+n_bridge   = sum(1 for n, p in student.named_parameters() if 'bridge' in n and p.requires_grad)
+n_backbone = sum(1 for n, p in student.named_parameters() if 'bridge' not in n and p.requires_grad)
+print(f"\nStudent params (requires_grad=True):")
+print(f"  Bridge params : {n_bridge}")
+print(f"  Backbone params: {n_backbone}")
+```
+
+### Output
+
+**[stdout]**
+```
+Current j_opt param groups: 2
+  Group 0 'backbone': 1106 tensors | 1056.02M params | lr=0.0e+00
+  Group 1 'bridges': 144 tensors | 16.33M params | lr=0.0e+00
+
+Student params (requires_grad=True):
+  Bridge params : 144
+  Backbone params: 1106
+```
+
+---
+
+## Cell 106 — `code` (execution #93)
+
+```python
+len(bridge_params)
+```
+
+### Output
+
+```
+144
+```
+
+---
+
+## Cell 107 — `code` (execution #94)
+
+```python
+len(backbone_params)
+```
+
+### Output
+
+```
+1106
+```
+
+---
+
+## Cell 108 — `code` (execution #95)
+
+```python
+len(backbone_params + bridge_params)
+```
+
+### Output
+
+```
+1250
+```
+
+---
+
+## Cell 109 — `code` (execution #96)
+
+```python
+!ls checkpoints
+```
+
+### Output
+
+**[stdout]**
+```
+all_detailed_summaries_step000000.pt  phase3_t2u_enc_pruning_step000000.pt
+all_summaries_step000000.pt	      phase4_benchmark_step000000.pt
+phase0_benchmark_step000000.pt	      phase4_dec_pruning_step000000.pt
+phase1_benchmark_step000000.pt	      phase5_benchmark_step000000.pt
+phase1_vocab_step000000.pt	      phase6_ft_step018500.pt
+phase2_enc_pruning_step000000.pt      phase7_joint_step011000.pt
+phase3_t2u_dec_pruning_step000000.pt  phase7_warmup_step007755.pt
+```
+
+---
+
+## Cell 110 — `code` (execution #97)
+
+```python
 def _save_p7_epoch(opt_step, best_chrf, history, is_best=False):
     # for ds in ft_samples.datasets:
     #     if hasattr(ds, 'invalidate_cache'): ds.invalidate_cache()
     free_cpu_ram()
     name = 'phase7_best' if is_best else 'phase7_joint'
-    os.makedirs(CKPT_DIR, exist_ok=True)
+
+    subprocess.run(
+        "rm -rf models/ checkpoints/",
+        shell=True,
+        capture_output=True,
+        text=True
+    )
     
-    old = sorted(glob.glob(f'{CKPT_DIR}/{name}_step*.pt'))
-    for f in old:
-        if os.path.exists(f):
-            try: os.remove(f)
-            except: pass
+    os.makedirs(CKPT_DIR, exist_ok=True)
             
     fname = f'{name}_step{opt_step:06d}.pt'
     path  = f'{CKPT_DIR}/{fname}'
@@ -7913,7 +7985,13 @@ def _save_p7_epoch(opt_step, best_chrf, history, is_best=False):
     print(f'\n[ckpt] Saved {fname} ({os.path.getsize(path)/1e6:.1f} MB)')
     free_cpu_ram()
     if ON_KAGGLE: _rclone_push_async(path, 'checkpoints')
+```
 
+---
+
+## Cell 111 — `code` (execution #98)
+
+```python
 # ── Training Loop ──
 start_epoch_p7   = j_step // STEPS_PER_EPOCH_P7
 batches_to_skip  = (j_step % STEPS_PER_EPOCH_P7) * J_ACCUM
@@ -8036,214 +8114,99 @@ print(f"\n🎉 PHASE 7 COMPLETE. Best Joint ASR ChrF: {best_j_chrf:.2f}")
 **[stdout]**
 ```
 
-============================================================
-STAGE 2: Joint Supremacy Training (3 Epochs)
-Total Steps: 11634 (3878 steps/epoch)
-Backbone: UNFROZEN (LR=5.0e-06) | Bridges: UNFROZEN (LR=1.0e-05)
-KD_ALPHA Schedule: Epoch 0 = 0.15 | Epoch 1-2 = 0.10
-============================================================
-
-  [ckpt] Smart Scanner found latest Phase 7 checkpoint: phase7_joint_step002000.pt
-  ✓ Resumed Phase 7 at step 2000 | best_chrf=34.66
-
-  Phase 7 — Epoch 1/3  |  KD_alpha=0.15  |  Backbone LR=5.0e-06
-  P7 step  2020/11634 | CE=3.8054 KD=1.2600 | α=0.15 | lr=4.8e-06 | ETA=90min
-  P7 step  2040/11634 | CE=3.8082 KD=1.2377 | α=0.15 | lr=4.8e-06 | ETA=91min
-  P7 step  2060/11634 | CE=3.7881 KD=1.2489 | α=0.15 | lr=4.8e-06 | ETA=118min
-  P7 step  2080/11634 | CE=3.8720 KD=1.2571 | α=0.15 | lr=4.8e-06 | ETA=117min
-  P7 step  2100/11634 | CE=3.8545 KD=1.2386 | α=0.15 | lr=4.7e-06 | ETA=110min
-  P7 step  2120/11634 | CE=3.8034 KD=1.2490 | α=0.15 | lr=4.7e-06 | ETA=109min
-  P7 step  2140/11634 | CE=3.7482 KD=1.2454 | α=0.15 | lr=4.7e-06 | ETA=105min
-  P7 step  2160/11634 | CE=3.9291 KD=1.2693 | α=0.15 | lr=4.7e-06 | ETA=117min
-  P7 step  2180/11634 | CE=3.8314 KD=1.2680 | α=0.15 | lr=4.7e-06 | ETA=119min
-  P7 step  2200/11634 | CE=3.8765 KD=1.2999 | α=0.15 | lr=4.7e-06 | ETA=121min
-  P7 step  2220/11634 | CE=3.8084 KD=1.2571 | α=0.15 | lr=4.7e-06 | ETA=121min
-  P7 step  2240/11634 | CE=3.8554 KD=1.2671 | α=0.15 | lr=4.7e-06 | ETA=120min
-  P7 step  2260/11634 | CE=3.8640 KD=1.2669 | α=0.15 | lr=4.7e-06 | ETA=120min
-  P7 step  2280/11634 | CE=3.6815 KD=1.2684 | α=0.15 | lr=4.7e-06 | ETA=118min
-  P7 step  2300/11634 | CE=3.9359 KD=1.2954 | α=0.15 | lr=4.7e-06 | ETA=116min
-  P7 step  2320/11634 | CE=4.2102 KD=1.3214 | α=0.15 | lr=4.7e-06 | ETA=114min
-  P7 step  2340/11634 | CE=4.3440 KD=1.3148 | α=0.15 | lr=4.7e-06 | ETA=116min
-  P7 step  2360/11634 | CE=4.2470 KD=1.3106 | α=0.15 | lr=4.7e-06 | ETA=115min
-  P7 step  2380/11634 | CE=4.0634 KD=1.2868 | α=0.15 | lr=4.7e-06 | ETA=113min
-  P7 step  2400/11634 | CE=4.1990 KD=1.3227 | α=0.15 | lr=4.6e-06 | ETA=111min
-  P7 step  2420/11634 | CE=4.1859 KD=1.2947 | α=0.15 | lr=4.6e-06 | ETA=117min
-  P7 step  2440/11634 | CE=4.0171 KD=1.3289 | α=0.15 | lr=4.6e-06 | ETA=117min
-  P7 step  2460/11634 | CE=4.0674 KD=1.2938 | α=0.15 | lr=4.6e-06 | ETA=114min
-  P7 step  2480/11634 | CE=4.0924 KD=1.3113 | α=0.15 | lr=4.6e-06 | ETA=122min
-  P7 step  2500/11634 | CE=4.2202 KD=1.3016 | α=0.15 | lr=4.6e-06 | ETA=121min
+  Phase 7 — Epoch 3/3  |  KD_alpha=0.10  |  Backbone LR=5.0e-06
+  P7 step 11020/11634 | CE=4.8229 KD=1.6668 | α=0.10 | lr=3.7e-08 | ETA=22min
+  P7 step 11040/11634 | CE=4.5137 KD=1.6448 | α=0.10 | lr=3.5e-08 | ETA=19min
+  P7 step 11060/11634 | CE=3.8627 KD=1.5441 | α=0.10 | lr=3.3e-08 | ETA=16min
+  P7 step 11080/11634 | CE=3.9026 KD=1.5098 | α=0.10 | lr=3.0e-08 | ETA=15min
+  P7 step 11100/11634 | CE=3.7869 KD=1.5414 | α=0.10 | lr=2.8e-08 | ETA=15min
+  P7 step 11120/11634 | CE=4.0041 KD=1.5899 | α=0.10 | lr=2.6e-08 | ETA=13min
+  P7 step 11140/11634 | CE=3.8722 KD=1.5551 | α=0.10 | lr=2.4e-08 | ETA=12min
+  P7 step 11160/11634 | CE=3.8076 KD=1.5714 | α=0.10 | lr=2.2e-08 | ETA=11min
+  P7 step 11180/11634 | CE=4.2978 KD=1.5590 | α=0.10 | lr=2.0e-08 | ETA=10min
+  P7 step 11200/11634 | CE=4.6519 KD=1.6017 | α=0.10 | lr=1.9e-08 | ETA=9min
+  P7 step 11220/11634 | CE=4.5568 KD=1.5607 | α=0.10 | lr=1.7e-08 | ETA=9min
+  P7 step 11240/11634 | CE=4.7024 KD=1.5820 | α=0.10 | lr=1.5e-08 | ETA=8min
+  P7 step 11260/11634 | CE=4.6723 KD=1.5478 | α=0.10 | lr=1.4e-08 | ETA=8min
+  P7 step 11280/11634 | CE=4.5908 KD=1.5453 | α=0.10 | lr=1.2e-08 | ETA=7min
+  P7 step 11300/11634 | CE=4.6931 KD=1.5612 | α=0.10 | lr=1.1e-08 | ETA=7min
+  P7 step 11320/11634 | CE=5.8830 KD=1.5072 | α=0.10 | lr=9.8e-09 | ETA=6min
+  P7 step 11340/11634 | CE=5.9395 KD=1.6403 | α=0.10 | lr=8.6e-09 | ETA=6min
+  P7 step 11360/11634 | CE=5.9728 KD=1.6482 | α=0.10 | lr=7.5e-09 | ETA=5min
+  P7 step 11380/11634 | CE=5.9407 KD=1.5822 | α=0.10 | lr=6.4e-09 | ETA=5min
+  P7 step 11400/11634 | CE=5.9552 KD=1.6202 | α=0.10 | lr=5.4e-09 | ETA=5min
+  P7 step 11420/11634 | CE=5.8785 KD=1.6081 | α=0.10 | lr=4.6e-09 | ETA=4min
+  P7 step 11440/11634 | CE=5.1905 KD=1.6140 | α=0.10 | lr=3.7e-09 | ETA=4min
+  P7 step 11460/11634 | CE=5.0766 KD=1.5889 | α=0.10 | lr=3.0e-09 | ETA=3min
+  P7 step 11480/11634 | CE=4.7172 KD=1.6646 | α=0.10 | lr=2.4e-09 | ETA=3min
+  P7 step 11500/11634 | CE=4.3346 KD=1.6954 | α=0.10 | lr=1.8e-09 | ETA=2min
   [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
+[MMS-ASR] Loading lang=ben...
+```
+
+```
+preprocessor_config.json:   0%|          | 0.00/254 [00:00<?, ?B/s]
+```
+
+```
+config.json: 0.00B [00:00, ?B/s]
+```
+
+```
+tokenizer_config.json:   0%|          | 0.00/397 [00:00<?, ?B/s]
+```
+
+```
+vocab.json: 0.00B [00:00, ?B/s]
+```
+
+```
+special_tokens_map.json:   0%|          | 0.00/96.0 [00:00<?, ?B/s]
+```
+
+```
+model.safetensors:   0%|          | 0.00/3.86G [00:00<?, ?B/s]
+```
+
+```
+Loading weights:   0%|          | 0/1096 [00:00<?, ?it/s]
+```
+
+```
+adapter.ben.safetensors:   0%|          | 0.00/9.34M [00:00<?, ?B/s]
+```
+
+**[stdout]**
+```
 ✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
 
-  ★ P7 step 2500 → Text=35.54  ASR=33.60  [score=33.60]
+  ★ P7 step 11500 → Text=36.05  ASR=33.85  [score=33.85]
 
-[ckpt] Saved phase7_joint_step002500.pt (4323.9 MB)
+[ckpt] Saved phase7_joint_step011500.pt (5937.1 MB)
   patience=29/30
-[rclone] 2026/05/30 14:05:09 -   546.090 MiB / 4.027 GiB, 13%, 55.053 MiB/s, ETA 1m4s2026/05/30 14:05:19 -         1 GiB / 4.027 GiB, 25%, 52.881 MiB/s, ETA 58s2026/05/30 14:05:29 -     1.481 GiB / 4.027 GiB, 37%, 49.619 MiB/s, ETA 52s2026/05/30 14:05:39 -     2.020 GiB / 4.027 GiB, 50%, 52.397 MiB/s, ETA 39s2026/05/30 14:05:49 -     2.551 GiB / 4.027 GiB, 63%, 53.179 MiB/s, ETA 28s2026/05/30 14:05:59 -     3.058 GiB / 4.027 GiB, 76%, 52.371 MiB/s, ETA 18s2026/05/30 14:06:09 -     3.507 GiB / 4.027 GiB, 87%, 50.812 MiB/s, ETA 10s2026/05/30 14:06:19 -     3.922 GiB / 4.027 GiB, 97%, 45.212 MiB/s, ETA 2s2026/05/30 14:06:24 -     4.027 GiB / 4.027 GiB, 100%, 40.857 MiB/s, ETA 0s
-  P7 step  2520/11634 | CE=3.8393 KD=1.2713 | α=0.15 | lr=4.6e-06 | ETA=120min
-  P7 step  2540/11634 | CE=4.0784 KD=1.2584 | α=0.15 | lr=4.6e-06 | ETA=120min
-  P7 step  2560/11634 | CE=4.1851 KD=1.2525 | α=0.15 | lr=4.6e-06 | ETA=115min
-  P7 step  2580/11634 | CE=4.0124 KD=1.2441 | α=0.15 | lr=4.6e-06 | ETA=115min
-  P7 step  2600/11634 | CE=4.1471 KD=1.2717 | α=0.15 | lr=4.6e-06 | ETA=114min
-  P7 step  2620/11634 | CE=3.7148 KD=1.2130 | α=0.15 | lr=4.6e-06 | ETA=112min
-  P7 step  2640/11634 | CE=3.4632 KD=1.2267 | α=0.15 | lr=4.6e-06 | ETA=110min
-  P7 step  2660/11634 | CE=3.4170 KD=1.2167 | α=0.15 | lr=4.5e-06 | ETA=107min
-  P7 step  2680/11634 | CE=3.3825 KD=1.2046 | α=0.15 | lr=4.5e-06 | ETA=108min
-  P7 step  2700/11634 | CE=3.4345 KD=1.2056 | α=0.15 | lr=4.5e-06 | ETA=108min
-  P7 step  2720/11634 | CE=3.4317 KD=1.2350 | α=0.15 | lr=4.5e-06 | ETA=108min
-  P7 step  2740/11634 | CE=3.4614 KD=1.2426 | α=0.15 | lr=4.5e-06 | ETA=104min
-  P7 step  2760/11634 | CE=3.4169 KD=1.2332 | α=0.15 | lr=4.5e-06 | ETA=103min
-  P7 step  2780/11634 | CE=3.3986 KD=1.2134 | α=0.15 | lr=4.5e-06 | ETA=104min
-  P7 step  2800/11634 | CE=3.7765 KD=1.2077 | α=0.15 | lr=4.5e-06 | ETA=110min
-  P7 step  2820/11634 | CE=4.0420 KD=1.2187 | α=0.15 | lr=4.5e-06 | ETA=104min
-  P7 step  2840/11634 | CE=4.0857 KD=1.2526 | α=0.15 | lr=4.5e-06 | ETA=102min
-  P7 step  2860/11634 | CE=4.0537 KD=1.2272 | α=0.15 | lr=4.5e-06 | ETA=102min
-  P7 step  2880/11634 | CE=3.8552 KD=1.1927 | α=0.15 | lr=4.5e-06 | ETA=93min
-  P7 step  2900/11634 | CE=4.2929 KD=1.2361 | α=0.15 | lr=4.4e-06 | ETA=94min
-  P7 step  2920/11634 | CE=4.1538 KD=1.1959 | α=0.15 | lr=4.4e-06 | ETA=94min
-  P7 step  2940/11634 | CE=4.6552 KD=1.2809 | α=0.15 | lr=4.4e-06 | ETA=94min
-  P7 step  2960/11634 | CE=4.9870 KD=1.2858 | α=0.15 | lr=4.4e-06 | ETA=101min
-  P7 step  2980/11634 | CE=5.0826 KD=1.3085 | α=0.15 | lr=4.4e-06 | ETA=101min
-  P7 step  3000/11634 | CE=5.0004 KD=1.2996 | α=0.15 | lr=4.4e-06 | ETA=100min
-  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
-✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
+[rclone] 2026/06/02 08:00:07 -       832 MiB / 5.529 GiB, 15%, 82.908 MiB/s, ETA 58s2026/06/02 08:00:17 -     1.562 GiB / 5.529 GiB, 28%, 80.525 MiB/s, ETA 50s2026/06/02 08:00:27 -     2.361 GiB / 5.529 GiB, 43%, 81.035 MiB/s, ETA 40s2026/06/02 08:00:37 -     3.161 GiB / 5.529 GiB, 57%, 80.846 MiB/s, ETA 29s2026/06/02 08:00:47 -     3.644 GiB / 5.529 GiB, 66%, 67.484 MiB/s, ETA 28s2026/06/02 08:00:57 -     4.250 GiB / 5.529 GiB, 77%, 61.811 MiB/s, ETA 21s2026/06/02 08:01:07 -     5.084 GiB / 5.529 GiB, 92%, 72.343 MiB/s, ETA 6s2026/06/02 08:01:14 -     5.529 GiB / 5.529 GiB, 100%, 74.873 MiB/s, ETA 0s
+  P7 step 11520/11634 | CE=4.4863 KD=1.6569 | α=0.10 | lr=1.3e-09 | ETA=2min
+  P7 step 11540/11634 | CE=4.5718 KD=1.7154 | α=0.10 | lr=8.8e-10 | ETA=2min
+  P7 step 11560/11634 | CE=4.4342 KD=1.7007 | α=0.10 | lr=5.4e-10 | ETA=1min
+  P7 step 11580/11634 | CE=4.4433 KD=1.7061 | α=0.10 | lr=2.9e-10 | ETA=1min
+  P7 step 11600/11634 | CE=4.3226 KD=1.7074 | α=0.10 | lr=1.2e-10 | ETA=1min
+  P7 step 11620/11634 | CE=4.3304 KD=1.7211 | α=0.10 | lr=2.0e-11 | ETA=0min
+  Epoch 3 done | 79.4 min
 
-  ★ P7 step 3000 → Text=34.97  ASR=32.94  [score=32.94]
-
-[ckpt] Saved phase7_joint_step003000.pt (4323.9 MB)
-  patience=28/30
-[rclone] 2026/05/30 14:46:06 -       512 MiB / 4.027 GiB, 12%, 53.628 MiB/s, ETA 1m7s2026/05/30 14:46:16 -     1.062 GiB / 4.027 GiB, 26%, 56.553 MiB/s, ETA 53s2026/05/30 14:46:26 -     1.643 GiB / 4.027 GiB, 41%, 57.019 MiB/s, ETA 42s2026/05/30 14:46:36 -     2.148 GiB / 4.027 GiB, 53%, 55.141 MiB/s, ETA 34s2026/05/30 14:46:46 -     2.644 GiB / 4.027 GiB, 66%, 53.905 MiB/s, ETA 26s2026/05/30 14:46:56 -     3.182 GiB / 4.027 GiB, 79%, 53.981 MiB/s, ETA 16s2026/05/30 14:47:06 -     3.624 GiB / 4.027 GiB, 90%, 49.172 MiB/s, ETA 8s2026/05/30 14:47:16 -     4.027 GiB / 4.027 GiB, 100%, 47.086 MiB/s, ETA 0s2026/05/30 14:47:16 -     4.027 GiB / 4.027 GiB, 100%, 47.086 MiB/s, ETA 0s
-  P7 step  3020/11634 | CE=4.8037 KD=1.3101 | α=0.15 | lr=4.4e-06 | ETA=103min
-  P7 step  3040/11634 | CE=4.6147 KD=1.2757 | α=0.15 | lr=4.4e-06 | ETA=104min
-  P7 step  3060/11634 | CE=4.1278 KD=1.3027 | α=0.15 | lr=4.4e-06 | ETA=104min
-  P7 step  3080/11634 | CE=3.9162 KD=1.2837 | α=0.15 | lr=4.4e-06 | ETA=102min
-  P7 step  3100/11634 | CE=4.1815 KD=1.3352 | α=0.15 | lr=4.4e-06 | ETA=100min
-  P7 step  3120/11634 | CE=4.1115 KD=1.3489 | α=0.15 | lr=4.3e-06 | ETA=100min
-  P7 step  3140/11634 | CE=4.1387 KD=1.3163 | α=0.15 | lr=4.3e-06 | ETA=100min
-  P7 step  3160/11634 | CE=4.1408 KD=1.3459 | α=0.15 | lr=4.3e-06 | ETA=99min
-  P7 step  3180/11634 | CE=4.1232 KD=1.3283 | α=0.15 | lr=4.3e-06 | ETA=99min
-  P7 step  3200/11634 | CE=4.1701 KD=1.3577 | α=0.15 | lr=4.3e-06 | ETA=94min
-  P7 step  3220/11634 | CE=4.1608 KD=1.3402 | α=0.15 | lr=4.3e-06 | ETA=95min
-  P7 step  3240/11634 | CE=4.0768 KD=1.3695 | α=0.15 | lr=4.3e-06 | ETA=94min
-  P7 step  3260/11634 | CE=4.1131 KD=1.3379 | α=0.15 | lr=4.3e-06 | ETA=92min
-  P7 step  3280/11634 | CE=4.1594 KD=1.3336 | α=0.15 | lr=4.3e-06 | ETA=91min
-  P7 step  3300/11634 | CE=4.0999 KD=1.3455 | α=0.15 | lr=4.3e-06 | ETA=90min
-  P7 step  3320/11634 | CE=3.8055 KD=1.2775 | α=0.15 | lr=4.2e-06 | ETA=88min
-  P7 step  3340/11634 | CE=3.9075 KD=1.2902 | α=0.15 | lr=4.2e-06 | ETA=87min
-  P7 step  3360/11634 | CE=3.9401 KD=1.3143 | α=0.15 | lr=4.2e-06 | ETA=81min
-  P7 step  3380/11634 | CE=3.8726 KD=1.2713 | α=0.15 | lr=4.2e-06 | ETA=76min
-  P7 step  3400/11634 | CE=3.7822 KD=1.3041 | α=0.15 | lr=4.2e-06 | ETA=76min
-  P7 step  3420/11634 | CE=3.8222 KD=1.2786 | α=0.15 | lr=4.2e-06 | ETA=72min
-  P7 step  3440/11634 | CE=4.5519 KD=1.2886 | α=0.15 | lr=4.2e-06 | ETA=70min
-  P7 step  3460/11634 | CE=4.9151 KD=1.2741 | α=0.15 | lr=4.2e-06 | ETA=70min
-  P7 step  3480/11634 | CE=4.9774 KD=1.3311 | α=0.15 | lr=4.2e-06 | ETA=71min
-  P7 step  3500/11634 | CE=5.1461 KD=1.3269 | α=0.15 | lr=4.2e-06 | ETA=70min
-  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
-✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
-
-  ★ P7 step 3500 → Text=35.06  ASR=33.14  [score=33.14]
-
-[ckpt] Saved phase7_joint_step003500.pt (4323.9 MB)
-  patience=27/30
-  P7 step  3520/11634 | CE=4.9372 KD=1.3338 | α=0.15 | lr=4.1e-06 | ETA=69min
-[rclone] 2026/05/30 15:20:23 -   487.465 MiB / 4.027 GiB, 12%, 49.777 MiB/s, ETA 1m13s2026/05/30 15:20:33 -         1 GiB / 4.027 GiB, 25%, 51.709 MiB/s, ETA 59s2026/05/30 15:20:43 -     1.434 GiB / 4.027 GiB, 36%, 48.250 MiB/s, ETA 55s2026/05/30 15:20:53 -     1.955 GiB / 4.027 GiB, 49%, 50.085 MiB/s, ETA 42s2026/05/30 15:21:03 -     2.456 GiB / 4.027 GiB, 61%, 50.892 MiB/s, ETA 31s2026/05/30 15:21:13 -     2.957 GiB / 4.027 GiB, 73%, 51.166 MiB/s, ETA 21s2026/05/30 15:21:23 -     3.348 GiB / 4.027 GiB, 83%, 45.943 MiB/s, ETA 15s2026/05/30 15:21:33 -     3.688 GiB / 4.027 GiB, 92%, 40.262 MiB/s, ETA 8s2026/05/30 15:21:43 -     4.027 GiB / 4.027 GiB, 100%, 39.530 MiB/s, ETA 0s2026/05/30 15:21:44 -     4.027 GiB / 4.027 GiB, 100%, 37.059 MiB/s, ETA 0s
-  P7 step  3540/11634 | CE=4.8811 KD=1.3519 | α=0.15 | lr=4.1e-06 | ETA=69min
-  P7 step  3560/11634 | CE=4.7933 KD=1.3486 | α=0.15 | lr=4.1e-06 | ETA=68min
-  P7 step  3580/11634 | CE=4.8248 KD=1.3354 | α=0.15 | lr=4.1e-06 | ETA=66min
-  P7 step  3600/11634 | CE=4.9768 KD=1.3395 | α=0.15 | lr=4.1e-06 | ETA=68min
-  P7 step  3620/11634 | CE=4.8609 KD=1.3390 | α=0.15 | lr=4.1e-06 | ETA=67min
-  P7 step  3640/11634 | CE=4.8980 KD=1.3472 | α=0.15 | lr=4.1e-06 | ETA=66min
-  P7 step  3660/11634 | CE=4.9824 KD=1.3464 | α=0.15 | lr=4.1e-06 | ETA=66min
-  P7 step  3680/11634 | CE=4.8288 KD=1.3515 | α=0.15 | lr=4.1e-06 | ETA=66min
-  P7 step  3700/11634 | CE=4.9287 KD=1.3178 | α=0.15 | lr=4.0e-06 | ETA=65min
-  P7 step  3720/11634 | CE=4.7061 KD=1.4021 | α=0.15 | lr=4.0e-06 | ETA=65min
-  P7 step  3740/11634 | CE=4.4173 KD=1.4555 | α=0.15 | lr=4.0e-06 | ETA=64min
-  P7 step  3760/11634 | CE=4.4391 KD=1.4725 | α=0.15 | lr=4.0e-06 | ETA=63min
-  P7 step  3780/11634 | CE=4.5333 KD=1.4633 | α=0.15 | lr=4.0e-06 | ETA=62min
-  P7 step  3800/11634 | CE=4.4605 KD=1.4719 | α=0.15 | lr=4.0e-06 | ETA=60min
-  P7 step  3820/11634 | CE=4.4628 KD=1.5096 | α=0.15 | lr=4.0e-06 | ETA=60min
-  P7 step  3840/11634 | CE=4.7068 KD=1.4742 | α=0.15 | lr=4.0e-06 | ETA=61min
-  P7 step  3860/11634 | CE=4.7296 KD=1.4673 | α=0.15 | lr=4.0e-06 | ETA=60min
-  Epoch 1 done | 147.4 min
-
-  Phase 7 — Epoch 2/3  |  KD_alpha=0.10  |  Backbone LR=5.0e-06
-  P7 step  3880/11634 | CE=3.7243 KD=1.2499 | α=0.10 | lr=3.9e-06 | ETA=60min
-  P7 step  3900/11634 | CE=3.7552 KD=1.2557 | α=0.10 | lr=3.9e-06 | ETA=60min
-  P7 step  3920/11634 | CE=3.6860 KD=1.2925 | α=0.10 | lr=3.9e-06 | ETA=60min
-  P7 step  3940/11634 | CE=3.7126 KD=1.2528 | α=0.10 | lr=3.9e-06 | ETA=60min
-  P7 step  3960/11634 | CE=3.6870 KD=1.2788 | α=0.10 | lr=3.9e-06 | ETA=61min
-  P7 step  3980/11634 | CE=3.6320 KD=1.2499 | α=0.10 | lr=3.9e-06 | ETA=62min
-  P7 step  4000/11634 | CE=3.6089 KD=1.2417 | α=0.10 | lr=3.9e-06 | ETA=59min
-  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
-✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
-
-  ★ P7 step 4000 → Text=34.70  ASR=33.49  [score=33.49]
-
-[ckpt] Saved phase7_joint_step004000.pt (4323.9 MB)
-  patience=26/30
-  P7 step  4020/11634 | CE=3.6420 KD=1.3043 | α=0.10 | lr=3.9e-06 | ETA=59min
-[rclone] 2026/05/30 15:52:08 -   523.965 MiB / 4.027 GiB, 13%, 53.134 MiB/s, ETA 1m7s2026/05/30 15:52:18 -     1.024 GiB / 4.027 GiB, 25%, 52.895 MiB/s, ETA 58s2026/05/30 15:52:28 -     1.549 GiB / 4.027 GiB, 38%, 52.847 MiB/s, ETA 48s2026/05/30 15:52:38 -     2.033 GiB / 4.027 GiB, 50%, 51.779 MiB/s, ETA 39s2026/05/30 15:52:48 -     2.569 GiB / 4.027 GiB, 64%, 53.383 MiB/s, ETA 27s2026/05/30 15:52:58 -     3.125 GiB / 4.027 GiB, 78%, 55.278 MiB/s, ETA 16s2026/05/30 15:53:08 -     3.500 GiB / 4.027 GiB, 87%, 46.792 MiB/s, ETA 11s2026/05/30 15:53:18 -     3.930 GiB / 4.027 GiB, 98%, 45.893 MiB/s, ETA 2s2026/05/30 15:53:22 -     4.027 GiB / 4.027 GiB, 100%, 39.600 MiB/s, ETA 0s
-  P7 step  4040/11634 | CE=3.7240 KD=1.2737 | α=0.10 | lr=3.9e-06 | ETA=61min
-  P7 step  4060/11634 | CE=3.5753 KD=1.2602 | α=0.10 | lr=3.8e-06 | ETA=62min
-  P7 step  4080/11634 | CE=3.5801 KD=1.2521 | α=0.10 | lr=3.8e-06 | ETA=62min
-  P7 step  4100/11634 | CE=3.5907 KD=1.2849 | α=0.10 | lr=3.8e-06 | ETA=64min
-  P7 step  4120/11634 | CE=3.5162 KD=1.2379 | α=0.10 | lr=3.8e-06 | ETA=65min
-  P7 step  4140/11634 | CE=3.6460 KD=1.2839 | α=0.10 | lr=3.8e-06 | ETA=67min
-  P7 step  4160/11634 | CE=3.7262 KD=1.2680 | α=0.10 | lr=3.8e-06 | ETA=67min
-  P7 step  4180/11634 | CE=3.6670 KD=1.3048 | α=0.10 | lr=3.8e-06 | ETA=68min
-  P7 step  4200/11634 | CE=3.6036 KD=1.2611 | α=0.10 | lr=3.8e-06 | ETA=67min
-  P7 step  4220/11634 | CE=3.5816 KD=1.3018 | α=0.10 | lr=3.7e-06 | ETA=67min
-  P7 step  4240/11634 | CE=3.6638 KD=1.2714 | α=0.10 | lr=3.7e-06 | ETA=66min
-  P7 step  4260/11634 | CE=3.7244 KD=1.2980 | α=0.10 | lr=3.7e-06 | ETA=66min
-  P7 step  4280/11634 | CE=3.7502 KD=1.2724 | α=0.10 | lr=3.7e-06 | ETA=67min
-  P7 step  4300/11634 | CE=3.9698 KD=1.2930 | α=0.10 | lr=3.7e-06 | ETA=67min
-  P7 step  4320/11634 | CE=3.8255 KD=1.2732 | α=0.10 | lr=3.7e-06 | ETA=71min
-  P7 step  4340/11634 | CE=3.7563 KD=1.2933 | α=0.10 | lr=3.7e-06 | ETA=75min
-  P7 step  4360/11634 | CE=3.8122 KD=1.3170 | α=0.10 | lr=3.7e-06 | ETA=75min
-  P7 step  4380/11634 | CE=3.8389 KD=1.3078 | α=0.10 | lr=3.6e-06 | ETA=78min
-  P7 step  4400/11634 | CE=3.8280 KD=1.2784 | α=0.10 | lr=3.6e-06 | ETA=81min
-  P7 step  4420/11634 | CE=3.7297 KD=1.3116 | α=0.10 | lr=3.6e-06 | ETA=83min
-  P7 step  4440/11634 | CE=3.7481 KD=1.2932 | α=0.10 | lr=3.6e-06 | ETA=81min
-  P7 step  4460/11634 | CE=3.8700 KD=1.2988 | α=0.10 | lr=3.6e-06 | ETA=80min
-  P7 step  4480/11634 | CE=3.6735 KD=1.3056 | α=0.10 | lr=3.6e-06 | ETA=80min
-  P7 step  4500/11634 | CE=3.7536 KD=1.2735 | α=0.10 | lr=3.6e-06 | ETA=81min
-  [Eval] Selected 18 samples across 3 pairs (arb→ben: 6, eng→ben: 6, hin→ben: 6)
-✓ Killed GC at 1 locations: ['model.gradient_checkpointing_disable()']...
-
-  ★ P7 step 4500 → Text=35.27  ASR=33.26  [score=33.26]
-
-[ckpt] Saved phase7_joint_step004500.pt (4323.9 MB)
-  patience=25/30
-[rclone] 2026/05/30 16:31:42 -   493.059 MiB / 4.027 GiB, 12%, 49.777 MiB/s, ETA 1m12s2026/05/30 16:31:52 -   939.996 MiB / 4.027 GiB, 23%, 46.952 MiB/s, ETA 1m7s2026/05/30 16:32:02 -     1.436 GiB / 4.027 GiB, 36%, 49.276 MiB/s, ETA 53s2026/05/30 16:32:12 -     1.923 GiB / 4.027 GiB, 48%, 48.334 MiB/s, ETA 44s2026/05/30 16:32:22 -     2.397 GiB / 4.027 GiB, 60%, 48.759 MiB/s, ETA 34s2026/05/30 16:32:32 -     2.875 GiB / 4.027 GiB, 71%, 50.278 MiB/s, ETA 23s2026/05/30 16:32:42 -     3.297 GiB / 4.027 GiB, 82%, 44.494 MiB/s, ETA 16s2026/05/30 16:32:52 -     3.688 GiB / 4.027 GiB, 92%, 43.311 MiB/s, ETA 8s2026/05/30 16:33:02 -     4.027 GiB / 4.027 GiB, 100%, 40.711 MiB/s, ETA 0s2026/05/30 16:33:03 -     4.027 GiB / 4.027 GiB, 100%, 38.668 MiB/s, ETA 0s
-  P7 step  4520/11634 | CE=3.7326 KD=1.3073 | α=0.10 | lr=3.6e-06 | ETA=79min
-  P7 step  4540/11634 | CE=3.8116 KD=1.2983 | α=0.10 | lr=3.5e-06 | ETA=80min
-  P7 step  4560/11634 | CE=3.8006 KD=1.2875 | α=0.10 | lr=3.5e-06 | ETA=80min
-  P7 step  4580/11634 | CE=3.7680 KD=1.3324 | α=0.10 | lr=3.5e-06 | ETA=80min
-  P7 step  4600/11634 | CE=3.7997 KD=1.3305 | α=0.10 | lr=3.5e-06 | ETA=80min
-  P7 step  4620/11634 | CE=3.8710 KD=1.3012 | α=0.10 | lr=3.5e-06 | ETA=80min
-  P7 step  4640/11634 | CE=3.6504 KD=1.2873 | α=0.10 | lr=3.5e-06 | ETA=81min
-  P7 step  4660/11634 | CE=3.6148 KD=1.2933 | α=0.10 | lr=3.5e-06 | ETA=81min
-  P7 step  4680/11634 | CE=3.6551 KD=1.3175 | α=0.10 | lr=3.5e-06 | ETA=81min
-  P7 step  4700/11634 | CE=3.5721 KD=1.2968 | α=0.10 | lr=3.4e-06 | ETA=80min
-  P7 step  4720/11634 | CE=3.7054 KD=1.3257 | α=0.10 | lr=3.4e-06 | ETA=76min
-  P7 step  4740/11634 | CE=3.6805 KD=1.3235 | α=0.10 | lr=3.4e-06 | ETA=72min
-  P7 step  4760/11634 | CE=3.6246 KD=1.2987 | α=0.10 | lr=3.4e-06 | ETA=71min
-  P7 step  4780/11634 | CE=3.7183 KD=1.3249 | α=0.10 | lr=3.4e-06 | ETA=67min
-  P7 step  4800/11634 | CE=3.6936 KD=1.3329 | α=0.10 | lr=3.4e-06 | ETA=65min
-  P7 step  4820/11634 | CE=3.5887 KD=1.2874 | α=0.10 | lr=3.4e-06 | ETA=63min
-  P7 step  4840/11634 | CE=3.6144 KD=1.3348 | α=0.10 | lr=3.3e-06 | ETA=63min
-  P7 step  4860/11634 | CE=3.6167 KD=1.3097 | α=0.10 | lr=3.3e-06 | ETA=62min
-  P7 step  4880/11634 | CE=3.6043 KD=1.3525 | α=0.10 | lr=3.3e-06 | ETA=62min
-  P7 step  4900/11634 | CE=3.6275 KD=1.3151 | α=0.10 | lr=3.3e-06 | ETA=60min
-  P7 step  4920/11634 | CE=3.6211 KD=1.3122 | α=0.10 | lr=3.3e-06 | ETA=60min
-  P7 step  4940/11634 | CE=3.6544 KD=1.3027 | α=0.10 | lr=3.3e-06 | ETA=59min
-  P7 step  4960/11634 | CE=3.7214 KD=1.3474 | α=0.10 | lr=3.3e-06 | ETA=58min
-  P7 step  4980/11634 | CE=3.6795 KD=1.3441 | α=0.10 | lr=3.3e-06 | ETA=58min
+🎉 PHASE 7 COMPLETE. Best Joint ASR ChrF: 34.88
 ```
 
 ---
 
-## Cell 100 — `code`
+## Cell 112 — `code` (execution #99)
+
+```python
+# _save_p7_epoch(j_step, best_j_chrf, history_p7, is_best=False)
+```
+
+---
+
+## Cell 113 — `code` (execution #100)
 
 ```python
 # ── Plot Training History (Phase 7) ──────────────────────────────────────────
@@ -8293,9 +8256,21 @@ else:
         plot_learning_curves_p7(ckpt['train_history'])
 ```
 
+### Output
+
+**[stdout]**
+```
+[fig] Saved phase7_learning_curve.png
+```
+
+```
+<Figure size 1200x1440 with 3 Axes>
+```
+*[Image output — PNG]*
+
 ---
 
-## Cell 101 — `code`
+## Cell 114 — `code` (execution #101)
 
 ```python
 # ── Save Final Model ────────────────────────────────────────────────────────
@@ -8310,9 +8285,30 @@ save_model_to_drive(student, processor, 'phase7_supremacy_merged')
 print('✓ Saved final model to Google Drive as `phase7_supremacy_merged`')
 ```
 
+### Output
+
+**[stdout]**
+```
+Exporting Final Phase 7 Model (Last Step)...
+[model] Saving phase7_supremacy_merged → /kaggle/working/models/phase7_supremacy_merged ...
+  [config] sync done.
+  Saved custom state: ['_vocab_remap_to_old']
+```
+
+```
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]
+```
+
+**[stdout]**
+```
+[model] Local: 4327 MB in 8 files.
+[model] Pushed to remote: gdrive:seamTL_bengali/models/phase7_supremacy_merged/
+✓ Saved final model to Google Drive as `phase7_supremacy_merged`
+```
+
 ---
 
-## Cell 102 — `code`
+## Cell 115 — `code` (execution #102)
 
 ```python
 # ── Final Comprehensive Benchmark ───────────────────────────────────────────
@@ -8367,9 +8363,1331 @@ plot_detailed_phase_comparison()
 print("\n🎉 BENGALI SUPREMACY PIPELINE COMPLETE! 🎉")
 ```
 
+### Output
+
+**[stdout]**
+```
+[ckpt] No checkpoint for 'phase7_benchmark'
+
+=================================================================
+  BENCHMARK: P7_Supremacy  |  Samples: 198
+=================================================================
+  GPU0: 4.98GB alloc / 13.48GB reserved
+  GPU1: 9.82GB alloc / 13.77GB reserved
+
+  === arb→ben ★ (33 samples) ===
+  [ 1/33] BLEU=  5.8 ChrF= 33.0 RTF=0.242
+              pred: চীনের অর্থনৈতিক উন্নয়নের ক্ষেত্রে যে পরিমাণ অর্থনৈতিক উন্নয়ণ করা হবে তার পরিমা
+  P7_Supremacy_arb→ben_s1in.wav  (5.9s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_arb→ben_s1in.wav
+  P7_Supremacy_arb→ben_s1out.wav  (6.5s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_arb→ben_s1out.wav
+  [ 2/33] BLEU=  4.9 ChrF= 24.5 RTF=0.150
+              pred: আপনার সেবাস্কষ্টমূলত দুই বা একাধিক স্তরের মধ্যে থাকে মনে রাখবেন যে আপনার শরীরে অ
+  P7_Supremacy_arb→ben_s2in.wav  (11.2s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_arb→ben_s2in.wav
+  P7_Supremacy_arb→ben_s2out.wav  (7.1s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_arb→ben_s2out.wav
+  [ 3/33] BLEU=  6.2 ChrF= 38.7 RTF=0.198
+              pred: গর্থের মধ্যে দূকে পড়ল গর্তটি এবং তারপর একটি পরিষ্কার পাথর দিয়ে দুকে পড়ল যাতে 
+  P7_Supremacy_arb→ben_s3in.wav  (8.6s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_arb→ben_s3in.wav
+  P7_Supremacy_arb→ben_s3out.wav  (7.3s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_arb→ben_s3out.wav
+  [ 4/33] BLEU=  2.2 ChrF= 31.5 RTF=0.162
+              pred: পরিচাপত্রটি মূলত সীমাবদ্ধ হিসাবে প্রকাশ করা হবে যা ফিলিস্তিনের মৌলিক সীমানা হিসা
+  P7_Supremacy_arb→ben_s4in.wav  (13.3s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_arb→ben_s4in.wav
+  P7_Supremacy_arb→ben_s4out.wav  (9.9s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_arb→ben_s4out.wav
+  [ 5/33] BLEU=  4.1 ChrF= 29.4 RTF=0.135
+              pred: অ়ত আপনি আপনার সরকারের বাইরে থাকা সরকারের কাছ থেকেও এই ধরণের অনুরোধ পেতে পারেন ক
+  [ 6/33] BLEU=  2.1 ChrF= 26.4 RTF=0.114
+              pred: সাধারণভাবে একজন ব্যক্তি যখন তার পুরপুরুষদের সাথে অন্যদের মতো থাকার চেষ্টা করে তখ
+  [ 7/33] BLEU=  2.3 ChrF= 37.9 RTF=0.146
+              pred: এটি কিন্তের সহজ হতে পারে এটি আপনাকে দক্ষিণ আফ্রিকা বা জাতীয় দক্ষিণ আফ্রিকা ভ্রম
+  [ 8/33] BLEU=  3.4 ChrF= 29.0 RTF=0.295
+              pred: মহাদেশের বিচারক শান্তিা রোষিক বলেছেন মহাদেশের বিচারকের সামনে অভিযুক্তরা একটি গর্
+  [ 9/33] BLEU=  1.8 ChrF= 20.0 RTF=0.150
+              pred: কংগ্রেস যহানবসালে অর্থনৈতিক উন্নয়নের প্রতিশ্রুতি দিয়েছিল এবং ঘোষণা করেছিল যে ফ
+  [10/33] BLEU=  6.4 ChrF= 22.9 RTF=0.185
+              pred: কমুরগুলি ফাটল বা আরও বেশী ফাটল হয়ে যায় যা তাদের ফাটল বা খারাপ অবস্থায় আঘাতের 
+  [11/33] BLEU= 11.3 ChrF= 40.0 RTF=0.161
+              pred: যুদ্ধের পরে যুদ্ধের পরে মার্কিন যুক্তরাষ্ট্রের প্রথমবারের মতো শক্তিশালী কেন্দ্রী
+  [12/33] BLEU=  2.4 ChrF= 26.7 RTF=0.225
+              pred: কিছু স্থানে এক মিনিটের জন্য পানীতে ঘন ঘন ডুকে পড়ে এবং কিছু স্থানে কয়েক মিনিটের
+  [13/33] BLEU=  0.0 ChrF= 10.9 RTF=1.053
+              pred: আই শব্দতি সবাই শব্দতি সভাই শব্দতি সভাই শব্দটির সবাই শব্দটির সবাই শব্দটির সবাই শব
+  [14/33] BLEU=  2.6 ChrF= 33.9 RTF=0.186
+              pred: এই উৎসবটি পালন করা হয় প্রতিদিন এবং এটি আফ্রিকার দক্ষিণে অবস্থিত সমস্ত জাতীয় পর
+  [15/33] BLEU=  2.9 ChrF= 16.8 RTF=0.165
+              pred: একমাতের প্রাণী যা আজকে বিচছিহ্ন করা যায না তাহল বাহু এবং মাংসবিশেষ
+  [16/33] BLEU=  6.6 ChrF= 18.5 RTF=0.308
+              pred: ইরোষমাতো তাদের সংগীতের গন্ধে তাদের ফারবি দিয়েছিল
+  [17/33] BLEU=  3.6 ChrF= 31.2 RTF=0.230
+              pred: একটি খেলা দুরাস্কি স্কেটিংের মাধ্যমে আপনি আরোহণ করতে পারেন যদি এটি ভালোভাবে না থ
+  [18/33] BLEU=  1.3 ChrF= 20.0 RTF=0.201
+              pred: যদিও এই অংশটি অচানাভাবে লেখা হয়েছিল তবে আমরা জানি যে বড় অংশটি থ্রিফফর খ্রীস্টপ
+  [19/33] BLEU=  4.9 ChrF= 34.0 RTF=0.178
+              pred: এখনও অনেক পুরুষ ও মহিলা তাদের সময়কালের চেয়ে বেশি জীবনয়াত্রার নির্দেশিত অংগ্রহ
+  [20/33] BLEU=  2.1 ChrF= 28.8 RTF=0.219
+              pred: উদাহরণস্বরূপ বিস্বের সবচেয়ে জন প্রিয় ছবির ছবির চিত্র গ্রহণের ক্ষেত্রে থ্রিফ মি
+  [21/33] BLEU=  1.8 ChrF= 21.6 RTF=0.203
+              pred: তেমনি এটির জন্য প্রয়োজনীয় প্রয়োজনীয়তা অনুযায়ী নতুন বৈশিষ্ট্য তৈরী করতে সক্ষ
+  [22/33] BLEU=  3.7 ChrF= 19.8 RTF=0.142
+              pred: প্লান্তি এবং প্লান্তির অভাসগুলি সাধারণত দু'টি গোষ্ঠির মধ্যে একটি বার্ষিক পরিশর ত
+  [23/33] BLEU=  1.6 ChrF= 21.0 RTF=0.180
+              pred: ঐতিহীয় অনুসারের নৌবাহিনীর কর্মচারীরা তাদের কর্মচারীদের এবং তাদের বন্দীদের বহান 
+  [24/33] BLEU=  2.9 ChrF= 26.0 RTF=0.166
+              pred: ইউরোপ একটি ছোট দেশ কিন্তু সেখানে অনেকগুলো নির্বীঘ্নিত পথ্ রয়েছে এবং ভ্রমণের ক্ষ
+  [25/33] BLEU=  1.6 ChrF= 23.9 RTF=0.187
+              pred: আমেরিকান অলিম্পিকের মতোই তাদের অলিম্পিকের অংশগুলি হল ধৈরুশীল এবং অজ্ঞান তাদের খে
+  [26/33] BLEU=  5.1 ChrF= 30.5 RTF=0.137
+              pred: কিছু ক্ষেত্রে বর কোম্পানীগুলো তাদের নিচেসাব বিমান সর্বরাহ করে কিন্তু অন্যান্য প্
+  [27/33] BLEU=  2.3 ChrF= 29.9 RTF=0.196
+              pred: শিশুরা তাদের শাস্থ্যের বিভিন্ন কারণের কারণে হতাশা ও হতাসার মধ্যে বিব্রান্ত হয়ে 
+  [28/33] BLEU=  1.1 ChrF= 15.6 RTF=0.637
+              pred: গীষ্মের আবহাওয়ার সাথে তুলনিয়ভাবে কম দেখা যায় বিশেষ করে গীষ্মের আবাওয়া গীষ্মে
+  [29/33] BLEU=  0.0 ChrF=  9.8 RTF=0.188
+              pred: এই অসবটি রোগের উপর নির্ভর করতে পারে কারণ এটি খেলায় নিচিদ
+  [30/33] BLEU=  5.4 ChrF= 28.8 RTF=0.286
+              pred: প্রত্যেক জিনিসী সৃষ্টি হয়েছের মধ থেকে সমস্ত পদার্থ তৈরী হয়েছে ছোট ছোটগর্থ থেকে
+  [31/33] BLEU=  0.4 ChrF= 14.7 RTF=0.701
+              pred: একজন পরবেক্ষক একটি বুসিক শহরকে উদ্ধার করেন যেখানে মহাদেশের প্রান্ত থেকে একটি স্ব
+  [32/33] BLEU=  3.4 ChrF= 15.2 RTF=0.165
+              pred: এতি একটি প্রচলিত এবং আরও সুষবাধু উপায়ে যা প্রায়শি বিবর্তনের পরে গটে
+  [33/33] BLEU=  1.8 ChrF= 15.1 RTF=0.351
+              pred: গতরাতে মাটিলির অভিযুক্তদের গ্রেপ্তারের পর গ্রেপ্তারের পর গ্রপ্তারের পর গ্রেপ্ারে
+
+  === ben→arb ★ (33 samples) ===
+[MMS-ASR] Loading lang=ara...
+```
+
+```
+Loading weights:   0%|          | 0/1096 [00:00<?, ?it/s]
+```
+
+```
+adapter.ara.safetensors:   0%|          | 0.00/9.26M [00:00<?, ?B/s]
+```
+
+**[stdout]**
+```
+  [ 1/33] BLEU=  3.0 ChrF= 26.3 RTF=0.123
+              pred: لم يدع أي كمية للهذا الحد من قال أن تلك لتيست مثنعها على أساس أدخل الاقتصادي الس
+  P7_Supremacy_ben→arb_s1in.wav  (11.7s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→arb_s1in.wav
+  P7_Supremacy_ben→arb_s1out.wav  (6.8s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→arb_s1out.wav
+  [ 2/33] BLEU=  8.8 ChrF= 37.5 RTF=0.263
+              pred: لا يجب أن تفهم أن الأقتار المعدنيات هي أساسا مزيج من أثنين أو أكثر من الأقتار ول
+  P7_Supremacy_ben→arb_s2in.wav  (8.9s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→arb_s2in.wav
+  P7_Supremacy_ben→arb_s2out.wav  (8.8s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→arb_s2out.wav
+  [ 3/33] BLEU=  2.4 ChrF= 15.9 RTF=0.154
+              pred: كلهما يضربا في الكرة معا لمندة يوم واحب  ثم يضربا في الكرة معا في وقت ما
+  P7_Supremacy_ben→arb_s3in.wav  (12.9s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→arb_s3in.wav
+  P7_Supremacy_ben→arb_s3out.wav  (5.6s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→arb_s3out.wav
+  [ 4/33] BLEU=  4.7 ChrF= 30.7 RTF=0.146
+              pred: كما يشير التقرير إلى أن الحدود التي تريد فيلستين أن تتجاوز الحدود التي كانت موجو
+  P7_Supremacy_ben→arb_s4in.wav  (13.8s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→arb_s4in.wav
+  P7_Supremacy_ben→arb_s4out.wav  (10.4s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→arb_s4out.wav
+  [ 5/33] BLEU=  2.4 ChrF= 20.9 RTF=0.145
+              pred: يمكنك تلب داو الحكامة في بلد خاسك في أي بلد آخر ولكن داو الحكامة قد تم إن شأها م
+  [ 6/33] BLEU=  2.8 ChrF= 24.7 RTF=0.132
+              pred: يمكن أن ينشأ من خلال التحدث باشكالآم من خلل أن يبدى أمدرون في توجه الزايمين سبقي
+  [ 7/33] BLEU=  1.5 ChrF= 16.1 RTF=0.180
+              pred: يمكن لأي شخص شرأ كمبيوتر أبيد يمكن هالشراء بعد حديقة خاصة في جنوب أفريقيا أو أي 
+  [ 8/33] BLEU=  0.0 ChrF= 22.0 RTF=0.371
+              pred: كال سوبربوليس تشندرا شيخارسلانكيأن المشتبهين كانو قد تم أعتقلهم في هدرهم في وقت 
+  [ 9/33] BLEU=  2.3 ChrF= 20.1 RTF=0.130
+              pred: بدأ الكونغس في تقديم تيمويل إلى مؤسسة أصيل في عامضثف ويؤكد نيجب على الأقل أن يعي
+  [10/33] BLEU=  2.3 ChrF= 14.3 RTF=0.178
+              pred: يمكن أن تكن الشجرة غير ساخنة جدا في جمال ويمكن أن تتسرب أو أن تتسرب في جمال أو ف
+  [11/33] BLEU=  3.6 ChrF= 28.6 RTF=0.145
+              pred: في وقت الهرب لثورية قامت ولا يتارتي بتشكيل أول حكومة مركزية دارفة تحت إشراف الكو
+  [12/33] BLEU=  6.8 ChrF= 36.2 RTF=0.223
+              pred: في بعض المناطق هناك كمية كافية من المياه ألتي يمكن أن تتدفق من خلالها في بعض الم
+  [13/33] BLEU=  0.0 ChrF=  6.8 RTF=0.089
+              pred: مثل لكلمة تتوم مايكلمت
+  [14/33] BLEU=  7.9 ChrF= 32.9 RTF=0.112
+              pred: يوجد في كل حديقة وطنية في جنوب أفريقية حديقة للحفاظ على كل يوم وإجراء أدخل
+  [15/33] BLEU=  3.3 ChrF= 15.1 RTF=0.101
+              pred: في الوقت الحالي لا يمكن للبط أن يضرب
+  [16/33] BLEU=  0.0 ChrF= 14.9 RTF=0.179
+              pred: أرويس سميث رفض حفلات الأخيرة من زيارةهم
+  [17/33] BLEU=  1.3 ChrF= 18.1 RTF=0.200
+              pred: يمكن لمرء أن يذهب إلى الجناح من الكريكياة الكامل على الرغم من أنه لا يذهب باشكل 
+  [18/33] BLEU=  3.1 ChrF= 22.0 RTF=0.139
+              pred: على رغم من أن أحداً لم يعرف النوان باشكل صحيح إلى أن هكت بها أحداً حيث تم تشكيل 
+  [19/33] BLEU=  2.4 ChrF= 23.4 RTF=0.120
+              pred: لا يزال لكثير من الرجل والنصاء الذين أبروا وقطهم هنا يعيش والكثير من الليهود وال
+  [20/33] BLEU=  4.3 ChrF= 36.2 RTF=0.122
+              pred: على سبيل المثال كان معظم الصور المستمرة في عالم أعبارة عن صور في ميلي ألتيكانت أ
+  [21/33] BLEU=  1.7 ChrF= 19.6 RTF=0.131
+              pred: وانثيجت لذلك عندما يعمل جميع موضا في المؤسة معاً لتجاوز حدود مؤصى في أين العملية
+  [22/33] BLEU=  2.9 ChrF= 13.5 RTF=0.127
+              pred: يسعد فصل وقطا كامل على أن يخلق التشابه بين أثنين من أزهر  كلنوع
+  [23/33] BLEU=  3.0 ChrF= 22.7 RTF=0.134
+              pred: مشكل تقليدي أعمل البحرية كان يضمن أن بلدك على الرغم من أن الناس والإنتاج الذيهم 
+  [24/33] BLEU=  2.5 ChrF= 32.1 RTF=0.164
+              pred: رغم أن أروب هي منتقة صغيرة على الرغم من أنها دولة مستقلة إلا أنها تحتاج إلى العد
+  [25/33] BLEU=  3.0 ChrF= 29.8 RTF=0.119
+              pred: نح انعتبر أن كول لجنة الولايات المتحدة الأولمبية هو أن قد نساعد باشكل أفضل في تغ
+  [26/33] BLEU=  2.7 ChrF= 33.5 RTF=0.118
+              pred: بعض الطرق المحددة تحتوي على خدمة التيرا نخاصة بالشركة الكبرة ولكن بل نصبت الانتر
+  [27/33] BLEU=  3.8 ChrF= 27.0 RTF=0.162
+              pred: يتم أضع الأطفال في حافلات الأكل من مختلف الأسباب حتى سنهم أليلية بما في ذلك سوء 
+  [28/33] BLEU=  1.3 ChrF= 19.2 RTF=0.155
+              pred: خصصاً في سيف  فإن الأينين شاءد مثل البامبول أولي فالبيوتيل والفلوس والتمتؤ والأك
+  [29/33] BLEU=  6.3 ChrF= 29.2 RTF=0.164
+              pred: بسبب غيابه من أريادة أصبح غير قادر على تناول الأدوية الأزمة لتخفيف ضغته
+  [30/33] BLEU= 11.6 ChrF= 22.2 RTF=0.166
+              pred: كل شيء في علم مسنوعة من مواد كل شيء يتكون من كروتين سخيرة يمكن وسفهة
+  [31/33] BLEU=  3.5 ChrF= 19.0 RTF=0.168
+              pred: أشار أهدا المتظاهرين إلى أدم تواجد أحدهم لأن مجموعت من الناس كانت تتحرك في التري
+  [32/33] BLEU=  5.5 ChrF= 13.4 RTF=0.206
+              pred: هذا يشتعل في حافا والهدائق العالية في ماريا
+  [33/33] BLEU=  3.1 ChrF= 22.6 RTF=0.126
+              pred: حصل مارتلي على جائزة الجنسيب لمجلس الكهرباء المؤقاط الجديد من أداء مجلس أنو بالت
+
+  === ben→eng ★ (33 samples) ===
+[Whisper] Loading openai/whisper-medium...
+```
+
+```
+preprocessor_config.json: 0.00B [00:00, ?B/s]
+```
+
+```
+config.json: 0.00B [00:00, ?B/s]
+```
+
+```
+tokenizer_config.json: 0.00B [00:00, ?B/s]
+```
+
+```
+vocab.json: 0.00B [00:00, ?B/s]
+```
+
+```
+tokenizer.json: 0.00B [00:00, ?B/s]
+```
+
+```
+merges.txt: 0.00B [00:00, ?B/s]
+```
+
+```
+normalizer.json: 0.00B [00:00, ?B/s]
+```
+
+```
+added_tokens.json: 0.00B [00:00, ?B/s]
+```
+
+```
+special_tokens_map.json: 0.00B [00:00, ?B/s]
+```
+
+```
+model.safetensors:   0%|          | 0.00/3.06G [00:00<?, ?B/s]
+```
+
+```
+Loading weights:   0%|          | 0/947 [00:00<?, ?it/s]
+```
+
+```
+generation_config.json: 0.00B [00:00, ?B/s]
+```
+
+**[stdout]**
+```
+  [ 1/33] BLEU=  2.2 ChrF= 24.4 RTF=0.116
+              pred: A major component in determining cultural orientation was the slaggle.
+  P7_Supremacy_ben→eng_s1in.wav  (13.6s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→eng_s1in.wav
+  P7_Supremacy_ben→eng_s1out.wav  (4.0s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→eng_s1out.wav
+  [ 2/33] BLEU= 13.8 ChrF= 44.8 RTF=0.137
+              pred: He did not establish any quantity for this quantity, said that those to be made 
+  P7_Supremacy_ben→eng_s2in.wav  (11.7s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→eng_s2in.wav
+  P7_Supremacy_ben→eng_s2out.wav  (5.8s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→eng_s2out.wav
+  [ 3/33] BLEU=  8.9 ChrF= 41.4 RTF=0.191
+              pred: Decaying metals are mainly two or more mixtures of metals, many elements in the 
+  P7_Supremacy_ben→eng_s3in.wav  (8.9s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→eng_s3in.wav
+  P7_Supremacy_ben→eng_s3out.wav  (6.3s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→eng_s3out.wav
+  [ 4/33] BLEU=  3.2 ChrF= 30.7 RTF=0.155
+              pred: The Kokano Valley is the main attraction of the granitic glacier known as Yosemi
+  P7_Supremacy_ben→eng_s4in.wav  (17.4s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→eng_s4in.wav
+  P7_Supremacy_ben→eng_s4out.wav  (8.6s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→eng_s4out.wav
+  [ 5/33] BLEU=  5.3 ChrF= 24.4 RTF=0.111
+              pred: Two scores are equal to one day and then the presser is on the ball with a VF.
+  [ 6/33] BLEU=  6.9 ChrF= 30.8 RTF=0.107
+              pred: The language of theory suggests the longest border dispute is based on the Pales
+  [ 7/33] BLEU=  8.8 ChrF= 41.8 RTF=0.126
+              pred: You can ask for government contracts in other countries, Basel is your own count
+  [ 8/33] BLEU=  4.8 ChrF= 39.4 RTF=0.100
+              pred: Internally speaking, doctors may raise two behaviors with the beginning of their
+  [ 9/33] BLEU=  3.2 ChrF= 35.0 RTF=0.151
+              pred: Anyone can buy white cards that allow for special parks in southern Africa or an
+  [10/33] BLEU=  5.7 ChrF= 33.3 RTF=0.151
+              pred: Pollock's supervisor Chandra Sehar Solanki said the suspects were arrested at th
+  [11/33] BLEU=  0.2 ChrF=  9.1 RTF=0.073
+              pred: The US Geological Survey's scientists and organists plant, plant, plant.
+  [12/33] BLEU=  5.0 ChrF= 42.0 RTF=0.110
+              pred: Congress began to fund the Australian initiative in the year 2005 and determined
+  [13/33] BLEU=  2.6 ChrF= 17.4 RTF=0.148
+              pred: The idea is that copper is not very hot in clothing, it can be contaminated or b
+  [14/33] BLEU=  4.2 ChrF= 50.5 RTF=0.126
+              pred: During the Revolutionary War under Confederation's leadership, the territory sta
+  [15/33] BLEU=  5.6 ChrF= 45.3 RTF=0.172
+              pred: In some areas there is enough water to float, in a minute other areas there is a
+  [16/33] BLEU= 25.9 ChrF= 32.9 RTF=0.139
+              pred: The word C2 may start with a large hand gesture even in the middle of a bow.
+  [17/33] BLEU=  5.2 ChrF= 49.6 RTF=0.120
+              pred: Each national park in South Africa has daily reservations and entrance fees for 
+  [18/33] BLEU=  3.6 ChrF= 27.7 RTF=0.152
+              pred: Currently only the Pokémakers that can't swim behind their skids are the Horing 
+  [19/33] BLEU=  7.1 ChrF= 40.2 RTF=0.174
+              pred: Polyversex indicated in his post that the president's spec was unable to clear t
+  [20/33] BLEU=  8.9 ChrF= 58.0 RTF=0.156
+              pred: A Rowe Smith cancelled the remaining concerts of their visit.
+  [21/33] BLEU=  2.4 ChrF= 24.1 RTF=0.168
+              pred: But isn't it a good car or caramove although not well a person can make a lot of
+  [22/33] BLEU=  7.0 ChrF= 42.2 RTF=0.115
+              pred: It is not only more than that but also a methodology used to guide scientific re
+  [23/33] BLEU=  7.8 ChrF= 34.8 RTF=0.120
+              pred: Although no one knows for sure, it was written by a man known for making the sha
+  [24/33] BLEU= 16.7 ChrF= 46.3 RTF=0.118
+              pred: Still many men and women live who should be passing their term here and many mor
+  [25/33] BLEU= 13.6 ChrF= 42.5 RTF=0.181
+              pred: Samoa's capital is Opea, the city is located on the island of Opoleu and its pop
+  [26/33] BLEU=  9.1 ChrF= 47.5 RTF=0.111
+              pred: For example, most of the world's still photography is a common, very famous film
+  [27/33] BLEU=  7.2 ChrF= 46.7 RTF=0.109
+              pred: As a result, all the employees of the institution work together to overcome the 
+  [28/33] BLEU=  3.2 ChrF= 32.1 RTF=0.143
+              pred: Spritian and complete separation allows each species to cultivate the distinctio
+  [29/33] BLEU= 11.3 ChrF= 40.7 RTF=0.137
+              pred: Really, the NavVis job was to assure that you kept your people and product geogr
+  [30/33] BLEU=  4.0 ChrF= 42.7 RTF=0.128
+              pred: Despite Europe being a relatively small continent, several independent countries
+  [31/33] BLEU=  4.0 ChrF= 38.8 RTF=0.107
+              pred: Where with the USAID's Olympic Committee that our athletes includes in their spo
+  [32/33] BLEU= 10.2 ChrF= 53.4 RTF=0.113
+              pred: Some specific roads have their own air services for larger companies. However, t
+  [33/33] BLEU= 10.1 ChrF= 50.0 RTF=0.154
+              pred: According to Japanese nuclear agencies, iodine has been actively used in the pla
+
+  === ben→hin ★ (33 samples) ===
+[MMS-ASR] Loading lang=hin...
+```
+
+```
+Loading weights:   0%|          | 0/1096 [00:00<?, ?it/s]
+```
+
+```
+adapter.hin.safetensors:   0%|          | 0.00/9.29M [00:00<?, ?B/s]
+```
+
+**[stdout]**
+```
+  [ 1/33] BLEU=  2.5 ChrF= 26.9 RTF=0.117
+              pred: संस्कृति की दिशा निर्धारित करने में एक बड़ा ततो स्लेगलथा ललेगा कि रोमानटिक सीज़न
+  P7_Supremacy_ben→hin_s1in.wav  (13.6s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→hin_s1in.wav
+  P7_Supremacy_ben→hin_s1out.wav  (6.8s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→hin_s1out.wav
+  [ 2/33] BLEU=  9.9 ChrF= 40.6 RTF=0.128
+              pred: उन्होंने इस बात पर ध्यान केंद्रित नहीं किया कि यह मात्रा चिन के आर्थिक आए के आधा
+  P7_Supremacy_ben→hin_s2in.wav  (11.7s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→hin_s2in.wav
+  P7_Supremacy_ben→hin_s2out.wav  (5.9s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→hin_s2out.wav
+  [ 3/33] BLEU= 13.8 ChrF= 48.4 RTF=0.157
+              pred: भाषा के सिद्धांत के अनुसार यह सीमा विरोधी के लिए एक महत्वपूर्ण बिंदु होगा जो फ़ि
+  P7_Supremacy_ben→hin_s3in.wav  (13.8s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→hin_s3in.wav
+  P7_Supremacy_ben→hin_s3out.wav  (9.7s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→hin_s3out.wav
+  [ 4/33] BLEU=  9.6 ChrF= 43.9 RTF=0.134
+              pred: आप अपने देश की सरकार के अलावा अन्य देशों में सरकार के मुकदमा मांग सकते हैं लेकिन
+  P7_Supremacy_ben→hin_s4in.wav  (13.0s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→hin_s4in.wav
+  P7_Supremacy_ben→hin_s4out.wav  (8.1s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_ben→hin_s4out.wav
+  [ 5/33] BLEU=  5.7 ChrF= 35.2 RTF=0.115
+              pred: आमतौर पर निर्दिश्क अपने पूर्व कर्मचारियों के नेतृतवों को शुरू करने के साथ साथ दो
+  [ 6/33] BLEU=  7.6 ChrF= 31.6 RTF=0.161
+              pred: कोई भी वहाइटकार्ड भी खरीत सकता है जो दक्षिण अफ़्रीका के कुछ विशेष पार्कों या किस
+  [ 7/33] BLEU=  5.6 ChrF= 29.8 RTF=0.184
+              pred: पुलिस सूपरचंद्रशिखर सुलांकी ने बताया कि आरोपित मुन्हक ढाखा में आजाद होने के बाद 
+  [ 8/33] BLEU=  9.7 ChrF= 40.4 RTF=0.168
+              pred: सरयुक्‍ता राज्य अमेरिका के बूगरवीय सरवेक्षन यूजक्स ज्योतिशी दाल और ओरेगोन के प्ल
+  [ 9/33] BLEU=  5.4 ChrF= 30.5 RTF=0.137
+              pred: सूचने पर कपरा बहुत गर्म नहीं हो सकता है इसमें संकीरनता हो सकती है या विशेष रूप स
+  [10/33] BLEU= 22.6 ChrF= 57.5 RTF=0.130
+              pred: क्रांतिकारी युद्ध के दौरान कोनफ़ेडरेशन के कार्यालय के आधीन टारोटी राज्य ने पहली 
+  [11/33] BLEU=  2.5 ChrF= 20.5 RTF=0.153
+              pred: कुछ इलाकों में एक मील का पानी पर्याप्त है अने इलाकों में कुछ मील का पानी पर्याप्
+  [12/33] BLEU=  7.1 ChrF= 27.4 RTF=0.141
+              pred: विशेष शब्दों की तरहचितूतत्व शब्द हमेशा बड़े हाथ से शुरू होता है यहान तक कि बाग क
+  [13/33] BLEU=  6.1 ChrF= 48.1 RTF=0.120
+              pred: दक्षिण अफ्रीका में प्रत्येक राष्ट्रीय उद्यान के रूप में प्रत्येक पार के लिए प्रत
+  [14/33] BLEU=  7.6 ChrF= 34.5 RTF=0.136
+              pred: वर्तमान में केवल पूखा माकर्स ही हैं जो अपने दाहिने पैरों को पीछे से नहीं गूमा सक
+  [15/33] BLEU=  3.5 ChrF= 24.7 RTF=0.132
+              pred: कोलिविया सेक्स ने अपने बयान में राष्ट्रपति के भाषन में मस्तिस को टूटने के कारण ग
+  [16/33] BLEU= 14.6 ChrF= 29.8 RTF=0.165
+              pred: एरोइस स्मीत ने अपने यात्रा के अनतीम कोंसर्ट को रादध कर दिया है
+  [17/33] BLEU=  8.9 ChrF= 32.6 RTF=0.132
+              pred: एक पूर्ण रूप से अच्छा खिलाड़ी भाग आरांद कर सकता है हालांकि अच्छी तरह से नहीं सात
+  [18/33] BLEU=  3.6 ChrF= 27.2 RTF=0.127
+              pred: यह केवल यह नहीं है बल्कि यह एक परीक्षण है जो एक या अधिक संभावित अनुमानों को रोकन
+  [19/33] BLEU=  4.5 ChrF= 34.1 RTF=0.160
+              pred: अभी भी बहुत सारे पुरुष और महिलाओं को जीवित रखा गया है जो अपने समय को पार कर गए औ
+  [20/33] BLEU= 12.2 ChrF= 35.0 RTF=0.139
+              pred: समूआह की राजधानी ओपिया शहर है जो उपुलुद्वी परिस्थित है और इसकी जिन संख्या फार्यत
+  [21/33] BLEU= 11.0 ChrF= 37.2 RTF=0.111
+              pred: उदाहरण के लिए दुनिया के अधिकांश स्थिरचित्र फ़ोटोग्राफ़ी के सामान्य आकार के तरिफम
+  [22/33] BLEU=  5.0 ChrF= 28.8 RTF=0.154
+              pred: अलग अलग कंकर और पूर्ण कंकर प्रत्येक प्रजाति के दो फूलों के बीच पहचान अस्थापित कर
+  [23/33] BLEU=  5.1 ChrF= 48.9 RTF=0.158
+              pred: हालांकि यूरोप एक अपेक्षाकरित छोटा महाद्वीप है लेकिन की स्वतंत्र देशों के लिए यह 
+  [24/33] BLEU= 21.6 ChrF= 43.8 RTF=0.111
+              pred: कुछ विशिष्ट रूत्स में बड़े कुं्पनियों के लिए खुद का विमान सेवा है हालांकि अन्य र
+  [25/33] BLEU= 14.0 ChrF= 49.1 RTF=0.144
+              pred: जापान के परमाणु संगठन के अनुसार लैंडिंग में सक्रीय सीज़ियम और आयोडिन की पहचान की
+  [26/33] BLEU= 14.4 ChrF= 32.6 RTF=0.167
+              pred: बच्चों को फसल से लेकर दुर व्यवहार और यहां तक की रात के समय तक विभिन्न कारणों से 
+  [27/33] BLEU=  6.7 ChrF= 31.2 RTF=0.154
+              pred: विशेष रूप से गर्मियों के दिनों में एक लोग प्री डायना है पंबल ओली पानी की मात्रा 
+  [28/33] BLEU=  5.4 ChrF= 33.6 RTF=0.152
+              pred: दुनिया में सब कुछ पदार्थों से बना है सभी पदार्थ छोटे-छोटे कनों से बने हैं जिन्हे
+  [29/33] BLEU= 13.2 ChrF= 26.9 RTF=0.216
+              pred: यह मरिया में पटला  और उनचे मैदान में मोटा होता है
+  [30/33] BLEU= 14.6 ChrF= 29.2 RTF=0.159
+              pred: ऐसा माना जाता है कि पहले पक्षी को ईरान के जगरोंस पर्वतमाला में लगभग हैंिनदवर्स प
+  [31/33] BLEU=  7.7 ChrF= 36.7 RTF=0.147
+              pred: अमेरिकी और मुक्त क्रांतीकारी सेना ने दो सप्ताह के भीतर ही दक्षिण फ्रांस को स्वतं
+  [32/33] BLEU=  7.2 ChrF= 32.4 RTF=0.132
+              pred: मार्टेली ने पिछले नौएन सदस्यों को एक नए स्थाई इलेक्टोरल काउंसिल के सीपी का पुरस्
+  [33/33] BLEU=  6.5 ChrF= 30.4 RTF=0.134
+              pred: अधिक संस्करित गीज़ा अक्सर शनिवार के सप्ताह में स्टार को धारण करते हैं साथ ही धार
+
+  === eng→ben ★ (33 samples) ===
+  [ 1/33] BLEU=  7.1 ChrF= 33.0 RTF=0.162
+              pred: রোমান্টিকতাবাদ ছির় সাংস্কৃতিক দৃঢ় প্রতিজ্ঞতার একটি বড় উপাদান যা যা যা দুকরদের
+  P7_Supremacy_eng→ben_s1in.wav  (11.5s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_eng→ben_s1in.wav
+  P7_Supremacy_eng→ben_s1out.wav  (8.3s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_eng→ben_s1out.wav
+  [ 2/33] BLEU=  3.0 ChrF= 39.4 RTF=0.199
+              pred: তিনি বাচ্চাদের জন্য খুন ফিচার রেখেছেন না বলে বলেছিলেন যে তারা চীনের অর্থনৈতিক পন
+  P7_Supremacy_eng→ben_s2in.wav  (6.9s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_eng→ben_s2in.wav
+  P7_Supremacy_eng→ben_s2out.wav  (7.0s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_eng→ben_s2out.wav
+  [ 3/33] BLEU= 22.0 ChrF= 45.6 RTF=0.149
+              pred: অলিঙ্গা মূলত দুই বা আরো ধাতুর একটি নিদর্ন পিরাটিক দেবিলে অনেক উপাদান রয়েছে তা ব
+  P7_Supremacy_eng→ben_s3in.wav  (11.2s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_eng→ben_s3in.wav
+  P7_Supremacy_eng→ben_s3out.wav  (6.6s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_eng→ben_s3out.wav
+  [ 4/33] BLEU= 11.8 ChrF= 35.1 RTF=0.164
+              pred: দক্ষিণ আমেরিকার ইয়া অস্মিথ নামে পরিচিত ছিলির কাছ মভালীতে বড় বড় প্রাচীর ও পাথর
+  P7_Supremacy_eng→ben_s4in.wav  (9.9s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_eng→ben_s4in.wav
+  P7_Supremacy_eng→ben_s4out.wav  (6.3s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_eng→ben_s4out.wav
+  [ 5/33] BLEU= 14.3 ChrF= 45.2 RTF=0.212
+              pred: অন্য দু'জন ড্রাইভার এক সাথে এবং তারপর পরিষ্কার হাত দিয়ে একটি বল ছুড়ে ফেলে
+  [ 6/33] BLEU=  2.2 ChrF= 25.0 RTF=0.188
+              pred: ডকুমেন্টে বলা হয়েছে যে আমরা প্রথমে বর্ডের ডিস্পুটে গিয়েছিলাম যা খান্থিন সেন সা
+  [ 7/33] BLEU=  8.3 ChrF= 38.8 RTF=0.150
+              pred: আপনি হয়ত নিজের চেয়ে অন্যকণ সরকারের পরামর্শ নিতে পারেন কিন্তু তাদের পরিকল্পনা ত
+  [ 8/33] BLEU=  1.6 ChrF= 28.5 RTF=0.224
+              pred: সাধারণত দু'টি আচরণে কথা বলা একটি পরিবর্তন ঘটায় যখন ব্যবস্থাপ করা তাদের ফোর্মের 
+  [ 9/33] BLEU= 12.0 ChrF= 44.6 RTF=0.182
+              pred: এটি একটি ওয়াইল্ড কার্ড কিন্তেও উপকারী হতে পারে যা দক্ষিণ আফ্রিকার পার্কের বিকল্
+  [10/33] BLEU=  0.0 ChrF=  5.2 RTF=0.811
+              pred: puলus ষr ষaঙkr sালনcি ষঋঙkr sালানckি ষe.rষr s0লানckc ষনrষেr s0লানckি ষerষেr s0লা
+  [11/33] BLEU=  2.5 ChrF= 31.3 RTF=0.194
+              pred: তাদের থারমাল আচরণ এমন একটি অধ্যায়ন নয় যা পৃথিবীর উপর প্রায়শি খুব কমিই তাপমাত্
+  [12/33] BLEU=  3.9 ChrF= 27.6 RTF=0.143
+              pred: কংগ্রেস এই কার্ডও ক্রম্তি অর্থায়ন করতে শুরু করে িনসালে এবং বিশেষ করে ফবিআইকে অব
+  [13/33] BLEU=  4.6 ChrF= 22.0 RTF=0.195
+              pred: স্তরক থাকুন যে ভারিধ ওয়া খুব বেশী উচ্ছ হতে পারে যা অদ্ভুত রোগ বা অন্যকণ রোগের ব
+  [14/33] BLEU= 31.6 ChrF= 70.8 RTF=0.203
+              pred: বিপ্লবি যুদ্ধের সময় স্রটি রাজ্য প্রথমে একটি সপ্তাহের কেন্দ্রীয় সরকার গঠন করেছি
+  [15/33] BLEU=  3.5 ChrF= 26.8 RTF=0.248
+              pred: কিছু অঞ্চলে এক মিনিটের জন্য বয়লিং ওয়টার যথেষ্ট এবং অন্য কিছু অঞ্চলে সাত মিনিট 
+  [16/33] BLEU=  4.0 ChrF= 31.6 RTF=0.224
+              pred: সমস্ত নামগুলি আপনার জন্য যি শব্দটি সহাজ করে সব সময়ে একটি মূল অক্ষর দিয়ে এবং এম
+  [17/33] BLEU=  9.3 ChrF= 55.0 RTF=0.160
+              pred: দক্ষিণ আফ্রিকার সবজাতীয় পার্কের মতোই পার্কের দৈনিক সংরক্ষণ এবং প্রবেশদবার রয়েছ
+  [18/33] BLEU=  5.8 ChrF= 39.2 RTF=0.287
+              pred: আজকাল একমাত্রা প্রাণী যারা তাদের ডানাগুলোকে ফিরিয়ে দিতে পারে না তারা হল দ্রাগন 
+  [19/33] BLEU=  0.0 ChrF= 24.1 RTF=0.223
+              pred: অভারসাকস থারপত্রৃকায একটি ব্যক্তিতা দিয়েছিল যেটি নির্দেশ করে যে মানুষ তুয়েনজনে
+  [20/33] BLEU=  6.6 ChrF= 36.6 RTF=0.270
+              pred: ায়ারলাইন্স তাদের বাকি কনসের্টগুলো তাদের কাজে বাতিল করেছে
+  [21/33] BLEU=  3.7 ChrF= 30.6 RTF=0.147
+              pred: একটি নিস্তেজ বৃত্যাকার বাতাশ একটি শক্তিশালী মানুষের উপর নির্ভর করে পাচবারের বেশী
+  [22/33] BLEU=  1.9 ChrF= 30.7 RTF=0.219
+              pred: এটি একটি একক পরীক্ষা নয় পরীক্ষা একটি পরীক্ষা যা একটি নির্দিষ্ট পরিমাপের জন্য ব্
+  [23/33] BLEU=  1.4 ChrF= 25.3 RTF=0.180
+              pred: যদিও কেউ জানে নাকে এই বিষয়টি লিখেছে তাহল যে আসলে তার জীবনের যে ব্যক্তির তথ্যের 
+  [24/33] BLEU=  5.9 ChrF= 33.6 RTF=0.184
+              pred: এখনও অনেক পুরুষ ও মহিলা বেঁচে আছেন যারা তাদের সময় কাটিয়েছেন এবং তাদের মতোই তাদ
+  [25/33] BLEU= 12.9 ChrF= 53.9 RTF=0.181
+              pred: সিমোলার রাজধানী অপিয়া শহরটি অবলো দ্বীপের উপর অবস্থিত এবং এর জন সংখ্যা প্রায় চা
+  [26/33] BLEU=  2.6 ChrF= 30.7 RTF=0.157
+              pred: উদাহরণস্বরূপ বিসবের চারপাশে একটি বর্দিত চিত্রের আকার প্রাই রিফ মিনিটের মধ্যে রয়
+  [27/33] BLEU= 10.7 ChrF= 35.2 RTF=0.217
+              pred: ফলসপরূপ একটি সংস্থা যেগুলি এক সাথে একটি বিশ্য সমাধানের জন্য এক সাথে কাজ করে তা গ
+  [28/33] BLEU=  0.0 ChrF=  4.3 RTF=0.410
+              pred: পৃতক পৃথক এমঙ পৃথক পৃথক পৃিথক পৃথক পিথক পিথক পিথক পিথক পিথক পিতক পিতক পিতক পিতক 
+  [29/33] BLEU=  2.9 ChrF= 34.5 RTF=0.171
+              pred: নৌবাহিনীর কাজ ঐতিহোগতভাবে আপনার দেশের মধ্যে এমন একটি ব্যবস্থা রয়েছে যা আপনার দে
+  [30/33] BLEU=  1.3 ChrF= 25.8 RTF=0.191
+              pred: ইউরোপিয়ান হল এমন একটি দেশ যেখানে অনেক স্বাধীন দেশ আছে এবং অনেকগুলো স্বাধীন দেশ 
+  [31/33] BLEU=  3.0 ChrF= 31.5 RTF=0.145
+              pred: আমরা আমাদের একলিতদের এবং আমাদের তলেয়ারের প্রতি আগ্রহ এবং পরিশোধের চেয়ও বেশী পর
+  [32/33] BLEU=  4.8 ChrF= 25.4 RTF=0.289
+              pred: কিছু বডে কোম্পানী তাদের নিজেসাব বিমান চালায় অন্য রাস্তা এবং ছোট ছোট রাস্তাগুলির
+  [33/33] BLEU=  3.4 ChrF= 32.2 RTF=0.178
+              pred: কোরিয়ান পর্মাণোবিক সংস্থা রেডিও ্যাকটিv ক্যাসিয়াম এবং আই়রিন এই গ্রামে অবস্থিত
+
+  === hin→ben ★ (33 samples) ===
+  [ 1/33] BLEU=  2.4 ChrF= 25.6 RTF=0.138
+              pred: রোমান রাজে সাংস্কৃতিক নীতি নিয়ে কথা বলত তা ছিল ফিজলিতে এবং স্লেগলে লেখকের মতো ল
+  P7_Supremacy_hin→ben_s1in.wav  (11.7s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_hin→ben_s1in.wav
+  P7_Supremacy_hin→ben_s1out.wav  (7.1s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_hin→ben_s1out.wav
+  [ 2/33] BLEU=  2.4 ChrF= 33.1 RTF=0.242
+              pred: তারা বলেছিল যে তারা চিনের অর্থনৈতিক উৎপাদন বিত্তিতে তৈরী হবে তারা বলেছে যে তারা 
+  P7_Supremacy_hin→ben_s2in.wav  (8.4s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_hin→ben_s2in.wav
+  P7_Supremacy_hin→ben_s2out.wav  (7.8s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_hin→ben_s2out.wav
+  [ 3/33] BLEU=  2.4 ChrF= 36.8 RTF=0.180
+              pred: লিগের মতে দলটি সীমান্ত ভিতর্ককে সমর্থন করবে যারা াত্রি সাল থেকে অসিিেন সালের মধ্
+  P7_Supremacy_hin→ben_s3in.wav  (12.2s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_hin→ben_s3in.wav
+  P7_Supremacy_hin→ben_s3out.wav  (9.4s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_hin→ben_s3out.wav
+  [ 4/33] BLEU=  5.7 ChrF= 36.3 RTF=0.131
+              pred: আপনার সরকারের বাইরে অন্য দেশের সরকারের পরামর্শের প্রয়োজন হয় যদিও তাদের পরামর্ষ
+  P7_Supremacy_hin→ben_s4in.wav  (10.2s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_hin→ben_s4in.wav
+  P7_Supremacy_hin→ben_s4out.wav  (7.5s | sr=16000)
+```
+
+```
+<IPython.lib.display.Audio object>
+```
+*[HTML output — plain text preview]*
+```
+Your browser does not support the audio element.
+```
+
+**[stdout]**
+```
+[audio] Saved P7_Supremacy_hin→ben_s4out.wav
+  [ 5/33] BLEU=  2.9 ChrF= 32.6 RTF=0.178
+              pred: গুরুত্বপূর্ণ শবদের মধ্যে যখন ব্যবস্থাপক তাঁর পুরপুরুষদের নেতৃত্ব দিতে শুরু করে ত
+  [ 6/33] BLEU=  6.3 ChrF= 38.1 RTF=0.175
+              pred: ওয়াইল্ট কার্ড কিন্তে গেলে অনেক সুবিধা পাওয়া যায় কারণ আপনি দক্ষিণ আফ্রিকার চিন
+  [ 7/33] BLEU=  6.3 ChrF= 35.8 RTF=0.193
+              pred: পুলিশ প্রধান যানদের শেখার সুল্তান বলেন অভিযুক্তকে গ্রেফ্তার করার পরেও তিনি আদালত
+  [ 8/33] BLEU=  2.4 ChrF= 37.2 RTF=0.260
+              pred: তিনি বলেছিলেন যে তিনি বলেছিলেন যে তিনি তার প্রতেকেরি বড়গুহা রয়েছে যা প্রায়শি 
+  [ 9/33] BLEU=  4.4 ChrF= 10.4 RTF=0.953
+              pred: মনে রাখবেন যে খাপড খুপ করম হতে পারে না যা ঘনখনখনখনখনখনখনখনখনখনখনকনকনকনকনকনখনখনখন
+  [10/33] BLEU= 24.1 ChrF= 56.8 RTF=0.174
+              pred: কনফেডেরেশনের স্বাধীনতা যুদ্ধের সময়ে তৃতীয় রাজ্যগুলো প্রথমবারের মতো একটি দুর্বল
+  [11/33] BLEU=  2.7 ChrF= 28.8 RTF=0.157
+              pred: কিছু অঞ্চলে এক মিনিটের জন্য পানি পান করা খুবই সহজ অন্য অঞ্চলে কয়েক মিনিটের জন্য
+  [12/33] BLEU=  2.4 ChrF= 17.2 RTF=0.227
+              pred: যে সমস্ত অক্ষর সাই়ক এর সাথে যুক্ত থাকে সেগুলি ইংরেজীর বড় অক্ষর থেকে শুরু করে ব
+  [13/33] BLEU=  6.4 ChrF= 40.6 RTF=0.244
+              pred: দক্ষিণ আফ্রিকার সব জাতীয় উদ্যানের সাথে পার্কের দৈনিক অনুষ্ঠান এবং প্রবেশের জন্য
+  [14/33] BLEU=  3.5 ChrF= 30.1 RTF=0.197
+              pred: বর্তমানে যারা তাদের পাকীদের ফিরে যেতে দেয়ে না তারাকে বল্ঠরাগন ফ্লাই এবং মেফ ফ্ল
+  [15/33] BLEU=  2.0 ChrF= 30.2 RTF=0.167
+              pred: অলিভার সএকস তার বক্তিতায় প্রেসিডেন্টের বক্তিতায় মন্তব্য করেছিলেন যে কিভাবে মান
+  [16/33] BLEU=  0.0 ChrF= 16.9 RTF=0.245
+              pred: রস্মিত তার শেষ সঙ্গীত অনুষ্ঠানের জন্য নিজের দলকে ধন্যবাদ জানায়
+  [17/33] BLEU=  2.5 ChrF= 31.7 RTF=0.169
+              pred: একটি সম্পূর্ণরূপে বিকৃত অ্যাথলিট একটি ভালভাবে প্রসারিত বাক্সের মতো হতে পারে তবে 
+  [18/33] BLEU=  1.6 ChrF= 19.1 RTF=0.167
+              pred: যাইহোক এটি একটি বিষয় নয় তবে এটি একটি অ্যাপ্লিকেশন যা অ্যাপ্লিকেশনটি ব্যবহার কর
+  [19/33] BLEU=  6.2 ChrF= 33.1 RTF=0.176
+              pred: ইহুদি এবং ইহুদীদের মতো এখনও অনেক পুরুষ মৃত্যু বা দিনারী আছে যারা তাদের জীবিকা নি
+  [20/33] BLEU=  5.8 ChrF= 33.9 RTF=0.146
+              pred: অপিয়াসমাওয়া হল অ্যাপোলো দ্বীপপুঞ্জার রাজধানী এবং এর জম সংখ্যা প্রায় চেশ হাজার
+  [21/33] BLEU=  4.4 ChrF= 32.0 RTF=0.112
+              pred: উদাহরণস্বরূপ বিশ্বের সবচেয়ে বেশী ব্যবহৃত ফোটোগ্রাফি ফর্ম্যাট পেটcএmm এই চিত্রটি
+  [22/33] BLEU=  3.4 ChrF= 27.3 RTF=0.193
+              pred: আলগাও এবং পুনর্নির্মাণ প্রকল্পের অংশগ্রহণকারীরা প্রতি পিজিপির সাথে দটি পোলের মধ্
+  [23/33] BLEU=  3.4 ChrF= 34.0 RTF=0.165
+              pred: ইুরোপ এমন একটি মহাদেশ যা প্রত্যাশা থেকে ছোট কিন্তু এর অনেক সতন্ত্র দেশ রয়েছে সা
+  [24/33] BLEU=  5.2 ChrF= 32.9 RTF=0.242
+              pred: তিনি টা রুটগুলি বড় কম্পানীগুলির জন্য একটি সুবিধা কিন্তু অন্যান্য রুটের জন্য এটি
+  [25/33] BLEU=  6.8 ChrF= 36.6 RTF=0.227
+              pred: জাপানের পারমাণবিক বাহিনীর অনুরূপ প্লানটিতে রেডিও ধর্মীয় সিজিয়েম এবং আযোডিঙের প
+  [26/33] BLEU=  4.0 ChrF= 28.1 RTF=0.175
+              pred: শিশুদের বেশ কয়েকবার পরস্তারে রাখা হয় যাদের মধ্যে রয়েছে অন্ধকারে তাকিয়ে থাকা 
+  [27/33] BLEU=  1.7 ChrF= 25.4 RTF=0.168
+              pred: সাধারণ লুকপেয়ল বিশেষ করে গ্রীষ্মের মহসুমে পmএ ওলির সাথে বেডের সাথে অলিভ ওয়াইড 
+  [28/33] BLEU=  3.3 ChrF= 35.1 RTF=0.210
+              pred: ব্রমানদের সমস্ত বস্তু পদার্থ থেকে তৈরীর সমস্ত পদার্থই সুকৃষ্ণ কনা থেকে তৈরীইয্জা
+  [29/33] BLEU=  5.0 ChrF= 16.5 RTF=0.294
+              pred: এতি সমুদ্রের নীচে অবতরণ করে এবং পাহারের নিচে গুরুতে থাকে
+  [30/33] BLEU=  7.9 ChrF= 42.1 RTF=0.221
+              pred: ধারণা করা হয় যে ইরানের জাগ্রস পর্ব তোমালায় হ্যান্হাজার বছর আগে বাকরি পালন শরু 
+  [31/33] BLEU= 11.7 ChrF= 49.7 RTF=0.186
+              pred: মাতের দুই সপ্তাহের মধ্যে আমেরিকান এবং ফ্রী ফরাসীবাহিনী লক্সেমবার্গকে মুক্ত করে দ
+  [32/33] BLEU= 20.6 ChrF= 34.4 RTF=0.194
+              pred: মাটিলিকাল নয় সদস্যের একটি নতুন চুড়ান্ত নির্বাচন কমিশনে শপথ নিয়েছে
+  [33/33] BLEU=  0.4 ChrF= 12.2 RTF=0.127
+              pred: বেশির্ভাগ প্রাতরাসের সময় রবিবারের সন্ধ্যায় ইস্টার
+
+  === Summary by Language Pair ===
+  ★ arb→ben            BLEU=  3.27  ChrF= 25.04
+  ★ ben→arb            BLEU=  3.46  ChrF= 23.23
+  ★ ben→eng            BLEU=  7.20  ChrF= 38.20
+  ★ ben→hin            BLEU=  8.95  ChrF= 35.15
+  ★ eng→ben            BLEU=  6.33  ChrF= 33.30
+  ★ hin→ben            BLEU=  5.16  ChrF= 31.23
+
+  Overall : BLEU=5.73  ChrF=31.02  RTF=0.1865  Params=1072.4M
+  Bengali : BLEU=5.73  ChrF=31.02  (n=198)
+[ckpt] Saved phase7_benchmark_step000000.pt (0.1 MB)
+[ckpt] Saved all_summaries_step000000.pt (0.0 MB)
+[summary] Stored P7_Supremacy (5 total)
+[ckpt] Saved all_detailed_summaries_step000000.pt (0.0 MB)
+[detailed] Stored P7_Supremacy
+
+================================================================================
+  P7_Supremacy - 1072.4M params
+================================================================================
+Overall: BLEU=5.73  ChrF=31.02±10.92  RTF=0.1865
+
+Per-Pair (6 pairs):
+  Pair                  N     BLEU     ChrF      RTF
+  arb→ben              33     3.27    25.04   0.2497
+  ben→arb              33     3.46    23.23   0.1574
+  ben→eng              33     7.20    38.20   0.1338
+  ben→hin              33     8.95    35.15   0.1447
+  eng→ben              33     6.33    33.30   0.2199
+  hin→ben              33     5.16    31.23   0.2132
+
+By Source Language:
+     ARB: BLEU=  3.27  ChrF= 25.04  (n=33)
+     BEN: BLEU=  6.54  ChrF= 32.19  (n=99)
+     ENG: BLEU=  6.33  ChrF= 33.30  (n=33)
+     HIN: BLEU=  5.16  ChrF= 31.23  (n=33)
+
+By Target Language:
+     ARB: BLEU=  3.46  ChrF= 23.23  (n=33)
+     BEN: BLEU=  4.92  ChrF= 29.86  (n=99)
+     ENG: BLEU=  7.20  ChrF= 38.20  (n=33)
+     HIN: BLEU=  8.95  ChrF= 35.15  (n=33)
+================================================================================
+
+============================================================
+  FINAL SHOWDOWN: TEACHER vs COMPRESSED STUDENT (Bengali)
+============================================================
+  arb→ben             BLEU: Teacher= 4.66  Student= 3.27  Δ= -1.39 
+                      ChrF: Teacher=34.13  Student=25.04  Δ= -9.10 
+
+  ben→arb             BLEU: Teacher= 5.69  Student= 3.46  Δ= -2.23 
+                      ChrF: Teacher=31.39  Student=23.23  Δ= -8.17 
+
+  ben→eng             BLEU: Teacher=16.85  Student= 7.20  Δ= -9.65 
+                      ChrF: Teacher=52.04  Student=38.20  Δ=-13.84 
+
+  ben→hin             BLEU: Teacher= 8.86  Student= 8.95  Δ= +0.10 🏆
+                      ChrF: Teacher=37.45  Student=35.15  Δ= -2.30 
+
+  eng→ben             BLEU: Teacher=11.58  Student= 6.33  Δ= -5.26 
+                      ChrF: Teacher=48.11  Student=33.30  Δ=-14.81 
+
+  hin→ben             BLEU: Teacher= 7.08  Student= 5.16  Δ= -1.92 
+                      ChrF: Teacher=38.87  Student=31.23  Δ= -7.63 
+
+============================================================
+[rclone] 2026/06/02 08:25:43 -   134.849 KiB / 134.849 KiB, 100%, 0 B/s, ETA -
+[fig] Saved phase_comparison.png
+```
+
+```
+<Figure size 1920x1200 with 4 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+Plotting detailed comparison for 5 phases: ['P0_V1_Baseline', 'P1_Vocab4L', 'P4_Dec14L', 'P5_FullFT', 'P7_Supremacy']
+[rclone] 2026/06/02 08:25:45 -     2.331 KiB / 2.331 KiB, 100%, 2.330 KiB/s, ETA 0s
+```
+
+```
+<Figure size 1800x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_01_overall_quality.png  [Overall Quality]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_02_bleu_by_pair.png  [BLEU by Language Pair]
+```
+
+```
+<Figure size 2160x1080 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_03_chrf_by_pair.png  [ChrF by Language Pair]
+[rclone] 2026/06/02 08:25:46 -     6.196 KiB / 6.196 KiB, 100%, 6.195 KiB/s, ETA 0s
+```
+
+```
+<Figure size 2520x1080 with 2 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_04_bengali_focus.png  [Bengali Focus]
+```
+
+```
+<Figure size 1800x1260 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_05_size_vs_quality.png  [Size vs Quality]
+```
+
+```
+<Figure size 1800x900 with 1 Axes>
+```
+*[Image output — PNG]*
+
+**[stdout]**
+```
+  ✓ Saved: detailed_comparison_06_rtf.png  [Inference Speed RTF]
+
+✅ All 6 figures saved.
+   📄 detailed_comparison_01_overall_quality.png
+   📄 detailed_comparison_02_bleu_by_pair.png
+   📄 detailed_comparison_03_chrf_by_pair.png
+   📄 detailed_comparison_04_bengali_focus.png
+   📄 detailed_comparison_05_size_vs_quality.png
+   📄 detailed_comparison_06_rtf.png
+
+🎉 BENGALI SUPREMACY PIPELINE COMPLETE! 🎉
+```
+
 ---
 
-## Cell 103 — `code`
+## Cell 116 — `code` (execution #103)
 
 ```python
 # """
@@ -8962,7 +10280,7 @@ print("\n🎉 BENGALI SUPREMACY PIPELINE COMPLETE! 🎉")
 
 ---
 
-## Cell 104 — `code`
+## Cell 117 — `code` (execution #104)
 
 ```python
 # """
@@ -9141,7 +10459,7 @@ print("\n🎉 BENGALI SUPREMACY PIPELINE COMPLETE! 🎉")
 
 ---
 
-## Cell 105 — `code`
+## Cell 118 — `code` (execution #105)
 
 ```python
 # # ── Cell F: Bridge Fine-Control Phase (run AFTER Phase 6 backbone recovery) ───
@@ -9391,7 +10709,7 @@ print("\n🎉 BENGALI SUPREMACY PIPELINE COMPLETE! 🎉")
 
 ---
 
-## Cell 106 — `code`
+## Cell 119 — `code` (execution #106)
 
 ```python
 # # ── Cell 79: Load Best Checkpoint and Save Final Model ───────────────────────
@@ -9415,7 +10733,7 @@ print("\n🎉 BENGALI SUPREMACY PIPELINE COMPLETE! 🎉")
 
 ---
 
-## Cell 107 — `code`
+## Cell 120 — `code` (execution #107)
 
 ```python
 # # ── Cell 80: Final Comprehensive Benchmark ───────────────────────────────────
@@ -9470,7 +10788,7 @@ print("\n🎉 BENGALI SUPREMACY PIPELINE COMPLETE! 🎉")
 
 ---
 
-## Cell 108 — `markdown`
+## Cell 121 — `markdown`
 
 > ## Summary
 > 
